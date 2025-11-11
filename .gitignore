@@ -1,0 +1,234 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Machine Learning / Data Science
+# Models and checkpoints
+models/
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+*.pb
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+
+# Data files (be careful with this)
+data/raw/
+data/processed/
+data/cache/
+*.csv
+*.json
+*.parquet
+*.feather
+*.h5
+*.hdf5
+
+# Logs
+logs/
+*.log
+wandb/
+mlruns/
+tensorboard_logs/
+
+# Cache
+.cache/
+cache/
+tmp/
+temp/
+
+# Secrets and credentials
+.env
+.env.local
+.env.production
+secrets.json
+credentials.json
+service-account.json
+*.key
+*.pem
+
+# Google Cloud
+.gcloudignore
+google-cloud-key.json
+
+# Dataset files (be explicit about what to track)
+# Add specific dataset files to git as needed
+# data/benchmark/  # Comment this out if you want to track benchmark datasets
+
+# Model artifacts
+artifacts/
+checkpoints/
+final_models/
+evaluation_results/
+
+# Jupyter notebooks outputs
+notebooks/**/*.ipynb_output/
+*.ipynb_output/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Local configuration files
+config/local.yaml
+config/secrets.yaml
+
+# Research and archived materials (as per CLAUDE.md instructions)
+research/archived/
+research/temp/
+
+# Claude Code specific
+.claude/session_history/
+.claude/cache/
+
+# Local development artifacts
+local_experiments/
+scratch/
+sandbox/
