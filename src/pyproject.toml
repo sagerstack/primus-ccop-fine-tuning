@@ -1,0 +1,164 @@
+[tool.poetry]
+name = "ccop-eval"
+version = "0.1.0"
+description = "CCoP 2.0 Model Evaluation Framework - Baseline evaluation infrastructure for Llama-Primus-Reasoning"
+authors = ["Sagar Pratap Singh <sagar@example.com>"]
+readme = "../README.md"
+packages = [{include = "domain"}, {include = "application"}, {include = "infrastructure"}, {include = "presentation"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"  # Compatible with 3.10-3.13+ (requires Click 8.1.7, not 8.2+)
+
+# Domain layer - NO external dependencies (pure Python)
+
+# Application layer - DTOs and validation
+pydantic = "^2.5.0"
+pydantic-settings = "^2.1.0"
+
+# Infrastructure layer - External services
+openai = "^1.50.0"                  # OpenAI-compatible client for Ollama
+huggingface-hub = "^0.20.0"         # Model downloads from HuggingFace
+structlog = "^24.1.0"               # Structured logging
+httpx = "^0.27.0"                   # HTTP client for Ollama API
+
+# Presentation layer - CLI
+click = "8.1.7"                      # CLI framework (pinned to avoid 8.2+ breaking changes)
+rich = "^13.7.0"                    # Beautiful terminal output
+typer = "^0.12.5"                   # Type-safe CLI (built on Click)
+
+# Dependency Injection
+dependency-injector = "^4.41.0"     # DI container
+
+[tool.poetry.group.dev.dependencies]
+# Testing
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.0"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.12.0"
+
+# Code quality
+black = "^23.12.0"
+ruff = "^0.1.9"
+mypy = "^1.7.0"
+isort = "^5.13.0"
+
+# Type stubs
+types-requests = "^2.31.0"
+
+[tool.poetry.scripts]
+ccop-eval = "presentation.cli.main:app"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# Black configuration
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# isort configuration
+[tool.isort]
+profile = "black"
+line_length = 100
+skip_gitignore = true
+known_first_party = ["domain", "application", "infrastructure", "presentation"]
+
+# Ruff configuration
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+
+# MyPy configuration
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "dependency_injector.*",
+    "huggingface_hub.*",
+    "openai.*",
+]
+ignore_missing_imports = true
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["../tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=domain",
+    "--cov=application",
+    "--cov=infrastructure",
+    "--cov=presentation",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+asyncio_mode = "auto"
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["domain", "application", "infrastructure", "presentation"]
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/conftest.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
