@@ -57,6 +57,7 @@ class ScoringService:
             "B4": ScoringService._score_b4_terminology,
             "B5": ScoringService._score_b5_classification,
             "B6": ScoringService._score_b6_violation_detection,
+            "B21": ScoringService._score_b3_hallucination,  # Tier 1: Binary hallucination detection
         }
 
         # Find scorer by checking if benchmark type matches each key
@@ -72,34 +73,55 @@ class ScoringService:
         test_case: TestCase,
         response: ModelResponse
     ) -> List[EvaluationMetric]:
-        """Score B1 (CCoP Interpretation Accuracy) test case."""
-        accuracy = ScoringService._calculate_basic_accuracy(test_case, response)
+        """
+        Score B1 (CCoP Applicability & Scope) test case.
+
+        Phase 2: Uses label-based accuracy, key-fact completeness, and grounding checks.
+        """
+        # Determine accuracy strategy
+        scoring_strategy = test_case.evaluation_criteria.get("scoring_strategy", "label_based")
+
+        if scoring_strategy == "label_based" and test_case.expected_label:
+            accuracy = ScoringService._calculate_label_accuracy(test_case, response)
+        else:
+            # Fallback to Jaccard similarity
+            accuracy = ScoringService._calculate_basic_accuracy(test_case, response)
+
+        # Completeness (uses key-fact recall if available)
         completeness = ScoringService._calculate_completeness(test_case, response)
-        return [accuracy, completeness]
+
+        # Grounding check (Phase 2 safety metric)
+        grounding = ScoringService._calculate_grounding_score(test_case, response)
+
+        return [accuracy, completeness, grounding]
 
     @staticmethod
     def _score_b2_citation(
         test_case: TestCase,
         response: ModelResponse
     ) -> List[EvaluationMetric]:
-        """Score B2 (Clause Citation Accuracy) test case."""
-        correct_citation = test_case.get_correct_citation()
-        extracted_citations = response.extract_citations()
+        """
+        Score B2 (Compliance Classification Accuracy) test case.
 
-        citation_score = 0.0
-        if correct_citation and correct_citation in extracted_citations:
-            citation_score = 1.0
-        elif correct_citation and any(
-            correct_citation in cite for cite in extracted_citations
-        ):
-            citation_score = 0.7
+        B2 evaluates binary classification (Compliant/Non-Compliant) accuracy.
+        Uses label-based scoring similar to B1.
+        """
+        # Determine accuracy strategy
+        scoring_strategy = test_case.evaluation_criteria.get("scoring_strategy", "label_based")
 
-        basic_accuracy = ScoringService._calculate_basic_accuracy(test_case, response)
+        if scoring_strategy == "label_based" and test_case.expected_label:
+            accuracy = ScoringService._calculate_label_accuracy(test_case, response)
+        else:
+            # Fallback to Jaccard similarity
+            accuracy = ScoringService._calculate_basic_accuracy(test_case, response)
 
-        return [
-            citation_accuracy_metric(citation_score),
-            accuracy_metric(basic_accuracy.value),
-        ]
+        # Completeness (uses key-fact recall if available)
+        completeness = ScoringService._calculate_completeness(test_case, response)
+
+        # Grounding check (Phase 2 safety metric)
+        grounding = ScoringService._calculate_grounding_score(test_case, response)
+
+        return [accuracy, completeness, grounding]
 
     @staticmethod
     def _score_b3_hallucination(
@@ -249,10 +271,57 @@ class ScoringService:
         test_case: TestCase,
         response: ModelResponse
     ) -> EvaluationMetric:
-        """Calculate completeness score."""
+        """
+        Calculate completeness score.
+
+        Phase 2: Uses key-fact recall if available, otherwise falls back to sentence-based.
+        """
         if response.is_empty():
             return completeness_metric(0.0)
 
+        # Phase 2: Use key-fact recall if available
+        if test_case.key_facts and len(test_case.key_facts) > 0:
+            return ScoringService._calculate_key_fact_completeness(test_case, response)
+
+        # Legacy: Sentence-based completeness (backward compatible)
+        return ScoringService._calculate_sentence_completeness(test_case, response)
+
+    @staticmethod
+    def _calculate_key_fact_completeness(
+        test_case: TestCase,
+        response: ModelResponse
+    ) -> EvaluationMetric:
+        """
+        Phase 2: Key-fact recall completeness.
+
+        Measures coverage of required regulatory facts.
+        """
+        key_facts = test_case.key_facts
+        if not key_facts:
+            return completeness_metric(0.0)
+
+        response_lower = response.content.lower()
+        covered_facts = 0
+
+        for fact in key_facts:
+            # Extract key terms (words > 4 chars)
+            key_terms = [w for w in re.findall(r'\w+', fact.lower()) if len(w) > 4]
+
+            # Check if majority of key terms present (60% threshold)
+            if key_terms:
+                matches = sum(1 for term in key_terms if term in response_lower)
+                if matches / len(key_terms) >= 0.6:
+                    covered_facts += 1
+
+        completeness_score = covered_facts / len(key_facts)
+        return completeness_metric(completeness_score)
+
+    @staticmethod
+    def _calculate_sentence_completeness(
+        test_case: TestCase,
+        response: ModelResponse
+    ) -> EvaluationMetric:
+        """Legacy: Sentence-based completeness (backward compatible)."""
         expected_sentences = [
             s.strip()
             for s in re.split(r'[.!?]', test_case.expected_response)
@@ -276,3 +345,85 @@ class ScoringService:
 
         completeness_score = covered_points / len(expected_sentences) if expected_sentences else 0.0
         return completeness_metric(completeness_score)
+
+    @staticmethod
+    def _calculate_label_accuracy(
+        test_case: TestCase,
+        response: ModelResponse
+    ) -> EvaluationMetric:
+        """
+        Phase 2: Label-based accuracy for classification benchmarks.
+
+        Checks if response contains the expected classification label.
+        """
+        expected_label = test_case.expected_label
+        if not expected_label:
+            # Fallback to Jaccard if no label provided
+            return ScoringService._calculate_basic_accuracy(test_case, response)
+
+        response_lower = response.content.lower()
+        expected_lower = expected_label.lower()
+
+        # Exact match
+        if expected_lower in response_lower:
+            return accuracy_metric(1.0)
+
+        # Check for partial match (key components)
+        # Split by semicolon, colon, or "and"
+        label_components = re.split(r'[;:]|\band\b', expected_label)
+        label_components = [comp.strip() for comp in label_components if comp.strip()]
+
+        if not label_components:
+            return accuracy_metric(0.0)
+
+        matches = sum(1 for comp in label_components if comp.strip().lower() in response_lower)
+
+        if matches == len(label_components):
+            return accuracy_metric(1.0)  # All components present
+        elif matches / len(label_components) >= 0.6:
+            return accuracy_metric(0.7)  # Partial credit (60%+ components)
+        else:
+            return accuracy_metric(0.0)  # Incorrect
+
+    @staticmethod
+    def _calculate_grounding_score(
+        test_case: TestCase,
+        response: ModelResponse
+    ) -> EvaluationMetric:
+        """
+        Phase 2: Regulatory grounding check (safety metric).
+
+        Detects fabricated CCoP claims, not uncertainty language.
+        Uncertainty ("may", "depends", "should consider") is acceptable.
+        """
+        if response.is_empty():
+            return EvaluationMetric(name="grounding", value=1.0, weight=1.0)
+
+        response_lower = response.content.lower()
+        violations = 0
+
+        # Check forbidden claims from test case
+        for claim in test_case.forbidden_claims:
+            if claim.lower() in response_lower:
+                violations += 1
+
+        # Check for common hallucination patterns (from B1 analysis)
+        hallucination_patterns = [
+            r"cryptography.*implementation.*officer",
+            r"cryptography.*incident.*reporting.*officer",
+            r"cybersecurity classification guide",
+            r"ciio.*stands for.*cryptography",
+            r"ccop.*requires.*\w+.*that does not exist",
+        ]
+
+        for pattern in hallucination_patterns:
+            if re.search(pattern, response_lower):
+                violations += 1
+
+        # Scoring
+        if violations == 0:
+            return EvaluationMetric(name="grounding", value=1.0, weight=1.0, description="No fabricated claims")
+        elif violations <= 2:
+            return EvaluationMetric(name="grounding", value=0.7, weight=1.0, description="Minor grounding issues")
+        else:
+            return EvaluationMetric(name="grounding", value=0.0, weight=1.0, description="Multiple fabricated claims")

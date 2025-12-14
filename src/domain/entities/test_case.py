@@ -39,6 +39,10 @@ class TestCase:
         expected_response: str,
         evaluation_criteria: Dict[str, Any],
         metadata: Dict[str, Any] | None = None,
+        # Phase 2 fields
+        key_facts: list[str] | None = None,
+        expected_label: str | None = None,
+        forbidden_claims: list[str] | None = None,
     ) -> None:
         """
         Initialize TestCase entity.
@@ -53,6 +57,9 @@ class TestCase:
             expected_response: Expected/reference answer
             evaluation_criteria: Criteria for scoring
             metadata: Additional metadata (domain, tags, etc.)
+            key_facts: Phase 2 - List of atomic facts to check for completeness
+            expected_label: Phase 2 - Expected classification label (for label-based scoring)
+            forbidden_claims: Phase 2 - List of fabricated claims to penalize
 
         Raises:
             ValidationError: If validation fails
@@ -66,6 +73,11 @@ class TestCase:
         self._expected_response = expected_response
         self._evaluation_criteria = evaluation_criteria
         self._metadata = metadata or {}
+
+        # Phase 2 fields
+        self._key_facts = key_facts or []
+        self._expected_label = expected_label
+        self._forbidden_claims = forbidden_claims or []
 
         # Validate on creation (fail fast)
         self._validate()
@@ -227,6 +239,23 @@ class TestCase:
     def domain(self) -> str:
         """Infrastructure domain (IT, OT, or IT/OT)."""
         return self._metadata.get("domain", "IT/OT")
+
+    # Phase 2 properties
+
+    @property
+    def key_facts(self) -> list[str]:
+        """Phase 2: List of atomic facts for completeness scoring."""
+        return self._key_facts.copy()
+
+    @property
+    def expected_label(self) -> str | None:
+        """Phase 2: Expected classification label for label-based scoring."""
+        return self._expected_label
+
+    @property
+    def forbidden_claims(self) -> list[str]:
+        """Phase 2: List of fabricated claims to penalize in grounding checks."""
+        return self._forbidden_claims.copy()
 
     # Equality based on identity
 

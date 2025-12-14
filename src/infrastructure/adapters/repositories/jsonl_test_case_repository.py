@@ -150,4 +150,8 @@ class JSONLTestCaseRepository(ITestCaseRepository):
             expected_response=data["expected_response"],
             evaluation_criteria=data.get("evaluation_criteria", {}),
             metadata=data.get("metadata", {}),
+            # Phase 2 fields (optional, backward compatible)
+            key_facts=data.get("key_facts", []),
+            expected_label=data.get("expected_label"),
+            forbidden_claims=data.get("forbidden_claims", []),
         )

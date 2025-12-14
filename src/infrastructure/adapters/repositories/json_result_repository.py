@@ -5,8 +5,9 @@ Saves evaluation results to JSON files.
 """
 
 import json
+from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 from uuid import UUID
 
 from application.ports.output.i_logger import ILogger
@@ -57,6 +58,32 @@ class JSONResultRepository(IResultRepository):
             with open(filepath, "w") as f:
                 json.dump(existing, f, indent=2, default=str)
 
+    async def save_evaluation_run(
+        self,
+        results: List[EvaluationResult],
+        metadata: Dict[str, any]
+    ) -> str:
+        """Save evaluation run with metadata in separate file."""
+        if not results:
+            return ""
+
+        # Generate filename from parameters
+        filename = self._generate_filename(metadata)
+        filepath = self._results_dir / filename
+
+        # Build output structure with metadata first, then results
+        output = {
+            "metadata": metadata,
+            "test_results": [self._serialize_with_question(result) for result in results]
+        }
+
+        # Save to file
+        with open(filepath, "w") as f:
+            json.dump(output, f, indent=2, default=str)
+
+        self._logger.info(f"Saved evaluation run to: {filepath}")
+        return str(filepath)
+
     async def load_by_id(self, result_id: UUID) -> Optional[EvaluationResult]:
         """Load result by ID (not implemented - stub)."""
         return None
@@ -99,3 +126,57 @@ class JSONResultRepository(IResultRepository):
             "latency_ms": result.model_response.latency_ms,
             "evaluated_at": result.evaluated_at.isoformat(),
         }
+
+    def _serialize_with_question(self, result: EvaluationResult) -> dict:
+        """Serialize result with question included."""
+        serialized = self._serialize(result)
+        # Add question field
+        serialized["question"] = result.test_case.question
+        return serialized
+
+    def _generate_filename(self, metadata: Dict[str, any]) -> str:
+        """
+        Generate filename from evaluation parameters.
+
+        Format: result-{model}-[phase-{phase}]-[tier-{tier}]-[benchmark-{benchmark}]-{timestamp}.json
+        Omit optional parts if not available.
+
+        Args:
+            metadata: Evaluation metadata containing parameters
+
+        Returns:
+            Generated filename
+        """
+        # Start with required parts
+        parts = ["result", metadata.get("model_name", "unknown")]
+
+        # Add optional parts if present
+        if metadata.get("evaluation_phase"):
+            parts.append(f"phase-{metadata['evaluation_phase']}")
+
+        if metadata.get("tier"):
+            parts.append(f"tier-{metadata['tier']}")
+
+        if metadata.get("benchmarks"):
+            # If single benchmark, add it; if multiple, add "multi"
+            benchmarks = metadata["benchmarks"]
+            if len(benchmarks) == 1:
+                parts.append(f"benchmark-{benchmarks[0]}")
+            elif len(benchmarks) > 1:
+                parts.append(f"benchmarks-{len(benchmarks)}")
+
+        # Add timestamp
+        timestamp = metadata.get("evaluated_at")
+        if timestamp:
+            # Format: yyyymmdd-HHMM
+            if isinstance(timestamp, str):
+                dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+            else:
+                dt = timestamp
+            timestamp_str = dt.strftime("%Y%m%d-%H%M")
+        else:
+            timestamp_str = datetime.utcnow().strftime("%Y%m%d-%H%M")
+        parts.append(timestamp_str)
+
+        # Join with dashes and add .json extension
+        return "-".join(parts) + ".json"

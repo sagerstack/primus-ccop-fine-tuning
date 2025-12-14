@@ -12,6 +12,7 @@ from rich.console import Console
 from rich.table import Table
 
 from application.dtos.evaluation_request_dto import EvaluationRequestDTO
+from domain.value_objects.evaluation_tier import EvaluationTier
 
 evaluate_app = typer.Typer()
 console = Console()
@@ -22,17 +23,40 @@ def run(
     ctx: typer.Context,
     model: str = typer.Option(..., help="Model name"),
     benchmarks: Optional[List[str]] = typer.Option(
-        None, help="Benchmarks to run (can specify multiple times, e.g., --benchmark B1 --benchmark B2)"
+        None, help="Benchmarks to run (can specify multiple times, e.g., --benchmarks B1 --benchmarks B2)"
+    ),
+    tier: Optional[int] = typer.Option(
+        None, help="Evaluation tier (1, 2, or 3). Overrides --benchmarks if specified."
     ),
     test_ids: Optional[List[str]] = typer.Option(
         None, help="Specific test IDs (can specify multiple times)"
     ),
     temperature: float = typer.Option(0.7, help="Temperature"),
     save: bool = typer.Option(True, help="Save results"),
+    phase: str = typer.Option(
+        "baseline",
+        help="Evaluation phase: baseline (15%), finetuned (50%), deployment (85%)"
+    ),
+    threshold: Optional[float] = typer.Option(
+        None,
+        min=0.0,
+        max=1.0,
+        help="Pass threshold override (0.0-1.0). Overrides phase-specific threshold."
+    ),
 ) -> None:
     """Run model evaluation."""
     container = ctx.obj["container"]
     use_case = container.evaluate_model_use_case()
+
+    # Handle --tier argument (takes precedence over --benchmarks)
+    if tier is not None:
+        if tier not in [1, 2, 3]:
+            console.print(f"[red]Invalid tier: {tier}. Must be 1, 2, or 3.[/red]")
+            raise typer.Exit(1)
+
+        benchmarks = EvaluationTier.get_benchmarks_for_tier(tier)
+        tier_name = EvaluationTier.get_tier_name(tier)
+        console.print(f"[cyan]Running Tier {tier} evaluation ({tier_name})[/cyan]")
 
     # Default to all benchmarks if none specified
     # Query available benchmarks from repository
@@ -57,6 +81,15 @@ def run(
 
     console.print(f"[bold]Evaluating model:[/bold] {model}")
     console.print(f"[bold]Benchmarks:[/bold] {', '.join(benchmarks)}")
+    console.print(f"[bold]Evaluation Phase:[/bold] {phase}")
+
+    # Display threshold being used
+    if threshold is not None:
+        console.print(f"[bold]Pass Threshold:[/bold] {threshold:.0%} (override)")
+    else:
+        phase_thresholds = {"baseline": 0.15, "finetuned": 0.50, "deployment": 0.85}
+        default_threshold = phase_thresholds.get(phase, 0.70)
+        console.print(f"[bold]Pass Threshold:[/bold] {default_threshold:.0%} (phase default)")
 
     request = EvaluationRequestDTO(
         model_name=model,
@@ -64,6 +97,8 @@ def run(
         test_case_ids=test_ids,
         temperature=temperature,
         save_results=save,
+        evaluation_phase=phase,
+        pass_threshold=threshold,
     )
 
     try:

@@ -66,6 +66,7 @@ class EvaluationResult:
         self._evaluator_notes = evaluator_notes
         self._evaluated_at = evaluated_at or datetime.utcnow()
         self._metadata = metadata or {}
+        self._threshold_used: Optional[float] = None  # Phase 2: Track threshold used
 
         self._validate()
 
@@ -116,12 +117,16 @@ class EvaluationResult:
         self._overall_score = score
         return score
 
-    def determine_pass_fail(self) -> bool:
+    def determine_pass_fail(self, threshold: Optional[float] = None) -> bool:
         """
         Business rule: Determine if evaluation passed.
 
-        Uses test case difficulty's passing threshold.
+        Uses provided threshold or test case difficulty's passing threshold.
         If overall_score is None, calculates it first.
+
+        Args:
+            threshold: Optional pass threshold override (0.0-1.0).
+                      If None, uses test case default.
 
         Returns:
             True if score >= threshold
@@ -129,9 +134,13 @@ class EvaluationResult:
         if self._overall_score is None:
             self.calculate_overall_score()
 
-        threshold = self._test_case.get_passing_threshold()
+        # Use provided threshold or fall back to test case default
+        if threshold is None:
+            threshold = self._test_case.get_passing_threshold()
+
         passed = self._overall_score >= threshold
         self._passed = passed
+        self._threshold_used = threshold  # Store for reference
         return passed
 
     def add_metric(self, metric: EvaluationMetric) -> None:
@@ -165,15 +174,19 @@ class EvaluationResult:
         """Check if evaluation is complete (has score and pass/fail)."""
         return self._overall_score is not None and self._passed is not None
 
-    def finalize(self) -> None:
+    def finalize(self, threshold: Optional[float] = None) -> None:
         """
         Finalize the evaluation result.
 
         Calculates overall score and determines pass/fail if not already done.
+
+        Args:
+            threshold: Optional pass threshold override (0.0-1.0).
+                      If None, uses test case default or phase-specific threshold.
         """
         if not self.is_finalized():
             self.calculate_overall_score()
-            self.determine_pass_fail()
+            self.determine_pass_fail(threshold=threshold)
 
     def get_performance_summary(self) -> Dict[str, any]:
         """

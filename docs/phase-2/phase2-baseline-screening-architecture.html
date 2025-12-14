@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 2 Baseline Screening Architecture - CCoP 2.0 Compliance Evaluation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inconsolata', monospace;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f7;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1d1d1f;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        .subtitle {
+            color: #6e6e73;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            color: #1d1d1f;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 10px;
+        }
+        .mermaid {
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .spec-card {
+            background: #ffffff;
+            color: #000000;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #000000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .spec-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #000000;
+        }
+        .spec-card p {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .spec-card.benchmarks {
+            background: #f5f5f5;
+        }
+        .spec-card.threshold {
+            background: #e8e8e8;
+        }
+        .spec-card.tests {
+            background: #d9d9d9;
+        }
+        .spec-card.scoring {
+            background: #cccccc;
+        }
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #000000;
+        }
+        .legend h3 {
+            margin-top: 0;
+            color: #1d1d1f;
+        }
+        .legend-item {
+            margin: 10px 0;
+            color: #6e6e73;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #d2d2d7;
+            color: #6e6e73;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Phase 2 Baseline Screening Architecture</h1>
+        <p class="subtitle">CCoP 2.0 Compliance Evaluation - Diagnostic Baseline Assessment</p>
+
+        <!-- Evaluation Specifications -->
+        <div class="section">
+            <h2 class="section-title">Evaluation Specifications</h2>
+            <div class="specs">
+                <div class="spec-card benchmarks">
+                    <h3>Benchmark Coverage</h3>
+                    <p>21 Benchmarks</p>
+                    <small>B1-B21 compliance reasoning</small>
+                </div>
+                <div class="spec-card threshold">
+                    <h3>Pass Threshold</h3>
+                    <p>≥15% (Baseline)</p>
+                    <small>Diagnostic screening phase</small>
+                </div>
+                <div class="spec-card tests">
+                    <h3>Test Dataset</h3>
+                    <p>40+ Test Cases</p>
+                    <small>JSONL format, auto-discovery</small>
+                </div>
+                <div class="spec-card scoring">
+                    <h3>Scoring Tiers</h3>
+                    <p>3-Tier System</p>
+                    <small>Binary, Rubric, LLM-as-Judge</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evaluation Pipeline Architecture -->
+        <div class="section">
+            <h2 class="section-title">Evaluation Pipeline Architecture</h2>
+            <div class="mermaid">
+graph TB
+    subgraph "Phase 2 Baseline Screening Pipeline"
+        subgraph "Test Case Layer"
+            A[JSONL Test Case Repository]
+            B[Auto-Discovery Engine<br/>b*.jsonl files]
+            C[Test Case Parser<br/>Ground Truth + Key Facts]
+        end
+
+        subgraph "Model Inference Layer"
+            D[Ollama Gateway]
+            E[Llama-Primus-Reasoning<br/>4-bit Quantized]
+            F[Response Capture<br/>Content + Metadata]
+        end
+
+        subgraph "Scoring Layer - Benchmark Aware"
+            G{Benchmark Router}
+            H1[Tier 1: Binary<br/>B1, B2, B21]
+            H2[Tier 2: Rubric<br/>B7, B10, B14, B16]
+            H3[Tier 3: LLM-Judge<br/>B12, B13, B20]
+            H4[Reasoning: B3-B19<br/>Semantic + Key-Fact]
+            I[Metric Collection<br/>Accuracy, Completeness, Grounding]
+        end
+
+        subgraph "Result Aggregation"
+            L[Weighted Aggregation<br/>Overall Score Calculation]
+            M[Evaluation Result<br/>Score + Pass/Fail]
+        end
+
+        subgraph "Result Persistence"
+            N[JSON Result Repository]
+            O[Evaluation Summary<br/>By Benchmark/Difficulty]
+        end
+    end
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+
+    G --> H1
+    G --> H2
+    G --> H3
+    G --> H4
+
+    H1 --> I
+    H2 --> I
+    H3 --> I
+    H4 --> I
+
+    I --> L
+    L --> M
+    M --> N
+    N --> O
+
+    style A fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000
+    style D fill:#f5f5f5,stroke:#000000,stroke-width:2px,color:#000
+    style E fill:#f5f5f5,stroke:#000000,stroke-width:2px,color:#000
+    style G fill:#e8e8e8,stroke:#000000,stroke-width:3px,color:#000
+    style I fill:#d9d9d9,stroke:#000000,stroke-width:2px,color:#000
+    style L fill:#cccccc,stroke:#000000,stroke-width:2px,color:#000
+    style O fill:#cccccc,stroke:#000000,stroke-width:2px,color:#000
+            </div>
+        </div>
+
+        <!-- Scoring Methodology Flow -->
+        <div class="section">
+            <h2 class="section-title">Benchmark-Aware Scoring Flow</h2>
+            <div class="mermaid">
+sequenceDiagram
+    participant TC as Test Case<br/>(JSONL)
+    participant Router as Benchmark Router
+    participant Scorer as Scoring Service
+    participant Metrics as Metric Engine
+    participant Result as Result Entity
+
+    TC->>Router: Load test case (B1-B21)
+    Router->>Router: Identify benchmark type
+    Router->>Scorer: Route to scoring function
+
+    alt Tier 1: Binary (B1, B2, B21)
+        Scorer->>Metrics: Label-based accuracy
+        Scorer->>Metrics: Hallucination check
+    else Tier 2: Rubric (B7, B10, B14, B16)
+        Scorer->>Metrics: Expert rubric (1-5 scale)
+        Scorer->>Metrics: Accuracy, Completeness, Practicality, Clarity
+    else Tier 3: LLM-Judge (B12, B13, B20)
+        Scorer->>Metrics: Structured rubric via LLM
+        Scorer->>Metrics: Human validation (≥20% samples)
+    else Reasoning (B3-B19)
+        Scorer->>Metrics: Semantic equivalence
+        Scorer->>Metrics: Key-fact recall (60% threshold)
+        Scorer->>Metrics: Grounding check (forbidden claims)
+    end
+
+    Metrics-->>Scorer: Individual metric scores
+    Scorer->>Result: Weighted aggregation
+    Result->>Result: Calculate overall score
+    Result->>Result: Determine pass/fail (≥15%)
+    Result-->>TC: Evaluation complete
+            </div>
+        </div>
+
+        <!-- Benchmark Tier Distribution -->
+        <div class="section">
+            <h2 class="section-title">Benchmark Tier Distribution</h2>
+            <div class="mermaid">
+graph LR
+    subgraph "Tier 1: Binary Metrics"
+        T1A[B1: Applicability]
+        T1B[B2: Classification]
+        T1C[B21: Hallucination]
+    end
+
+    subgraph "Tier 2: Expert Rubric"
+        T2A[B7: Gap Analysis]
+        T2B[B10: Risk Justification]
+        T2C[B14: Remediation]
+        T2D[B16: Residual Risk]
+    end
+
+    subgraph "Tier 3: LLM-as-Judge"
+        T3A[B12: Audit Perspective]
+        T3B[B13: Evidence Expectation]
+        T3C[B20: Over-Specification]
+    end
+
+    subgraph "Reasoning: Semantic + Key-Fact"
+        R1[B3-B6: Compliance]
+        R2[B8-B9: Risk]
+        R3[B11: Severity]
+        R4[B15-B19: Governance]
+    end
+
+    T1A --> Binary[Binary Pass/Fail]
+    T1B --> Binary
+    T1C --> Binary
+
+    T2A --> Rubric[1-5 Scale<br/>≥80% agreement]
+    T2B --> Rubric
+    T2C --> Rubric
+    T2D --> Rubric
+
+    T3A --> Judge[LLM + Human<br/>≥20% validation]
+    T3B --> Judge
+    T3C --> Judge
+
+    R1 --> Reasoning[Semantic<br/>Key-Fact Recall]
+    R2 --> Reasoning
+    R3 --> Reasoning
+    R4 --> Reasoning
+
+    style Binary fill:#f5f5f5,stroke:#000000,stroke-width:2px,color:#000
+    style Rubric fill:#e8e8e8,stroke:#000000,stroke-width:2px,color:#000
+    style Judge fill:#d9d9d9,stroke:#000000,stroke-width:2px,color:#000
+    style Reasoning fill:#cccccc,stroke:#000000,stroke-width:2px,color:#000
+            </div>
+        </div>
+
+        <!-- Scoring Tier Explanations -->
+        <div class="section">
+            <h2 class="section-title">Scoring Tier Methodology</h2>
+
+            <div class="legend">
+                <h3>Tier 1: Binary Metrics (B1, B2, B21)</h3>
+                <div class="legend-item">
+                    <strong>Purpose:</strong> Objective evaluation for classification and detection tasks with clear right/wrong answers
+                </div>
+                <div class="legend-item">
+                    <strong>Scoring Method:</strong> Label-based accuracy using expected classification labels
+                </div>
+                <div class="legend-item">
+                    <strong>Key Metrics:</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Accuracy:</strong> Exact or partial match of expected label components (0.0, 0.7, or 1.0)</li>
+                        <li><strong>Completeness:</strong> Key-fact recall using 60% term matching threshold</li>
+                        <li><strong>Grounding:</strong> Safety check detecting fabricated CCoP claims (forbidden claims list)</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>Example:</strong> B1 (CCoP Applicability) checks if response correctly identifies "essential service delivery + Singapore location" criteria
+                </div>
+                <div class="legend-item">
+                    <strong>Automation Level:</strong> 100% automated, deterministic scoring
+                </div>
+            </div>
+
+            <div class="legend">
+                <h3>Tier 2: Expert Rubric (B7, B10, B14, B16)</h3>
+                <div class="legend-item">
+                    <strong>Purpose:</strong> Subjective quality assessment for complex analytical tasks requiring expert judgment
+                </div>
+                <div class="legend-item">
+                    <strong>Scoring Method:</strong> Structured 1-5 scale rubric evaluated by domain experts
+                </div>
+                <div class="legend-item">
+                    <strong>Key Dimensions:</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Accuracy:</strong> Technical correctness of compliance interpretation</li>
+                        <li><strong>Completeness:</strong> Coverage of all relevant control requirements</li>
+                        <li><strong>Practicality:</strong> Feasibility of recommendations for real-world implementation</li>
+                        <li><strong>Clarity:</strong> Professional communication quality and actionability</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>Inter-Rater Reliability:</strong> Requires ≥80% agreement among expert raters (κ ≥ 0.60 Cohen's kappa)
+                </div>
+                <div class="legend-item">
+                    <strong>Example:</strong> B14 (Remediation Recommendations) evaluates whether suggested controls are specific, actionable, and aligned with CCoP requirements
+                </div>
+                <div class="legend-item">
+                    <strong>Automation Level:</strong> Manual expert review, not suitable for automated scoring
+                </div>
+            </div>
+
+            <div class="legend">
+                <h3>Tier 3: LLM-as-Judge (B12, B13, B20)</h3>
+                <div class="legend-item">
+                    <strong>Purpose:</strong> Scalable evaluation for nuanced reasoning tasks where automated metrics fail but expert review is cost-prohibitive
+                </div>
+                <div class="legend-item">
+                    <strong>Scoring Method:</strong> Structured rubric applied by LLM judge (e.g., GPT-4, Claude) with mandatory human validation
+                </div>
+                <div class="legend-item">
+                    <strong>Process:</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Step 1:</strong> LLM judge evaluates response against detailed rubric criteria</li>
+                        <li><strong>Step 2:</strong> Random sampling of ≥20% responses for human expert validation</li>
+                        <li><strong>Step 3:</strong> Calibration adjustment if human-LLM agreement < 80%</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>Example:</strong> B20 (Over-Specification Avoidance) requires judging whether response adds unnecessary requirements not mandated by CCoP 2.0
+                </div>
+                <div class="legend-item">
+                    <strong>Validation Requirement:</strong> Human experts must validate LLM judgments to ensure reliability before deployment
+                </div>
+                <div class="legend-item">
+                    <strong>Automation Level:</strong> Semi-automated (LLM primary, human validation secondary)
+                </div>
+            </div>
+
+            <div class="legend">
+                <h3>Reasoning Track: Semantic + Key-Fact (B3-B6, B8-B9, B11, B15-B19)</h3>
+                <div class="legend-item">
+                    <strong>Purpose:</strong> Balance between automated efficiency and semantic understanding for compliance reasoning tasks
+                </div>
+                <div class="legend-item">
+                    <strong>Scoring Method:</strong> Hybrid approach combining semantic similarity and structured fact verification
+                </div>
+                <div class="legend-item">
+                    <strong>Key Metrics:</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Semantic Similarity:</strong> Sentence embeddings with cosine similarity (captures regulatory reasoning equivalence)</li>
+                        <li><strong>Key-Fact Recall:</strong> Coverage of atomic regulatory facts with 60% term matching threshold</li>
+                        <li><strong>Grounding Check:</strong> Detection of forbidden claims and hallucination patterns</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>Example:</strong> B3 (Conditional Compliance Reasoning) evaluates whether response correctly identifies applicability conditions with supporting rationale
+                </div>
+                <div class="legend-item">
+                    <strong>Automation Level:</strong> 100% automated, suitable for large-scale baseline screening
+                </div>
+            </div>
+        </div>
+
+        <!-- Scoring Service Class Hierarchy -->
+        <div class="section">
+            <h2 class="section-title">Scoring Service Class Hierarchy</h2>
+            <div class="mermaid">
+graph TB
+    subgraph "Abstract Base"
+        BASE[ScoringService<br/>Abstract Base Class]
+    end
+
+    subgraph "Concrete Implementations"
+        T1[Tier1BinaryScorer<br/>B1, B2, B21]
+        T2[Tier2ExpertRubricScorer<br/>B7, B10, B14, B16]
+        T3[Tier3LLMJudgeScorer<br/>B12, B13, B20]
+        RT[ReasoningTrackScorer<br/>B3-B6, B8-B9, B11, B15-B19]
+    end
+
+    subgraph "Dependencies"
+        SEM[SemanticSimilarityService<br/>sentence-transformers]
+        LLM[LLMJudgeService<br/>GPT-4/Claude API]
+        VAL[HumanValidationService<br/>Sampling + Agreement]
+    end
+
+    BASE -.implements.-> T1
+    BASE -.implements.-> T2
+    BASE -.implements.-> T3
+    BASE -.implements.-> RT
+
+    RT --> SEM
+    T3 --> LLM
+    T3 --> VAL
+
+    BASE --> FACTORY[ScoringServiceFactory<br/>get_scorer by benchmark_type]
+    FACTORY --> T1
+    FACTORY --> T2
+    FACTORY --> T3
+    FACTORY --> RT
+
+    style BASE fill:#ffffff,stroke:#000000,stroke-width:3px,color:#000
+    style T1 fill:#f5f5f5,stroke:#000000,stroke-width:2px,color:#000
+    style T2 fill:#e8e8e8,stroke:#000000,stroke-width:2px,color:#000
+    style T3 fill:#d9d9d9,stroke:#000000,stroke-width:2px,color:#000
+    style RT fill:#cccccc,stroke:#000000,stroke-width:2px,color:#000
+    style FACTORY fill:#ffffff,stroke:#000000,stroke-width:2px,stroke-dasharray: 5 5,color:#000
+    style SEM fill:#f9f9f9,stroke:#666666,stroke-width:1px,color:#000
+    style LLM fill:#f9f9f9,stroke:#666666,stroke-width:1px,color:#000
+    style VAL fill:#f9f9f9,stroke:#666666,stroke-width:1px,color:#000
+            </div>
+
+            <div style="margin-top: 30px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #000000; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; color: #1d1d1f; font-weight: 600;">Design Pattern: Strategy Pattern with Factory</p>
+                <p style="margin: 0; color: #6e6e73; font-size: 14px;">
+                    <strong>ScoringServiceFactory</strong> selects the appropriate scorer based on benchmark type. Each concrete scorer implements the <code>score_response()</code> interface but uses different evaluation strategies:
+                    <br/>• <strong>Tier 1:</strong> Rule-based deterministic scoring
+                    <br/>• <strong>Tier 2:</strong> Human expert rubric evaluation
+                    <br/>• <strong>Tier 3:</strong> LLM-as-judge with human validation
+                    <br/>• <strong>Reasoning Track:</strong> Semantic similarity + key-fact recall
+                </p>
+            </div>
+        </div>
+
+        <!-- Domain Architecture (Clean Architecture Layers) -->
+        <div class="section">
+            <h2 class="section-title">Application Architecture - Model Inference Pipeline</h2>
+            <div class="mermaid">
+graph TB
+    CLI[CLI Interface<br/>Presentation Layer]
+
+    subgraph UC[Application Layer]
+        EVAL[EvaluateModelUseCase]
+        REPORT[GenerateReportUseCase]
+        SETUP[SetupModelUseCase]
+    end
+
+    subgraph DOMAIN[Domain Layer]
+        ENTITIES[Entities<br/>TestCase, ModelResponse, EvaluationResult]
+        SCORING[ScoringService<br/>Base abstract scorer]
+        TIER1[Tier1BinaryScorer<br/>B1, B2, B21]
+        TIER2[Tier2ExpertRubricScorer<br/>B7, B10, B14, B16]
+        TIER3[Tier3LLMJudgeScorer<br/>B12, B13, B20]
+        REASONING[ReasoningTrackScorer<br/>B3-B6, B8-B9, B11, B15-B19]
+
+        SCORING -.inherits.- TIER1
+        SCORING -.inherits.- TIER2
+        SCORING -.inherits.- TIER3
+        SCORING -.inherits.- REASONING
+    end
+
+    subgraph INFRA[Infrastructure Layer]
+        REPOS[Repositories<br/>TestCase, Results]
+        GATEWAY[OllamaGateway<br/>Model Inference]
+    end
+
+    subgraph EXT[External Systems]
+        OLLAMA[Ollama Server<br/>Llama-Primus-Reasoning]
+        FILES[Filesystem<br/>Test Cases + Results]
+    end
+
+    CLI --> EVAL
+    CLI --> REPORT
+    CLI --> SETUP
+
+    EVAL --> ENTITIES
+    ENTITIES --> SCORING
+
+    EVAL --> REPOS
+    EVAL --> GATEWAY
+
+    REPOS --> FILES
+    GATEWAY --> OLLAMA
+    SETUP --> OLLAMA
+
+    style CLI fill:#ffffff,stroke:#000000,stroke-width:3px,color:#000
+    style EVAL fill:#f5f5f5,stroke:#000000,stroke-width:2px,color:#000
+    style REPORT fill:#f5f5f5,stroke:#000000,stroke-width:2px,color:#000
+    style SETUP fill:#f5f5f5,stroke:#000000,stroke-width:2px,color:#000
+    style ENTITIES fill:#e8e8e8,stroke:#000000,stroke-width:2px,color:#000
+    style SCORING fill:#e8e8e8,stroke:#000000,stroke-width:2px,color:#000
+    style REPOS fill:#d9d9d9,stroke:#000000,stroke-width:2px,color:#000
+    style GATEWAY fill:#d9d9d9,stroke:#000000,stroke-width:2px,color:#000
+    style OLLAMA fill:#cccccc,stroke:#000000,stroke-width:2px,color:#000
+    style FILES fill:#cccccc,stroke:#000000,stroke-width:2px,color:#000
+            </div>
+
+            <div style="margin-top: 30px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #000000; border-radius: 4px;">
+                <p style="margin: 0; color: #6e6e73; font-size: 14px;">
+                    <strong>Flow:</strong> CLI commands → Use Cases (orchestration) → Domain entities + scoring logic → Infrastructure adapters → External systems (Ollama for inference, filesystem for data)
+                </p>
+            </div>
+        </div>
+
+        <!-- Detailed Component Descriptions -->
+        <div class="section">
+            <h2 class="section-title">Component Details - Inference Flow</h2>
+
+            <div class="legend">
+                <h3>1. Presentation Layer (CLI Interface)</h3>
+                <div class="legend-item">
+                    <strong>main.py:</strong> CLI entry point using Click framework, routes to commands
+                </div>
+                <div class="legend-item">
+                    <strong>evaluate.py:</strong> Evaluation command handler
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li>Accepts parameters: --model, --benchmarks, --phase, --threshold</li>
+                        <li>Example: <code>ccop-eval evaluate run --model primus-reasoning --benchmarks B1 --phase baseline</code></li>
+                        <li>Delegates to EvaluateModelUseCase</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>report.py:</strong> Report generation command (outputs evaluation summaries)
+                </div>
+                <div class="legend-item">
+                    <strong>setup.py:</strong> Model setup command (downloads and configures Llama-Primus-Reasoning)
+                </div>
+            </div>
+
+            <div class="legend">
+                <h3>2. Application Layer (Use Cases & Orchestration)</h3>
+                <div class="legend-item">
+                    <strong>EvaluateModelUseCase:</strong> Orchestrates the full evaluation pipeline
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Step 1:</strong> Load test cases via ITestCaseRepository (filters by benchmark)</li>
+                        <li><strong>Step 2:</strong> For each test case, invoke IModelGateway for inference</li>
+                        <li><strong>Step 3:</strong> Score response using ScoringService (benchmark-aware routing)</li>
+                        <li><strong>Step 4:</strong> Aggregate metrics and determine pass/fail (phase-aware thresholds)</li>
+                        <li><strong>Step 5:</strong> Persist results via IResultRepository</li>
+                        <li><strong>Dependency Injection:</strong> All ports injected via DI container</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>GenerateReportUseCase:</strong> Loads evaluation results and generates summary reports
+                </div>
+                <div class="legend-item">
+                    <strong>SetupModelUseCase:</strong> Downloads model from HuggingFace, configures Ollama
+                </div>
+                <div class="legend-item">
+                    <strong>DTOs (Data Transfer Objects):</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>EvaluationRequestDTO:</strong> Input parameters (model_name, benchmarks[], phase, threshold)</li>
+                        <li><strong>EvaluationResultDTO:</strong> Output results (test_id, score, metrics[], passed, timestamp)</li>
+                        <li><strong>TestCaseDTO:</strong> Test case representation for cross-layer communication</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="legend">
+                <h3>3. Domain Layer (Business Logic - Framework Independent)</h3>
+                <div class="legend-item">
+                    <strong>Entities (Identity + Behavior):</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>TestCase:</strong> Identity = test_id (e.g., "B1-001")
+                            <br/>• Contains: question, expected_response, key_facts[], expected_label, forbidden_claims[]
+                            <br/>• Business methods: is_high_priority(), is_ot_specific(), get_passing_threshold()
+                            <br/>• Validation: Enforces test_id format (Bxx-nnn), minimum question length (50 chars)
+                        </li>
+                        <li><strong>ModelResponse:</strong> Encapsulates LLM output
+                            <br/>• Contains: content, tokens, latency_ms, timestamp
+                            <br/>• Methods: extract_citations(), contains_hallucination_indicators(), is_empty()
+                        </li>
+                        <li><strong>EvaluationResult:</strong> Aggregates metrics and determines pass/fail
+                            <br/>• Contains: test_id, benchmark, model, response, metrics[], overall_score, passed
+                            <br/>• Computed property: overall_score = Σ(metric.value × weight) / Σ(weight)
+                        </li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>Scoring Service Architecture (Strategy Pattern):</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>ScoringService (Abstract Base Class):</strong>
+                            <br/>• Defines interface: <code>score_response(test_case: TestCase, response: ModelResponse) → List[EvaluationMetric]</code>
+                            <br/>• Common utilities: <code>_calculate_key_fact_completeness()</code>, <code>_calculate_grounding_score()</code>
+                            <br/>• Factory method: <code>get_scorer(benchmark_type: BenchmarkType) → ScoringService</code>
+                            <br/>• Validates metric weights and aggregates to overall score
+                        </li>
+                        <li><strong>Tier1BinaryScorer (B1, B2, B21):</strong>
+                            <br/>• <strong>Purpose:</strong> Deterministic evaluation for classification tasks
+                            <br/>• <strong>Key Methods:</strong>
+                            <br/>&nbsp;&nbsp;▸ <code>_calculate_label_accuracy()</code>: Exact/partial match (1.0, 0.7, 0.0)
+                            <br/>&nbsp;&nbsp;▸ <code>_detect_hallucinations()</code>: Forbidden claim detection (B21)
+                            <br/>&nbsp;&nbsp;▸ <code>_match_citation_format()</code>: CCoP citation validation (B2)
+                            <br/>• <strong>Metrics:</strong> accuracy (1.0), completeness (0.8), grounding (1.0)
+                            <br/>• <strong>Automation:</strong> 100% automated, no human input required
+                        </li>
+                        <li><strong>Tier2ExpertRubricScorer (B7, B10, B14, B16):</strong>
+                            <br/>• <strong>Purpose:</strong> Human expert evaluation for complex analytical tasks
+                            <br/>• <strong>Key Methods:</strong>
+                            <br/>&nbsp;&nbsp;▸ <code>_collect_expert_ratings()</code>: Aggregates ratings from ≥2 experts
+                            <br/>&nbsp;&nbsp;▸ <code>_calculate_inter_rater_reliability()</code>: Cohen's kappa ≥ 0.60
+                            <br/>&nbsp;&nbsp;▸ <code>_adjudicate_disagreement()</code>: Third expert for >20% disagreement
+                            <br/>• <strong>Rubric Dimensions:</strong> Accuracy (1.0), Completeness (0.8), Practicality (0.8), Clarity (0.6)
+                            <br/>• <strong>Scoring:</strong> 1-5 scale per dimension, normalized to 0-1
+                            <br/>• <strong>Automation:</strong> 0% - requires expert recruitment and training
+                        </li>
+                        <li><strong>Tier3LLMJudgeScorer (B12, B13, B20):</strong>
+                            <br/>• <strong>Purpose:</strong> Scalable AI-assisted evaluation with human validation
+                            <br/>• <strong>Key Methods:</strong>
+                            <br/>&nbsp;&nbsp;▸ <code>_evaluate_with_llm_judge()</code>: GPT-4/Claude with structured rubric
+                            <br/>&nbsp;&nbsp;▸ <code>_sample_for_validation()</code>: Random ≥20% for human review
+                            <br/>&nbsp;&nbsp;▸ <code>_calculate_agreement()</code>: Human-LLM agreement rate
+                            <br/>&nbsp;&nbsp;▸ <code>_calibrate_judge_prompts()</code>: Adjust if agreement <80%
+                            <br/>• <strong>Dependencies:</strong> LLMJudgeService, HumanValidationService
+                            <br/>• <strong>Metrics:</strong> accuracy (1.0), completeness (0.8), alignment (1.0)
+                            <br/>• <strong>Automation:</strong> ~80% - LLM primary, human validation secondary
+                        </li>
+                        <li><strong>ReasoningTrackScorer (B3-B6, B8-B9, B11, B15-B19):</strong>
+                            <br/>• <strong>Purpose:</strong> Automated semantic evaluation for compliance reasoning
+                            <br/>• <strong>Key Methods:</strong>
+                            <br/>&nbsp;&nbsp;▸ <code>_calculate_semantic_similarity()</code>: Sentence embeddings + cosine similarity
+                            <br/>&nbsp;&nbsp;▸ <code>_verify_key_facts()</code>: Atomic fact coverage with 60% term threshold
+                            <br/>&nbsp;&nbsp;▸ <code>_check_reasoning_quality()</code>: Conditional logic + rationale validation
+                            <br/>• <strong>Dependencies:</strong> SemanticSimilarityService (sentence-transformers)
+                            <br/>• <strong>Metrics:</strong> semantic_accuracy (1.0), completeness (0.8), grounding (1.0)
+                            <br/>• <strong>Automation:</strong> 100% - suitable for large-scale screening
+                            <br/>• <strong>B3-B6 Specialization:</strong> Additional domain-specific checks (hallucination, IT/OT classification, violation detection)
+                        </li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>Value Objects (Immutable, No Identity):</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>BenchmarkType:</strong> Parses "Bxx_Description" format, supports equality with strings</li>
+                        <li><strong>CCoPSection:</strong> CCoP 2.0 section enumeration with IT/OT classification</li>
+                        <li><strong>DifficultyLevel:</strong> easy/medium/hard/critical with passing thresholds</li>
+                        <li><strong>EvaluationMetric:</strong> Metric name, value (0-1), weight, description</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="legend">
+                <h3>4. Infrastructure Layer (Adapters - External System Integration)</h3>
+                <div class="legend-item">
+                    <strong>JSONLTestCaseRepository (implements ITestCaseRepository):</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Auto-Discovery:</strong> Scans ../ground-truth/phase-2/test-suite/ for b*.jsonl files</li>
+                        <li><strong>Mapping:</strong> Reads first line of each file to extract benchmark_type, builds dynamic mapping</li>
+                        <li><strong>Parsing:</strong> Converts JSONL to TestCase entities with Phase 2 schema (key_facts, expected_label, forbidden_claims)</li>
+                        <li><strong>Methods:</strong> load_all(), load_by_benchmark(), load_by_id(), load_by_ids()</li>
+                        <li><strong>Caching:</strong> In-memory cache for performance</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>JSONResultRepository (implements IResultRepository):</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Storage:</strong> Persists to results/evaluations/{model}_results.json</li>
+                        <li><strong>Format:</strong> Array of evaluation results, appends new results to existing file</li>
+                        <li><strong>Methods:</strong> save(), save_batch(), load_all(), load_by_model()</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>OllamaGateway (implements IModelGateway):</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Connection:</strong> HTTP client to localhost:11434/api/generate</li>
+                        <li><strong>Inference:</strong> Sends prompt, receives streamed response chunks, aggregates to full response</li>
+                        <li><strong>Metadata Capture:</strong> Records tokens, latency_ms, timestamp</li>
+                        <li><strong>Error Handling:</strong> Connection failures, timeout (default 120s), retry logic</li>
+                        <li><strong>System Prompt:</strong> Neutral prompt (no CCoP-specific priming for baseline)</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>StructlogAdapter (implements ILogger):</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Format:</strong> JSON structured logging with context fields (benchmark, test_id, model)</li>
+                        <li><strong>Outputs:</strong> Console (colored for development) + logs/{date}.log file</li>
+                        <li><strong>Methods:</strong> info(), warning(), error(), with automatic context propagation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="legend">
+                <h3>5. External Systems</h3>
+                <div class="legend-item">
+                    <strong>Ollama Server (localhost:11434):</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Model:</strong> Llama-Primus-Reasoning 8B (4-bit quantized GGUF)</li>
+                        <li><strong>Backend:</strong> llama.cpp with Metal GPU acceleration (Apple Silicon)</li>
+                        <li><strong>Memory:</strong> ~5-6 GB footprint (75% reduction vs full precision)</li>
+                        <li><strong>Latency:</strong> 2-5s per inference (512 tokens)</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>Filesystem:</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Test Cases:</strong> ../ground-truth/phase-2/test-suite/b*.jsonl (21 files, 40+ test cases)</li>
+                        <li><strong>Results:</strong> results/evaluations/{model}_results.json</li>
+                        <li><strong>Logs:</strong> logs/{YYYY-MM-DD}.log</li>
+                    </ul>
+                </div>
+                <div class="legend-item">
+                    <strong>HuggingFace Hub:</strong>
+                    <ul style="margin: 5px 0 0 20px; color: #6e6e73;">
+                        <li><strong>Model Repository:</strong> trendmicro-ailab/Llama-Primus-Reasoning</li>
+                        <li><strong>Download:</strong> GGUF model files (~4.5 GB for 4-bit quantized)</li>
+                        <li><strong>Usage:</strong> One-time download during setup, cached locally</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inference Flow Example -->
+        <div class="section">
+            <h2 class="section-title">End-to-End Inference Flow Example</h2>
+            <div class="mermaid">
+sequenceDiagram
+    actor User
+    participant CLI as CLI (evaluate.py)
+    participant UC as EvaluateModelUseCase
+    participant Repo as JSONLTestCaseRepository
+    participant GW as OllamaGateway
+    participant Scoring as ScoringService
+    participant Result as JSONResultRepository
+
+    User->>CLI: ccop-eval evaluate run --model primus-reasoning --benchmarks B1
+    CLI->>UC: execute(request_dto)
+
+    UC->>Repo: load_by_benchmark(BenchmarkType("B1"))
+    Repo-->>UC: List[TestCase] (8 B1 test cases)
+
+    loop For each test case
+        UC->>GW: generate_response(test_case.question)
+        Note over GW: HTTP POST to localhost:11434/api/generate<br/>Streams response chunks<br/>Aggregates to ModelResponse
+        GW-->>UC: ModelResponse(content, tokens, latency_ms)
+
+        UC->>Scoring: score_response(test_case, response)
+        Note over Scoring: Routes to _score_b1_interpretation()<br/>Calculates: accuracy, completeness, grounding
+        Scoring-->>UC: List[EvaluationMetric]
+
+        UC->>UC: Create EvaluationResult<br/>Calculate overall_score<br/>Determine pass/fail (≥15%)
+    end
+
+    UC->>Result: save_batch(List[EvaluationResult])
+    Result-->>UC: Success
+
+    UC-->>CLI: EvaluationSummary (8 tests, 8 passed, 50.89%)
+    CLI-->>User: Display summary table + results file path
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <h3>Architecture Components</h3>
+            <div class="legend-item">
+                <strong>Test Case Layer:</strong> Auto-discovers JSONL test files (b*.jsonl), parses ground truth with key facts, expected labels, and forbidden claims
+            </div>
+            <div class="legend-item">
+                <strong>Model Inference Layer:</strong> Ollama gateway communicates with quantized Llama-Primus-Reasoning (4-bit), captures responses with metadata
+            </div>
+            <div class="legend-item">
+                <strong>Scoring Layer:</strong> Benchmark-aware routing to 21 specialized scoring functions across 3 evaluation tiers (Binary, Rubric, LLM-Judge)
+            </div>
+            <div class="legend-item">
+                <strong>Metric Collection:</strong> Each tier produces accuracy (semantic/label-based), completeness (key-fact recall ≥60%), and grounding (hallucination check) metrics
+            </div>
+            <div class="legend-item">
+                <strong>Weighted Aggregation:</strong> Combines all metrics using weighted formula: Σ(metric.value × weight) / Σ(weight) to calculate overall score
+            </div>
+            <div class="legend-item">
+                <strong>Result Persistence:</strong> JSON storage with evaluation results grouped by benchmark and difficulty, summary statistics, pass/fail determination (≥15% threshold)
+            </div>
+            <div class="legend-item">
+                <strong>Clean Architecture:</strong> Domain-driven design with clear separation: Presentation → Application → Domain → Infrastructure → External Systems
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Phase 2 Baseline Screening Architecture - CCoP 2.0 Fine-Tuning Project</p>
+            <p>Term 1, 2025-2026 Academic Year</p>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#ffffff',
+                primaryTextColor: '#000000',
+                primaryBorderColor: '#000000',
+                lineColor: '#000000',
+                secondaryColor: '#f5f5f5',
+                tertiaryColor: '#e8e8e8',
+                fontSize: '14px',
+                fontFamily: 'Inconsolata, monospace'
+            },
+            flowchart: {
+                curve: 'basis',
+                padding: 20,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: {
+                actorMargin: 50,
+                boxMargin: 10,
+                boxTextMargin: 5,
+                noteMargin: 10,
+                messageMargin: 35
+            }
+        });
+    </script>
+</body>
+</html>

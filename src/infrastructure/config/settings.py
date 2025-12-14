@@ -49,8 +49,8 @@ class Settings(BaseSettings):
 
     # Evaluation Configuration
     test_cases_dir: Path = Field(
-        default=Path("../data/test-cases"),
-        description="Test cases directory"
+        default=Path("../ground-truth/phase-2/test-suite"),
+        description="Test cases directory (Phase 2 ground truth)"
     )
     results_dir: Path = Field(
         default=Path("results/evaluations"),
@@ -59,6 +59,32 @@ class Settings(BaseSettings):
     max_concurrent_evaluations: int = Field(
         default=3,
         description="Maximum concurrent test evaluations"
+    )
+
+    # Evaluation Phase Configuration (Phase 2)
+    evaluation_phase: str = Field(
+        default="baseline",
+        description="Evaluation phase: baseline, finetuned, deployment"
+    )
+
+    # Phase-Specific Pass Thresholds (Phase 2)
+    baseline_threshold: float = Field(
+        default=0.15,
+        ge=0.0,
+        le=1.0,
+        description="Pass threshold for baseline evaluation (15%)"
+    )
+    finetuned_threshold: float = Field(
+        default=0.50,
+        ge=0.0,
+        le=1.0,
+        description="Pass threshold for fine-tuned evaluation (50%)"
+    )
+    deployment_threshold: float = Field(
+        default=0.85,
+        ge=0.0,
+        le=1.0,
+        description="Pass threshold for deployment evaluation (85%)"
     )
 
     # LLM Inference Parameters

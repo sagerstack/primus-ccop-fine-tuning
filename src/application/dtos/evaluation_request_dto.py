@@ -41,6 +41,18 @@ class EvaluationRequestDTO(BaseModel):
     save_results: bool = Field(default=True, description="Save results to disk")
     results_dir: Optional[str] = Field(None, description="Results output directory")
 
+    # Phase 2: Configurable evaluation phase and threshold
+    evaluation_phase: str = Field(
+        default="baseline",
+        description="Evaluation phase: baseline, finetuned, deployment"
+    )
+    pass_threshold: Optional[float] = Field(
+        None,
+        ge=0.0,
+        le=1.0,
+        description="Pass threshold override (if None, uses phase-specific default)"
+    )
+
     model_config = {
         "json_schema_extra": {
             "example": {

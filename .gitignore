@@ -196,6 +196,14 @@ checkpoints/
 final_models/
 evaluation_results/
 
+# CCoP Evaluation Framework specific
+*.gguf
+*.gguf.*
+llama.cpp/
+results/
+models/gguf/
+.ollama_cache/
+
 # Jupyter notebooks outputs
 notebooks/**/*.ipynb_output/
 *.ipynb_output/

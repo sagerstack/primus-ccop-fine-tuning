@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ground Truth Establishment Flow - CCoP 2.0 Test Case Validation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inconsolata', monospace;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f7;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1d1d1f;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        .subtitle {
+            color: #6e6e73;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            color: #1d1d1f;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 10px;
+        }
+        .mermaid {
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .spec-card {
+            background: #ffffff;
+            color: #000000;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #000000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .spec-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #000000;
+        }
+        .spec-card p {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .spec-card.stage1 { background: #f5f5f5; }
+        .spec-card.stage2 { background: #e8e8e8; }
+        .spec-card.stage3 { background: #d9d9d9; }
+        .spec-card.stage4 { background: #cccccc; }
+
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #000000;
+        }
+        .legend h3 {
+            margin-top: 0;
+            color: #1d1d1f;
+        }
+        .legend-item {
+            margin: 10px 0;
+            color: #6e6e73;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #d2d2d7;
+            color: #6e6e73;
+            font-size: 14px;
+            text-align: center;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .status-completed {
+            background: #000000;
+            color: #ffffff;
+        }
+        .status-progress {
+            background: #666666;
+            color: #ffffff;
+        }
+        .status-pending {
+            background: #cccccc;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ground Truth Establishment Flow</h1>
+        <p class="subtitle">CCoP 2.0 Test Case Generation, Validation & Expert Review Process</p>
+
+        <!-- Ground Truth Specifications -->
+        <div class="section">
+            <h2 class="section-title">Ground Truth Specifications</h2>
+            <div class="specs">
+                <div class="spec-card stage1">
+                    <h3>Test Cases</h3>
+                    <p>118 Cases</p>
+                    <small>21 benchmarks (B1-B21)</small>
+                </div>
+                <div class="spec-card stage2">
+                    <h3>Coverage</h3>
+                    <p>100%</p>
+                    <small>All 11 CCoP 2.0 sections</small>
+                </div>
+                <div class="spec-card stage3">
+                    <h3>Schema Fields</h3>
+                    <p>15+ Fields</p>
+                    <small>Key facts, labels, dimensions</small>
+                </div>
+                <div class="spec-card stage4">
+                    <h3>Validation Status</h3>
+                    <p>Expert Review</p>
+                    <small>Pending approval</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Flow Diagram -->
+        <div class="section">
+            <h2 class="section-title">Establishment Process Flow</h2>
+            <div class="mermaid">
+graph TB
+    subgraph "Ground Truth Establishment Pipeline"
+        subgraph "Stage 1: LLM Generation"
+            A[Claude Sonnet 4.5]
+            B[Generate 118 Test Cases<br/>21 Benchmarks B1-B21]
+            C[Initial Schema<br/>question + expected_response<br/>+ clause_reference]
+        end
+
+        subgraph "Stage 2: Human Researcher Review"
+            D[Schema Enhancement]
+            E[Add: benchmark_category<br/>key_facts 3-8 per case<br/>expected_label<br/>reasoning_dimensions<br/>safety_checks]
+            F[Automated Validation<br/>validate_schema.py<br/>118/118 passed]
+            G[Quality Control<br/>Directory consolidation<br/>Backup originals<br/>Standardize naming]
+        end
+
+        subgraph "Stage 3: Expert Review Preparation"
+            H[Create Excel Spreadsheet<br/>CCoP_Test_Cases_Expert_Review.xlsx]
+            I[17 Columns<br/>Identification + References<br/>Content + Schema Fields<br/>Validation Approved Y/N + Remarks]
+            J[Ready for Expert Review<br/>98 KB file]
+        end
+
+        subgraph "Stage 4: Domain Expert Review"
+            K[CCoP Practitioner]
+            L[Review 118 Test Cases<br/>Verify clause references<br/>Validate technical accuracy<br/>Check key facts]
+            M[Expert Feedback<br/>Approved Y/N + Remarks]
+        end
+
+        subgraph "Stage 5: Finalization"
+            N[Process Expert Feedback]
+            O[Corrections & Updates]
+            P[Re-validation]
+            Q[Ground Truth v1.0<br/>Production Ready]
+        end
+    end
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+    I --> J
+    J --> K
+    K --> L
+    L --> M
+    M --> N
+    N --> O
+    O --> P
+    P --> Q
+
+    style A fill:#ffffff,stroke:#000000,stroke-width:2px,color:#000
+    style B fill:#f5f5f5,stroke:#000000,stroke-width:2px,color:#000
+    style D fill:#e8e8e8,stroke:#000000,stroke-width:2px,color:#000
+    style F fill:#e8e8e8,stroke:#000000,stroke-width:2px,color:#000
+    style H fill:#d9d9d9,stroke:#000000,stroke-width:2px,color:#000
+    style K fill:#cccccc,stroke:#000000,stroke-width:2px,color:#000
+    style L fill:#cccccc,stroke:#000000,stroke-width:2px,color:#000
+    style Q fill:#000000,stroke:#000000,stroke-width:3px,color:#fff
+            </div>
+        </div>
+
+        <!-- Validation Flow -->
+        <div class="section">
+            <h2 class="section-title">Quality Assurance & Validation Flow</h2>
+            <div class="mermaid">
+sequenceDiagram
+    participant LLM as Claude Sonnet 4.5
+    participant Researcher as Human Researcher
+    participant Script as Validation Scripts
+    participant Expert as Domain Expert
+    participant GT as Ground Truth
+
+    LLM->>LLM: Generate 118 test cases
+    LLM->>LLM: Coverage: 21 benchmarks, 11 CCoP sections
+    LLM->>Researcher: Initial test cases
+
+    Researcher->>Researcher: Review test cases
+    Researcher->>Script: Run update_test_schema_v2.py
+    Script->>Script: Extract key_facts (3-8 per case)
+    Script->>Script: Add benchmark_category
+    Script->>Script: Add expected_label/dimensions
+    Script-->>Researcher: Updated 118 cases
+
+    Researcher->>Script: Run validate_schema.py
+    Script->>Script: Check all required fields
+    Script->>Script: Verify category-specific fields
+    Script->>Script: Check for old fields
+    Script-->>Researcher: ✓ 118/118 passed
+
+    Researcher->>Researcher: Directory consolidation
+    Researcher->>Researcher: Create backup originals
+    Researcher->>Expert: Send Excel for review<br/>CCoP_Test_Cases_Expert_Review.xlsx
+
+    Expert->>Expert: Review clause references
+    Expert->>Expert: Validate technical accuracy
+    Expert->>Expert: Check key facts
+    Expert->>Expert: Mark Approved Y/N + Remarks
+    Expert-->>Researcher: Expert feedback
+
+    Researcher->>GT: Process feedback
+    Researcher->>GT: Apply corrections
+    Researcher->>Script: Re-validate
+    Script-->>GT: Final validation
+    GT->>GT: Ground Truth v1.0 finalized
+            </div>
+        </div>
+
+        <!-- Stage Status -->
+        <div class="section">
+            <h2 class="section-title">Ground Truth Establishment Pipeline</h2>
+            <div class="mermaid">
+graph LR
+    subgraph "Completed Stages"
+        S1[Stage 1<br/>LLM Generation<br/>118 cases]
+        S2[Stage 2<br/>Human Review<br/>Schema + Validation]
+        S3[Stage 3<br/>Expert Prep<br/>Excel created]
+    end
+
+    subgraph "In Progress"
+        S4[Stage 4<br/>Domain Expert<br/>Review ongoing]
+    end
+
+    subgraph "Pending"
+        S5[Stage 5<br/>Finalization<br/>Awaiting feedback]
+    end
+
+    S1 --> S2
+    S2 --> S3
+    S3 --> S4
+    S4 -.-> S5
+
+    style S1 fill:#f5f5f5,stroke:#000000,stroke-width:2px,color:#000
+    style S2 fill:#f5f5f5,stroke:#000000,stroke-width:2px,color:#000
+    style S3 fill:#f5f5f5,stroke:#000000,stroke-width:2px,color:#000
+    style S4 fill:#cccccc,stroke:#000000,stroke-width:3px,color:#000
+    style S5 fill:#ffffff,stroke:#000000,stroke-width:2px,stroke-dasharray: 5 5,color:#000
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <h3>Process Components</h3>
+            <div class="legend-item">
+                <strong>Stage 1 - LLM Generation <span class="status-badge status-completed">COMPLETED</span>:</strong> Claude Sonnet 4.5 generated 118 comprehensive test cases across 21 benchmarks (B1-B21), covering all 11 sections of CCoP 2.0 Second Edition Revision One plus Cybersecurity Act 2018
+            </div>
+            <div class="legend-item">
+                <strong>Stage 2 - Human Researcher Review <span class="status-badge status-completed">COMPLETED</span>:</strong> Schema enhancement (added benchmark_category, key_facts, expected_label, reasoning_dimensions, safety_checks), automated validation (validate_schema.py - 118/118 passed), quality control (directory consolidation, backup preservation, standardized naming b01-b21)
+            </div>
+            <div class="legend-item">
+                <strong>Stage 3 - Expert Review Preparation <span class="status-badge status-completed">COMPLETED</span>:</strong> Created Excel spreadsheet (CCoP_Test_Cases_Expert_Review.xlsx, 98 KB) with 17 columns including test identification, CCoP references, content, schema fields, and validation columns (Approved Y/N + Remarks)
+            </div>
+            <div class="legend-item">
+                <strong>Stage 4 - Domain Expert Review <span class="status-badge status-progress">IN PROGRESS</span>:</strong> CCoP 2.0 compliance practitioner reviews all 118 test cases for: clause reference accuracy, technical accuracy of expected responses, key facts verification, Singapore-specific terminology correctness, question clarity, real-world applicability
+            </div>
+            <div class="legend-item">
+                <strong>Stage 5 - Finalization <span class="status-badge status-pending">PENDING</span>:</strong> Process expert feedback, apply corrections to test cases, re-run automated validation, document approval rate and changes, release Ground Truth v1.0 for baseline model evaluation
+            </div>
+            <div class="legend-item">
+                <strong>Quality Metrics:</strong> 118 test cases, 21 benchmarks (29 classification, 79 reasoning, 10 safety), 100% schema validation, 3-8 key facts per case, all 11 CCoP sections covered
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Ground Truth Establishment Process - CCoP 2.0 Fine-Tuning Project</p>
+            <p>Phase 2 Baseline Evaluation - Term 1, 2025-2026 Academic Year</p>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#ffffff',
+                primaryTextColor: '#000000',
+                primaryBorderColor: '#000000',
+                lineColor: '#000000',
+                secondaryColor: '#f5f5f5',
+                tertiaryColor: '#e8e8e8',
+                fontSize: '14px',
+                fontFamily: '"Inconsolata", monospace'
+            },
+            flowchart: {
+                curve: 'basis',
+                padding: 20,
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: {
+                actorMargin: 50,
+                boxMargin: 10,
+                boxTextMargin: 5,
+                noteMargin: 10,
+                messageMargin: 35
+            }
+        });
+    </script>
+</body>
+</html>

@@ -5,7 +5,7 @@ Abstract interface for evaluation result persistence.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Dict, List, Optional
 from uuid import UUID
 
 from domain.entities.evaluation_result import EvaluationResult
@@ -38,6 +38,27 @@ class IResultRepository(ABC):
 
         Args:
             results: List of evaluation results
+
+        Raises:
+            RepositoryError: If saving fails
+        """
+        pass
+
+    @abstractmethod
+    async def save_evaluation_run(
+        self,
+        results: List[EvaluationResult],
+        metadata: Dict[str, any]
+    ) -> str:
+        """
+        Save evaluation results for a complete run with metadata.
+
+        Args:
+            results: List of evaluation results
+            metadata: Evaluation run metadata (model, phase, tier, benchmarks, scores, etc.)
+
+        Returns:
+            Filepath of saved results
 
         Raises:
             RepositoryError: If saving fails

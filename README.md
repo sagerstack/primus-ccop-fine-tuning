@@ -1,79 +1,242 @@
-# Fine-Tuning Language Model on CCoP 2.0 Standards
+# CCoP 2.0 Model Evaluation Framework
+
+A Clean Architecture implementation for evaluating Large Language Models on Singapore's Cybersecurity Code of Practice (CCoP 2.0) standards for Critical Information Infrastructure.
 
 ## Project Overview
 
-This project focuses on fine-tuning Llama-Primus-Reasoning on Singapore's Cybersecurity Code of Practice (CCoP 2.0) standards to automate compliance violation detection for Critical Information Infrastructure organizations.
+This framework provides baseline evaluation infrastructure for assessing the **Llama-Primus-Reasoning** model's performance on CCoP 2.0 compliance tasks across six benchmarks:
 
-## Key Objectives
+- **B1**: CCoP Interpretation Accuracy
+- **B2**: Clause Citation Accuracy
+- **B3**: Hallucination Rate
+- **B4**: Singapore Terminology Accuracy
+- **B5**: IT/OT Infrastructure Classification
+- **B6**: Code Violation Detection
 
-1. **Baseline Evaluation**: Benchmark Llama-Primus-Reasoning against CCoP 2.0 standards
-2. **Fine-Tuning**: Use QLoRA to achieve 85% accuracy in compliance violation detection
-3. **Integration**: Deploy model to CI/CD pipelines for automated code and infrastructure analysis
-4. **Validation**: Test in isolated CII environment mimicking real-world deployment
+## Architecture
+
+Built using **Clean Architecture (Hexagonal/Ports & Adapters)** with strict dependency rules:
+
+```
+src/
+├── domain/            # Pure business logic (NO dependencies)
+│   ├── entities/      # TestCase, EvaluationResult, Benchmark
+│   ├── value_objects/ # BenchmarkType, DifficultyLevel, CCoPSection
+│   ├── services/      # ScoringService, BenchmarkValidator
+│   └── exceptions/    # Domain exceptions
+│
+├── application/       # Use cases & ports (depends on domain only)
+│   ├── dtos/          # Data transfer objects
+│   ├── ports/         # Interfaces (input & output ports)
+│   └── use_cases/     # Business workflows
+│
+├── infrastructure/    # External adapters (implements ports)
+│   ├── adapters/      # Ollama, repositories, logging
+│   ├── external/      # HTTP clients
+│   └── config/        # Settings, DI container
+│
+└── presentation/      # CLI interface
+    └── cli/           # Typer-based commands
+```
+
+## Quick Start
+
+### Prerequisites
+
+- Python 3.10+
+- Poetry
+- Ollama (for local inference)
+
+### Installation
+
+```bash
+# Navigate to src directory (all operations run from here)
+cd src/
+
+# Install dependencies
+poetry install
+
+# Check prerequisites
+poetry run ccop-eval setup check
+```
+
+### Setup Model
+
+```bash
+# Option 1: Automated setup (CLI)
+poetry run ccop-eval setup model \
+  --repo trendmicro-ailab/Llama-Primus-Reasoning \
+  --name primus-reasoning \
+  --quantization Q5_K_M
+
+# Option 2: Manual setup (shell scripts)
+cd scripts/
+./setup_ollama.sh
+./convert_to_gguf.sh Q5_K_M
+```
+
+### Run Evaluation
+
+```bash
+# Evaluate on all benchmarks
+poetry run ccop-eval evaluate run --model primus-reasoning
+
+# Evaluate specific benchmarks
+poetry run ccop-eval evaluate run --model primus-reasoning -b B1 -b B3
+
+# Custom parameters
+poetry run ccop-eval evaluate run \
+  --model primus-reasoning \
+  --temperature 0.7 \
+  --benchmark B1 B2 B3
+```
+
+### Generate Reports
+
+```bash
+# JSON report
+poetry run ccop-eval report generate --model primus-reasoning --format json
+
+# Markdown report
+poetry run ccop-eval report generate \
+  --model primus-reasoning \
+  --format markdown \
+  --output reports/baseline-evaluation.md
+
+# Quick summary
+poetry run ccop-eval report summary --model primus-reasoning
+```
+
+## CLI Commands
+
+### Setup Commands
+
+```bash
+# Check prerequisites
+poetry run ccop-eval setup check
+
+# Setup model
+poetry run ccop-eval setup model [OPTIONS]
+  --repo, -r TEXT         HuggingFace repository
+  --name, -n TEXT         Model name for Ollama
+  --quantization, -q TEXT Quantization type (Q4_K_M, Q5_K_M, Q6_K, Q8_0)
+  --force, -f             Force reconversion
+```
+
+### Evaluate Commands
+
+```bash
+# Run evaluation
+poetry run ccop-eval evaluate run [OPTIONS]
+  --model, -m TEXT        Model name (required)
+  --benchmark, -b TEXT    Benchmarks to run (can be specified multiple times)
+  --test-id, -t TEXT      Specific test IDs
+  --temperature FLOAT     Temperature (default: 0.7)
+  --save/--no-save        Save results (default: save)
+```
+
+### Report Commands
+
+```bash
+# Generate report
+poetry run ccop-eval report generate [OPTIONS]
+  --model, -m TEXT        Model name (required)
+  --format, -f TEXT       Report format (json/markdown/html/csv)
+  --output, -o TEXT       Output file path
+  --details/--no-details  Include detailed results
+
+# Show summary
+poetry run ccop-eval report summary --model MODEL_NAME
+```
+
+## Configuration
+
+Configuration via environment variables (prefix: `CCOP_`):
+
+```bash
+# Ollama
+CCOP_OLLAMA_HOST=http://localhost:11434
+CCOP_OLLAMA_TIMEOUT=300
+
+# Model
+CCOP_MODEL_NAME=primus-reasoning
+CCOP_MODEL_QUANTIZATION=Q5_K_M
+
+# Paths
+CCOP_TEST_CASES_DIR=../data/test-cases
+CCOP_RESULTS_DIR=results/evaluations
+
+# Logging
+CCOP_LOG_LEVEL=INFO
+CCOP_LOG_FORMAT=json
+
+# Debug
+CCOP_DEBUG=false
+CCOP_MOCK_MODE=false
+```
+
+See `src/config/.env.example` for all options.
 
 ## Project Structure
 
 ```
 studio-ssdlc/
-├── src/                    # Core source code for Colab execution
-├── colab/                  # Google Colab notebooks
-├── data/                   # Benchmark datasets
-├── models/                 # Model artifacts and checkpoints
-├── benchmarks/             # Benchmark execution and results
-├── config/                 # Configuration files
-├── deployment/             # Deployment configurations
-├── tests/                  # Unit and integration tests
-├── notebooks/              # Research and development notebooks
-├── docs/                   # Documentation
-└── references/             # External references and citations
+├── src/                    # ALL SOURCE CODE
+│   ├── pyproject.toml     # Poetry configuration
+│   ├── config/            # Configuration files
+│   ├── scripts/           # Setup scripts
+│   ├── domain/            # Domain layer
+│   ├── application/       # Application layer
+│   ├── infrastructure/    # Infrastructure layer
+│   └── presentation/      # CLI layer
+│
+├── data/
+│   └── test-cases/        # JSONL test case files
+│
+├── tests/                 # Test files
+├── docs/                  # Documentation
+└── README.md              # This file
 ```
 
-## Development Workflow
+## Development
 
-This project uses a **GitHub + Google Colab** workflow:
+### Run Tests
 
-1. **Code Development**: Local development with Git version control
-2. **Execution**: All heavy computation in Google Colab
-3. **Deployment**: Automated scripts sync code to Colab environment
-4. **Results**: Auto-save results back to repository
+```bash
+cd src/
+poetry run pytest
+```
 
-## Current Status
+### Code Quality
 
-### Phase 1: Foundation & Setup (In Progress)
-- [x] Project repository initialization
-- [x] Implementation plan documentation
-- [ ] Poetry configuration setup
-- [ ] Project structure creation
-- [ ] Colab environment setup
-- [ ] Benchmark dataset creation
+```bash
+# Format code
+poetry run black .
 
-### Upcoming Phases
-- **Phase 2**: Baseline screening (>15% accuracy target)
-- **Phase 3**: Comprehensive benchmarking (170 test cases)
-- **Phase 4**: Small-scale fine-tuning test
-- **Phase 5**: Full dataset creation (5,270 examples)
-- **Phase 6**: Comprehensive fine-tuning
-- **Phase 7**: Production validation
+# Lint
+poetry run ruff check .
 
-## Key Technologies
+# Type check
+poetry run mypy .
+```
 
-- **Base Model**: Llama-Primus-Reasoning (8B parameters)
-- **Fine-Tuning**: QLoRA (Quantized Low-Rank Adaptation)
-- **Evaluation**: 19-benchmark system (B1-B19)
-- **Infrastructure**: Google Colab + Google Cloud Storage
-- **Version Control**: Git + GitHub
+### Adding New Benchmarks
+
+1. Create test cases in `data/test-cases/`
+2. Update `domain/value_objects/benchmark_type.py`
+3. Add scoring logic in `domain/services/scoring_service.py`
+4. Update repository mappings in `infrastructure/adapters/repositories/`
 
 ## References
 
-See [CLAUDE.md](./CLAUDE.md) for comprehensive project references and instructions.
-
-## Getting Started
-
-1. Clone the repository
-2. Set up Poetry environment (for dependency management)
-3. Open Google Colab notebooks for execution
-4. Follow the Phase 1 implementation plan in `docs/phase-1/`
+- [Project Paper](report/term1-mid/Primus-Fine-Tuning-CCOP2-SG-v2.0-SagarPratapSingh-1010736.md)
+- [CCoP 2.0 Official Documentation](ccop-official/CCoP---Second-Edition_Revision-One.pdf)
+- [Llama-Primus-Reasoning Model](https://huggingface.co/trendmicro-ailab/Llama-Primus-Reasoning)
 
 ## License
 
-This project is part of academic research on cybersecurity compliance automation.
+See project documentation for license details.
+
+## Contributing
+
+This is an academic research project. See CLAUDE.md for development guidelines.
