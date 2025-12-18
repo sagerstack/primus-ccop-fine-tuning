@@ -339,7 +339,7 @@ class TestCategoryScoresCalculation:
         # Safety: B21 score = 0.5
         safety = category_scores["Safety & Regulatory Grounding"]
         assert safety["average_score"] == 0.5
-        assert safety["weight"] == 0.10
+        assert safety["weight"] == 0.20
 
     def test_category_scores_empty_results(self):
         """Test category scores with empty results."""

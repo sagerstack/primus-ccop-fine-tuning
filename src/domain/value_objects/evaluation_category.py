@@ -39,7 +39,7 @@ class EvaluationCategory:
             ),
             EvaluationCategory(
                 name="Compliance & Risk Reasoning",
-                weight=0.35,
+                weight=0.25,
                 benchmarks=["B6", "B7", "B8", "B9", "B10", "B11", "B12"],
                 description="Primary focus of fine-tuning; gap identification, risk reasoning, and audit-style judgement"
             ),
@@ -57,7 +57,7 @@ class EvaluationCategory:
             ),
             EvaluationCategory(
                 name="Safety & Regulatory Grounding",
-                weight=0.10,
+                weight=0.20,
                 benchmarks=["B20", "B21"],
                 description="Prevents hallucinated or over-specified regulatory claims"
             ),

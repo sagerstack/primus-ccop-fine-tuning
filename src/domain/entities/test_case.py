@@ -188,6 +188,40 @@ class TestCase:
         """
         return self._metadata.get(field_name, default)
 
+    def get_key_terminology(self) -> list[str]:
+        """
+        Get key terminology for B4 terminology scoring.
+
+        Extracts Singapore-specific cybersecurity terms that should appear
+        in responses (e.g., "CII", "CIIO", "CSA", "CCoP").
+
+        Returns:
+            List of key terms from metadata, or empty list if not defined
+        """
+        # Try multiple possible metadata keys
+        terminology = self._metadata.get("key_terminology") or \
+                     self._metadata.get("key_terms") or \
+                     self._metadata.get("terminology") or []
+
+        return terminology if isinstance(terminology, list) else []
+
+    def get_expected_violations(self) -> list[str]:
+        """
+        Get expected code violations for B6 violation detection scoring.
+
+        Extracts list of CCoP 2.0 control violations that should be
+        identified in code review scenarios.
+
+        Returns:
+            List of expected violations from metadata, or empty list if not defined
+        """
+        # Try multiple possible metadata keys
+        violations = self._metadata.get("expected_violations") or \
+                    self._metadata.get("violations") or \
+                    self._metadata.get("code_violations") or []
+
+        return violations if isinstance(violations, list) else []
+
     # Properties (identity & attributes)
 
     @property
