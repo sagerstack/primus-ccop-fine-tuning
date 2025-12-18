@@ -6,10 +6,12 @@ Stateless service with pure functions (no external dependencies).
 """
 
 import re
-from typing import List
+from typing import Any, List
 
 from domain.entities.model_response import ModelResponse
 from domain.entities.test_case import TestCase
+from domain.services.llm_judge_service import LLMJudgeService
+from domain.services.semantic_similarity_service import SemanticSimilarityService
 from domain.value_objects.benchmark_type import BenchmarkType
 from domain.value_objects.evaluation_metric import (
     EvaluationMetric,
@@ -51,13 +53,28 @@ class ScoringService:
         # Map benchmark short names to scoring functions
         # BenchmarkType supports string comparison via __eq__
         benchmark_scorers = {
+            # Tier 1: Fully implemented benchmarks
             "B1": ScoringService._score_b1_interpretation,
             "B2": ScoringService._score_b2_citation,
             "B3": ScoringService._score_b3_hallucination,
             "B4": ScoringService._score_b4_terminology,
             "B5": ScoringService._score_b5_classification,
             "B6": ScoringService._score_b6_violation_detection,
-            "B21": ScoringService._score_b3_hallucination,  # Tier 1: Binary hallucination detection
+            "B21": ScoringService._score_b3_hallucination,  # Uses B3 hallucination detection
+
+            # Tier 2: Reasoning track (semantic similarity)
+            "B8": ScoringService._score_reasoning_track,
+            "B9": ScoringService._score_reasoning_track,
+            "B11": ScoringService._score_reasoning_track,
+            "B15": ScoringService._score_reasoning_track,
+            "B17": ScoringService._score_reasoning_track,
+            "B18": ScoringService._score_reasoning_track,
+            "B19": ScoringService._score_reasoning_track,
+
+            # Tier 3: LLM-as-Judge (subjective evaluation)
+            "B12": ScoringService._score_tier3_llm_judge,
+            "B13": ScoringService._score_tier3_llm_judge,
+            "B20": ScoringService._score_tier3_llm_judge,
         }
 
         # Find scorer by checking if benchmark type matches each key
@@ -65,8 +82,13 @@ class ScoringService:
             if test_case.benchmark_type == benchmark_key:
                 return scorer(test_case, response)
 
-        # Fallback: basic scoring for B7-B21 and unknown types
-        return [ScoringService._calculate_basic_accuracy(test_case, response)]
+        # No fallback: Raise error for unimplemented benchmarks
+        # This forces explicit implementation for B7, B10, B14, B16
+        raise NotImplementedError(
+            f"Benchmark {test_case.benchmark_type.value} requires Tier 2 Expert Rubric "
+            f"(not yet implemented). "
+            f"Implemented benchmarks: B1-B6, B8, B9, B11-B13, B15, B17-B21"
+        )
 
     @staticmethod
     def _score_b1_interpretation(
@@ -242,6 +264,130 @@ class ScoringService:
         ]
 
     @staticmethod
+    def _score_reasoning_track(
+        test_case: TestCase,
+        response: ModelResponse
+    ) -> List[EvaluationMetric]:
+        """
+        Tier 2: Semantic similarity + key-fact recall for reasoning track.
+
+        Benchmarks: B8, B9, B11, B15, B17, B18, B19
+
+        Uses sentence embeddings instead of Jaccard word overlap to better
+        capture semantic meaning in reasoning-heavy responses.
+        """
+        # Initialize semantic service (singleton)
+        semantic_service = SemanticSimilarityService()
+
+        # 1. Semantic similarity (replaces Jaccard)
+        semantic_score = semantic_service.calculate_similarity(
+            test_case.expected_response,
+            response.content
+        )
+
+        # Apply penalty for low semantic similarity (Option A fix)
+        # Addresses score inflation from partial answers scoring too high
+        if semantic_score < 0.70:
+            penalty = (0.70 - semantic_score) * 0.5
+            semantic_score = max(0.0, semantic_score - penalty)
+
+        accuracy = EvaluationMetric(
+            name="accuracy",
+            value=semantic_score,
+            weight=1.0,
+            description="Semantic similarity using sentence embeddings"
+        )
+
+        # 2. Key-fact recall
+        completeness = ScoringService._calculate_completeness(test_case, response)
+
+        # 3. Grounding check
+        grounding = ScoringService._calculate_grounding_score(test_case, response)
+
+        return [accuracy, completeness, grounding]
+
+    @staticmethod
+    def _score_tier3_llm_judge(
+        test_case: TestCase,
+        response: ModelResponse
+    ) -> List[EvaluationMetric]:
+        """
+        Tier 3: LLM-as-Judge evaluation for subjective benchmarks.
+
+        Benchmarks: B12, B13, B20
+
+        Uses Claude as an expert judge to evaluate complex compliance reasoning
+        that requires human-like judgment.
+        """
+        # Define rubric based on benchmark type
+        rubric = ScoringService._get_tier3_rubric(test_case.benchmark_type)
+
+        # Use Claude as judge
+        judge_service = LLMJudgeService()
+        evaluation = judge_service.evaluate_response(test_case, response, rubric)
+
+        # Convert judge scores to metrics
+        accuracy_metric_obj = EvaluationMetric(
+            name="accuracy",
+            value=evaluation.accuracy_score / 5.0,
+            weight=1.0,
+            description="LLM judge accuracy score"
+        )
+
+        completeness_metric_obj = EvaluationMetric(
+            name="completeness",
+            value=evaluation.completeness_score / 5.0,
+            weight=0.8,
+            description="LLM judge completeness score"
+        )
+
+        alignment_metric_obj = EvaluationMetric(
+            name="alignment",
+            value=evaluation.alignment_score / 5.0,
+            weight=1.0,
+            description="LLM judge audit alignment score"
+        )
+
+        return [accuracy_metric_obj, completeness_metric_obj, alignment_metric_obj]
+
+    @staticmethod
+    def _get_tier3_rubric(benchmark_type: Any) -> dict[str, str]:
+        """
+        Get evaluation rubric for Tier 3 benchmarks.
+
+        Args:
+            benchmark_type: Benchmark type object
+
+        Returns:
+            Dictionary with evaluation criteria
+        """
+        rubrics = {
+            "B12": {
+                "accuracy": "Does the response correctly identify audit perspective issues?",
+                "completeness": "Are all relevant audit concerns covered?",
+                "alignment": "Does this match how CSA auditors would evaluate CII compliance?"
+            },
+            "B13": {
+                "accuracy": "Does the response demonstrate awareness of required evidence?",
+                "completeness": "Are all evidence categories mentioned?",
+                "alignment": "Does this match audit documentation expectations?"
+            },
+            "B20": {
+                "accuracy": "Does the response avoid over-specifying requirements?",
+                "completeness": "Are regulatory boundaries clearly stated?",
+                "alignment": "Does this match principle-based compliance approach?"
+            }
+        }
+
+        # Get benchmark short name (e.g., "B12" from "B12_Audit_Perspective_Alignment")
+        # BenchmarkType has value and short_name attributes
+        short_name = str(benchmark_type)[:3]  # Extract "B12" from string representation
+        if hasattr(benchmark_type, 'short_name'):
+            short_name = benchmark_type.short_name
+
+        return rubrics.get(short_name, rubrics["B12"])
+
+    @staticmethod
     def _calculate_basic_accuracy(
         test_case: TestCase,
         response: ModelResponse
@@ -307,10 +453,11 @@ class ScoringService:
             # Extract key terms (words > 4 chars)
             key_terms = [w for w in re.findall(r'\w+', fact.lower()) if len(w) > 4]
 
-            # Check if majority of key terms present (60% threshold)
+            # Check if majority of key terms present (70% threshold - Option A fix)
+            # Raised from 60% to reduce score inflation, balanced at 70% to avoid over-strictness
             if key_terms:
                 matches = sum(1 for term in key_terms if term in response_lower)
-                if matches / len(key_terms) >= 0.6:
+                if matches / len(key_terms) >= 0.70:
                     covered_facts += 1
 
         completeness_score = covered_facts / len(key_facts)
@@ -340,8 +487,12 @@ class ScoringService:
                 if len(w) > 4
             ]
 
-            if key_words and any(word in response_lower for word in key_words):
-                covered_points += 1
+            # Require majority (60%) of keywords, not just ANY keyword (Option A fix)
+            # Fixes broken OR logic that inflated scores
+            if key_words:
+                matches = sum(1 for word in key_words if word in response_lower)
+                if matches / len(key_words) >= 0.6:
+                    covered_points += 1
 
         completeness_score = covered_points / len(expected_sentences) if expected_sentences else 0.0
         return completeness_metric(completeness_score)
