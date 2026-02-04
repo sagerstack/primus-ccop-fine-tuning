@@ -240,3 +240,6 @@ research/temp/
 local_experiments/
 scratch/
 sandbox/
+# GSD Planning (override *.json rule)
+!.planning/
+!.planning/**
