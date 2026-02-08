@@ -29,15 +29,19 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Requirements**: RAG-01, RAG-02, RAG-03, RAG-04, RAG-05, RAG-06
 **Success Criteria** (what must be TRUE):
   1. All 8 CCoP PDF documents ingested with structure-aware parsing (sections, clauses, tables preserved)
-  2. ChromaDB vector store contains embedded document chunks with metadata (document source, section, clause number)
+  2. Databricks Mosaic AI Vector Search contains embedded document chunks with metadata (document source, section, clause number)
   3. Retrieval pipeline returns top-k relevant CCoP clauses for compliance queries with precision >80%
   4. Re-ranking layer improves retrieval precision by 10-20% over dense-only search
   5. Citation extraction links retrieved chunks to source document and clause numbers (e.g., "CCoP 2.0 Section 3.2.1")
   6. RAG components integrated into existing Clean Architecture as ports/adapters
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] TBD during phase planning
+- [ ] 01-01-PLAN.md — Dependencies, PDF parsing, section-level chunking for all 8 CCoP documents
+- [ ] 01-02-PLAN.md — Databricks Vector Search indexing with hybrid search and reranking
+- [ ] 01-03-PLAN.md — LangGraph adaptive RAG graph (query analysis, retrieval, grading, generation, fallback)
+- [ ] 01-04-PLAN.md — Citation extraction/formatting and Clean Architecture integration (port/adapter/DI/CLI)
+- [ ] 01-05-PLAN.md — Unit tests and end-to-end verification with human inspection
 
 ### Phase 2: RAG Evaluation
 **Goal**: Evaluate RAG-augmented model against 49.2% baseline (from Phase 1 paper) on existing 118 test cases to measure factual grounding improvements and identify benchmark gaps
@@ -156,7 +160,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. RAG Infrastructure | 0/TBD | Not started | - |
+| 1. RAG Infrastructure | 0/5 | Planning complete | - |
 | 2. RAG Evaluation | 0/TBD | Not started | - |
 | 3. Ground Truth Dataset Expansion | 0/TBD | Not started | - |
 | 4. Re-Baseline & Re-Evaluate | 0/TBD | Not started | - |
@@ -167,4 +171,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 ---
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-07*
+*Last updated: 2026-02-08*
