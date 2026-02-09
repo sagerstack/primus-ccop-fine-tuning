@@ -6,11 +6,11 @@ Retrieves relevant CCoP clauses with metadata.
 """
 
 import logging
+import os
 from typing import Optional
 
-from databricks_langchain import DatabricksVectorSearch
+from databricks_langchain import DatabricksEmbeddings, DatabricksVectorSearch
 from databricks.vector_search.client import VectorSearchClient
-from langchain_community.embeddings import DatabricksEmbeddings
 
 from infrastructure.config.settings import get_settings
 from rag.retrieval.state.graph_state import GraphState
@@ -48,6 +48,11 @@ def _get_retriever() -> DatabricksVectorSearch:
             raise ValueError(
                 "CCOP_DATABRICKS_VECTOR_SEARCH_ENDPOINT not configured. Add to .env.local"
             )
+
+        # Bridge CCOP-prefixed settings to standard Databricks env vars
+        # (MLflow/Databricks SDK unified auth reads DATABRICKS_HOST/TOKEN)
+        os.environ.setdefault("DATABRICKS_HOST", settings.databricks_host)
+        os.environ.setdefault("DATABRICKS_TOKEN", settings.databricks_token)
 
         # Initialize clients
         vsc = VectorSearchClient(
