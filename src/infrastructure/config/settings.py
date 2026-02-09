@@ -162,9 +162,13 @@ class Settings(BaseSettings):
         default=None,
         description="Databricks embedding model endpoint name"
     )
+    databricks_warehouse_id: Optional[str] = Field(
+        default=None,
+        description="Databricks SQL Warehouse ID for statement execution"
+    )
 
     model_config = SettingsConfigDict(
-        env_file="../config/.env.example",
+        env_file=("config/.env.example", "config/.env.local"),
         env_file_encoding="utf-8",
         env_prefix="CCOP_",
         case_sensitive=False,

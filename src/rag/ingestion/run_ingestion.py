@@ -226,6 +226,8 @@ def main() -> None:
             missing.append("CCOP_DATABRICKS_VECTOR_SEARCH_ENDPOINT")
         if not settings.databricks_embedding_endpoint:
             missing.append("CCOP_DATABRICKS_EMBEDDING_ENDPOINT")
+        if not settings.databricks_warehouse_id:
+            missing.append("CCOP_DATABRICKS_WAREHOUSE_ID")
 
         if missing:
             logger.error("Missing required Databricks configuration:")

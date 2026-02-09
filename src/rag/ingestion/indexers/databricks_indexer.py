@@ -45,6 +45,7 @@ class DatabricksIndexer:
             ("databricks_schema", settings.databricks_schema),
             ("databricks_vector_search_endpoint", settings.databricks_vector_search_endpoint),
             ("databricks_embedding_endpoint", settings.databricks_embedding_endpoint),
+            ("databricks_warehouse_id", settings.databricks_warehouse_id),
         ]
 
         missing = [name for name, value in required if not value]
@@ -93,9 +94,60 @@ class DatabricksIndexer:
                 ) from e
         return self.vector_search_client
 
+    def _execute_sql(self, statement: str, description: str = "") -> object:
+        """
+        Execute a SQL statement via Databricks SQL Warehouse.
+
+        Submits with 50s wait (max allowed). If still pending, polls until complete.
+
+        Args:
+            statement: SQL statement to execute
+            description: Human-readable description for logging
+
+        Returns:
+            StatementResponse from the executed statement
+        """
+        workspace_client = self._get_workspace_client()
+        warehouse_id = self.settings.databricks_warehouse_id
+
+        if description:
+            logger.info(f"Executing SQL: {description}")
+
+        response = workspace_client.statement_execution.execute_statement(
+            warehouse_id=warehouse_id,
+            statement=statement,
+            wait_timeout="50s",
+        )
+
+        # Poll if statement is still running (warehouse may be starting)
+        poll_count = 0
+        while response.status.state.value in ("PENDING", "RUNNING"):
+            poll_count += 1
+            if poll_count > 60:  # ~5 minutes of polling at 5s intervals
+                raise TimeoutError(f"SQL statement did not complete after polling {poll_count} times")
+            time.sleep(5)
+            response = workspace_client.statement_execution.get_statement(response.statement_id)
+
+        if response.status.state.value == "FAILED":
+            error_msg = getattr(response.status, "error", None)
+            error_detail = getattr(error_msg, "message", str(error_msg)) if error_msg else "Unknown error"
+            raise RuntimeError(f"SQL execution failed: {error_detail}")
+
+        if response.status.state.value == "CANCELED":
+            raise RuntimeError("SQL statement was canceled")
+
+        return response
+
+    @staticmethod
+    def _escape_sql_string(value: str) -> str:
+        """Escape a string for SQL single-quoted literal."""
+        if value is None:
+            return "NULL"
+        return value.replace("\\", "\\\\").replace("'", "''")
+
     def create_source_table(self, chunks: List[CcopChunk]) -> str:
         """
-        Create Delta table and upload chunks.
+        Create Delta table and upload chunks via SQL Warehouse execution.
 
         Creates table at {catalog}.{schema}.ccop_parsed_clauses with schema:
         - id (STRING, primary key)
@@ -121,95 +173,107 @@ class DatabricksIndexer:
         if not chunks:
             raise ValueError("Cannot create table with empty chunks list")
 
-        table_name = f"{self.settings.databricks_catalog}.{self.settings.databricks_schema}.ccop_parsed_clauses"
+        catalog = self.settings.databricks_catalog
+        schema = self.settings.databricks_schema
+        table_name = f"{catalog}.{schema}.ccop_parsed_clauses"
         logger.info(f"Creating Delta table: {table_name}")
 
-        # Get Spark session via workspace client
-        workspace_client = self._get_workspace_client()
-
         try:
-            # Verify Unity Catalog permissions
-            logger.info(f"Verifying Unity Catalog permissions for {self.settings.databricks_catalog}")
-            # Note: Permission check would require calling catalog API
-            # For now, we'll rely on table creation to fail with clear error if permissions missing
+            # Step 1: Create schema if not exists
+            self._execute_sql(
+                f"CREATE SCHEMA IF NOT EXISTS {catalog}.{schema}",
+                f"Creating schema {catalog}.{schema}",
+            )
 
-            # Convert chunks to rows for Spark DataFrame
-            rows = []
-            for chunk in chunks:
-                rows.append({
-                    "id": chunk.id,
-                    "text": chunk.text,
-                    "document_source": chunk.metadata.document_source,
-                    "section": chunk.metadata.section,
-                    "subsection": chunk.metadata.subsection,
-                    "clause": chunk.metadata.clause,
-                    "citation_id": chunk.metadata.citation_id,
-                    "document_type": chunk.metadata.document_type,
-                    "page": chunk.metadata.page,
-                })
+            # Step 2: Drop table if exists (clean slate for ingestion)
+            self._execute_sql(
+                f"DROP TABLE IF EXISTS {table_name}",
+                f"Dropping existing table {table_name}",
+            )
 
-            logger.info(f"Uploading {len(rows)} chunks to Delta table")
+            # Step 3: Create table
+            self._execute_sql(
+                f"""
+                CREATE TABLE {table_name} (
+                    id STRING NOT NULL,
+                    text STRING NOT NULL,
+                    document_source STRING NOT NULL,
+                    section STRING NOT NULL,
+                    subsection STRING NOT NULL,
+                    clause STRING NOT NULL,
+                    citation_id STRING NOT NULL,
+                    document_type STRING NOT NULL,
+                    page INT
+                ) USING DELTA
+                TBLPROPERTIES (
+                    'delta.enableChangeDataFeed' = 'true'
+                )
+                """,
+                f"Creating table {table_name}",
+            )
 
-            # Create table using SQL execution via Databricks SQL API
-            # Note: In production, we'd use Spark DataFrameWriter
-            # For this implementation, we use Databricks SQL execution service
-            from databricks.sdk.service import sql as sql_service
+            # Step 4: Insert data in batches
+            batch_size = 10
+            total = len(chunks)
+            logger.info(f"Inserting {total} chunks in batches of {batch_size}")
 
-            # Create schema if not exists
-            create_schema_sql = f"""
-            CREATE SCHEMA IF NOT EXISTS {self.settings.databricks_catalog}.{self.settings.databricks_schema}
-            """
+            for batch_start in range(0, total, batch_size):
+                batch_end = min(batch_start + batch_size, total)
+                batch = chunks[batch_start:batch_end]
 
-            # Create table with proper schema
-            create_table_sql = f"""
-            CREATE TABLE IF NOT EXISTS {table_name} (
-                id STRING NOT NULL,
-                text STRING NOT NULL,
-                document_source STRING NOT NULL,
-                section STRING NOT NULL,
-                subsection STRING NOT NULL,
-                clause STRING NOT NULL,
-                citation_id STRING NOT NULL,
-                document_type STRING NOT NULL,
-                page INT,
-                PRIMARY KEY (id)
-            ) USING DELTA
-            """
+                values_parts = []
+                for chunk in batch:
+                    page_val = str(chunk.metadata.page) if chunk.metadata.page is not None else "NULL"
+                    row = (
+                        f"('{self._escape_sql_string(chunk.id)}', "
+                        f"'{self._escape_sql_string(chunk.text)}', "
+                        f"'{self._escape_sql_string(chunk.metadata.document_source)}', "
+                        f"'{self._escape_sql_string(chunk.metadata.section)}', "
+                        f"'{self._escape_sql_string(chunk.metadata.subsection)}', "
+                        f"'{self._escape_sql_string(chunk.metadata.clause)}', "
+                        f"'{self._escape_sql_string(chunk.metadata.citation_id)}', "
+                        f"'{self._escape_sql_string(chunk.metadata.document_type)}', "
+                        f"{page_val})"
+                    )
+                    values_parts.append(row)
 
-            # Execute schema creation
-            logger.info("Creating schema if not exists")
-            # Note: Actual SQL execution would be via workspace_client.statement_execution
-            # For this implementation, we'll use a simpler approach via REST API
+                insert_sql = (
+                    f"INSERT INTO {table_name} "
+                    f"(id, text, document_source, section, subsection, clause, citation_id, document_type, page) "
+                    f"VALUES {', '.join(values_parts)}"
+                )
 
-            # Import pandas for DataFrame creation
-            import pandas as pd
+                self._execute_sql(
+                    insert_sql,
+                    f"Inserting batch {batch_start + 1}-{batch_end} of {total}",
+                )
 
-            # Create pandas DataFrame
-            df = pd.DataFrame(rows)
+            # Step 5: Verify row count
+            count_response = self._execute_sql(
+                f"SELECT COUNT(*) as cnt FROM {table_name}",
+                f"Verifying row count in {table_name}",
+            )
 
-            # Write to Delta table (this requires databricks-sql-connector or spark)
-            # For simplicity, we'll use the SQL warehouse approach
-            logger.info(f"Table {table_name} created/verified, uploading data")
+            row_count = None
+            if count_response.result and count_response.result.data_array:
+                row_count = count_response.result.data_array[0][0]
 
-            # Note: In real implementation, we'd use:
-            # spark.createDataFrame(rows).write.format("delta").mode("overwrite").saveAsTable(table_name)
-            # Since we don't have Spark context here, we'll document the approach
-
-            logger.info(f"Successfully uploaded {len(rows)} rows to {table_name}")
+            logger.info(f"Successfully uploaded {row_count or total} rows to {table_name}")
 
             return table_name
 
         except Exception as e:
-            if "PERMISSION_DENIED" in str(e) or "not authorized" in str(e).lower():
+            error_str = str(e)
+            if "PERMISSION_DENIED" in error_str or "not authorized" in error_str.lower():
                 raise PermissionError(
                     f"Insufficient Unity Catalog permissions for {table_name}. "
-                    f"Required privileges: USE CATALOG, USE SCHEMA, SELECT. "
+                    f"Required privileges: USE CATALOG, USE SCHEMA, CREATE TABLE, MODIFY. "
                     f"Contact your Databricks admin."
                 ) from e
-            elif "not found" in str(e).lower():
+            elif "warehouse" in error_str.lower() and "not found" in error_str.lower():
                 raise ValueError(
-                    f"Catalog or schema not found: {self.settings.databricks_catalog}.{self.settings.databricks_schema}. "
-                    f"Please create the catalog and schema first in Databricks."
+                    f"SQL Warehouse not found: {self.settings.databricks_warehouse_id}. "
+                    f"Verify the warehouse ID in Databricks workspace: SQL -> SQL Warehouses."
                 ) from e
             else:
                 raise RuntimeError(f"Failed to create Delta table: {e}") from e
@@ -244,7 +308,17 @@ class DatabricksIndexer:
             logger.info(f"Verifying vector search endpoint: {self.settings.databricks_vector_search_endpoint}")
             try:
                 endpoint = vsc.get_endpoint(self.settings.databricks_vector_search_endpoint)
-                logger.info(f"Vector search endpoint verified: {endpoint.name}")
+                endpoint_name = (
+                    endpoint.get("name", self.settings.databricks_vector_search_endpoint)
+                    if isinstance(endpoint, dict)
+                    else getattr(endpoint, "name", self.settings.databricks_vector_search_endpoint)
+                )
+                logger.info(f"Vector search endpoint verified: {endpoint_name}")
+            except AttributeError:
+                # get_endpoint succeeded but returned unexpected type — endpoint exists
+                logger.info(
+                    f"Vector search endpoint verified: {self.settings.databricks_vector_search_endpoint}"
+                )
             except Exception as e:
                 raise ValueError(
                     f"Vector search endpoint not found: {self.settings.databricks_vector_search_endpoint}. "
@@ -275,7 +349,7 @@ class DatabricksIndexer:
             )
 
             logger.info(f"Index created: {index_name}")
-            logger.info(f"Index status: {index.status.state if hasattr(index, 'status') else 'PROVISIONING'}")
+            logger.info("Index status: PROVISIONING (initial sync will follow)")
 
             return index_name
 
@@ -327,26 +401,46 @@ class DatabricksIndexer:
                 )
 
             try:
-                index = vsc.get_index(index_name)
-                status = index.status.state if hasattr(index, 'status') else "UNKNOWN"
+                index = vsc.get_index(
+                    endpoint_name=self.settings.databricks_vector_search_endpoint,
+                    index_name=index_name,
+                )
+
+                # Get status from describe() method (VectorSearchIndex object)
+                desc = index.describe() if hasattr(index, "describe") else index
+                if isinstance(desc, dict):
+                    status_info = desc.get("status", {})
+                    is_ready = status_info.get("ready", False)
+                    detailed_state = status_info.get("detailed_state", "UNKNOWN")
+                    indexed_rows = status_info.get("indexed_row_count", 0)
+                else:
+                    is_ready = False
+                    detailed_state = "UNKNOWN"
+                    indexed_rows = 0
 
                 # Log progress every 30 seconds
                 if time.time() - last_log_time > 30:
-                    logger.info(f"Index status: {status} (elapsed: {int(elapsed)}s)")
+                    logger.info(
+                        f"Index status: {detailed_state} | "
+                        f"indexed_rows: {indexed_rows} | "
+                        f"elapsed: {int(elapsed)}s"
+                    )
                     last_log_time = time.time()
 
-                if status == "ONLINE":
+                if is_ready:
                     logger.info(f"Index is ONLINE after {int(elapsed)}s")
                     return
-                elif status in ["FAILED", "ERROR"]:
+                elif detailed_state in ["OFFLINE_FAILED", "FAILED"]:
+                    message = status_info.get("message", "No details")
                     raise RuntimeError(
-                        f"Index creation failed with status: {status}. "
-                        f"Check Databricks workspace for error details."
+                        f"Index creation failed: {detailed_state}. {message}"
                     )
 
                 # Wait before next check
                 time.sleep(10)
 
+            except RuntimeError:
+                raise
             except Exception as e:
                 if "not found" in str(e).lower():
                     # Index might not be visible yet, continue waiting
@@ -373,30 +467,44 @@ class DatabricksIndexer:
         vsc = self._get_vector_search_client()
 
         try:
-            index = vsc.get_index(index_name)
+            index = vsc.get_index(
+                    endpoint_name=self.settings.databricks_vector_search_endpoint,
+                    index_name=index_name,
+                )
 
             # Execute similarity search
+            columns = ["id", "text", "document_source", "section", "citation_id"]
             results = index.similarity_search(
                 query_text=sample_query,
-                columns=["id", "text", "document_source", "section", "citation_id"],
+                columns=columns,
                 num_results=5,
             )
 
-            # Extract results
-            result_count = len(results.get("result", {}).get("data_array", []))
+            # Extract results — data_array contains rows as lists, column_names has headers
+            data_array = results.get("result", {}).get("data_array", [])
+            column_names = results.get("result", {}).get("column_names", columns)
+            result_count = len(data_array)
 
             logger.info(f"Query returned {result_count} results")
 
+            # Convert list rows to dicts for easier consumption
+            result_dicts = []
+            for row in data_array:
+                row_dict = dict(zip(column_names, row))
+                result_dicts.append(row_dict)
+
             if result_count > 0:
-                # Log first result
-                first_result = results["result"]["data_array"][0]
-                logger.info(f"Top result: {first_result.get('citation_id', 'N/A')} - {first_result.get('section', 'N/A')}")
+                first = result_dicts[0]
+                logger.info(
+                    f"Top result: {first.get('citation_id', 'N/A')} - "
+                    f"{first.get('section', 'N/A')}"
+                )
 
             return {
                 "index_name": index_name,
                 "query": sample_query,
                 "result_count": result_count,
-                "results": results.get("result", {}).get("data_array", [])[:3],  # Top 3
+                "results": result_dicts[:3],
             }
 
         except Exception as e:
