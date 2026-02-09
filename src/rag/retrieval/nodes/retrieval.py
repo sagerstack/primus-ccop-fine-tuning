@@ -131,9 +131,19 @@ def retrieve_documents(state: GraphState) -> GraphState:
             )
 
         logger.info(
-            f"Retrieved {len(documents)} documents.{score_summary} "
-            f"Top 3 sources: {[doc.metadata.get('document_source', 'unknown') for doc in documents[:3]]}"
+            f"Retrieved {len(documents)} documents.{score_summary}"
         )
+
+        # Log each retrieved document
+        for i, doc in enumerate(documents, 1):
+            sim = doc.metadata.get("similarity_score", 0.0)
+            cid = doc.metadata.get("citation_id", "unknown")
+            src = doc.metadata.get("document_source", "unknown")
+            sec = doc.metadata.get("section", "")
+            snippet = doc.page_content[:120].replace("\n", " ")
+            logger.info(
+                f"  [{i}] score={sim:.3f} | {src} | {sec} | {cid} | {snippet}..."
+            )
 
     except Exception as e:
         logger.error(f"Retrieval failed: {e}")

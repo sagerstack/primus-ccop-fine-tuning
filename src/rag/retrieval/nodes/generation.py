@@ -56,6 +56,15 @@ def generate_response(state: GraphState) -> GraphState:
 
     context = "\n---\n".join(context_parts)
 
+    # Log the assembled context being sent to the model
+    logger.info(f"Context assembled for generation ({len(context)} chars, {len(filtered_docs)} sources):")
+    for i, doc in enumerate(filtered_docs, 1):
+        cid = doc.metadata.get("citation_id", "unknown")
+        src = doc.metadata.get("document_source", "unknown")
+        sec = doc.metadata.get("section", "")
+        sim = doc.metadata.get("similarity_score", 0.0)
+        logger.info(f"  [{i}] {src} | {sec} | {cid} | similarity={sim:.3f} | {len(doc.page_content)} chars")
+
     # Generation prompt with citation instructions
     generation_prompt = ChatPromptTemplate.from_messages(
         [
