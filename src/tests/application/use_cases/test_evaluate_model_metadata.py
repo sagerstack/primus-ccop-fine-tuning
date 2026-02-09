@@ -13,7 +13,7 @@ from unittest.mock import Mock, AsyncMock
 from uuid import uuid4
 
 from application.dtos.evaluation_request_dto import EvaluationRequestDTO
-from application.dtos.evaluation_summary_dto import EvaluationSummaryDTO
+from application.dtos.evaluation_result_dto import EvaluationSummaryDTO
 from application.dtos.evaluation_result_dto import EvaluationResultDTO
 from application.use_cases.evaluate_model import EvaluateModelUseCase
 from domain.entities.evaluation_result import EvaluationResult
@@ -206,28 +206,30 @@ class TestCategoryScoresCalculation:
             EvaluationResultDTO(
                 result_id=str(uuid4()),
                 test_id="B1-001",
-                benchmark="B1_CCoP_Applicability_Scope",
-                model="test-model",
-                response="Response",
-                score=0.8,
+                benchmark_type="B1_CCoP_Applicability_Scope",
+                model_name="test-model",
+                response_content="Response",
+                overall_score=0.8,
                 passed=True,
                 metrics=[],
-                tokens=100,
+                threshold=0.15,
+                tokens_used=100,
                 latency_ms=1000,
-                evaluated_at=datetime.now().isoformat()
+                evaluated_at=datetime.now()
             ),
             EvaluationResultDTO(
                 result_id=str(uuid4()),
                 test_id="B2-001",
-                benchmark="B2_Compliance_Classification_Accuracy",
-                model="test-model",
-                response="Response",
-                score=0.9,
+                benchmark_type="B2_Compliance_Classification_Accuracy",
+                model_name="test-model",
+                response_content="Response",
+                overall_score=0.9,
                 passed=True,
                 metrics=[],
-                tokens=100,
+                threshold=0.15,
+                tokens_used=100,
                 latency_ms=1000,
-                evaluated_at=datetime.now().isoformat()
+                evaluated_at=datetime.now()
             )
         ]
 
@@ -251,28 +253,30 @@ class TestCategoryScoresCalculation:
             EvaluationResultDTO(
                 result_id=str(uuid4()),
                 test_id="B1-001",
-                benchmark="B1_CCoP_Applicability_Scope",
-                model="test-model",
-                response="Response",
-                score=0.6,
+                benchmark_type="B1_CCoP_Applicability_Scope",
+                model_name="test-model",
+                response_content="Response",
+                overall_score=0.6,
                 passed=True,
                 metrics=[],
-                tokens=100,
+                threshold=0.15,
+                tokens_used=100,
                 latency_ms=1000,
-                evaluated_at=datetime.now().isoformat()
+                evaluated_at=datetime.now()
             ),
             EvaluationResultDTO(
                 result_id=str(uuid4()),
                 test_id="B1-002",
-                benchmark="B1_CCoP_Applicability_Scope",
-                model="test-model",
-                response="Response",
-                score=0.8,
+                benchmark_type="B1_CCoP_Applicability_Scope",
+                model_name="test-model",
+                response_content="Response",
+                overall_score=0.8,
                 passed=True,
                 metrics=[],
-                tokens=100,
+                threshold=0.15,
+                tokens_used=100,
                 latency_ms=1000,
-                evaluated_at=datetime.now().isoformat()
+                evaluated_at=datetime.now()
             )
         ]
 
@@ -299,29 +303,31 @@ class TestCategoryScoresCalculation:
             EvaluationResultDTO(
                 result_id=str(uuid4()),
                 test_id="B1-001",
-                benchmark="B1_CCoP_Applicability_Scope",
-                model="test-model",
-                response="Response",
-                score=0.8,
+                benchmark_type="B1_CCoP_Applicability_Scope",
+                model_name="test-model",
+                response_content="Response",
+                overall_score=0.8,
                 passed=True,
                 metrics=[],
-                tokens=100,
+                threshold=0.15,
+                tokens_used=100,
                 latency_ms=1000,
-                evaluated_at=datetime.now().isoformat()
+                evaluated_at=datetime.now()
             ),
             # Safety category (B21)
             EvaluationResultDTO(
                 result_id=str(uuid4()),
                 test_id="B21-001",
-                benchmark="B21_Hallucination_Rate",
-                model="test-model",
-                response="Response",
-                score=0.5,
+                benchmark_type="B21_Hallucination_Rate",
+                model_name="test-model",
+                response_content="Response",
+                overall_score=0.5,
                 passed=True,
                 metrics=[],
-                tokens=100,
+                threshold=0.15,
+                tokens_used=100,
                 latency_ms=1000,
-                evaluated_at=datetime.now().isoformat()
+                evaluated_at=datetime.now()
             )
         ]
 

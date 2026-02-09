@@ -354,9 +354,13 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
 
         for category in categories:
             # Find results for benchmarks in this category
+            # Use underscore delimiter to prevent prefix collisions (e.g., B2 matching B21)
             category_results = [
                 r for r in results
-                if any(r.benchmark_type.startswith(b) for b in category.benchmarks)
+                if any(
+                    r.benchmark_type.startswith(b + "_") or r.benchmark_type == b
+                    for b in category.benchmarks
+                )
             ]
 
             if category_results:
