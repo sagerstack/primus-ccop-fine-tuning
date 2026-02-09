@@ -148,15 +148,19 @@ addopts = [
     "--cov=application",
     "--cov=infrastructure",
     "--cov=presentation",
+    "--cov=rag",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
 ]
 asyncio_mode = "auto"
+markers = [
+    "integration: marks tests as integration tests (require external services like Databricks)",
+]
 
 # Coverage configuration
 [tool.coverage.run]
-source = ["domain", "application", "infrastructure", "presentation"]
+source = ["domain", "application", "infrastructure", "presentation", "rag"]
 omit = [
     "*/tests/*",
     "*/__init__.py",
