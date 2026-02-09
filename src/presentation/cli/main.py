@@ -11,6 +11,7 @@ from infrastructure.config.container import get_container
 from presentation.cli.commands.evaluate import evaluate_app
 from presentation.cli.commands.report import report_app
 from presentation.cli.commands.setup import setup_app
+from rag.presentation.cli.query import query_app
 
 # Create main Typer app
 app = typer.Typer(
@@ -23,6 +24,7 @@ app = typer.Typer(
 app.add_typer(setup_app, name="setup", help="Setup models for evaluation")
 app.add_typer(evaluate_app, name="evaluate", help="Evaluate models on test cases")
 app.add_typer(report_app, name="report", help="Generate evaluation reports")
+app.add_typer(query_app, name="query", help="Query CCoP compliance via RAG")
 
 console = Console()
 

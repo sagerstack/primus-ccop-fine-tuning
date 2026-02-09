@@ -6,12 +6,14 @@ generation, and fallback nodes with conditional routing.
 """
 
 import logging
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from langgraph.graph import END, StateGraph
 
-from infrastructure.config.settings import Settings
 from rag.retrieval.edges.routing import decide_after_grading, rewrite_query, route_query
+
+if TYPE_CHECKING:
+    from infrastructure.config.settings import Settings
 from rag.retrieval.nodes.fallback import fallback_generation
 from rag.retrieval.nodes.generation import generate_response
 from rag.retrieval.nodes.grading import grade_documents
@@ -22,7 +24,7 @@ from rag.retrieval.state.graph_state import GraphState
 logger = logging.getLogger(__name__)
 
 
-def build_rag_graph(settings: Settings):
+def build_rag_graph(settings: "Settings"):
     """
     Build the LangGraph adaptive RAG graph.
 
@@ -109,7 +111,7 @@ def build_rag_graph(settings: Settings):
     return app
 
 
-def create_rag_pipeline(settings: Settings) -> Callable[[str], dict]:
+def create_rag_pipeline(settings: "Settings") -> Callable[[str], dict]:
     """
     Create RAG pipeline callable.
 

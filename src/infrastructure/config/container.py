@@ -110,6 +110,34 @@ class Container(containers.DeclarativeContainer):
         logger=logger,
     )
 
+    # RAG Pipeline (optional - only initialized if Databricks configured)
+    # Lazy import to avoid circular dependency
+    @staticmethod
+    def _get_rag_adapter():
+        from rag.infrastructure.adapters.langgraph_rag_adapter import (
+            LangGraphRagAdapter,
+        )
+
+        return LangGraphRagAdapter
+
+    @staticmethod
+    def _get_query_use_case():
+        from rag.application.use_cases.query_compliance import QueryComplianceUseCase
+
+        return QueryComplianceUseCase
+
+    rag_pipeline = providers.Singleton(
+        providers.Callable(_get_rag_adapter),
+        settings=config,
+        logger=logger,
+    )
+
+    query_compliance_use_case = providers.Factory(
+        providers.Callable(_get_query_use_case),
+        rag_pipeline=rag_pipeline,
+        logger=logger,
+    )
+
 
 # Global container instance
 _container: Container | None = None
