@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1 of 8 (RAG Infrastructure)
-Plan: 0 of TBD in current phase
-Status: Context gathered, ready to plan
-Last activity: 2026-02-07 — Roadmap reordered (RAG first), Phase 1 context gathered
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-09 — Completed 01-01-PLAN.md (RAG dependencies and PDF parsing)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 12.5%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: N/A
-- Total execution time: 0.0 hours
+- Total plans completed: 1
+- Average duration: 10 min
+- Total execution time: 0.17 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 1. RAG Infrastructure | 1/5 | 10 min | 10 min |
 
 **Recent Trend:**
-- Last 5 plans: None yet
-- Trend: N/A (first phase)
+- Last 5 plans: 01-01 (10min)
+- Trend: First plan baseline
 
 *Updated after each plan completion*
 
@@ -49,6 +49,10 @@ Recent decisions affecting current work:
 - Multi-source dataset: CIIO practitioner + audit questions + adapted external compliance datasets (NIST, ISO 27001) + existing CCoP datasets
 - Hybrid approach (RAG + fine-tuning): RAG for grounding, fine-tuning for reasoning — each addresses different gaps
 - 85% accuracy target: Industry standard for compliance automation (Thomson Reuters, GSA references)
+- **[01-01] PyMuPDF4LLM for PDF parsing:** Preserves tables and structure better than generic loaders
+- **[01-01] Section-level semantic chunking:** 87.7% context recall vs ~65% for fixed-size chunking
+- **[01-01] All 8 CCoP documents as standard sections:** RESPONSE-TO-FEEDBACK marked as clarification type
+- **[01-01] Databricks settings no defaults:** Forces explicit configuration via .env.local
 
 ### Pending Todos
 
@@ -60,6 +64,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-07
-Stopped at: Phase 1 context gathered, roadmap reordered, ready for Phase 1 planning
+Last session: 2026-02-09
+Stopped at: Completed 01-01-PLAN.md (RAG dependencies and PDF parsing)
 Resume file: None
