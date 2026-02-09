@@ -9,7 +9,7 @@ import logging
 import os
 from typing import Optional
 
-from databricks_langchain import DatabricksEmbeddings, DatabricksVectorSearch
+from databricks_langchain import DatabricksVectorSearch
 
 from infrastructure.config.settings import get_settings
 from rag.retrieval.state.graph_state import GraphState
@@ -53,11 +53,6 @@ def _get_retriever() -> DatabricksVectorSearch:
         os.environ.setdefault("DATABRICKS_HOST", settings.databricks_host)
         os.environ.setdefault("DATABRICKS_TOKEN", settings.databricks_token)
 
-        # Initialize embedding model
-        embeddings = DatabricksEmbeddings(
-            endpoint=settings.databricks_embedding_endpoint,
-        )
-
         # Construct index name
         index_name = (
             f"{settings.databricks_catalog}."
@@ -65,12 +60,11 @@ def _get_retriever() -> DatabricksVectorSearch:
             f"ccop_clauses_hybrid"
         )
 
-        # Create vector store (pass endpoint name as string, not endpoint object)
+        # Create vector store (no embedding param — index uses Databricks-managed embeddings)
         _retriever = DatabricksVectorSearch(
             endpoint=settings.databricks_vector_search_endpoint,
             index_name=index_name,
             text_column="text",
-            embedding=embeddings,
             columns=[
                 "document_source",
                 "section",
