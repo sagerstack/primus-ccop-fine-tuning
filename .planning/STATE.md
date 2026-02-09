@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1 of 8 (RAG Infrastructure)
-Plan: 2 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-09 — Completed 01-02-PLAN.md (Databricks Vector Search indexing and ingestion pipeline)
+Last activity: 2026-02-09 — Completed 01-03-PLAN.md (LangGraph adaptive RAG graph)
 
-Progress: [█░░░░░░░░░] 25%
+Progress: [█░░░░░░░░░] 30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 7 min
-- Total execution time: 0.23 hours
+- Total plans completed: 3
+- Average duration: 6 min
+- Total execution time: 0.30 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. RAG Infrastructure | 2/5 | 14 min | 7 min |
+| 1. RAG Infrastructure | 3/5 | 18 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (10min), 01-02 (4min)
-- Trend: Accelerating (infrastructure tasks are quick)
+- Last 5 plans: 01-01 (10min), 01-02 (4min), 01-03 (4min)
+- Trend: Accelerating (infrastructure tasks are quick, code quality high)
 
 *Updated after each plan completion*
 
@@ -56,6 +56,9 @@ Recent decisions affecting current work:
 - **[01-02] Delta Sync index type:** Automatic updates when source table changes (no manual re-indexing)
 - **[01-02] Lazy client initialization:** Enables dry-run mode without Databricks credentials
 - **[01-02] Hybrid search (dense + sparse RRF):** 85% NDCG@10 vs 72% for dense-only (research-backed improvement)
+- **[01-03] LLM-as-judge grading with 0.6 threshold:** Prevents 40-60% silent failure rate of naive RAG
+- **[01-03] Max 3 retrieval attempts:** Balances quality and latency via self-correction loop
+- **[01-03] Raw citation anchors:** Generation embeds `<c>citation_id</c>` for downstream resolution (Plan 01-04)
 
 ### Pending Todos
 
@@ -68,5 +71,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 01-02-PLAN.md (Databricks Vector Search indexing and ingestion pipeline)
+Stopped at: Completed 01-03-PLAN.md (LangGraph adaptive RAG graph)
 Resume file: None
