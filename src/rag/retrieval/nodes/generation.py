@@ -11,6 +11,8 @@ from langchain_community.chat_models import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 
 from infrastructure.config.settings import get_settings
+from rag.citations.formatter import format_response_with_citations
+from rag.citations.resolver import build_citations_from_state
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -87,31 +89,36 @@ Retrieved Context:
         chain = generation_prompt | llm
         response = chain.invoke({"context": context, "query": query})
 
-        generation_text = (
+        raw_generation = (
             response.content if hasattr(response, "content") else str(response)
         )
 
-        state["generation"] = generation_text
+        # Post-process: resolve citation anchors to metadata
+        # Store raw generation for debugging
+        state["raw_generation"] = raw_generation
+
+        # Build temporary state for citation resolution
+        temp_state = {
+            "generation": raw_generation,
+            "filtered_documents": filtered_docs,
+        }
+
+        # Resolve raw <c>citation_id</c> anchors to citation metadata
+        resolved_citations = build_citations_from_state(temp_state)
+
+        # Format final response with end-of-response references
+        formatted_generation = format_response_with_citations(
+            raw_generation, resolved_citations
+        )
+
+        # Update state with formatted output
+        state["generation"] = formatted_generation
         state["is_rag_augmented"] = True
-
-        # Extract initial citations from document metadata
-        citations = []
-        for doc in filtered_docs:
-            citations.append(
-                {
-                    "citation_id": doc.metadata.get("citation_id", ""),
-                    "document_source": doc.metadata.get("document_source", ""),
-                    "section": doc.metadata.get("section", ""),
-                    "clause": doc.metadata.get("clause", ""),
-                    "page": doc.metadata.get("page"),
-                }
-            )
-
-        state["citations"] = citations
+        state["citations"] = resolved_citations
 
         logger.info(
-            f"Generated response: {len(generation_text)} chars, "
-            f"{len(citations)} source documents"
+            f"Generated response: {len(formatted_generation)} chars, "
+            f"{len(resolved_citations)} citations resolved"
         )
 
     except Exception as e:
