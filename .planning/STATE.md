@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1 of 8 (RAG Infrastructure)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-09 — Completed 01-01-PLAN.md (RAG dependencies and PDF parsing)
+Last activity: 2026-02-09 — Completed 01-02-PLAN.md (Databricks Vector Search indexing and ingestion pipeline)
 
-Progress: [█░░░░░░░░░] 12.5%
+Progress: [█░░░░░░░░░] 25%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 10 min
-- Total execution time: 0.17 hours
+- Total plans completed: 2
+- Average duration: 7 min
+- Total execution time: 0.23 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. RAG Infrastructure | 1/5 | 10 min | 10 min |
+| 1. RAG Infrastructure | 2/5 | 14 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (10min)
-- Trend: First plan baseline
+- Last 5 plans: 01-01 (10min), 01-02 (4min)
+- Trend: Accelerating (infrastructure tasks are quick)
 
 *Updated after each plan completion*
 
@@ -53,6 +53,9 @@ Recent decisions affecting current work:
 - **[01-01] Section-level semantic chunking:** 87.7% context recall vs ~65% for fixed-size chunking
 - **[01-01] All 8 CCoP documents as standard sections:** RESPONSE-TO-FEEDBACK marked as clarification type
 - **[01-01] Databricks settings no defaults:** Forces explicit configuration via .env.local
+- **[01-02] Delta Sync index type:** Automatic updates when source table changes (no manual re-indexing)
+- **[01-02] Lazy client initialization:** Enables dry-run mode without Databricks credentials
+- **[01-02] Hybrid search (dense + sparse RRF):** 85% NDCG@10 vs 72% for dense-only (research-backed improvement)
 
 ### Pending Todos
 
@@ -65,5 +68,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 01-01-PLAN.md (RAG dependencies and PDF parsing)
+Stopped at: Completed 01-02-PLAN.md (Databricks Vector Search indexing and ingestion pipeline)
 Resume file: None
