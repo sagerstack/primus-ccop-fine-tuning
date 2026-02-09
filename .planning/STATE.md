@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1 of 8 (RAG Infrastructure)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-09 — Completed 01-03-PLAN.md (LangGraph adaptive RAG graph)
+Last activity: 2026-02-09 — Completed 01-04-PLAN.md (Citation resolution and Clean Architecture integration)
 
-Progress: [█░░░░░░░░░] 30%
+Progress: [██░░░░░░░░] 40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 6 min
-- Total execution time: 0.30 hours
+- Total plans completed: 4
+- Average duration: 7 min
+- Total execution time: 0.47 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. RAG Infrastructure | 3/5 | 18 min | 6 min |
+| 1. RAG Infrastructure | 4/5 | 28 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (10min), 01-02 (4min), 01-03 (4min)
-- Trend: Accelerating (infrastructure tasks are quick, code quality high)
+- Last 5 plans: 01-01 (10min), 01-02 (4min), 01-03 (4min), 01-04 (10min)
+- Trend: Stable (infrastructure complexity varies, quality maintained)
 
 *Updated after each plan completion*
 
@@ -59,6 +59,10 @@ Recent decisions affecting current work:
 - **[01-03] LLM-as-judge grading with 0.6 threshold:** Prevents 40-60% silent failure rate of naive RAG
 - **[01-03] Max 3 retrieval attempts:** Balances quality and latency via self-correction loop
 - **[01-03] Raw citation anchors:** Generation embeds `<c>citation_id</c>` for downstream resolution (Plan 01-04)
+- **[01-04] End-of-response citation format:** Clean text + references at bottom. Avoids embedding metadata in chunks (degrades retrieval)
+- **[01-04] TYPE_CHECKING for circular imports:** Breaks Settings → Container → RAG adapter cycle
+- **[01-04] Lazy DI container imports:** Staticmethod pattern defers RAG imports until first use
+- **[01-04] Graceful degradation without Databricks:** Existing eval framework works without RAG config
 
 ### Pending Todos
 
@@ -71,5 +75,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 01-03-PLAN.md (LangGraph adaptive RAG graph)
+Stopped at: Completed 01-04-PLAN.md (Citation resolution and Clean Architecture integration)
 Resume file: None
