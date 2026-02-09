@@ -40,6 +40,7 @@ databricks-langchain = ">=0.1.0"        # Databricks Vector Search integration
 pymupdf4llm = ">=0.0.10"                # PDF parsing with structure preservation
 databricks-vectorsearch = ">=0.40"      # Databricks Vector Search client
 databricks-sdk = ">=0.30.0"             # Databricks SDK
+langchain-ollama = ">=0.2.0,<1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 # Testing

@@ -167,6 +167,24 @@ class Settings(BaseSettings):
         description="Databricks SQL Warehouse ID for statement execution"
     )
 
+    # RAG Pipeline Configuration
+    rag_grading_enabled: bool = Field(
+        default=False,
+        description="Enable LLM-as-judge grading of retrieved documents (slow with local models)"
+    )
+    rag_similarity_threshold: float = Field(
+        default=0.6,
+        ge=0.0,
+        le=1.0,
+        description="Minimum similarity score for retrieved documents when LLM grading is disabled"
+    )
+    rag_retrieval_top_k: int = Field(
+        default=10,
+        ge=1,
+        le=50,
+        description="Number of documents to retrieve from vector search"
+    )
+
     model_config = SettingsConfigDict(
         env_file=("config/.env.example", "config/.env.local"),
         env_file_encoding="utf-8",

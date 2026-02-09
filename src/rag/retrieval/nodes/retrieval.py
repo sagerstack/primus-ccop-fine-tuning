@@ -1,8 +1,8 @@
 """
 Retrieval Node
 
-Queries Databricks Vector Search hybrid index with top-k=20.
-Retrieves relevant CCoP clauses with metadata.
+Queries Databricks Vector Search index with configurable top-k.
+Retrieves relevant CCoP clauses with metadata and similarity scores.
 """
 
 import logging
@@ -60,11 +60,12 @@ def _get_retriever() -> DatabricksVectorSearch:
             f"ccop_clauses_hybrid"
         )
 
-        # Create vector store (no embedding param — index uses Databricks-managed embeddings)
+        # Create vector store
+        # Index uses Databricks-managed embeddings with source column 'text',
+        # so we omit embedding and text_column params (index config handles both).
         _retriever = DatabricksVectorSearch(
             endpoint=settings.databricks_vector_search_endpoint,
             index_name=index_name,
-            text_column="text",
             columns=[
                 "document_source",
                 "section",
@@ -82,43 +83,55 @@ def _get_retriever() -> DatabricksVectorSearch:
 
 def retrieve_documents(state: GraphState) -> GraphState:
     """
-    Retrieve documents from Databricks Vector Search.
+    Retrieve documents from Databricks Vector Search with similarity scores.
 
-    Uses hybrid search (dense + sparse via RRF) with top-k=20.
-    Retrieves metadata columns for citation extraction.
+    Uses similarity_search_with_relevance_scores() to capture scores in
+    document metadata for downstream similarity-based filtering.
 
     Args:
         state: Current graph state with 'rewritten_query' field
 
     Returns:
-        Updated state with 'documents' and incremented 'retrieval_attempts'
+        Updated state with 'documents' (including similarity_score in metadata)
+        and incremented 'retrieval_attempts'
     """
+    settings = get_settings()
     query = state.get("rewritten_query", state.get("query", ""))
     retrieval_attempts = state.get("retrieval_attempts", 0)
+    top_k = settings.rag_retrieval_top_k
 
-    logger.info(f"Retrieving documents (attempt {retrieval_attempts + 1}): {query[:80]}...")
+    logger.info(f"Retrieving documents (attempt {retrieval_attempts + 1}, k={top_k}): {query[:80]}...")
 
     try:
         # Get retriever (creates if first call)
         retriever = _get_retriever()
 
-        # Convert to LangChain retriever with k=20
-        langchain_retriever = retriever.as_retriever(
-            search_type="similarity",
-            search_kwargs={
-                "k": 20,  # Retrieve 20 candidates
-            },
+        # Use similarity_search_with_relevance_scores to get scores
+        results = retriever.similarity_search_with_relevance_scores(
+            query=query,
+            k=top_k,
         )
 
-        # Invoke retrieval
-        documents = langchain_retriever.invoke(query)
+        # Attach similarity score to each document's metadata
+        documents = []
+        for doc, score in results:
+            doc.metadata["similarity_score"] = score
+            documents.append(doc)
 
         state["documents"] = documents
         state["retrieval_attempts"] = retrieval_attempts + 1
 
         # Log retrieval results
+        score_summary = ""
+        if documents:
+            scores = [d.metadata["similarity_score"] for d in documents]
+            score_summary = (
+                f" Scores: min={min(scores):.3f}, max={max(scores):.3f}, "
+                f"avg={sum(scores)/len(scores):.3f}"
+            )
+
         logger.info(
-            f"Retrieved {len(documents)} documents. "
+            f"Retrieved {len(documents)} documents.{score_summary} "
             f"Top 3 sources: {[doc.metadata.get('document_source', 'unknown') for doc in documents[:3]]}"
         )
 

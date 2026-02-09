@@ -7,7 +7,7 @@ Embeds citation anchors in response for later resolution.
 
 import logging
 
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 
 from infrastructure.config.settings import get_settings
