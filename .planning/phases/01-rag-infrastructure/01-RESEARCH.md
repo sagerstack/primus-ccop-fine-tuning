@@ -51,17 +51,26 @@ pip install langchain langchain-community langgraph databricks-langchain pymupdf
 ### Recommended Project Structure
 ```
 src/
-├── ingestion/           # Document ingestion pipeline
-│   ├── parsers/         # PDF parsing (PyMuPDF4LLM)
-│   ├── chunkers/        # Section-level semantic chunking
-│   └── indexers/        # Databricks Vector Search indexing
-├── retrieval/           # LangGraph adaptive RAG graph
-│   ├── nodes/           # Graph nodes (query analysis, retrieval, grading, generation)
-│   ├── edges/           # Conditional routing logic
-│   └── state/           # Graph state schema
-├── models/              # LLM integrations (Llama-Primus-Reasoning)
-├── embeddings/          # Databricks BGE embedding endpoint wrapper
-└── citations/           # Citation extraction and resolution
+├── rag/                         # RAG vertical slice (owns full stack)
+│   ├── ingestion/               # Document ingestion pipeline
+│   │   ├── parsers/             # PDF parsing (PyMuPDF4LLM)
+│   │   ├── chunkers/           # Section-level semantic chunking
+│   │   └── indexers/           # Databricks Vector Search indexing
+│   ├── retrieval/               # LangGraph adaptive RAG graph
+│   │   ├── nodes/               # Graph nodes (query analysis, retrieval, grading, generation)
+│   │   ├── edges/               # Conditional routing logic
+│   │   └── state/               # Graph state schema
+│   ├── citations/               # Citation extraction and resolution
+│   ├── application/             # RAG-scoped ports and use cases
+│   │   ├── ports/               # IRagPipeline interface
+│   │   └── use_cases/           # QueryComplianceUseCase
+│   ├── infrastructure/          # RAG-scoped adapters
+│   │   └── adapters/            # LangGraphRagAdapter
+│   └── presentation/            # RAG-scoped CLI
+│       └── cli/                 # query command
+├── evaluation/                  # Evaluation vertical slice (existing)
+├── infrastructure/              # Shared infrastructure (settings, DI)
+└── presentation/                # Shared CLI entry point
 ```
 
 ### Pattern 1: LangGraph Adaptive RAG Graph
