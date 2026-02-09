@@ -137,6 +137,32 @@ class Settings(BaseSettings):
         description="Use mock model gateway instead of real Ollama"
     )
 
+    # Databricks Configuration (RAG Infrastructure)
+    databricks_host: Optional[str] = Field(
+        default=None,
+        description="Databricks workspace host URL"
+    )
+    databricks_token: Optional[str] = Field(
+        default=None,
+        description="Databricks access token"
+    )
+    databricks_catalog: Optional[str] = Field(
+        default=None,
+        description="Databricks Unity Catalog name"
+    )
+    databricks_schema: Optional[str] = Field(
+        default=None,
+        description="Databricks schema name"
+    )
+    databricks_vector_search_endpoint: Optional[str] = Field(
+        default=None,
+        description="Databricks Vector Search endpoint name"
+    )
+    databricks_embedding_endpoint: Optional[str] = Field(
+        default=None,
+        description="Databricks embedding model endpoint name"
+    )
+
     model_config = SettingsConfigDict(
         env_file="../config/.env.example",
         env_file_encoding="utf-8",

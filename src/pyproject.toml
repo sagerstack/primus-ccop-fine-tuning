@@ -32,6 +32,15 @@ typer = "^0.12.5"                   # Type-safe CLI (built on Click)
 dependency-injector = "^4.41.0"     # DI container
 openpyxl = "^3.1.5"
 
+# RAG Infrastructure
+langchain = "^0.3.0"                    # RAG building blocks
+langchain-community = "^0.3.0"          # Community integrations
+langgraph = "^0.3.0"                    # Orchestration for adaptive RAG
+databricks-langchain = ">=0.1.0"        # Databricks Vector Search integration
+pymupdf4llm = ">=0.0.10"                # PDF parsing with structure preservation
+databricks-vectorsearch = ">=0.40"      # Databricks Vector Search client
+databricks-sdk = ">=0.30.0"             # Databricks SDK
+
 [tool.poetry.group.dev.dependencies]
 # Testing
 pytest = "^7.4.0"
