@@ -5,6 +5,8 @@ Command-line interface for querying CCoP compliance via RAG pipeline.
 """
 
 import asyncio
+import logging
+import sys
 
 import typer
 from rich.console import Console
@@ -31,6 +33,19 @@ def query_command(
         ccop-eval query ask "What are the access control requirements?"
         ccop-eval query ask "How should CII organizations implement MFA?" --verbose
     """
+    # Configure Python logging for RAG pipeline nodes
+    # Verbose: show all pipeline steps; Normal: show warnings only
+    log_level = logging.INFO if verbose else logging.WARNING
+    logging.basicConfig(
+        level=log_level,
+        format="%(name)s | %(message)s",
+        stream=sys.stderr,
+        force=True,
+    )
+    # Suppress noisy third-party loggers even in verbose mode
+    for noisy in ("httpx", "httpcore", "urllib3", "databricks", "mlflow"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
+
     asyncio.run(_execute_query(question, verbose))
 
 
