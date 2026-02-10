@@ -1,40 +1,57 @@
 """
 Query Analysis Node
 
-LLM-based binary query classification (needs_retrieval vs general)
-with query rewriting for optimal retrieval.
+Keyword-based query classification (needs_retrieval vs general).
+No LLM call — the base model doesn't know CCoP terminology and
+corrupts domain terms during rewriting (e.g. CII -> CUI).
 """
 
 import logging
 
-from langchain_ollama import ChatOllama
-from langchain_core.prompts import ChatPromptTemplate
-
-from infrastructure.config.settings import get_settings
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
 
+# CCoP domain keywords that indicate retrieval is needed
+_RETRIEVAL_KEYWORDS = [
+    "ccop", "cii", "critical information infrastructure", "ciio",
+    "cybersecurity code of practice", "code of practice",
+    "csa", "cyber security agency",
+    "compliance", "requirement", "clause", "section", "annex",
+    "access control", "incident response", "risk assessment",
+    "audit", "penetration test", "vulnerability assessment",
+    "cybersecurity exercise", "cybersecurity awareness",
+    "security-by-design", "threat model",
+]
 
-def _parse_needs_retrieval(response_text: str) -> bool:
+# Keywords that indicate a general question (no retrieval)
+_GENERAL_KEYWORDS = [
+    "what is cybersecurity", "define cybersecurity",
+    "what is a firewall", "what is encryption",
+    "explain", "definition of",
+]
+
+
+def _needs_retrieval(query: str) -> bool:
     """
-    Parse needs_retrieval from LLM response text.
+    Classify query as needing retrieval or not via keyword matching.
 
-    Looks for explicit TRUE/FALSE or keywords indicating retrieval need.
+    Returns True (needs retrieval) for CCoP-related queries.
+    Returns False for generic cybersecurity definitions.
     Defaults to True (safer — attempt retrieval when unclear).
     """
-    text_lower = response_text.lower()
+    query_lower = query.lower()
 
-    # Check for explicit classification
-    if "needs_retrieval: true" in text_lower or "needs_retrieval:true" in text_lower:
+    # Check for general question patterns first
+    if any(kw in query_lower for kw in _GENERAL_KEYWORDS):
+        # But override if CCoP terms are also present
+        if any(kw in query_lower for kw in _RETRIEVAL_KEYWORDS[:8]):
+            return True
+        return False
+
+    # Check for CCoP domain keywords
+    if any(kw in query_lower for kw in _RETRIEVAL_KEYWORDS):
         return True
-    if "needs_retrieval: false" in text_lower or "needs_retrieval:false" in text_lower:
-        return False
-
-    # Check for general/no-retrieval indicators
-    no_retrieval_keywords = ["general question", "does not require retrieval", "no retrieval needed"]
-    if any(kw in text_lower for kw in no_retrieval_keywords):
-        return False
 
     # Default: attempt retrieval (safer)
     return True
@@ -42,11 +59,11 @@ def _parse_needs_retrieval(response_text: str) -> bool:
 
 def analyze_query(state: GraphState) -> GraphState:
     """
-    Analyze query to determine if retrieval is needed.
+    Classify query and pass original query through for retrieval.
 
-    Uses Llama-Primus-Reasoning via ChatOllama for binary classification:
-    needs_retrieval (True/False). Also produces rewritten_query optimized
-    for vector search.
+    No LLM call, no query rewriting. Classification is keyword-based.
+    The original query goes directly to vector search, which handles
+    semantic matching via embeddings.
 
     Args:
         state: Current graph state with 'query' field
@@ -54,72 +71,15 @@ def analyze_query(state: GraphState) -> GraphState:
     Returns:
         Updated state with needs_retrieval and rewritten_query fields
     """
-    settings = get_settings()
     query = state.get("query", "")
 
     logger.info(f"Analyzing query: {query[:100]}...")
 
-    # Initialize LLM
-    llm = ChatOllama(
-        model=settings.model_name, temperature=0.0, base_url=settings.ollama_host
-    )
+    needs_retrieval = _needs_retrieval(query)
 
-    # Prompt for binary classification
-    analysis_prompt = ChatPromptTemplate.from_messages(
-        [
-            (
-                "system",
-                """You are a CCoP 2.0 compliance expert analyzing user queries.
+    state["needs_retrieval"] = needs_retrieval
+    state["rewritten_query"] = query  # Pass original query through
 
-Determine if the query requires retrieval from CCoP compliance documents.
-
-NEEDS RETRIEVAL (True):
-- Questions about specific CCoP requirements, clauses, or compliance obligations
-- Questions about CII organization responsibilities
-- Questions about security controls, access control, incident response procedures
-
-GENERAL QUESTION (False):
-- Generic cybersecurity definitions ("What is cybersecurity?")
-- Questions about non-CCoP frameworks only
-- Opinion questions or speculation
-
-Respond in this exact format:
-NEEDS_RETRIEVAL: True or False
-REWRITTEN_QUERY: <query optimized for vector search with expanded acronyms>""",
-            ),
-            ("human", "Query: {query}"),
-        ]
-    )
-
-    try:
-        chain = analysis_prompt | llm
-        response = chain.invoke({"query": query})
-        response_text = response.content if hasattr(response, "content") else str(response)
-
-        needs_retrieval = _parse_needs_retrieval(response_text)
-
-        # Extract rewritten query if present
-        rewritten_query = query  # default to original
-        if "REWRITTEN_QUERY:" in response_text:
-            parts = response_text.split("REWRITTEN_QUERY:")
-            if len(parts) > 1:
-                rewritten_query = parts[1].strip().split("\n")[0].strip()
-
-        state["needs_retrieval"] = needs_retrieval
-        state["rewritten_query"] = rewritten_query
-
-        logger.info(
-            f"Query analysis: needs_retrieval={needs_retrieval}, "
-            f"rewritten='{rewritten_query[:80]}...'"
-        )
-
-    except Exception as e:
-        # If LLM call fails, default to needs_retrieval=True (safer - attempt retrieval)
-        logger.warning(
-            f"Query analysis failed: {e}. Defaulting to needs_retrieval=True"
-        )
-        state["needs_retrieval"] = True
-        state["rewritten_query"] = query  # Use original query as fallback
-        state["error"] = f"Query analysis error: {str(e)}"
+    logger.info(f"Query analysis: needs_retrieval={needs_retrieval} (keyword-based)")
 
     return state
