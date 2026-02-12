@@ -58,7 +58,7 @@ Plans:
   7. 6 rule-based benchmarks (B1, B2, B4, B5, B6, B21) retain automated scoring unchanged
   8. All 21 benchmarks scoreable in a single evaluation run -- no manual/expert scoring dependencies
   9. MLflow experiment tracking integrated into evaluation pipeline with local storage
-  10. Each evaluation run logs parameters (model, mode, RAG config, index version), metrics (accuracy, hallucination rate, per-benchmark scores), and artifacts (full results)
+  10. Each evaluation run logs parameters (model, mode, benchmark set), metrics (overall accuracy, per-benchmark scores), and artifacts (full results JSON)
   11. Baseline LLM-only results (49.2% from existing evaluation) recorded as first experiment run using `--mode llm-only`
   12. Naive RAG results recorded as second experiment run using `--mode hybrid` for side-by-side comparison
   13. `mlflow ui` accessible locally for comparing runs across experiments
