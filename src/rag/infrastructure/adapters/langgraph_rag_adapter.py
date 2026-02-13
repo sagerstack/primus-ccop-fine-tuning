@@ -2,7 +2,7 @@
 LangGraph RAG Adapter
 
 Concrete implementation of IRagPipeline using LangGraph.
-Wraps the compiled LangGraph adaptive RAG graph.
+Wraps the compiled LangGraph RAG graph.
 """
 
 import logging
@@ -25,25 +25,13 @@ class LangGraphRagAdapter(IRagPipeline):
     """
 
     def __init__(self, settings: "Settings", logger: ILogger):
-        """
-        Initialize adapter.
-
-        Args:
-            settings: Application settings
-            logger: Logger instance
-        """
         self.settings = settings
         self.logger = logger
-        self._pipeline: Optional[Callable[[str], dict]] = None
+        self._pipeline: Optional[Callable[[str, str], dict]] = None
         self._initialized = False
 
     def _ensure_initialized(self) -> None:
-        """
-        Lazily initialize the RAG pipeline.
-
-        Only initializes on first use to avoid startup errors when
-        Databricks is not configured.
-        """
+        """Lazily initialize the RAG pipeline."""
         if self._initialized:
             return
 
@@ -56,24 +44,22 @@ class LangGraphRagAdapter(IRagPipeline):
             self.logger.error(f"Failed to initialize RAG pipeline: {e}")
             raise
 
-    async def query(self, question: str) -> RagResponse:
+    async def query(self, question: str, mode: str = "hybrid") -> RagResponse:
         """
         Query the RAG pipeline.
 
         Args:
             question: User question
+            mode: Pipeline mode — "hybrid", "llm-only", "rag-only"
 
         Returns:
             RagResponse with formatted response and citations
         """
-        # Ensure pipeline is initialized
         self._ensure_initialized()
 
         try:
-            # Invoke graph pipeline
-            final_state = self._pipeline(question)
+            final_state = self._pipeline(question, mode)
 
-            # Map graph state to RagResponse
             response = RagResponse(
                 response=final_state.get("generation", ""),
                 raw_response=final_state.get("raw_generation", ""),
@@ -90,7 +76,6 @@ class LangGraphRagAdapter(IRagPipeline):
         except Exception as e:
             self.logger.error(f"RAG query failed: {e}")
 
-            # Return error response instead of crashing
             return RagResponse(
                 response=f"Error executing RAG query: {str(e)}",
                 raw_response="",
@@ -102,14 +87,21 @@ class LangGraphRagAdapter(IRagPipeline):
                 error=str(e),
             )
 
-    async def is_available(self) -> bool:
+    async def is_available(self, mode: str = "hybrid") -> bool:
         """
-        Check if RAG pipeline is operational.
+        Check if RAG pipeline is operational for the given mode.
 
-        Returns:
-            True if Databricks and Ollama are configured
+        llm-only requires only Ollama.
+        hybrid and rag-only require Databricks + Ollama.
         """
-        # Check Databricks settings
+        has_ollama = bool(self.settings.ollama_host)
+        if not has_ollama:
+            self.logger.debug("Ollama not configured")
+            return False
+
+        if mode == "llm-only":
+            return True
+
         has_databricks = bool(
             self.settings.databricks_host
             and self.settings.databricks_token
@@ -118,13 +110,6 @@ class LangGraphRagAdapter(IRagPipeline):
 
         if not has_databricks:
             self.logger.debug("Databricks not configured")
-            return False
-
-        # Check Ollama settings
-        has_ollama = bool(self.settings.ollama_host)
-
-        if not has_ollama:
-            self.logger.debug("Ollama not configured")
             return False
 
         return True

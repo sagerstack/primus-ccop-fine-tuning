@@ -1,8 +1,8 @@
 """
-LangGraph Adaptive RAG Graph
+LangGraph RAG Graph
 
-Assembles stateful graph with query analysis, retrieval, grading,
-generation, and fallback nodes with conditional routing.
+Assembles stateful graph with mode-based routing:
+hybrid (retrieval + LLM), llm-only, or rag-only.
 """
 
 import logging
@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Callable
 
 from langgraph.graph import END, StateGraph
 
-from rag.retrieval.edges.routing import decide_after_grading, rewrite_query, route_query
+from rag.retrieval.edges.routing import decide_after_grading, route_by_mode
 
 if TYPE_CHECKING:
     from infrastructure.config.settings import Settings
@@ -18,6 +18,7 @@ from rag.retrieval.nodes.fallback import fallback_generation
 from rag.retrieval.nodes.generation import generate_response
 from rag.retrieval.nodes.grading import grade_documents
 from rag.retrieval.nodes.query_analysis import analyze_query
+from rag.retrieval.nodes.rag_response import rag_only_response
 from rag.retrieval.nodes.retrieval import retrieve_documents
 from rag.retrieval.state.graph_state import GraphState
 
@@ -26,27 +27,34 @@ logger = logging.getLogger(__name__)
 
 def build_rag_graph(settings: "Settings"):
     """
-    Build the LangGraph adaptive RAG graph.
+    Build the LangGraph RAG graph.
 
     Graph topology:
     ```
     query_analysis
         |
-    [needs_retrieval?]
-       / \
-      Y   N
-      |    \
-    retrieval  fallback -> END
-      |
-    grade_documents
-      |
-    [relevant docs found?]
-     / | \
-    Y  retry  N (max attempts)
-    |    |      \
-  generate  rewrite_query  fallback -> END
-    |         |
-    END    retrieval (loop)
+    [mode?]
+        |
+    ┌───┼───────────┐
+    │   │           │
+    │  hybrid    llm-only
+    │  rag-only     │
+    │   │        fallback
+    │   │           │
+    │ retrieval    END
+    │   │
+    │ grading
+    │   │
+    │ [mode + docs?]
+    │   │
+    ├───┼───────┬──────────┐
+    │   │       │          │
+    │ hybrid  hybrid    rag-only
+    │ +docs   -docs       │
+    │   │       │      rag_response
+    │ generate fallback   │
+    │   │       │        END
+    │  END     END
     ```
 
     Args:
@@ -55,96 +63,84 @@ def build_rag_graph(settings: "Settings"):
     Returns:
         Compiled LangGraph graph
     """
-    logger.info("Building LangGraph adaptive RAG graph...")
+    logger.info("Building LangGraph RAG graph...")
 
-    # Create graph
     workflow = StateGraph(GraphState)
 
-    # Add nodes
+    # Nodes
     workflow.add_node("query_analysis", analyze_query)
     workflow.add_node("retrieval", retrieve_documents)
     workflow.add_node("grade_documents", grade_documents)
-    workflow.add_node("rewrite_query", rewrite_query)  # Self-correction node
     workflow.add_node("generate", generate_response)
     workflow.add_node("fallback", fallback_generation)
+    workflow.add_node("rag_response", rag_only_response)
 
-    # Set entry point
+    # Entry point
     workflow.set_entry_point("query_analysis")
 
-    # Add edges
-    # After query analysis: route based on needs_retrieval
+    # Mode routing: after query_analysis, route by mode
     workflow.add_conditional_edges(
         "query_analysis",
-        route_query,
+        route_by_mode,
         {
             "retrieval": "retrieval",
             "fallback": "fallback",
         },
     )
 
-    # After retrieval: always grade documents
+    # Retrieval → grading (always)
     workflow.add_edge("retrieval", "grade_documents")
 
-    # After grading: decide to generate, rewrite, or fallback
+    # After grading: route by mode + retrieval success
     workflow.add_conditional_edges(
         "grade_documents",
         decide_after_grading,
         {
             "generate": "generate",
-            "rewrite": "rewrite_query",  # Self-correction loop
             "fallback": "fallback",
+            "rag_response": "rag_response",
         },
     )
-
-    # After rewrite: loop back to retrieval
-    workflow.add_edge("rewrite_query", "retrieval")
 
     # Terminal nodes
     workflow.add_edge("generate", END)
     workflow.add_edge("fallback", END)
+    workflow.add_edge("rag_response", END)
 
-    # Compile graph
     app = workflow.compile()
 
-    logger.info("LangGraph adaptive RAG graph compiled successfully")
+    logger.info("LangGraph RAG graph compiled successfully")
 
     return app
 
 
-def create_rag_pipeline(settings: "Settings") -> Callable[[str], dict]:
+def create_rag_pipeline(settings: "Settings") -> Callable[[str, str], dict]:
     """
     Create RAG pipeline callable.
-
-    Public API for the RAG system. Returns a simple function that
-    accepts a query string and returns the final state with response.
 
     Args:
         settings: Application settings
 
     Returns:
-        Callable that accepts query string and returns dict with:
-        - generation: Response text
-        - is_rag_augmented: Whether response used RAG context
-        - citations: List of source citations
-        - retrieval_attempts: Number of retrieval attempts
-        - error: Error message if any
+        Callable that accepts (query, mode) and returns final state dict
     """
     graph = build_rag_graph(settings)
 
-    def query(question: str) -> dict:
+    def query(question: str, mode: str = "hybrid") -> dict:
         """
         Query the RAG pipeline.
 
         Args:
             question: User query
+            mode: Pipeline mode — "hybrid", "llm-only", "rag-only"
 
         Returns:
             Final state dict with generation, citations, metadata
         """
-        logger.info(f"RAG pipeline query: {question[:100]}...")
+        logger.info(f"RAG pipeline query (mode={mode}): {question[:100]}...")
 
-        # Initialize state
         initial_state: GraphState = {
+            "mode": mode,
             "query": question,
             "rewritten_query": "",
             "needs_retrieval": False,
@@ -159,11 +155,11 @@ def create_rag_pipeline(settings: "Settings") -> Callable[[str], dict]:
             "error": "",
         }
 
-        # Invoke graph
         final_state = graph.invoke(initial_state)
 
         logger.info(
-            f"RAG pipeline complete: is_rag_augmented={final_state.get('is_rag_augmented')}, "
+            f"RAG pipeline complete: mode={mode}, "
+            f"is_rag_augmented={final_state.get('is_rag_augmented')}, "
             f"attempts={final_state.get('retrieval_attempts')}"
         )
 

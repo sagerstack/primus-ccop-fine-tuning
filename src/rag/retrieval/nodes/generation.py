@@ -94,6 +94,15 @@ Retrieved Context:
     )
 
     try:
+        # Log complete LLM input
+        formatted_messages = generation_prompt.format_messages(context=context, query=query)
+        logger.info("=" * 60)
+        logger.info("LLM INPUT (generation)")
+        logger.info("=" * 60)
+        for msg in formatted_messages:
+            logger.info(f"[{msg.type}]\n{msg.content}")
+        logger.info("=" * 60)
+
         # Generate response
         chain = generation_prompt | llm
         response = chain.invoke({"context": context, "query": query})

@@ -8,7 +8,7 @@ Logs failure for Phase 2 gap analysis.
 import json
 import logging
 
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 
 from infrastructure.config.settings import get_settings
@@ -22,9 +22,7 @@ def fallback_generation(state: GraphState) -> GraphState:
     Generate model-only response without RAG augmentation.
 
     Used when:
-    - Query doesn't need retrieval (general question)
-    - Retrieval failed after max attempts
-    - No relevant documents found after grading
+    - Retrieval failed (no relevant documents after grading)
 
     Logs the failure for Phase 2 gap analysis and fine-tuning needs.
 
@@ -78,6 +76,15 @@ recommend consulting the official CCoP 2.0 documentation.""",
     )
 
     try:
+        # Log complete LLM input
+        formatted_messages = fallback_prompt.format_messages(query=query)
+        logger.info("=" * 60)
+        logger.info("LLM INPUT (fallback)")
+        logger.info("=" * 60)
+        for msg in formatted_messages:
+            logger.info(f"[{msg.type}]\n{msg.content}")
+        logger.info("=" * 60)
+
         # Generate fallback response
         chain = fallback_prompt | llm
         response = chain.invoke({"query": query})

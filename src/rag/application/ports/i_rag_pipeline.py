@@ -48,12 +48,13 @@ class IRagPipeline(ABC):
     """
 
     @abstractmethod
-    async def query(self, question: str) -> RagResponse:
+    async def query(self, question: str, mode: str = "hybrid") -> RagResponse:
         """
         Query the RAG pipeline.
 
         Args:
             question: User question
+            mode: Pipeline mode — "hybrid", "llm-only", "rag-only"
 
         Returns:
             RagResponse with formatted response and citations
@@ -64,11 +65,14 @@ class IRagPipeline(ABC):
         pass
 
     @abstractmethod
-    async def is_available(self) -> bool:
+    async def is_available(self, mode: str = "hybrid") -> bool:
         """
-        Check if RAG pipeline is operational.
+        Check if RAG pipeline is operational for the given mode.
+
+        Args:
+            mode: Pipeline mode — "hybrid", "llm-only", "rag-only"
 
         Returns:
-            True if pipeline can accept queries
+            True if pipeline can accept queries in this mode
         """
         pass
