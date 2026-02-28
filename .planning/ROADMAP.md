@@ -13,6 +13,7 @@ This roadmap delivers a hybrid Fine-tuned + RAG-augmented compliance assistant t
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: RAG Infrastructure** - Document ingestion, vector storage, retrieval pipeline with citations
+- [ ] **Phase 1.2: Local RAG Migration** (INSERTED) - Migrate from Databricks to Qdrant + local BGE with port/adapter abstraction
 - [ ] **Phase 1.1: Evaluation Infrastructure Upgrade** (INSERTED) - LLM-as-Judge rubrics, ModelGateway unification, MLflow tracking
 - [ ] **Phase 2: RAG Evaluation** - Run RAG-augmented model against 49.2% baseline on 118 cases, identify gaps
 - [ ] **Phase 3: Ground Truth Dataset Expansion** - Expand from 118 to 1000+ test cases across all 21 benchmarks
@@ -43,6 +44,30 @@ Plans:
 - [ ] 01-03-PLAN.md — LangGraph adaptive RAG graph (query analysis, retrieval, grading, generation, fallback)
 - [ ] 01-04-PLAN.md — Citation extraction/formatting and Clean Architecture integration (port/adapter/DI/CLI)
 - [ ] 01-05-PLAN.md — Unit tests and end-to-end verification with human inspection
+
+### Phase 1.2: Local RAG Migration (INSERTED)
+**Goal**: Migrate RAG infrastructure from Databricks (Mosaic AI Vector Search + managed BGE) to fully local stack (Qdrant + sentence-transformers BGE-large-en). Introduce IVectorStore/IIndexer port abstractions. Keep Databricks as alternate adapter.
+**Depends on**: Phase 1
+**Requirements**: RAG-02, RAG-03, RAG-04
+**Success Criteria** (what must be TRUE):
+  1. Qdrant running locally via Docker with hybrid search (dense + sparse) matching Databricks RRF capabilities
+  2. BGE-large-en embeddings generated locally via sentence-transformers (same model as Databricks endpoint)
+  3. IVectorStore port in domain layer with QdrantAdapter and DatabricksAdapter implementations
+  4. IIndexer port in domain layer with QdrantIndexer and DatabricksIndexer implementations
+  5. LangGraph retrieval node uses IVectorStore (not DatabricksVectorSearch directly)
+  6. Ingestion orchestrator uses IIndexer (not DatabricksIndexer directly)
+  7. DI container selects adapter based on .env.local configuration (Qdrant by default)
+  8. All 8 CCoP documents re-ingested into Qdrant with identical metadata schema
+  9. Retrieval quality on sample queries comparable to Databricks pipeline (manual inspection)
+  10. Unit tests and E2E verification for Qdrant-based pipeline
+**Plans**: 5 plans
+
+Plans:
+- [ ] 01.2-01-PLAN.md -- Foundation: Docker Compose, ports (IVectorStore, IIndexer), EmbeddingService, Settings, dependencies
+- [ ] 01.2-02-PLAN.md -- Qdrant adapters: QdrantVectorStoreAdapter + QdrantIndexerAdapter
+- [ ] 01.2-03-PLAN.md -- Databricks port wrappers: DatabricksVectorStoreAdapter + DatabricksIndexerAdapter
+- [ ] 01.2-04-PLAN.md -- DI wiring: container, retrieval node, ingestion orchestrator, LangGraphRagAdapter
+- [ ] 01.2-05-PLAN.md -- Re-ingestion, unit tests, E2E verification with human inspection
 
 ### Phase 1.1: Evaluation Infrastructure Upgrade (INSERTED)
 **Goal**: Replace semantic similarity proxies with LLM-as-Judge rubrics for 15 benchmarks, unify all model queries through LangGraph pipeline with mode-based routing, integrate MLflow experiment tracking, and record baseline vs RAG comparison results
@@ -185,11 +210,13 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 1.1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Phases execute: 1 -> 1.2 -> 1.1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Note: Phase 1.2 runs before 1.1 so eval infrastructure builds on local stack, not Databricks.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. RAG Infrastructure | 0/5 | Planning complete | - |
+| 1. RAG Infrastructure | 4/5 | Plan 05 skipped (replaced by 1.2 tests) | - |
+| 1.2. Local RAG Migration | 0/5 | Planning complete | - |
 | 1.1. Evaluation Infrastructure Upgrade | 0/6 | Planning complete | - |
 | 2. RAG Evaluation | 0/TBD | Not started | - |
 | 3. Ground Truth Dataset Expansion | 0/TBD | Not started | - |
@@ -201,4 +228,4 @@ Phases execute in numeric order: 1 -> 1.1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 ---
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-02-13*
+*Last updated: 2026-03-01*
