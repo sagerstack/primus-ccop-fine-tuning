@@ -9,28 +9,29 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 1 of 8 (RAG Infrastructure)
-Plan: 4 of 5 in current phase
+Phase: 1.2 of 8 (Local RAG Migration)
+Plan: 1 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-09 — Completed 01-04-PLAN.md (Citation resolution and Clean Architecture integration)
+Last activity: 2026-03-01 — Completed 01.2-01-PLAN.md (Local RAG Migration Foundation)
 
-Progress: [██░░░░░░░░] 40%
+Progress: [██░░░░░░░░] 17%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 7 min
-- Total execution time: 0.47 hours
+- Total plans completed: 5
+- Average duration: 6.4 min
+- Total execution time: 0.53 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. RAG Infrastructure | 4/5 | 28 min | 7 min |
+| 1.2. Local RAG Migration | 1/5 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (10min), 01-02 (4min), 01-03 (4min), 01-04 (10min)
+- Last 5 plans: 01-02 (4min), 01-03 (4min), 01-04 (10min), 01.2-01 (4min)
 - Trend: Stable (infrastructure complexity varies, quality maintained)
 
 *Updated after each plan completion*
@@ -63,10 +64,19 @@ Recent decisions affecting current work:
 - **[01-04] TYPE_CHECKING for circular imports:** Breaks Settings → Container → RAG adapter cycle
 - **[01-04] Lazy DI container imports:** Staticmethod pattern defers RAG imports until first use
 - **[01-04] Graceful degradation without Databricks:** Existing eval framework works without RAG config
+- **[01.2-01] Port/adapter pattern for vector stores:** IVectorStore and IIndexer abstractions enable swappable implementations (Qdrant, Databricks)
+- **[01.2-01] Lazy embedding model initialization:** Thread-safe double-checked locking avoids loading 1.3GB+ models on import
+- **[01.2-01] BGE query prompt only for queries:** Improves retrieval, degrades document embeddings (per model documentation)
+- **[01.2-01] FastEmbed for BM25 sparse vectors:** Lightweight, Qdrant-maintained, drop-in BM25 support
 
 ### Pending Todos
 
 None yet.
+
+### Roadmap Evolution
+
+- Phase 1.1 inserted after Phase 1: MLflow Experiment Tracking (URGENT) — Record and compare results across all 5 model iterations (baseline LLM, naive RAG, optimized RAG, fine-tuned LLM, hybrid). Phase 2 now depends on 1.1.
+- Phase 1.2 inserted after Phase 1: Local RAG Migration — Migrate from Databricks to Qdrant + local BGE. Phase 1.2 runs before Phase 1.1.
 
 ### Blockers/Concerns
 
@@ -74,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-09
-Stopped at: Completed 01-04-PLAN.md (Citation resolution and Clean Architecture integration)
+Last session: 2026-03-01
+Stopped at: Completed 01.2-01-PLAN.md (Local RAG Migration Foundation)
 Resume file: None
