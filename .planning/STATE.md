@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1.2 of 8 (Local RAG Migration)
-Plan: 2 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-03-01 — Completed 01.2-02-PLAN.md (Qdrant Adapter Implementation)
+Last activity: 2026-03-01 — Completed 01.2-04-PLAN.md (Integration)
 
-Progress: [██░░░░░░░░] 19%
+Progress: [███░░░░░░░] 25%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 5.2 min
-- Total execution time: 0.52 hours
+- Total plans completed: 8
+- Average duration: 5.5 min
+- Total execution time: 0.73 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. RAG Infrastructure | 4/5 | 28 min | 7 min |
-| 1.2. Local RAG Migration | 2/5 | 7 min | 3.5 min |
+| 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (10min), 01.2-01 (4min), 01.2-02 (3min)
+- Last 5 plans: 01.2-01 (4min), 01.2-02 (3min), 01.2-03 (0min), 01.2-04 (10min)
 - Trend: Stable (infrastructure complexity varies, quality maintained)
 
 *Updated after each plan completion*
@@ -72,6 +72,10 @@ Recent decisions affecting current work:
 - **[01.2-02] IDF modifier in sparse vectors:** FastEmbed BM25 outputs raw TF, Qdrant applies IDF server-side when `modifier=Modifier.IDF` configured
 - **[01.2-02] Delete+recreate collection for local dev:** Clean slate approach acceptable for local environment, production would need incremental updates
 - **[01.2-02] Deterministic UUID for point IDs:** uuid5 with NAMESPACE_URL generates consistent IDs from string chunk IDs, enables re-indexing without duplicates
+- **[01.2-03] Thin wrappers for Databricks:** DatabricksVectorStoreAdapter and DatabricksIndexerAdapter delegate to existing classes, zero modification to existing code
+- **[01.2-04] DI container selects adapters based on config:** Qdrant (when qdrant_url set) > Databricks (when databricks_host set) > None. Lazy factories maintain circular dependency protection
+- **[01.2-04] EmbeddingService created inside factory:** Not a separate provider, avoids loading 1.3GB+ models when using Databricks
+- **[01.2-04] Ingestion uses factory not container:** Batch script creates indexer directly via _create_indexer factory function
 
 ### Pending Todos
 
@@ -89,5 +93,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 01.2-02-PLAN.md (Qdrant Adapter Implementation)
+Stopped at: Completed 01.2-04-PLAN.md (Integration)
 Resume file: None
