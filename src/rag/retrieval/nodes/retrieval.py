@@ -1,92 +1,25 @@
 """
 Retrieval Node
 
-Queries Databricks Vector Search index with configurable top-k.
+Queries vector store index with configurable top-k.
 Retrieves relevant CCoP clauses with metadata and similarity scores.
 """
 
 import logging
-import os
-from typing import Optional
 
-from databricks_langchain import DatabricksVectorSearch
-
+from infrastructure.config.container import get_container
 from infrastructure.config.settings import get_settings
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
 
-# Module-level retriever (initialized once, reused across queries)
-_retriever: Optional[DatabricksVectorSearch] = None
-
-
-def _get_retriever() -> DatabricksVectorSearch:
-    """
-    Get or create Databricks Vector Search retriever.
-
-    Retriever is created once and reused across queries for efficiency.
-
-    Returns:
-        DatabricksVectorSearch retriever configured for hybrid search
-    """
-    global _retriever
-
-    if _retriever is None:
-        settings = get_settings()
-
-        # Validate Databricks configuration
-        if not settings.databricks_host:
-            raise ValueError(
-                "CCOP_DATABRICKS_HOST not configured. Add to .env.local"
-            )
-        if not settings.databricks_token:
-            raise ValueError(
-                "CCOP_DATABRICKS_TOKEN not configured. Add to .env.local"
-            )
-        if not settings.databricks_vector_search_endpoint:
-            raise ValueError(
-                "CCOP_DATABRICKS_VECTOR_SEARCH_ENDPOINT not configured. Add to .env.local"
-            )
-
-        # Bridge CCOP-prefixed settings to standard Databricks env vars
-        # (MLflow/Databricks SDK unified auth reads DATABRICKS_HOST/TOKEN)
-        os.environ.setdefault("DATABRICKS_HOST", settings.databricks_host)
-        os.environ.setdefault("DATABRICKS_TOKEN", settings.databricks_token)
-
-        # Construct index name
-        index_name = (
-            f"{settings.databricks_catalog}."
-            f"{settings.databricks_schema}."
-            f"ccop_clauses_hybrid"
-        )
-
-        # Create vector store
-        # Index uses Databricks-managed embeddings with source column 'text',
-        # so we omit embedding and text_column params (index config handles both).
-        _retriever = DatabricksVectorSearch(
-            endpoint=settings.databricks_vector_search_endpoint,
-            index_name=index_name,
-            columns=[
-                "document_source",
-                "section",
-                "subsection",
-                "clause",
-                "citation_id",
-                "document_type",
-            ],
-        )
-
-        logger.info(f"Initialized Databricks Vector Search retriever: {index_name}")
-
-    return _retriever
-
 
 def retrieve_documents(state: GraphState) -> GraphState:
     """
-    Retrieve documents from Databricks Vector Search with similarity scores.
+    Retrieve documents from vector store with similarity scores.
 
-    Uses similarity_search_with_relevance_scores() to capture scores in
-    document metadata for downstream similarity-based filtering.
+    Uses IVectorStore from DI container to retrieve documents.
+    Captures similarity scores in document metadata for downstream filtering.
 
     Args:
         state: Current graph state with 'rewritten_query' field
@@ -103,11 +36,19 @@ def retrieve_documents(state: GraphState) -> GraphState:
     logger.info(f"Retrieving documents (attempt {retrieval_attempts + 1}, k={top_k}): {query[:80]}...")
 
     try:
-        # Get retriever (creates if first call)
-        retriever = _get_retriever()
+        # Get vector store from container
+        container = get_container()
+        vector_store = container.vector_store()
 
-        # Use similarity_search_with_relevance_scores to get scores
-        results = retriever.similarity_search_with_relevance_scores(
+        if vector_store is None:
+            logger.error("No vector store configured. Set CCOP_QDRANT_URL or CCOP_DATABRICKS_HOST in .env.local")
+            state["documents"] = []
+            state["retrieval_attempts"] = retrieval_attempts + 1
+            state["error"] = "No vector store configured"
+            return state
+
+        # Use similarity_search_with_scores to get documents and scores
+        results = vector_store.similarity_search_with_scores(
             query=query,
             k=top_k,
         )
