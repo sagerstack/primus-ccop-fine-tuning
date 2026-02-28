@@ -243,3 +243,6 @@ sandbox/
 # GSD Planning (override *.json rule)
 !.planning/
 !.planning/**
+
+# Qdrant local storage
+qdrant_storage/
