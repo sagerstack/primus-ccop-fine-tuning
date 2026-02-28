@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1.2 of 8 (Local RAG Migration)
-Plan: 1 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: In progress
-Last activity: 2026-03-01 — Completed 01.2-01-PLAN.md (Local RAG Migration Foundation)
+Last activity: 2026-03-01 — Completed 01.2-03-PLAN.md (Databricks Adapters)
 
-Progress: [██░░░░░░░░] 17%
+Progress: [██░░░░░░░░] 19%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 6.4 min
+- Total plans completed: 6
+- Average duration: 5.3 min
 - Total execution time: 0.53 hours
 
 **By Phase:**
@@ -28,11 +28,11 @@ Progress: [██░░░░░░░░] 17%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. RAG Infrastructure | 4/5 | 28 min | 7 min |
-| 1.2. Local RAG Migration | 1/5 | 4 min | 4 min |
+| 1.2. Local RAG Migration | 2/5 | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (4min), 01-03 (4min), 01-04 (10min), 01.2-01 (4min)
-- Trend: Stable (infrastructure complexity varies, quality maintained)
+- Last 5 plans: 01-03 (4min), 01-04 (10min), 01.2-01 (4min), 01.2-03 (2min)
+- Trend: Accelerating (adapter wrappers simpler than full implementations)
 
 *Updated after each plan completion*
 
@@ -68,6 +68,8 @@ Recent decisions affecting current work:
 - **[01.2-01] Lazy embedding model initialization:** Thread-safe double-checked locking avoids loading 1.3GB+ models on import
 - **[01.2-01] BGE query prompt only for queries:** Improves retrieval, degrades document embeddings (per model documentation)
 - **[01.2-01] FastEmbed for BM25 sparse vectors:** Lightweight, Qdrant-maintained, drop-in BM25 support
+- **[01.2-03] Databricks wrappers delegate to existing code:** DatabricksVectorStoreAdapter and DatabricksIndexerAdapter wrap existing DatabricksVectorSearch and DatabricksIndexer without modifications
+- **[01.2-03] Filter parameter logged as warning:** DatabricksVectorStoreAdapter accepts filter parameter (port compatibility) but logs warning (Databricks uses index config for filtering)
 
 ### Pending Todos
 
@@ -85,5 +87,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 01.2-01-PLAN.md (Local RAG Migration Foundation)
+Stopped at: Completed 01.2-03-PLAN.md (Databricks Adapters)
 Resume file: None
