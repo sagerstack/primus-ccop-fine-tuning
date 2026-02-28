@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1.2 of 8 (Local RAG Migration)
-Plan: 3 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-03-01 — Completed 01.2-03-PLAN.md (Databricks Adapters)
+Last activity: 2026-03-01 — Completed 01.2-02-PLAN.md (Qdrant Adapter Implementation)
 
 Progress: [██░░░░░░░░] 19%
 
@@ -20,19 +20,19 @@ Progress: [██░░░░░░░░] 19%
 
 **Velocity:**
 - Total plans completed: 6
-- Average duration: 5.3 min
-- Total execution time: 0.53 hours
+- Average duration: 5.2 min
+- Total execution time: 0.52 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. RAG Infrastructure | 4/5 | 28 min | 7 min |
-| 1.2. Local RAG Migration | 2/5 | 6 min | 3 min |
+| 1.2. Local RAG Migration | 2/5 | 7 min | 3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (4min), 01-04 (10min), 01.2-01 (4min), 01.2-03 (2min)
-- Trend: Accelerating (adapter wrappers simpler than full implementations)
+- Last 5 plans: 01-04 (10min), 01.2-01 (4min), 01.2-02 (3min)
+- Trend: Stable (infrastructure complexity varies, quality maintained)
 
 *Updated after each plan completion*
 
@@ -68,8 +68,10 @@ Recent decisions affecting current work:
 - **[01.2-01] Lazy embedding model initialization:** Thread-safe double-checked locking avoids loading 1.3GB+ models on import
 - **[01.2-01] BGE query prompt only for queries:** Improves retrieval, degrades document embeddings (per model documentation)
 - **[01.2-01] FastEmbed for BM25 sparse vectors:** Lightweight, Qdrant-maintained, drop-in BM25 support
-- **[01.2-03] Databricks wrappers delegate to existing code:** DatabricksVectorStoreAdapter and DatabricksIndexerAdapter wrap existing DatabricksVectorSearch and DatabricksIndexer without modifications
-- **[01.2-03] Filter parameter logged as warning:** DatabricksVectorStoreAdapter accepts filter parameter (port compatibility) but logs warning (Databricks uses index config for filtering)
+- **[01.2-02] Prefetch + RRF for hybrid search:** Qdrant native API for combining dense/sparse results. RRF is rank-based (no score normalization needed)
+- **[01.2-02] IDF modifier in sparse vectors:** FastEmbed BM25 outputs raw TF, Qdrant applies IDF server-side when `modifier=Modifier.IDF` configured
+- **[01.2-02] Delete+recreate collection for local dev:** Clean slate approach acceptable for local environment, production would need incremental updates
+- **[01.2-02] Deterministic UUID for point IDs:** uuid5 with NAMESPACE_URL generates consistent IDs from string chunk IDs, enables re-indexing without duplicates
 
 ### Pending Todos
 
@@ -87,5 +89,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 01.2-03-PLAN.md (Databricks Adapters)
+Stopped at: Completed 01.2-02-PLAN.md (Qdrant Adapter Implementation)
 Resume file: None
