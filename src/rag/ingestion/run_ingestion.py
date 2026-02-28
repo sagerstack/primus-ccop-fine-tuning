@@ -12,7 +12,6 @@ from typing import Dict, List
 
 from infrastructure.config.settings import Settings, get_settings
 from rag.ingestion.chunkers.section_chunker import chunk_all_documents
-from rag.ingestion.indexers.databricks_indexer import DatabricksIndexer
 from rag.ingestion.models import CcopChunk
 from rag.ingestion.parsers.ccop_pdf_parser import parse_all_ccop_documents
 
@@ -24,6 +23,48 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _create_indexer(settings: Settings):
+    """
+    Create indexer adapter based on configuration.
+
+    Selection logic:
+    - If qdrant_url is set: create QdrantIndexerAdapter
+    - Elif databricks_host is set: create DatabricksIndexerAdapter
+    - Else: raise ValueError (no indexer configured)
+    """
+    if settings.qdrant_url:
+        from qdrant_client import QdrantClient
+        from rag.infrastructure.adapters.qdrant.embedding_service import (
+            EmbeddingService,
+        )
+        from rag.infrastructure.adapters.qdrant.qdrant_indexer_adapter import (
+            QdrantIndexerAdapter,
+        )
+
+        client = QdrantClient(url=settings.qdrant_url)
+        embedding_service = EmbeddingService(
+            dense_model_name=settings.qdrant_embedding_model,
+            sparse_model_name=settings.qdrant_sparse_model,
+        )
+        logger.info(f"Using QdrantIndexerAdapter (collection: {settings.qdrant_collection_name})")
+        return QdrantIndexerAdapter(
+            client=client,
+            collection_name=settings.qdrant_collection_name,
+            embedding_service=embedding_service,
+        )
+    elif settings.databricks_host:
+        from rag.infrastructure.adapters.databricks.databricks_indexer_adapter import (
+            DatabricksIndexerAdapter,
+        )
+
+        logger.info("Using DatabricksIndexerAdapter")
+        return DatabricksIndexerAdapter(settings=settings)
+    else:
+        raise ValueError(
+            "No indexer configured. Set CCOP_QDRANT_URL or CCOP_DATABRICKS_HOST in .env.local"
+        )
 
 
 def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> Dict:
@@ -80,9 +121,9 @@ def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> D
     logger.info("\n[Step 3/4] Chunk statistics:")
     _log_chunk_statistics(chunks)
 
-    # Step 4: Upload to Databricks (unless dry-run)
+    # Step 4: Upload to vector store (unless dry-run)
     if dry_run:
-        logger.info("\n[Step 4/4] Dry-run mode: Skipping Databricks upload")
+        logger.info("\n[Step 4/4] Dry-run mode: Skipping vector store upload")
         logger.info("✓ Dry-run complete")
         return {
             "document_count": document_count,
@@ -92,15 +133,15 @@ def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> D
             "dry_run": True,
         }
 
-    logger.info("\n[Step 4/4] Uploading to Databricks...")
-    logger.info(f"Uploading {chunk_count} chunks to Databricks Vector Search...")
+    logger.info("\n[Step 4/4] Uploading to vector store...")
+    logger.info(f"Uploading {chunk_count} chunks...")
 
     try:
-        indexer = DatabricksIndexer(settings)
+        indexer = _create_indexer(settings)
         logger.info("Index creation in progress... (this may take 5-10 minutes)")
         index_name = indexer.index_chunks(chunks)
     except Exception as e:
-        logger.error(f"Failed to upload to Databricks: {e}")
+        logger.error(f"Failed to upload to vector store: {e}")
         raise
 
     logger.info(f"✓ Indexing complete: {index_name}")
@@ -182,7 +223,7 @@ def _log_chunk_statistics(chunks: List[CcopChunk]) -> None:
 def main() -> None:
     """CLI entry point for ingestion script."""
     parser = argparse.ArgumentParser(
-        description="Ingest CCoP documents into Databricks Vector Search"
+        description="Ingest CCoP documents into vector store (Qdrant or Databricks)"
     )
     parser.add_argument(
         "--ccop-dir",
@@ -193,7 +234,7 @@ def main() -> None:
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Parse and chunk only, skip Databricks upload",
+        help="Parse and chunk only, skip vector store upload",
     )
 
     args = parser.parse_args()
@@ -211,30 +252,70 @@ def main() -> None:
     # Load settings
     settings = get_settings()
 
-    # Check Databricks configuration if not dry-run
+    # Check vector store configuration if not dry-run
     if not args.dry_run:
-        missing = []
-        if not settings.databricks_host:
-            missing.append("CCOP_DATABRICKS_HOST")
-        if not settings.databricks_token:
-            missing.append("CCOP_DATABRICKS_TOKEN")
-        if not settings.databricks_catalog:
-            missing.append("CCOP_DATABRICKS_CATALOG")
-        if not settings.databricks_schema:
-            missing.append("CCOP_DATABRICKS_SCHEMA")
-        if not settings.databricks_vector_search_endpoint:
-            missing.append("CCOP_DATABRICKS_VECTOR_SEARCH_ENDPOINT")
-        if not settings.databricks_embedding_endpoint:
-            missing.append("CCOP_DATABRICKS_EMBEDDING_ENDPOINT")
-        if not settings.databricks_warehouse_id:
-            missing.append("CCOP_DATABRICKS_WAREHOUSE_ID")
+        has_qdrant = bool(settings.qdrant_url)
+        has_databricks = bool(settings.databricks_host)
 
-        if missing:
-            logger.error("Missing required Databricks configuration:")
-            for var in missing:
-                logger.error(f"  - {var}")
-            logger.error("\nPlease configure these in src/config/.env.local")
-            logger.error("Or use --dry-run to skip Databricks upload")
+        if has_qdrant:
+            # Validate Qdrant configuration
+            missing = []
+            if not settings.qdrant_collection_name:
+                missing.append("CCOP_QDRANT_COLLECTION_NAME")
+            if not settings.qdrant_embedding_model:
+                missing.append("CCOP_QDRANT_EMBEDDING_MODEL")
+            if not settings.qdrant_sparse_model:
+                missing.append("CCOP_QDRANT_SPARSE_MODEL")
+
+            if missing:
+                logger.error("Missing required Qdrant configuration:")
+                for var in missing:
+                    logger.error(f"  - {var}")
+                logger.error("\nPlease configure these in src/config/.env.local")
+                logger.error("Or use --dry-run to skip vector store upload")
+                sys.exit(1)
+
+        elif has_databricks:
+            # Validate Databricks configuration
+            missing = []
+            if not settings.databricks_token:
+                missing.append("CCOP_DATABRICKS_TOKEN")
+            if not settings.databricks_catalog:
+                missing.append("CCOP_DATABRICKS_CATALOG")
+            if not settings.databricks_schema:
+                missing.append("CCOP_DATABRICKS_SCHEMA")
+            if not settings.databricks_vector_search_endpoint:
+                missing.append("CCOP_DATABRICKS_VECTOR_SEARCH_ENDPOINT")
+            if not settings.databricks_embedding_endpoint:
+                missing.append("CCOP_DATABRICKS_EMBEDDING_ENDPOINT")
+            if not settings.databricks_warehouse_id:
+                missing.append("CCOP_DATABRICKS_WAREHOUSE_ID")
+
+            if missing:
+                logger.error("Missing required Databricks configuration:")
+                for var in missing:
+                    logger.error(f"  - {var}")
+                logger.error("\nPlease configure these in src/config/.env.local")
+                logger.error("Or use --dry-run to skip vector store upload")
+                sys.exit(1)
+
+        else:
+            logger.error("No vector store configured.")
+            logger.error("Please configure either Qdrant or Databricks:")
+            logger.error("\nFor Qdrant:")
+            logger.error("  - CCOP_QDRANT_URL")
+            logger.error("  - CCOP_QDRANT_COLLECTION_NAME")
+            logger.error("  - CCOP_QDRANT_EMBEDDING_MODEL")
+            logger.error("  - CCOP_QDRANT_SPARSE_MODEL")
+            logger.error("\nFor Databricks:")
+            logger.error("  - CCOP_DATABRICKS_HOST")
+            logger.error("  - CCOP_DATABRICKS_TOKEN")
+            logger.error("  - CCOP_DATABRICKS_CATALOG")
+            logger.error("  - CCOP_DATABRICKS_SCHEMA")
+            logger.error("  - CCOP_DATABRICKS_VECTOR_SEARCH_ENDPOINT")
+            logger.error("  - CCOP_DATABRICKS_EMBEDDING_ENDPOINT")
+            logger.error("  - CCOP_DATABRICKS_WAREHOUSE_ID")
+            logger.error("\nOr use --dry-run to skip vector store upload")
             sys.exit(1)
 
     # Run ingestion

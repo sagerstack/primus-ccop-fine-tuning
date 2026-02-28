@@ -92,7 +92,7 @@ class LangGraphRagAdapter(IRagPipeline):
         Check if RAG pipeline is operational for the given mode.
 
         llm-only requires only Ollama.
-        hybrid and rag-only require Databricks + Ollama.
+        hybrid and rag-only require vector store (Qdrant or Databricks) + Ollama.
         """
         has_ollama = bool(self.settings.ollama_host)
         if not has_ollama:
@@ -102,14 +102,16 @@ class LangGraphRagAdapter(IRagPipeline):
         if mode == "llm-only":
             return True
 
+        # For hybrid/rag-only: check if any vector store is configured
+        has_qdrant = bool(self.settings.qdrant_url)
         has_databricks = bool(
             self.settings.databricks_host
             and self.settings.databricks_token
             and self.settings.databricks_catalog
         )
 
-        if not has_databricks:
-            self.logger.debug("Databricks not configured")
+        if not (has_qdrant or has_databricks):
+            self.logger.debug("No vector store configured (Qdrant or Databricks)")
             return False
 
         return True
