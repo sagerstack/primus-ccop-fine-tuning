@@ -185,6 +185,24 @@ class Settings(BaseSettings):
         description="Number of documents to retrieve from vector search"
     )
 
+    # Qdrant Configuration (Local RAG)
+    qdrant_url: Optional[str] = Field(
+        default=None,
+        description="Qdrant REST API URL (e.g., http://localhost:6333)"
+    )
+    qdrant_collection_name: Optional[str] = Field(
+        default=None,
+        description="Qdrant collection name for CCoP clauses (e.g., ccop_clauses_hybrid)"
+    )
+    qdrant_embedding_model: Optional[str] = Field(
+        default=None,
+        description="Dense embedding model name (e.g., BAAI/bge-large-en-v1.5)"
+    )
+    qdrant_sparse_model: Optional[str] = Field(
+        default=None,
+        description="Sparse embedding model name for BM25 (e.g., Qdrant/bm25)"
+    )
+
     model_config = SettingsConfigDict(
         env_file=("config/.env.example", "config/.env.local"),
         env_file_encoding="utf-8",
