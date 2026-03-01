@@ -9,6 +9,7 @@ import logging
 import threading
 from typing import Any, Dict, List
 
+import torch
 from fastembed import SparseTextEmbedding
 from sentence_transformers import SentenceTransformer
 
@@ -39,13 +40,37 @@ class EmbeddingService:
         """
         self.dense_model_name = dense_model_name
         self.sparse_model_name = sparse_model_name
-        self.device = device
+        # Resolve "auto" to actual device
+        self.device = self._resolve_device(device)
 
         # Lazy initialization fields
         self._dense_model: SentenceTransformer | None = None
         self._sparse_model: SparseTextEmbedding | None = None
         self._dense_lock = threading.Lock()
         self._sparse_lock = threading.Lock()
+
+    @staticmethod
+    def _resolve_device(device: str) -> str:
+        """
+        Resolve device string to actual PyTorch device.
+
+        "auto" selects the strongest available device: CUDA > MPS > CPU
+
+        Args:
+            device: Device string ("auto", "cuda", "mps", "cpu")
+
+        Returns:
+            Resolved device string
+        """
+        if device != "auto":
+            return device
+
+        if torch.cuda.is_available():
+            return "cuda"
+        elif torch.backends.mps.is_available():
+            return "mps"
+        else:
+            return "cpu"
 
     def _ensure_dense_model(self) -> SentenceTransformer:
         """
