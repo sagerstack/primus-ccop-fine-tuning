@@ -170,19 +170,25 @@ class Settings(BaseSettings):
     # RAG Pipeline Configuration
     rag_grading_enabled: bool = Field(
         default=False,
-        description="Enable LLM-as-judge grading of retrieved documents (slow with local models)"
-    )
-    rag_similarity_threshold: float = Field(
-        default=0.6,
-        ge=0.0,
-        le=1.0,
-        description="Minimum similarity score for retrieved documents when LLM grading is disabled"
+        description="DEPRECATED: Grading is now measurement-only. This setting is ignored."
     )
     rag_retrieval_top_k: int = Field(
-        default=10,
+        default=20,
         ge=1,
         le=50,
-        description="Number of documents to retrieve from vector search"
+        description="Number of documents to retrieve before reranking"
+    )
+
+    # Retrieval Funnel Configuration (Phase 1.3)
+    rerank_top_n: int = Field(
+        default=3,
+        ge=1,
+        le=20,
+        description="Number of documents to keep after cross-encoder reranking"
+    )
+    cross_encoder_model: str = Field(
+        default="cross-encoder/ms-marco-MiniLM-L12-v2",
+        description="Cross-encoder model for reranking (HuggingFace model ID)"
     )
 
     # Qdrant Configuration (Local RAG)

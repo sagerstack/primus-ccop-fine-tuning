@@ -33,6 +33,9 @@ class GraphState(TypedDict):
     retrieval_succeeded: bool
     retrieval_attempts: int
 
+    # Reranker fields (Phase 1.3)
+    reranker_scores: List[float]  # Cross-encoder scores for all retrieved docs (before top-N selection)
+
     # Generation fields
     generation: str
     is_rag_augmented: bool
