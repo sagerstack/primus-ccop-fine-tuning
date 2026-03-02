@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 1.2 of 8 (Local RAG Migration)
-Plan: 4 of 5 in current phase
+Phase: 1.3 of 8 (RAG Quality - Chunking & Retrieval)
+Plan: 1 of 4 in current phase
 Status: In progress
-Last activity: 2026-03-01 — Completed 01.2-04-PLAN.md (Integration)
+Last activity: 2026-03-02 — Completed 01.3-01-PLAN.md (Clause-Level Chunking)
 
-Progress: [███░░░░░░░] 25%
+Progress: [███░░░░░░░] 26%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 5.5 min
-- Total execution time: 0.73 hours
+- Total plans completed: 9
+- Average duration: 6.1 min
+- Total execution time: 0.92 hours
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [███░░░░░░░] 25%
 |-------|-------|-------|----------|
 | 1. RAG Infrastructure | 4/5 | 28 min | 7 min |
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
+| 1.3. RAG Quality - Chunking & Retrieval | 1/4 | 12 min | 12 min |
 
 **Recent Trend:**
-- Last 5 plans: 01.2-01 (4min), 01.2-02 (3min), 01.2-03 (0min), 01.2-04 (10min)
-- Trend: Stable (infrastructure complexity varies, quality maintained)
+- Last 5 plans: 01.2-02 (3min), 01.2-03 (0min), 01.2-04 (10min), 01.3-01 (12min)
+- Trend: Stable (infrastructure and parsing tasks take longer, quality maintained)
 
 *Updated after each plan completion*
 
@@ -76,6 +77,10 @@ Recent decisions affecting current work:
 - **[01.2-04] DI container selects adapters based on config:** Qdrant (when qdrant_url set) > Databricks (when databricks_host set) > None. Lazy factories maintain circular dependency protection
 - **[01.2-04] EmbeddingService created inside factory:** Not a separate provider, avoids loading 1.3GB+ models when using Databricks
 - **[01.2-04] Ingestion uses factory not container:** Batch script creates indexer directly via _create_indexer factory function
+- **[01.3-01] Docling for PDF parsing:** Classic pipeline extracts hierarchical markdown better than PyMuPDF4LLM for regulatory structure
+- **[01.3-01] Clause-level chunking:** Each chunk = one regulatory requirement (e.g., "5.2.1"). Non-negotiable for compliance Q&A where auditors need specific clause citations
+- **[01.3-01] Deterministic chunk IDs:** {source}::{clause} format generates collision-free uuid5 point IDs, enables re-indexing
+- **[01.3-01] Parent hierarchy in metadata only:** ChunkMetadata.parent_path stores "Chapter 5 > Section 5.2 > 5.2.1" but NOT prepended to chunk text (contextual chunking deferred to Experiment 4)
 
 ### Pending Todos
 
@@ -85,6 +90,7 @@ None yet.
 
 - Phase 1.1 inserted after Phase 1: MLflow Experiment Tracking (URGENT) — Record and compare results across all 5 model iterations (baseline LLM, naive RAG, optimized RAG, fine-tuned LLM, hybrid). Phase 2 now depends on 1.1.
 - Phase 1.2 inserted after Phase 1: Local RAG Migration — Migrate from Databricks to Qdrant + local BGE. Phase 1.2 runs before Phase 1.1.
+- Phase 1.3 inserted after Phase 1.2: RAG Quality — Clause-Level Chunking & Retrieval (URGENT) — Replace PyMuPDF4LLM with Docling, clause-aware chunking, cross-encoder reranking, fix RRF threshold. Discovered during Phase 1.2 human verification: 66 chunks too coarse, RRF threshold broken, zero citations resolving. Research completed first. Phase 1.3 runs before Phase 1.1.
 
 ### Blockers/Concerns
 
@@ -92,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-01
-Stopped at: Session resumed, proceeding to execute 01.2-05-PLAN.md
+Last session: 2026-03-02
+Stopped at: Completed 01.3-01-PLAN.md (Clause-Level Chunking & Docling Parser)
 Resume file: None
