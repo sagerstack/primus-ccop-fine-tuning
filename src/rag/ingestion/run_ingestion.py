@@ -11,9 +11,9 @@ from pathlib import Path
 from typing import Dict, List
 
 from infrastructure.config.settings import Settings, get_settings
-from rag.ingestion.chunkers.section_chunker import chunk_all_documents
+from rag.ingestion.chunkers.clause_aware_chunker import chunk_all_documents_by_clauses
 from rag.ingestion.models import CcopChunk
-from rag.ingestion.parsers.ccop_pdf_parser import parse_all_ccop_documents
+from rag.ingestion.parsers.docling_parser import parse_all_ccop_documents_with_docling
 
 # Configure logging (standard Python logging, not structlog)
 logging.basicConfig(
@@ -72,15 +72,15 @@ def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> D
     Run end-to-end CCoP document ingestion pipeline.
 
     Pipeline steps:
-    1. Parse all 8 CCoP documents with PyMuPDF4LLM
-    2. Chunk documents with section-level semantic chunking
-    3. Upload to Databricks Delta table and create hybrid vector search index
+    1. Parse all 8 CCoP documents with Docling
+    2. Chunk documents with clause-level chunking
+    3. Upload to vector store and create hybrid vector search index
     4. Verify with sample query
 
     Args:
         ccop_dir: Path to ccop-official directory containing PDFs
-        settings: Application settings with Databricks configuration
-        dry_run: If True, skip Databricks upload and just print statistics
+        settings: Application settings with vector store configuration
+        dry_run: If True, skip vector store upload and just print statistics
 
     Returns:
         Summary dict with document_count, chunk_count, index_name, sample_query_results
@@ -90,11 +90,11 @@ def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> D
     logger.info("=" * 80)
 
     # Step 1: Parse all CCoP documents
-    logger.info("\n[Step 1/4] Parsing all CCoP documents...")
+    logger.info("\n[Step 1/4] Parsing all CCoP documents with Docling...")
     logger.info(f"Source directory: {ccop_dir}")
 
     try:
-        parsed_docs = parse_all_ccop_documents(ccop_dir)
+        parsed_docs = parse_all_ccop_documents_with_docling(ccop_dir)
     except Exception as e:
         logger.error(f"Failed to parse documents: {e}")
         raise
@@ -106,10 +106,10 @@ def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> D
         logger.info(f"  {i}. {doc_name}")
 
     # Step 2: Chunk all documents
-    logger.info("\n[Step 2/4] Chunking documents with section-level semantic splitting...")
+    logger.info("\n[Step 2/4] Chunking documents with clause-aware splitting...")
 
     try:
-        chunks = chunk_all_documents(parsed_docs, ccop_dir)
+        chunks = chunk_all_documents_by_clauses(parsed_docs)
     except Exception as e:
         logger.error(f"Failed to chunk documents: {e}")
         raise
