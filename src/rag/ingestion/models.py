@@ -29,6 +29,13 @@ class ChunkMetadata(BaseModel):
     document_type: str = Field(
         default="primary", description="Document type: 'primary' or 'clarification'"
     )
+    parent_path: str = Field(
+        default="",
+        description="Hierarchy path (e.g., 'Chapter 5 > Section 5.2 > 5.2.1')",
+    )
+    chapter: str = Field(
+        default="", description="Top-level chapter number (e.g., '5')"
+    )
 
 
 class CcopChunk(BaseModel):
