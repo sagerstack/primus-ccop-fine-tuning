@@ -107,6 +107,8 @@ class QdrantIndexerAdapter(IIndexer):
                 "clause": chunk.metadata.clause,
                 "citation_id": chunk.metadata.citation_id,
                 "document_type": chunk.metadata.document_type,
+                "parent_path": chunk.metadata.parent_path,
+                "chapter": chunk.metadata.chapter,
             }
 
             # Add page if present (optional field)
