@@ -19,6 +19,7 @@ from rag.retrieval.nodes.generation import generate_response
 from rag.retrieval.nodes.grading import grade_documents
 from rag.retrieval.nodes.query_analysis import analyze_query
 from rag.retrieval.nodes.rag_response import rag_only_response
+from rag.retrieval.nodes.reranking import rerank_documents
 from rag.retrieval.nodes.retrieval import retrieve_documents
 from rag.retrieval.state.graph_state import GraphState
 
@@ -42,6 +43,8 @@ def build_rag_graph(settings: "Settings"):
     │   │        fallback
     │   │           │
     │ retrieval    END
+    │   │
+    │ reranking
     │   │
     │ grading
     │   │
@@ -70,6 +73,7 @@ def build_rag_graph(settings: "Settings"):
     # Nodes
     workflow.add_node("query_analysis", analyze_query)
     workflow.add_node("retrieval", retrieve_documents)
+    workflow.add_node("reranking", rerank_documents)
     workflow.add_node("grade_documents", grade_documents)
     workflow.add_node("generate", generate_response)
     workflow.add_node("fallback", fallback_generation)
@@ -88,8 +92,9 @@ def build_rag_graph(settings: "Settings"):
         },
     )
 
-    # Retrieval → grading (always)
-    workflow.add_edge("retrieval", "grade_documents")
+    # Retrieval → reranking → grading (always)
+    workflow.add_edge("retrieval", "reranking")
+    workflow.add_edge("reranking", "grade_documents")
 
     # After grading: route by mode + retrieval success
     workflow.add_conditional_edges(
@@ -149,6 +154,7 @@ def create_rag_pipeline(settings: "Settings") -> Callable[[str, str], dict]:
             "grading_scores": [],
             "retrieval_succeeded": False,
             "retrieval_attempts": 0,
+            "reranker_scores": [],
             "generation": "",
             "is_rag_augmented": False,
             "citations": [],
