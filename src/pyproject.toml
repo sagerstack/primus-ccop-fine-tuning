@@ -43,6 +43,7 @@ databricks-sdk = ">=0.30.0"             # Databricks SDK (optional for Databrick
 langchain-ollama = ">=0.2.0,<1.0.0"
 qdrant-client = ">=1.11.0"              # Qdrant Python SDK for local vector store
 fastembed = ">=0.4.0"                   # BM25 sparse vector generation for hybrid search
+docling = "^2.75.0"
 
 [tool.poetry.group.dev.dependencies]
 # Testing
