@@ -14,6 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: RAG Infrastructure** - Document ingestion, vector storage, retrieval pipeline with citations
 - [ ] **Phase 1.2: Local RAG Migration** (INSERTED) - Migrate from Databricks to Qdrant + local BGE with port/adapter abstraction
+- [ ] **Phase 1.3: RAG Quality — Clause-Level Chunking & Retrieval** (INSERTED) - Replace PyMuPDF4LLM with Docling, clause-aware chunking, cross-encoder reranking, fix RRF threshold
 - [ ] **Phase 1.1: Evaluation Infrastructure Upgrade** (INSERTED) - LLM-as-Judge rubrics, ModelGateway unification, MLflow tracking
 - [ ] **Phase 2: RAG Evaluation** - Run RAG-augmented model against 49.2% baseline on 118 cases, identify gaps
 - [ ] **Phase 3: Ground Truth Dataset Expansion** - Expand from 118 to 1000+ test cases across all 21 benchmarks
@@ -68,6 +69,30 @@ Plans:
 - [ ] 01.2-03-PLAN.md -- Databricks port wrappers: DatabricksVectorStoreAdapter + DatabricksIndexerAdapter
 - [ ] 01.2-04-PLAN.md -- DI wiring: container, retrieval node, ingestion orchestrator, LangGraphRagAdapter
 - [ ] 01.2-05-PLAN.md -- Re-ingestion, unit tests, E2E verification with human inspection
+
+### Phase 1.3: RAG Quality — Clause-Level Chunking & Retrieval (INSERTED)
+**Goal**: Fix retrieval precision by replacing flat PDF parsing with structure-aware Docling parser, implementing clause-boundary chunking for regulatory documents, removing broken RRF threshold, and adding cross-encoder reranking. Transforms 66 coarse chunks into ~180+ clause-level chunks where each chunk maps to one regulatory requirement.
+**Depends on**: Phase 1.2
+**Requirements**: RAG-03, RAG-04, RAG-05, RAG-06
+**Success Criteria** (what must be TRUE):
+  1. Docling parser extracts hierarchical structure from all 8 CCoP PDFs (sections, clauses, sub-clauses, tables detected)
+  2. Clause-aware chunker produces ~180+ chunks where each chunk corresponds to one regulatory requirement (e.g., Clause 5.2.1)
+  3. ToC pages and boilerplate excluded from indexing (no noise chunks)
+  4. Chunk IDs include source file and clause ID — no UUID collisions across documents
+  5. RRF threshold removed — top-N selection replaces hardcoded 0.6 cosine threshold
+  6. Cross-encoder reranker (ms-marco-MiniLM-L12-v2) re-scores top-20 candidates before passing top-3 to LLM
+  7. Citations resolve to specific clause numbers (e.g., "CCoP 2.0 Clause 5.2.1"), not section-level references
+  8. Retrieval quality verified on sample compliance queries with human inspection
+  9. Experiment log updated with before/after metrics for each change
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01.3-01-PLAN.md — Docling parser, clause-aware chunker, ingestion model extensions, orchestrator update
+- [ ] 01.3-02-PLAN.md — Cross-encoder reranking node, grading refactor (measurement-only), funnel settings, graph wiring
+- [ ] 01.3-03-PLAN.md — Re-ingestion into Qdrant, end-to-end retrieval verification, experiment log update, human inspection
+
+**Research**: `artifacts/research/2026-03-02-rag-chunking-retrieval-strategies-technical.md`
+**Experiment Log**: `research/eval/experiment-log.md`
 
 ### Phase 1.1: Evaluation Infrastructure Upgrade (INSERTED)
 **Goal**: Replace semantic similarity proxies with LLM-as-Judge rubrics for 15 benchmarks, unify all model queries through LangGraph pipeline with mode-based routing, integrate MLflow experiment tracking, and record baseline vs RAG comparison results
@@ -210,13 +235,14 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute: 1 -> 1.2 -> 1.1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
-Note: Phase 1.2 runs before 1.1 so eval infrastructure builds on local stack, not Databricks.
+Phases execute: 1 -> 1.2 -> 1.3 -> 1.1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 runs before 1.1 so eval infrastructure measures improved retrieval.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. RAG Infrastructure | 4/5 | Plan 05 skipped (replaced by 1.2 tests) | - |
 | 1.2. Local RAG Migration | 0/5 | Planning complete | - |
+| 1.3. RAG Quality — Clause-Level Chunking & Retrieval | 0/3 | Planning complete | - |
 | 1.1. Evaluation Infrastructure Upgrade | 0/6 | Planning complete | - |
 | 2. RAG Evaluation | 0/TBD | Not started | - |
 | 3. Ground Truth Dataset Expansion | 0/TBD | Not started | - |
@@ -228,4 +254,4 @@ Note: Phase 1.2 runs before 1.1 so eval infrastructure builds on local stack, no
 
 ---
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-03-01*
+*Last updated: 2026-03-02*
