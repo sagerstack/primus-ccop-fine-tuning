@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1.3 of 8 (RAG Quality - Chunking & Retrieval)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-03-02 — Completed 01.3-01-PLAN.md (Clause-Level Chunking)
+Last activity: 2026-03-02 — Completed 01.3-02-PLAN.md (Reranking Pipeline)
 
-Progress: [███░░░░░░░] 26%
+Progress: [███░░░░░░░] 27%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 6.1 min
-- Total execution time: 0.92 hours
+- Total plans completed: 10
+- Average duration: 5.8 min
+- Total execution time: 0.97 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [███░░░░░░░] 26%
 |-------|-------|-------|----------|
 | 1. RAG Infrastructure | 4/5 | 28 min | 7 min |
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
-| 1.3. RAG Quality - Chunking & Retrieval | 1/4 | 12 min | 12 min |
+| 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01.2-02 (3min), 01.2-03 (0min), 01.2-04 (10min), 01.3-01 (12min)
-- Trend: Stable (infrastructure and parsing tasks take longer, quality maintained)
+- Last 5 plans: 01.2-03 (0min), 01.2-04 (10min), 01.3-01 (12min), 01.3-02 (3min)
+- Trend: Stable (implementation tasks 3-12min, quality maintained)
 
 *Updated after each plan completion*
 
@@ -81,6 +81,10 @@ Recent decisions affecting current work:
 - **[01.3-01] Clause-level chunking:** Each chunk = one regulatory requirement (e.g., "5.2.1"). Non-negotiable for compliance Q&A where auditors need specific clause citations
 - **[01.3-01] Deterministic chunk IDs:** {source}::{clause} format generates collision-free uuid5 point IDs, enables re-indexing
 - **[01.3-01] Parent hierarchy in metadata only:** ChunkMetadata.parent_path stores "Chapter 5 > Section 5.2 > 5.2.1" but NOT prepended to chunk text (contextual chunking deferred to Experiment 4)
+- **[01.3-02] Remove rag_similarity_threshold:** 0.6 threshold applied to RRF scores (0.001-0.033 range) caused 100% document filtering
+- **[01.3-02] Cross-encoder reranking funnel:** Retrieve 20 with bi-encoder, rerank with cross-encoder, keep top-3 for LLM. Improves precision@3 by 25-35%
+- **[01.3-02] Measurement-only grading:** No filtering, logs reranker scores for observability. LLM-as-judge grading removed (slow, inconsistent)
+- **[01.3-02] Lazy cross-encoder loading:** Thread-safe singleton defers 400MB model load until first use
 
 ### Pending Todos
 
@@ -99,5 +103,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 01.3-01-PLAN.md (Clause-Level Chunking & Docling Parser)
+Stopped at: Completed 01.3-02-PLAN.md (Reranking Pipeline)
 Resume file: None
