@@ -6,28 +6,33 @@ Chunks regulatory documents at section boundaries while preserving structure.
 
 import logging
 import re
-from typing import Dict, List
+from typing import List
 
 from langchain.text_splitter import MarkdownHeaderTextSplitter
 
 from rag.ingestion.models import ChunkMetadata, CcopChunk, QAPair
-from rag.ingestion.parsers.ccop_pdf_parser import parse_all_ccop_documents
-from rag.ingestion.parsers.feedback_qa_parser import parse_feedback_qa
 
 logger = logging.getLogger(__name__)
 
 
-def chunk_document(markdown_text: str, document_name: str) -> List[CcopChunk]:
+def chunk_document(
+    markdown_text: str,
+    document_name: str,
+    min_tokens: int = 200,
+    max_tokens: int = 1000,
+) -> List[CcopChunk]:
     """
     Chunk a CCoP document by section boundaries.
 
     Uses MarkdownHeaderTextSplitter to split at section/subsection boundaries,
     then enriches each chunk with metadata (section, clause, citation_id).
-    Applies size constraints (min 200 tokens, max 1000 tokens).
+    Applies size constraints (min min_tokens, max max_tokens).
 
     Args:
         markdown_text: Markdown text from PDF parser
         document_name: Source document name
+        min_tokens: Merge threshold - chunks smaller than this are merged
+        max_tokens: Split threshold - chunks larger than this are split
 
     Returns:
         List of CcopChunk objects with metadata
@@ -75,7 +80,7 @@ def chunk_document(markdown_text: str, document_name: str) -> List[CcopChunk]:
         token_count = len(chunk.page_content.split())
 
         # Apply size constraints
-        if token_count < 200:
+        if token_count < min_tokens:
             # Chunk too small - merge with previous or buffer for next
             if merged_buffer is None:
                 merged_buffer = {
@@ -90,25 +95,18 @@ def chunk_document(markdown_text: str, document_name: str) -> List[CcopChunk]:
                 merged_buffer["text"] += "\n\n" + chunk.page_content
                 # Keep first section/clause info
             continue
-        elif token_count > 1000:
+        elif token_count > max_tokens:
             # Chunk too large - recursively split on paragraph boundaries
             split_chunks = _split_large_chunk(
-                chunk.page_content, document_name, section, subsection, clause
+                chunk.page_content, document_name, section, subsection, clause, max_tokens
             )
             enriched_chunks.extend(split_chunks)
             continue
 
         # Flush merged buffer if exists
         if merged_buffer:
-            enriched_chunks.append(
-                _create_chunk(
-                    merged_buffer["text"],
-                    document_name,
-                    merged_buffer["section"],
-                    merged_buffer["subsection"],
-                    merged_buffer["clause"],
-                    len(enriched_chunks),
-                )
+            enriched_chunks.extend(
+                _flush_buffer(merged_buffer, document_name, len(enriched_chunks), max_tokens)
             )
             merged_buffer = None
 
@@ -119,15 +117,8 @@ def chunk_document(markdown_text: str, document_name: str) -> List[CcopChunk]:
 
     # Don't forget final merged buffer
     if merged_buffer:
-        enriched_chunks.append(
-            _create_chunk(
-                merged_buffer["text"],
-                document_name,
-                merged_buffer["section"],
-                merged_buffer["subsection"],
-                merged_buffer["clause"],
-                len(enriched_chunks),
-            )
+        enriched_chunks.extend(
+            _flush_buffer(merged_buffer, document_name, len(enriched_chunks), max_tokens)
         )
 
     logger.info(
@@ -169,47 +160,37 @@ def chunk_qa_pairs(qa_pairs: List[QAPair], document_name: str) -> List[CcopChunk
     return chunks
 
 
-def chunk_all_documents(parsed_docs: Dict[str, str], ccop_dir: str) -> List[CcopChunk]:
-    """
-    Orchestrate parsing and chunking for all 8 CCoP documents.
-
-    Args:
-        parsed_docs: Dictionary of document_name -> markdown text
-        ccop_dir: Base directory (used for parsing RESPONSE-TO-FEEDBACK separately)
-
-    Returns:
-        Combined list of all chunks from all documents
-    """
-    logger.info("Chunking all CCoP documents")
-
-    all_chunks = []
-
-    for doc_name, markdown in parsed_docs.items():
-        # Standard section-level chunking for all documents
-        chunks = chunk_document(markdown, doc_name)
-
-        # Mark RESPONSE-TO-FEEDBACK chunks as clarifications
-        if doc_name == "CCoP Response to Feedback":
-            for chunk in chunks:
-                chunk.metadata.document_type = "clarification"
-
-        all_chunks.extend(chunks)
-        logger.info(f"  {doc_name}: {len(chunks)} chunks")
-
-    logger.info(f"Total chunks across all documents: {len(all_chunks)}")
-
-    # Chunk size statistics
-    token_counts = [len(c.text.split()) for c in all_chunks]
-    logger.info(
-        f"Chunk size stats: min={min(token_counts, default=0)}, "
-        f"max={max(token_counts, default=0)}, "
-        f"avg={sum(token_counts) // len(token_counts) if token_counts else 0}"
-    )
-
-    return all_chunks
-
-
 # Helper functions
+
+
+def _flush_buffer(
+    buffer: dict, document_name: str, start_index: int, max_tokens: int
+) -> List[CcopChunk]:
+    """
+    Flush a merged buffer, splitting if it exceeds max_tokens.
+
+    Returns one or more CcopChunks.
+    """
+    word_count = len(buffer["text"].split())
+    if word_count > max_tokens:
+        return _split_large_chunk(
+            buffer["text"],
+            document_name,
+            buffer["section"],
+            buffer["subsection"],
+            buffer["clause"],
+            max_tokens,
+        )
+    return [
+        _create_chunk(
+            buffer["text"],
+            document_name,
+            buffer["section"],
+            buffer["subsection"],
+            buffer["clause"],
+            start_index,
+        )
+    ]
 
 
 def _extract_clause_number(text: str) -> str:
@@ -220,12 +201,12 @@ def _extract_clause_number(text: str) -> str:
 
 def _create_citation_id(document_name: str, section: str, clause: str) -> str:
     """Create citation ID from document, section, and clause."""
-    # Sanitize document name for citation ID
-    doc_id = document_name.replace(" ", "-").replace(".", "")
     if clause:
-        return f"{doc_id}.{section}.{clause}"
+        return f"{document_name}::{section}::{clause}"
+    elif section:
+        return f"{document_name}::{section}"
     else:
-        return f"{doc_id}.{section}" if section else doc_id
+        return document_name
 
 
 def _create_chunk(
@@ -243,20 +224,21 @@ def _create_chunk(
     )
 
     return CcopChunk(
-        id=f"{document_name}-{index}",
+        id=f"{document_name}::section::{index}",
         text=text,
         metadata=metadata,
     )
 
 
 def _split_large_chunk(
-    text: str, document_name: str, section: str, subsection: str, clause: str
+    text: str, document_name: str, section: str, subsection: str, clause: str,
+    max_tokens: int = 1000,
 ) -> List[CcopChunk]:
     """
-    Recursively split chunks larger than 1000 tokens.
+    Recursively split chunks larger than max_tokens.
 
     Splits on paragraph boundaries (double newlines).
-    If a single paragraph exceeds 1000 tokens, splits on sentences.
+    If a single paragraph exceeds max_tokens, splits on sentences.
     """
     paragraphs = text.split("\n\n")
     chunks = []
@@ -266,14 +248,12 @@ def _split_large_chunk(
         para_token_count = len(para.split())
 
         # If single paragraph exceeds limit, split it further on sentences
-        if para_token_count > 1000:
-            # Split on sentences (period followed by space or newline)
-            import re
+        if para_token_count > max_tokens:
             sentences = re.split(r'(?<=[.!?])\s+', para)
 
             for sent in sentences:
                 test_chunk = current_chunk + " " + sent if current_chunk else sent
-                if len(test_chunk.split()) > 1000:
+                if len(test_chunk.split()) > max_tokens:
                     if current_chunk:
                         chunks.append(current_chunk)
                     current_chunk = sent
@@ -284,7 +264,7 @@ def _split_large_chunk(
             test_chunk = current_chunk + "\n\n" + para if current_chunk else para
             token_count = len(test_chunk.split())
 
-            if token_count > 1000:
+            if token_count > max_tokens:
                 # Flush current chunk
                 if current_chunk:
                     chunks.append(current_chunk)

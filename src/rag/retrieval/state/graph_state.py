@@ -40,6 +40,7 @@ class GraphState(TypedDict):
     generation: str
     is_rag_augmented: bool
     citations: List[dict]
+    llm_context: str
 
     # Error handling
     error: str

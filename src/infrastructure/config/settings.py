@@ -179,6 +179,59 @@ class Settings(BaseSettings):
         description="Number of documents to retrieve before reranking"
     )
 
+    # Ingestion Pipeline Configuration
+    preamble_max_words: int = Field(
+        default=500,
+        ge=100,
+        description="Max words for preamble chunks before paragraph-based splitting"
+    )
+    section_chunk_min_tokens: int = Field(
+        default=200,
+        ge=50,
+        description="Merge threshold for section-based chunker (tokens)"
+    )
+    section_chunk_max_tokens: int = Field(
+        default=1000,
+        ge=200,
+        description="Split threshold for section-based chunker (tokens)"
+    )
+    # Diagram Captioning (GLM-4V via ZhipuAI)
+    diagram_captioning_enabled: bool = Field(
+        default=False,
+        description="Enable diagram captioning with GLM-4V vision model"
+    )
+    zhipuai_api_key: Optional[str] = Field(
+        default=None,
+        description="ZhipuAI API key for GLM-4V diagram captioning"
+    )
+    zhipuai_base_url: str = Field(
+        default="https://open.bigmodel.cn/api/paas/v4",
+        description="ZhipuAI API base URL"
+    )
+    zhipuai_model: str = Field(
+        default="glm-4v-plus",
+        description="ZhipuAI vision model name"
+    )
+    zhipuai_timeout: int = Field(
+        default=60,
+        ge=10,
+        description="ZhipuAI request timeout in seconds"
+    )
+    zhipuai_max_tokens: int = Field(
+        default=512,
+        ge=64,
+        description="Max tokens for diagram description"
+    )
+    diagram_captioning_prompt: str = Field(
+        default="Describe this diagram from a cybersecurity regulatory document. Focus on the structure, relationships, and key information conveyed. Be concise and factual.",
+        description="Prompt sent to vision model for diagram captioning"
+    )
+    garbled_text_repetition_threshold: int = Field(
+        default=5,
+        ge=2,
+        description="N-gram repetition threshold for garbled text detection"
+    )
+
     # Retrieval Funnel Configuration (Phase 1.3)
     rerank_top_n: int = Field(
         default=3,

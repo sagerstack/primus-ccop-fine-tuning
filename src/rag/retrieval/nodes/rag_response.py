@@ -7,6 +7,7 @@ Used in rag-only mode for evaluating retrieval quality.
 
 import logging
 
+from rag.retrieval.context import assemble_llm_context
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -30,9 +31,10 @@ def rag_only_response(state: GraphState) -> GraphState:
         state["generation"] = "No relevant documents found."
         state["is_rag_augmented"] = False
         state["citations"] = []
+        state["llm_context"] = ""
         return state
 
-    # Format each chunk with metadata
+    # Format each chunk with metadata for human-readable display
     parts = []
     for i, doc in enumerate(filtered_docs, 1):
         source = doc.metadata.get("document_source", "Unknown")
@@ -50,7 +52,20 @@ def rag_only_response(state: GraphState) -> GraphState:
 
         parts.append(f"{header}\n\n{doc.page_content}")
 
-    state["generation"] = "\n\n---\n\n".join(parts)
+    retrieval_output = "\n\n---\n\n".join(parts)
+
+    # Assemble the LLM context string (what the generation node would receive)
+    llm_context = assemble_llm_context(filtered_docs)
+    state["llm_context"] = llm_context
+
+    # Combine both views in the generation output
+    state["generation"] = (
+        f"{retrieval_output}\n\n"
+        f"{'=' * 60}\n"
+        f"LLM Context (as sent to generation):\n"
+        f"{'=' * 60}\n\n"
+        f"{llm_context}"
+    )
     state["is_rag_augmented"] = True
     state["citations"] = []
 

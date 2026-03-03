@@ -37,7 +37,6 @@ langchain = "^0.3.0"                    # RAG building blocks
 langchain-community = "^0.3.0"          # Community integrations
 langgraph = "^0.3.0"                    # Orchestration for adaptive RAG
 databricks-langchain = ">=0.1.0"        # Databricks Vector Search integration (optional for Databricks adapter)
-pymupdf4llm = ">=0.0.10"                # PDF parsing with structure preservation
 databricks-vectorsearch = ">=0.40"      # Databricks Vector Search client (optional for Databricks adapter)
 databricks-sdk = ">=0.30.0"             # Databricks SDK (optional for Databricks adapter)
 langchain-ollama = ">=0.2.0,<1.0.0"

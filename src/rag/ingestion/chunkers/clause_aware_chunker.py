@@ -17,7 +17,9 @@ logger = logging.getLogger(__name__)
 CLAUSE_PATTERN = re.compile(r"^(\d+(?:\.\d+)*)\s+(.+?)$", re.MULTILINE)
 
 
-def chunk_by_clauses(markdown_text: str, document_name: str) -> List[CcopChunk]:
+def chunk_by_clauses(
+    markdown_text: str, document_name: str, preamble_max_words: int = 500
+) -> List[CcopChunk]:
     """
     Chunk a CCoP document by clause boundaries.
 
@@ -28,6 +30,7 @@ def chunk_by_clauses(markdown_text: str, document_name: str) -> List[CcopChunk]:
     Args:
         markdown_text: Markdown text from Docling parser
         document_name: Source document name
+        preamble_max_words: Max words for a single preamble chunk before splitting
 
     Returns:
         List of CcopChunk objects with clause-level metadata
@@ -49,23 +52,32 @@ def chunk_by_clauses(markdown_text: str, document_name: str) -> List[CcopChunk]:
         word_count = len(preamble_text.split())
 
         if word_count > 50:
-            # Substantial preamble - create chunk
-            metadata = ChunkMetadata(
-                document_source=document_name,
-                section="preamble",
-                clause="",
-                citation_id=f"{document_name}::preamble",
-                parent_path="Preamble",
-                chapter="0",
-            )
-            chunks.append(
-                CcopChunk(
-                    id=f"{document_name}::preamble",
-                    text=preamble_text,
-                    metadata=metadata,
+            if word_count <= preamble_max_words:
+                metadata = ChunkMetadata(
+                    document_source=document_name,
+                    section="preamble",
+                    clause="",
+                    citation_id=f"{document_name}::preamble",
+                    parent_path="Preamble",
+                    chapter="0",
                 )
-            )
-            logger.info(f"  Created preamble chunk: {word_count} words")
+                chunks.append(
+                    CcopChunk(
+                        id=f"{document_name}::preamble",
+                        text=preamble_text,
+                        metadata=metadata,
+                    )
+                )
+                logger.info(f"  Created preamble chunk: {word_count} words")
+            else:
+                preamble_chunks = _split_preamble(
+                    preamble_text, document_name, preamble_max_words
+                )
+                chunks.extend(preamble_chunks)
+                logger.info(
+                    f"  Split oversized preamble ({word_count} words) "
+                    f"into {len(preamble_chunks)} sub-chunks"
+                )
 
     # Process clause groups (groups of 3: clause_number, heading, content)
     i = 1 if parts[0].strip() else 0
@@ -128,12 +140,15 @@ def chunk_by_clauses(markdown_text: str, document_name: str) -> List[CcopChunk]:
     return chunks
 
 
-def chunk_all_documents_by_clauses(parsed_docs: Dict[str, str]) -> List[CcopChunk]:
+def chunk_all_documents_by_clauses(
+    parsed_docs: Dict[str, str], preamble_max_words: int = 500
+) -> List[CcopChunk]:
     """
     Chunk all CCoP documents by clause boundaries.
 
     Args:
         parsed_docs: Dictionary mapping document name to markdown text
+        preamble_max_words: Max words for a single preamble chunk before splitting
 
     Returns:
         Combined list of all chunks from all documents
@@ -143,7 +158,7 @@ def chunk_all_documents_by_clauses(parsed_docs: Dict[str, str]) -> List[CcopChun
     all_chunks = []
 
     for doc_name, markdown in parsed_docs.items():
-        chunks = chunk_by_clauses(markdown, doc_name)
+        chunks = chunk_by_clauses(markdown, doc_name, preamble_max_words)
 
         # Mark RESPONSE-TO-FEEDBACK chunks as clarifications
         if doc_name == "CCoP Response to Feedback":
@@ -165,6 +180,51 @@ def chunk_all_documents_by_clauses(parsed_docs: Dict[str, str]) -> List[CcopChun
         )
 
     return all_chunks
+
+
+def _split_preamble(
+    preamble_text: str, document_name: str, max_words: int
+) -> List[CcopChunk]:
+    """
+    Split an oversized preamble into sub-chunks on paragraph boundaries.
+
+    Args:
+        preamble_text: Full preamble text
+        document_name: Source document name
+        max_words: Maximum words per sub-chunk
+
+    Returns:
+        List of preamble sub-chunks
+    """
+    paragraphs = preamble_text.split("\n\n")
+    sub_chunks = []
+    current_text = ""
+
+    for para in paragraphs:
+        test_text = f"{current_text}\n\n{para}".strip() if current_text else para
+        if len(test_text.split()) > max_words and current_text:
+            sub_chunks.append(current_text)
+            current_text = para
+        else:
+            current_text = test_text
+
+    if current_text:
+        sub_chunks.append(current_text)
+
+    chunks = []
+    for idx, text in enumerate(sub_chunks, 1):
+        chunk_id = f"{document_name}::preamble::{idx}"
+        metadata = ChunkMetadata(
+            document_source=document_name,
+            section="preamble",
+            clause="",
+            citation_id=chunk_id,
+            parent_path="Preamble",
+            chapter="0",
+        )
+        chunks.append(CcopChunk(id=chunk_id, text=text, metadata=metadata))
+
+    return chunks
 
 
 def _filter_boilerplate(markdown_text: str) -> str:

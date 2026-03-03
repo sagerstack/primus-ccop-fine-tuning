@@ -2,6 +2,7 @@
 End-to-End CCoP Ingestion Orchestrator
 
 One-time batch script to parse, chunk, and index all CCoP documents.
+Routes each document to its configured parser and chunker strategy.
 """
 
 import argparse
@@ -11,9 +12,14 @@ from pathlib import Path
 from typing import Dict, List
 
 from infrastructure.config.settings import Settings, get_settings
-from rag.ingestion.chunkers.clause_aware_chunker import chunk_all_documents_by_clauses
-from rag.ingestion.models import CcopChunk
-from rag.ingestion.parsers.docling_parser import parse_all_ccop_documents_with_docling
+from rag.ingestion.chunkers.clause_aware_chunker import chunk_by_clauses
+from rag.ingestion.chunkers.section_chunker import chunk_document
+from rag.ingestion.models import ChunkerType, CcopChunk
+from rag.ingestion.parsers.ccop_pdf_parser import CCOP_DOCUMENTS
+from rag.ingestion.parsers.docling_parser import (
+    DoclingParseResult,
+    parse_all_ccop_documents_with_docling,
+)
 
 # Configure logging (standard Python logging, not structlog)
 logging.basicConfig(
@@ -67,13 +73,128 @@ def _create_indexer(settings: Settings):
         )
 
 
+def _enrich_with_diagram_captions(
+    parsed_docs: Dict[str, DoclingParseResult], settings: Settings
+) -> None:
+    """
+    Enrich parsed documents with diagram captions from GLM-4V.
+
+    Replaces <!-- image --> placeholders in markdown with vision model descriptions.
+    Modifies DoclingParseResult.markdown in place.
+
+    Args:
+        parsed_docs: Dictionary mapping document name to DoclingParseResult
+        settings: Application settings with ZhipuAI configuration
+    """
+    if not settings.diagram_captioning_enabled:
+        logger.info("Diagram captioning disabled (CCOP_DIAGRAM_CAPTIONING_ENABLED=false)")
+        return
+
+    if not settings.zhipuai_api_key or settings.zhipuai_api_key == "your_zhipuai_api_key_here":
+        logger.warning(
+            "Diagram captioning enabled but no API key set. "
+            "Diagrams will keep <!-- image --> placeholders."
+        )
+        return
+
+    from infrastructure.external.zhipuai_client import ZhipuVisionClient
+    from rag.ingestion.enrichers.diagram_captioner import caption_diagrams
+
+    vision_client = ZhipuVisionClient(
+        api_key=settings.zhipuai_api_key,
+        base_url=settings.zhipuai_base_url,
+        model=settings.zhipuai_model,
+        timeout=settings.zhipuai_timeout,
+        max_tokens=settings.zhipuai_max_tokens,
+    )
+
+    try:
+        for doc_name, parse_result in parsed_docs.items():
+            picture_count = len(getattr(parse_result.document, "pictures", []))
+            if picture_count == 0:
+                logger.info(f"  {doc_name}: 0 diagrams, skipping")
+                continue
+
+            logger.info(f"  {doc_name}: captioning {picture_count} diagrams...")
+            parse_result.markdown = caption_diagrams(
+                parse_result.markdown,
+                parse_result.document,
+                vision_client,
+                settings.diagram_captioning_prompt,
+            )
+            logger.info(f"  {doc_name}: {picture_count} diagrams captioned")
+    finally:
+        vision_client.close()
+
+
+def _chunk_documents(
+    parsed_docs: Dict[str, DoclingParseResult], settings: Settings
+) -> List[CcopChunk]:
+    """
+    Route each document to its configured chunker strategy.
+
+    Args:
+        parsed_docs: Dictionary mapping document name to DoclingParseResult
+        settings: Application settings with chunking parameters
+
+    Returns:
+        Combined list of all chunks from all documents
+    """
+    doc_config_map = {doc.name: doc for doc in CCOP_DOCUMENTS}
+
+    all_chunks = []
+
+    for doc_name, parse_result in parsed_docs.items():
+        doc_config = doc_config_map.get(doc_name)
+        markdown = parse_result.markdown
+
+        if doc_config is None:
+            logger.warning(f"No config found for '{doc_name}', skipping")
+            continue
+
+        if doc_config.chunker_type == ChunkerType.CLAUSE_AWARE:
+            chunks = chunk_by_clauses(
+                markdown, doc_name, preamble_max_words=settings.preamble_max_words
+            )
+            logger.info(f"  {doc_name}: {len(chunks)} chunks (clause_aware)")
+        else:
+            chunks = chunk_document(
+                markdown,
+                doc_name,
+                min_tokens=settings.section_chunk_min_tokens,
+                max_tokens=settings.section_chunk_max_tokens,
+            )
+            logger.info(f"  {doc_name}: {len(chunks)} chunks (section_based)")
+
+        # Mark RESPONSE-TO-FEEDBACK chunks as clarifications
+        if doc_name == "CCoP Response to Feedback":
+            for chunk in chunks:
+                chunk.metadata.document_type = "clarification"
+
+        all_chunks.extend(chunks)
+
+    logger.info(f"Total chunks across all documents: {len(all_chunks)}")
+
+    # Chunk size statistics
+    token_counts = [len(c.text.split()) for c in all_chunks]
+    if token_counts:
+        logger.info(
+            f"Chunk size stats: min={min(token_counts)}, "
+            f"max={max(token_counts)}, "
+            f"avg={sum(token_counts) // len(token_counts)}"
+        )
+
+    return all_chunks
+
+
 def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> Dict:
     """
     Run end-to-end CCoP document ingestion pipeline.
 
     Pipeline steps:
-    1. Parse all 8 CCoP documents with Docling
-    2. Chunk documents with clause-level chunking
+    1. Parse all 8 CCoP documents with Docling Classic pipeline
+    1.5. Enrich diagrams with GLM-4V captions (if enabled)
+    2. Route each document to its configured chunker (clause_aware or section_based)
     3. Upload to vector store and create hybrid vector search index
     4. Verify with sample query
 
@@ -90,7 +211,7 @@ def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> D
     logger.info("=" * 80)
 
     # Step 1: Parse all CCoP documents
-    logger.info("\n[Step 1/4] Parsing all CCoP documents with Docling...")
+    logger.info("\n[Step 1/5] Parsing all CCoP documents with Docling...")
     logger.info(f"Source directory: {ccop_dir}")
 
     try:
@@ -100,31 +221,35 @@ def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> D
         raise
 
     document_count = len(parsed_docs)
-    logger.info(f"✓ Parsed {document_count} documents")
+    logger.info(f"Parsed {document_count} documents")
 
     for i, doc_name in enumerate(parsed_docs.keys(), 1):
         logger.info(f"  {i}. {doc_name}")
 
-    # Step 2: Chunk all documents
-    logger.info("\n[Step 2/4] Chunking documents with clause-aware splitting...")
+    # Step 1.5: Enrich diagrams with captions
+    logger.info("\n[Step 1.5/5] Diagram captioning...")
+    _enrich_with_diagram_captions(parsed_docs, settings)
+
+    # Step 2: Chunk all documents with per-document routing
+    logger.info("\n[Step 2/5] Chunking documents with per-document strategy routing...")
 
     try:
-        chunks = chunk_all_documents_by_clauses(parsed_docs)
+        chunks = _chunk_documents(parsed_docs, settings)
     except Exception as e:
         logger.error(f"Failed to chunk documents: {e}")
         raise
 
     chunk_count = len(chunks)
-    logger.info(f"✓ Chunking complete: {chunk_count} chunks from {document_count} documents")
+    logger.info(f"Chunking complete: {chunk_count} chunks from {document_count} documents")
 
     # Step 3: Log chunk statistics
-    logger.info("\n[Step 3/4] Chunk statistics:")
+    logger.info("\n[Step 3/5] Chunk statistics:")
     _log_chunk_statistics(chunks)
 
     # Step 4: Upload to vector store (unless dry-run)
     if dry_run:
-        logger.info("\n[Step 4/4] Dry-run mode: Skipping vector store upload")
-        logger.info("✓ Dry-run complete")
+        logger.info("\n[Step 4/5] Dry-run mode: Skipping vector store upload")
+        logger.info("Dry-run complete")
         return {
             "document_count": document_count,
             "chunk_count": chunk_count,
@@ -133,18 +258,18 @@ def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> D
             "dry_run": True,
         }
 
-    logger.info("\n[Step 4/4] Uploading to vector store...")
+    logger.info("\n[Step 4/5] Uploading to vector store...")
     logger.info(f"Uploading {chunk_count} chunks...")
 
     try:
         indexer = _create_indexer(settings)
-        logger.info("Index creation in progress... (this may take 5-10 minutes)")
+        logger.info("Index creation in progress...")
         index_name = indexer.index_chunks(chunks)
     except Exception as e:
         logger.error(f"Failed to upload to vector store: {e}")
         raise
 
-    logger.info(f"✓ Indexing complete: {index_name}")
+    logger.info(f"Indexing complete: {index_name}")
 
     # Step 5: Verify with sample query
     logger.info("\n[Step 5/5] Verifying with sample query...")
@@ -153,7 +278,7 @@ def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> D
     try:
         verification = indexer.verify_index(index_name, sample_query)
         result_count = verification["result_count"]
-        logger.info(f"✓ Verification query returned {result_count} results")
+        logger.info(f"Verification query returned {result_count} results")
 
         if result_count > 0:
             logger.info("\nTop 3 results:")
@@ -166,7 +291,7 @@ def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> D
         raise
 
     logger.info("\n" + "=" * 80)
-    logger.info("✓ Ingestion pipeline complete!")
+    logger.info("Ingestion pipeline complete!")
     logger.info("=" * 80)
 
     return {

@@ -13,6 +13,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from infrastructure.config.settings import get_settings
 from rag.citations.formatter import format_response_with_citations
 from rag.citations.resolver import build_citations_from_state
+from rag.retrieval.context import assemble_llm_context
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -43,18 +44,7 @@ def generate_response(state: GraphState) -> GraphState:
     )
 
     # Format retrieved context with citation anchors
-    context_parts = []
-    for doc in filtered_docs:
-        citation_id = doc.metadata.get("citation_id", "unknown")
-        document_source = doc.metadata.get("document_source", "unknown")
-        section = doc.metadata.get("section", "")
-
-        # Format: [Source: <c>citation_id</c>] document_text
-        context_parts.append(
-            f"[Source: {document_source}, {section} <c>{citation_id}</c>]\n{doc.page_content}\n"
-        )
-
-    context = "\n---\n".join(context_parts)
+    context = assemble_llm_context(filtered_docs)
 
     # Log the assembled context being sent to the model
     logger.info(f"Context assembled for generation ({len(context)} chars, {len(filtered_docs)} sources):")

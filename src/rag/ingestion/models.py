@@ -4,9 +4,23 @@ RAG Ingestion Data Models
 Pydantic models for CCoP document chunks and metadata.
 """
 
+from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, Field
+
+
+class ParserType(str, Enum):
+    """Parser pipeline type for document conversion."""
+
+    CLASSIC = "classic"
+
+
+class ChunkerType(str, Enum):
+    """Chunking strategy for document splitting."""
+
+    CLAUSE_AWARE = "clause_aware"
+    SECTION_BASED = "section_based"
 
 
 class ChunkMetadata(BaseModel):
