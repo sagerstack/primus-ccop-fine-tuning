@@ -6,6 +6,7 @@ Embeds citation anchors in response for later resolution.
 """
 
 import logging
+import re
 
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
@@ -17,6 +18,20 @@ from rag.retrieval.context import assemble_llm_context
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
+
+# Pattern to strip Llama chain-of-thought tokens
+_THINKING_TOKEN_PATTERN = re.compile(
+    r"<\|python_tag\|>.*?<\|reserved_special_token_1\|>\s*",
+    re.DOTALL,
+)
+
+
+def strip_thinking_tokens(text: str) -> str:
+    """Strip Llama chain-of-thought tokens from model output."""
+    cleaned = _THINKING_TOKEN_PATTERN.sub("", text)
+    # Also strip any remaining special tokens individually
+    cleaned = re.sub(r"<\|[a-z_]+\|>", "", cleaned)
+    return cleaned.strip()
 
 
 def generate_response(state: GraphState) -> GraphState:
@@ -60,17 +75,19 @@ def generate_response(state: GraphState) -> GraphState:
         [
             (
                 "system",
-                """You are a CCoP 2.0 compliance expert. Answer using the retrieved context below.
+                """You are a CCoP 2.0 compliance expert. Answer the question using ONLY the retrieved context below.
 
-IMPORTANT CITATION RULES:
-- The context contains citation anchors like <c>CCoP-2.0.5.5.2.1</c>
-- When you reference information from a source, include its citation anchor in your response
-- Place citation anchors after the relevant sentence or claim
-- DO NOT make up citations - only use anchors provided in the context
-- If context is insufficient, say so explicitly
+Question: {query}
 
 Retrieved Context:
-{context}""",
+{context}
+
+INSTRUCTIONS:
+- Answer the question directly using the retrieved context above
+- Each source has a citation anchor in the format <c>Document::Clause</c>, for example <c>Security By Design::1.1</c> or <c>CCoP 2.0::5.2.1</c>
+- You MUST cite the source after each claim by including its anchor, for example: "Organizations must adopt SDLC methodology <c>Security By Design::1.1</c>"
+- Only use citation anchors that appear in the context above
+- If context is insufficient, say so explicitly""",
             ),
             ("human", "{query}"),
         ]
@@ -100,6 +117,7 @@ Retrieved Context:
         raw_generation = (
             response.content if hasattr(response, "content") else str(response)
         )
+        raw_generation = strip_thinking_tokens(raw_generation)
 
         # Post-process: resolve citation anchors to metadata
         # Store raw generation for debugging
@@ -118,6 +136,27 @@ Retrieved Context:
         formatted_generation = format_response_with_citations(
             raw_generation, resolved_citations
         )
+
+        # Fallback: if LLM failed to cite correctly, append source references
+        # from the filtered documents so sources are always visible
+        if not resolved_citations and filtered_docs:
+            source_refs = ["\n\nSources:"]
+            seen = set()
+            for doc in filtered_docs:
+                source = doc.metadata.get("document_source", "Unknown")
+                clause = doc.metadata.get("clause", "")
+                section = doc.metadata.get("section", "")
+                ref_key = f"{source}::{clause or section}"
+                if ref_key in seen:
+                    continue
+                seen.add(ref_key)
+                ref = f"- {source}"
+                if clause:
+                    ref += f", Clause {clause}"
+                elif section:
+                    ref += f", Section {section}"
+                source_refs.append(ref)
+            formatted_generation = formatted_generation.strip() + "\n".join(source_refs)
 
         # Update state with formatted output
         state["generation"] = formatted_generation

@@ -209,7 +209,7 @@ class Settings(BaseSettings):
         description="ZhipuAI API base URL"
     )
     zhipuai_model: str = Field(
-        default="glm-4v-plus",
+        default="glm-4.6v",
         description="ZhipuAI vision model name"
     )
     zhipuai_timeout: int = Field(

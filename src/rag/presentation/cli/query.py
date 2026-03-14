@@ -102,7 +102,8 @@ async def _execute_query(question: str, mode: str, verbose: bool) -> None:
             "llm-only": "Response (LLM-only, no RAG)",
             "rag-only": "Retrieved Documents (no LLM)",
         }
-        console.print(f"\n[bold blue]{mode_label.get(mode, 'Response')}:[/bold blue]\n")
+        console.print(f"\n[bold yellow]Question:[/bold yellow] {response.query}\n")
+        console.print(f"[bold blue]{mode_label.get(mode, 'Response')}:[/bold blue]\n")
         console.print(Markdown(response.response))
 
         # Display metadata if verbose

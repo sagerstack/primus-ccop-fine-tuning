@@ -34,7 +34,7 @@ CCOP_DOCUMENTS = [
         name="CCoP Response to Feedback",
         path="RESPONSE-TO-FEEDBACK.pdf",
         parser_type=ParserType.CLASSIC,
-        chunker_type=ChunkerType.SECTION_BASED,
+        chunker_type=ChunkerType.CLAUSE_AWARE,
     ),
     CcopDocument(
         name="Auditing Guidelines",
@@ -59,12 +59,6 @@ CCOP_DOCUMENTS = [
         path="supplementary/Security_By_Design_Framework.pdf",
         parser_type=ParserType.CLASSIC,
         chunker_type=ChunkerType.CLAUSE_AWARE,
-    ),
-    CcopDocument(
-        name="Ensign CCoP Guide",
-        path="references/Ensign's_Cybersecurity_Guide_on_CCoP_2_0_for_CII_Sep_2022.pdf",
-        parser_type=ParserType.CLASSIC,
-        chunker_type=ChunkerType.SECTION_BASED,
     ),
     CcopDocument(
         name="Cybersecurity Act 2018",

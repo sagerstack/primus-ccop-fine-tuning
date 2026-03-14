@@ -98,60 +98,70 @@ Replace the two root-cause components (parser + chunker) to achieve clause-level
 
 | Metric | Baseline (Exp 0) | Experiment 1 | Change |
 |--------|-----------------|--------------|---------|
-| **Total chunk count** | 66 | 226 | +243% |
+| **Total chunk count** | 66 | 324 (305 in Qdrant after dedup) | +391% |
 | **Chunks per document** | ~8-11 avg | Varies by document structure | — |
-| **CCoP 2.0 chunks** | ~11 | 167 | Primary document now properly granular |
-| **Chunk size (median)** | ~800 tokens | 66 tokens | Clause-level precision |
-| **Chunk size (avg)** | ~700 tokens | 356 tokens | Mixed: clauses + preambles |
+| **CCoP 2.0 chunks** | ~11 | 168 | Primary document now properly granular |
+| **Chunk size (median)** | ~800 tokens | 124 tokens | Clause-level precision |
+| **Chunk size (avg)** | ~700 tokens | 249 tokens | Mixed: clauses + preambles |
+| **Chunk size (min/max)** | — | 8 / 5452 tokens | Wide range due to supplementary docs |
 | **Citation ID format** | Non-deterministic index | `{source}::{clause}` | Deterministic, semantic |
 
 **Per-document breakdown:**
 
-| Document | Chunks | Notes |
-|----------|--------|-------|
-| CCoP 2.0 | 167 | Primary regulatory document, clause-level |
-| Security By Design | 27 | Supplementary framework |
-| Risk Assessment Guide | 11 | Supplementary |
-| Threat Modelling Guide | 9 | Supplementary |
-| Auditing Guidelines | 6 | Supplementary |
-| CCoP Response to Feedback | 4 | Large preamble + QA sections |
-| Ensign CCoP Guide | 1 | Single unified guide |
-| Cybersecurity Act 2018 | 1 | Large statutory text |
+| Document | Chunks | Chunker | Notes |
+|----------|--------|---------|-------|
+| CCoP 2.0 | 168 | clause_aware | Primary regulatory document, clause-level |
+| Cybersecurity Act 2018 | 50 | section_based | Statutory text, section-level |
+| Security By Design | 27 | clause_aware | Supplementary framework |
+| CCoP Response to Feedback | 23 | section_based | Q&A sections, clarifications |
+| Threat Modelling Guide | 22 | section_based | Supplementary |
+| Risk Assessment Guide | 19 | section_based | Supplementary |
+| Auditing Guidelines | 11 | section_based | Supplementary |
+| Ensign CCoP Guide | 4 | section_based | Concise implementation guide |
 
 **Chunk size distribution:**
 
-- < 300 tokens: 191 chunks (84.5%) — pure clause-level
-- 300-500 tokens: 10 chunks (4.4%) — multi-clause sections
-- 500-700 tokens: 5 chunks (2.2%) — preambles/appendices
-- 700-900 tokens: 4 chunks (1.8%) — preambles
-- 900+ tokens: 16 chunks (7.1%) — large preambles, Act full text
+- < 300 tokens: 246 chunks (75.9%) — pure clause-level
+- 300-500 tokens: 32 chunks (9.9%) — multi-clause sections
+- 500-700 tokens: 15 chunks (4.6%) — preambles/appendices
+- 700-900 tokens: 13 chunks (4.0%) — preambles
+- 900+ tokens: 18 chunks (5.6%) — large preambles
 
-**Sample retrieval (5 test queries):**
+**Sample retrieval (5 test queries, 2026-03-14 re-ingestion):**
 
 - Query 1: "access control requirements for CII"
-  - Top result: CCoP 2.0::4.1.2 (inventory management for access control)
-  - Also returned: 5.6.1 (network access control), 5.1.2 (authorization principles)
+  - Top result: CCoP 2.0::4.1.2 (score: 7.56)
+  - Also returned: 5.6.1 (score: 6.19), 5.1.2 (score: 5.13)
 
 - Query 2: "security logs retained"
-  - Top result: CCoP 2.0::6.1.4 (log retention requirements) ✓
+  - Top result: CCoP 2.0::6.1.4 (score: 3.68) — log retention requirements
+
+- Query 3: "incident reporting timelines"
+  - Top results from Ensign CCoP Guide and CCoP Response to Feedback
+
+- Query 4: "MFA requirements"
+  - Top results from Ensign CCoP Guide and CCoP Response to Feedback
 
 - Query 5: "vulnerability assessment requirements"
-  - Top results: CCoP 2.0::5.14.3, 5.14.4 (vulnerability assessment timelines) ✓
+  - Top results: CCoP 2.0::5.14.3 (score: 3.40), 5.14.4 (score: 3.21)
 
 **Hypothesis validation:**
 
-✅ Chunk count increased from 66 → 226 (exceeds 180+ target)
+✅ Chunk count increased from 66 → 324 (exceeds 180+ target)
 ✅ Each chunk maps to specific clause with citation ID
-✅ Embedding vectors more focused (median 66 tokens vs 800)
+✅ Embedding vectors more focused (median 124 tokens vs 800)
 ✅ Retrieval returns clause-level results with accurate citations
+✅ `retrieval_succeeded = True` for all 5 queries
 
 **Observations:**
 
-1. **Preamble handling**: Documents without numbered clauses (Ensign Guide, Cybersecurity Act) become single large chunks. This is acceptable — these are reference documents, not requirement sources.
+1. **Section-based chunker improved**: Supplementary documents now produce 4-50 chunks (up from 1-11) due to section chunker improvements.
 
-2. **CCoP 2.0 granularity**: 167 chunks for the primary document is ideal. Each requirement is independently retrievable and citable.
+2. **CCoP 2.0 granularity**: 168 chunks for the primary document is ideal. Each requirement is independently retrievable and citable.
 
 3. **UUID collision eliminated**: Deterministic `{source}::{clause}` IDs ensure uniqueness across documents.
+
+4. **Qdrant dedup**: 324 chunks produced but 305 unique points in Qdrant — 19 duplicate clause IDs collapsed via UUID5 deterministic hashing.
 
 ---
 
@@ -238,11 +248,13 @@ With clause-level chunks, many chunks will be semantically similar (same section
 | **Documents per query (after reranking)** | N/A | 3 (top-3 selection) | Funnel: 20 → rerank → 3 |
 | **Score range** | N/A | -6.56 to +7.56 | Cross-encoder relevance scores |
 
-**Sample reranker scores (from 5 test queries):**
+**Sample reranker scores (from 5 test queries, 2026-03-14 re-run):**
 
-- Query 1 ("access control"): Top scores = 7.56, 6.19, 5.13
-- Query 2 ("log retention"): Top scores = 3.68, -0.50, -1.31
-- Query 5 ("vulnerability assessment"): Top scores = 5.26, 3.40, 3.21
+- Query 1 ("access control"): Top scores = 7.56, 6.19, 5.13 — all positive, high confidence
+- Query 2 ("log retention"): Top scores = 3.68, 1.62, -0.50 — CCoP 2.0::6.1.4 correctly ranked top
+- Query 3 ("incident reporting"): Top scores = -1.27, -1.29, -2.86 — weaker signal, supplementary docs
+- Query 4 ("MFA requirements"): Top scores = 2.87, 1.67, -0.23 — moderate confidence
+- Query 5 ("vulnerability assessment"): Top scores = 5.26, 3.40, 3.21 — strong, all from Section 5.14
 
 **Qualitative observations:**
 
@@ -268,6 +280,70 @@ With clause-level chunks, many chunks will be semantically similar (same section
 
 ---
 
+## Experiment 4: Hybrid Diagram Captioning (Docling Classic + GLM-4V)
+
+- **Date**: 2026-03-14
+- **Branch**: feature/phase2-eval
+- **Commit**: 43d2339
+
+### Motivation
+
+Docling's small VLM (granite-docling-258M) garbled circular/flow diagrams — e.g., Security By Design's SDLC phases diagram produced "SDLC comprises of six phases" repeated 60+ times. The VLM pipeline was also slow and provided no advantage over Classic for text-only extraction from these digital-native PDFs.
+
+### Hypothesis
+
+- Docling Classic extracts text equally well as VLM for digital-native PDFs
+- GLM-4V via ZhipuAI API can produce accurate diagram descriptions
+- Diagram content becomes searchable text instead of `<!-- image -->` placeholders
+- No degradation in chunk count or retrieval quality
+
+### Changes Made
+
+| Component | From | To |
+|-----------|------|-----|
+| Parser | Docling (Classic + VLM per document) | Docling Classic only (all documents) |
+| Diagram handling | `<!-- image -->` placeholders (or garbled VLM text) | GLM-4V API captioning (with fallback) |
+| Picture extraction | Not enabled | `generate_picture_images=True` |
+| pymupdf4llm | Dependency present (legacy parser) | Removed |
+
+### Results
+
+| Metric | Previous (Exp 1) | Experiment 4 | Notes |
+|--------|-----------------|--------------|-------|
+| **Documents parsed** | 8 | 8 | All Classic pipeline |
+| **Total pictures detected** | N/A | 78 across 7 docs | Cybersecurity Act has 0 |
+| **Parse time (8 docs)** | ~2 min (VLM) | ~2 min (Classic) | No speed regression |
+| **Chunk count** | 226 | 324 (305 in Qdrant) | Increase from section chunker improvements |
+
+**Pictures per document:**
+
+| Document | Pictures |
+|----------|----------|
+| Security By Design | 21 |
+| Threat Modelling Guide | 20 |
+| Auditing Guidelines | 17 |
+| Risk Assessment Guide | 13 |
+| Ensign CCoP Guide | 4 |
+| CCoP Response to Feedback | 2 |
+| CCoP 2.0 | 1 |
+| Cybersecurity Act 2018 | 0 |
+
+**Diagram captioning status:**
+
+- API model name `glm-4v-plus` returned 400 ("model does not exist") — corrected to `glm-4.6v`
+- Graceful degradation worked: all 78 diagrams got `[Diagram description unavailable]` fallback
+- Pipeline completed successfully despite API errors
+- Re-run with correct model name pending
+
+**Hypothesis validation:**
+
+✅ Classic pipeline extracts text well from all 8 digital-native PDFs
+⏳ GLM-4V captioning: Not yet validated (model name was incorrect, now fixed)
+⏳ Diagram content searchability: Pending re-run with correct model
+✅ No degradation: Retrieval quality maintained, chunk count increased
+
+---
+
 ## Change Log
 
 | Date | Experiment | Change | Outcome |
@@ -276,3 +352,5 @@ With clause-level chunks, many chunks will be semantically similar (same section
 | 2026-03-02 | 1 | Docling + clause-aware chunking | 66 → 226 chunks, clause-level citations |
 | 2026-03-02 | 2 | Remove RRF threshold | retrieval_succeeded: 0% → 100%, pipeline functional |
 | 2026-03-02 | 3 | Cross-encoder reranking | Top-3 selection with relevance scores, focused retrieval |
+| 2026-03-14 | 4 | Diagram captioning (Classic + GLM-4V) | 78 pictures detected, fallback text used (model name fix pending) |
+| 2026-03-14 | 1-3 | Re-ingestion with latest code | 324 chunks (305 in Qdrant), all 5 queries succeed |

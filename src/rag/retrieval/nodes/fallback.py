@@ -12,6 +12,7 @@ from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 
 from infrastructure.config.settings import get_settings
+from rag.retrieval.nodes.generation import strip_thinking_tokens
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -92,6 +93,7 @@ recommend consulting the official CCoP 2.0 documentation.""",
         generation_text = (
             response.content if hasattr(response, "content") else str(response)
         )
+        generation_text = strip_thinking_tokens(generation_text)
 
         state["generation"] = generation_text
         state["is_rag_augmented"] = False
