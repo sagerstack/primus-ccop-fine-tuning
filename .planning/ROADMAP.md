@@ -95,32 +95,27 @@ Plans:
 **Experiment Log**: `research/eval/experiment-log.md`
 
 ### Phase 1.1: Evaluation Infrastructure Upgrade (INSERTED)
-**Goal**: Replace semantic similarity proxies with LLM-as-Judge rubrics for 15 benchmarks, unify all model queries through LangGraph pipeline with mode-based routing, integrate MLflow experiment tracking, and record baseline vs RAG comparison results
-**Depends on**: Phase 1
+**Goal**: Upgrade evaluation scoring methodology with two complementary layers: (1) LLM-as-Judge rubrics for 15 benchmarks replacing semantic similarity proxies, and (2) RAGAs metrics for RAG pipeline quality evaluation. Infrastructure concerns (ModelGateway, MLflow, CLI flags, evaluation runs) deferred to subsequent phase.
+**Depends on**: Phase 1.3
 **Requirements**: EVAL-01, EVAL-02
 **Success Criteria** (what must be TRUE):
-  1. Evaluation framework routes all queries through LangGraph pipeline via `ModelGateway` implementing `IModelGateway`, with `mode` parameter controlling path (llm-only -> fallback node, hybrid -> retrieval + generation)
-  2. Single `ModelGateway` replaces direct `OllamaGateway` for evaluation runs -- CLI `evaluate` command accepts `--mode` flag to select pipeline path
-  3. LLM-as-Judge scoring replaces semantic similarity for 7 reasoning benchmarks (B8, B9, B11, B15, B17, B18, B19) using dimension-specific rubric prompts with anchored 0-3 scale
-  4. LLM-as-Judge scoring replaces hallucination-detection misuse for B3 (Conditional Logic) -- evaluates conditional reasoning, not word overlap
-  5. LLM-as-Judge scoring implemented for 4 previously unimplemented benchmarks (B7, B10, B14, B16) -- removes `NotImplementedError`, enables full 21-benchmark evaluation
-  6. Existing LLM-as-Judge benchmarks (B12, B13, B20) upgraded with anchored 0-3 rubric prompts aligned to criteria-establishment.md
-  7. 6 rule-based benchmarks (B1, B2, B4, B5, B6, B21) retain automated scoring unchanged
-  8. All 21 benchmarks scoreable in a single evaluation run -- no manual/expert scoring dependencies
-  9. MLflow experiment tracking integrated into evaluation pipeline with local storage
-  10. Each evaluation run logs parameters (model, mode, benchmark set), metrics (overall accuracy, per-benchmark scores), and artifacts (full results JSON)
-  11. Baseline LLM-only results (49.2% from existing evaluation) recorded as first experiment run using `--mode llm-only`
-  12. Naive RAG results recorded as second experiment run using `--mode hybrid` for side-by-side comparison
-  13. `mlflow ui` accessible locally for comparing runs across experiments
-**Plans**: 6 plans
+  1. LLM-as-Judge scoring replaces semantic similarity for 7 reasoning benchmarks (B8, B9, B11, B15, B17, B18, B19) using dimension-specific rubric prompts with anchored 0-3 scale
+  2. LLM-as-Judge scoring replaces hallucination-detection misuse for B3 (Conditional Logic) -- evaluates conditional reasoning, not word overlap
+  3. LLM-as-Judge scoring implemented for 4 previously unimplemented benchmarks (B7, B10, B14, B16) -- removes `NotImplementedError`, enables full 21-benchmark evaluation
+  4. Existing LLM-as-Judge benchmarks (B12, B13, B20) upgraded with anchored 0-3 rubric prompts aligned to criteria-establishment.md
+  5. 6 rule-based benchmarks (B1, B2, B4, B5, B6, B21) retain automated scoring unchanged
+  6. All 21 benchmarks scoreable in a single evaluation run -- no manual/expert scoring dependencies
+  7. Evaluation rubrics document (Component 4) formalizes 15 benchmark-specific rubric prompt templates
+  8. SemanticSimilarityService removed -- no semantic similarity scoring in evaluation pipeline
+  9. RagasEvaluationService provides Layer 2 quality metrics: answer_correctness, answer_relevancy for all responses; faithfulness, context_precision, context_recall for RAG responses
+  10. RAGAs evaluator uses Claude Sonnet via LangchainLLMWrapper(ChatAnthropic)
+**Plans**: 4 plans
 
 Plans:
-- [ ] 01.1-01-PLAN.md — Evaluation rubrics document (Component 4) + JudgeEvaluation redesign + LLMJudgeService upgrade
-- [ ] 01.1-02-PLAN.md — ModelGateway adapter wrapping LangGraph pipeline + IModelGateway mode parameter + DI wiring
-- [ ] 01.1-03-PLAN.md — MLflow dependency + IExperimentTracker port + MLflowTracker adapter + Settings config
-- [ ] 01.1-04-PLAN.md — ScoringService migration: rewire 15 benchmarks to LLM-as-Judge
-- [ ] 01.1-05-PLAN.md — CLI --mode/--track flags + tracking integration into EvaluateModelUseCase + DI wiring
-- [ ] 01.1-06-PLAN.md — Execute baseline + RAG evaluation runs, record in MLflow, human verification
+- [ ] 01.1-01-PLAN.md — Evaluation rubrics document (Component 4) + JudgeEvaluation redesign (dynamic dimensions)
+- [ ] 01.1-02-PLAN.md — LLMJudgeService upgrade (rubric loading, 0-3 scale, skip-and-flag)
+- [ ] 01.1-03-PLAN.md — ScoringService migration (rewire 15 benchmarks) + SemanticSimilarityService removal
+- [ ] 01.1-04-PLAN.md — RagasEvaluationService (RAGAs metrics, ChatAnthropic wrapper, dependencies)
 
 ### Phase 2: RAG Evaluation
 **Goal**: Evaluate RAG-augmented model against 49.2% baseline (from Phase 1 paper) on existing 118 test cases to measure factual grounding improvements and identify benchmark gaps
@@ -243,7 +238,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 1. RAG Infrastructure | 4/5 | Plan 05 skipped (replaced by 1.2 tests) | - |
 | 1.2. Local RAG Migration | 0/5 | Planning complete | - |
 | 1.3. RAG Quality — Clause-Level Chunking & Retrieval | 0/3 | Planning complete | - |
-| 1.1. Evaluation Infrastructure Upgrade | 0/6 | Planning complete | - |
+| 1.1. Evaluation Infrastructure Upgrade | 0/4 | Planning complete | - |
 | 2. RAG Evaluation | 0/TBD | Not started | - |
 | 3. Ground Truth Dataset Expansion | 0/TBD | Not started | - |
 | 4. Re-Baseline & Re-Evaluate | 0/TBD | Not started | - |
