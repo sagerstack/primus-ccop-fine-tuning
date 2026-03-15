@@ -1,17 +1,25 @@
 """
 LLM-as-Judge evaluation service using Claude Agent SDK.
 
-Tier 3 scoring methodology for subjective benchmarks (B12, B13, B20).
-Uses Claude as an expert judge to evaluate complex compliance reasoning.
+Loads benchmark-specific rubric prompts from evaluation-rubrics.md.
+Uses 0-3 anchored scale with Chain-of-Thought instruction.
+Skip-and-flag error handling (no fallback scores).
 """
 
 import json
+import logging
+import re
 import subprocess
-from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Optional, Union
 
 from domain.entities.model_response import ModelResponse
 from domain.entities.test_case import TestCase
+
+logger = logging.getLogger(__name__)
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 
 @dataclass
@@ -101,54 +109,119 @@ class LLMJudgeService:
     """
     LLM-as-Judge evaluation using Claude.
 
-    Uses Claude Agent SDK to evaluate subjective compliance reasoning.
+    Loads benchmark-specific rubric prompts from evaluation-rubrics.md at
+    initialization. Uses Claude Agent SDK to evaluate compliance reasoning.
     Avoids model self-evaluation by using external Claude instance.
     """
 
-    def __init__(self, model_name: str = "claude-sonnet-4") -> None:
+    def __init__(
+        self,
+        model_name: str = "claude-sonnet-4",
+        rubric_path: Optional[str] = None,
+    ) -> None:
         """
         Initialize LLM judge service.
 
+        Loads and caches rubric templates from evaluation-rubrics.md.
+
         Args:
             model_name: Claude model to use for judging
+            rubric_path: Path to evaluation-rubrics.md. Defaults to
+                docs/phase-2/evaluation-rubrics.md relative to project root.
         """
         self._model = model_name
+        self._rubric_path = Path(rubric_path) if rubric_path else (
+            _PROJECT_ROOT / "docs" / "phase-2" / "evaluation-rubrics.md"
+        )
+        self._rubrics: Dict[str, str] = self._load_rubrics()
+
+    def _load_rubrics(self) -> Dict[str, str]:
+        """
+        Load and parse rubric templates from evaluation-rubrics.md.
+
+        Parses the markdown file into a dictionary mapping benchmark ID
+        (e.g., "B8") to complete judge prompt template string.
+
+        Returns:
+            Dictionary mapping benchmark short name to rubric prompt template.
+            Empty dict if file not found.
+        """
+        if not self._rubric_path.exists():
+            logger.warning(
+                "Rubric file not found at %s. All evaluations will return errors.",
+                self._rubric_path,
+            )
+            return {}
+
+        content = self._rubric_path.read_text(encoding="utf-8")
+        rubrics: Dict[str, str] = {}
+
+        # Split on benchmark headers: ## B3: ..., ## B7: ..., etc.
+        # Each section contains a ```...``` code block with the prompt template
+        sections = re.split(r"(?=^## B\d+:)", content, flags=re.MULTILINE)
+
+        for section in sections:
+            header_match = re.match(r"^## (B\d+):", section)
+            if not header_match:
+                continue
+
+            benchmark_id = header_match.group(1)
+
+            # Extract the Judge Prompt Template code block
+            # Look for the ### Judge Prompt Template heading, then the ``` block
+            template_section = section.split("### Judge Prompt Template")
+            if len(template_section) < 2:
+                logger.warning(
+                    "No Judge Prompt Template found for %s", benchmark_id
+                )
+                continue
+
+            # Extract content between first ``` pair after the heading
+            code_blocks = re.findall(
+                r"```\n(.*?)```", template_section[1], re.DOTALL
+            )
+            if not code_blocks:
+                logger.warning(
+                    "No code block found in Judge Prompt Template for %s",
+                    benchmark_id,
+                )
+                continue
+
+            rubrics[benchmark_id] = code_blocks[0].strip()
+
+        logger.info("Loaded %d rubric templates: %s", len(rubrics), sorted(rubrics.keys()))
+        return rubrics
 
     def evaluate_response(
         self,
         test_case: TestCase,
         response: ModelResponse,
-        rubric: Dict[str, str]
+        benchmark_id: str,
     ) -> JudgeEvaluation:
         """
-        Evaluate response using Claude as judge.
+        Evaluate response using Claude as judge with benchmark-specific rubric.
 
         Args:
             test_case: Test case being evaluated
             response: Model response to evaluate
-            rubric: Evaluation rubric with criteria
+            benchmark_id: Benchmark short name (e.g., "B8")
 
         Returns:
-            JudgeEvaluation with scores and justification
+            JudgeEvaluation with dimension scores and justification.
+            On failure, returns JudgeEvaluation with judge_error=True (skip-and-flag).
         """
-        judge_prompt = self._build_judge_prompt(test_case, response, rubric)
-
-        # Use Claude Agent SDK via subprocess
         try:
+            judge_prompt = self._build_judge_prompt(test_case, response, benchmark_id)
+            if isinstance(judge_prompt, JudgeEvaluation):
+                return judge_prompt  # Error from missing rubric
             judge_response = self._call_claude_agent(judge_prompt)
             evaluation = self._parse_judge_response(judge_response)
-            evaluation.raw_response = judge_response
             return evaluation
         except Exception as e:
-            # Fallback to conservative scoring on error
-            return JudgeEvaluation(
-                accuracy_score=3,
-                completeness_score=3,
-                alignment_score=3,
-                justification=f"Judge evaluation error: {str(e)}",
-                overall_score=0.6,
-                confidence=0.0,
-                raw_response=""
+            logger.error("Judge evaluation failed for %s: %s", benchmark_id, e)
+            return JudgeEvaluation.error(
+                error_message=f"Judge evaluation failed for {benchmark_id}: {str(e)}",
+                raw_response="",
             )
 
     def _call_claude_agent(self, prompt: str) -> str:
@@ -165,14 +238,12 @@ class LLMJudgeService:
             subprocess.CalledProcessError: If Claude call fails
             subprocess.TimeoutExpired: If call times out
         """
-        # Use Claude Agent SDK to get evaluation
-        # This avoids using the same model being evaluated
         result = subprocess.run(
             ["claude", "chat", "--model", self._model],
             input=prompt,
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         if result.returncode != 0:
@@ -184,59 +255,62 @@ class LLMJudgeService:
         self,
         test_case: TestCase,
         response: ModelResponse,
-        rubric: Dict[str, str]
-    ) -> str:
+        benchmark_id: str,
+    ) -> Union[str, JudgeEvaluation]:
         """
-        Build structured prompt for Claude judge.
+        Build benchmark-specific judge prompt from rubric template.
+
+        Looks up the rubric template for benchmark_id and substitutes
+        test case placeholders.
 
         Args:
             test_case: Test case being evaluated
             response: Model response to evaluate
-            rubric: Evaluation rubric
+            benchmark_id: Benchmark short name (e.g., "B8")
 
         Returns:
-            Formatted prompt for Claude judge
+            Formatted prompt string, or JudgeEvaluation.error() if rubric not found.
         """
-        return f"""You are an expert CCoP 2.0 compliance auditor evaluating a model's response.
+        if benchmark_id not in self._rubrics:
+            logger.error("No rubric found for benchmark %s", benchmark_id)
+            return JudgeEvaluation.error(
+                error_message=f"No rubric found for benchmark {benchmark_id}"
+            )
 
-**Test Question:**
-{test_case.question}
+        template = self._rubrics[benchmark_id]
 
-**Model Response:**
-{response.content}
+        key_facts_str = ", ".join(test_case.key_facts) if test_case.key_facts else "N/A"
 
-**Expected Answer:**
-{test_case.expected_response}
+        prompt = template.replace("{question}", test_case.question)
+        prompt = prompt.replace("{response}", response.content)
+        prompt = prompt.replace("{expected_response}", test_case.expected_response)
+        prompt = prompt.replace("{key_facts}", key_facts_str)
+        prompt = prompt.replace("{clause_reference}", test_case.clause_reference)
 
-**Evaluation Rubric:**
-{json.dumps(rubric, indent=2)}
+        # B19 has an optional {related_scenarios} placeholder
+        related_scenarios = test_case.metadata.get("related_scenarios", "N/A")
+        if isinstance(related_scenarios, list):
+            related_scenarios = "\n".join(related_scenarios)
+        prompt = prompt.replace("{related_scenarios}", related_scenarios)
 
-**Instructions:**
-Rate the response on a 1-5 scale for each criterion:
-1. Accuracy: Technical correctness of compliance interpretation
-2. Completeness: Coverage of all relevant control requirements
-3. Alignment: Matches how a CSA auditor would evaluate this
-
-Provide your evaluation in JSON format:
-{{
-  "accuracy_score": <1-5>,
-  "completeness_score": <1-5>,
-  "alignment_score": <1-5>,
-  "justification": "<2-3 sentence explanation>",
-  "confidence": <0.0-1.0>
-}}
-
-Only return the JSON, nothing else."""
+        return prompt
 
     def _parse_judge_response(self, response: str) -> JudgeEvaluation:
         """
-        Parse JSON response from Claude judge.
+        Parse JSON response from Claude judge into JudgeEvaluation.
+
+        Expects the standardized format:
+        {
+            "dimensions": [{"dimension": "...", "score": 0-3, "weight": 1.0}],
+            "justification": "...",
+            "confidence": 0.0-1.0
+        }
 
         Args:
             response: Raw response from Claude
 
         Returns:
-            Parsed JudgeEvaluation
+            Parsed JudgeEvaluation with dynamic DimensionScore list
 
         Raises:
             json.JSONDecodeError: If response is not valid JSON
@@ -251,19 +325,28 @@ Only return the JSON, nothing else."""
 
         data = json.loads(json_str)
 
-        # Normalize to 0-1 scale
-        overall = (
-            data["accuracy_score"] +
-            data["completeness_score"] +
-            data["alignment_score"]
-        ) / 15.0
+        dimensions: List[DimensionScore] = []
+        for d in data["dimensions"]:
+            score = int(d["score"])
+            if score < 0 or score > 3:
+                logger.warning(
+                    "Score %d out of 0-3 range for dimension '%s', clamping",
+                    score,
+                    d["dimension"],
+                )
+                score = max(0, min(3, score))
 
-        return JudgeEvaluation(
-            accuracy_score=data["accuracy_score"],
-            completeness_score=data["completeness_score"],
-            alignment_score=data["alignment_score"],
+            dimensions.append(
+                DimensionScore(
+                    name=d["dimension"],
+                    score=score,
+                    weight=float(d["weight"]),
+                )
+            )
+
+        return JudgeEvaluation.from_dimensions(
+            dimensions=dimensions,
             justification=data["justification"],
-            overall_score=overall,
-            confidence=data.get("confidence", 0.5),
-            raw_response=""
+            confidence=float(data.get("confidence", 0.5)),
+            raw_response=response,
         )

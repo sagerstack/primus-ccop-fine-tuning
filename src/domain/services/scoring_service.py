@@ -6,7 +6,7 @@ Stateless service with pure functions (no external dependencies).
 """
 
 import re
-from typing import Any, List
+from typing import List
 
 from domain.entities.model_response import ModelResponse
 from domain.entities.test_case import TestCase
@@ -314,78 +314,38 @@ class ScoringService:
         """
         Tier 3: LLM-as-Judge evaluation for subjective benchmarks.
 
-        Benchmarks: B12, B13, B20
+        Uses benchmark-specific rubric prompts from evaluation-rubrics.md.
+        Dynamic dimensions parsed from judge response (0-3 scale, normalized to 0-1).
 
-        Uses Claude as an expert judge to evaluate complex compliance reasoning
-        that requires human-like judgment.
+        On judge error, returns metrics with zero scores (skip-and-flag pattern).
         """
-        # Define rubric based on benchmark type
-        rubric = ScoringService._get_tier3_rubric(test_case.benchmark_type)
+        benchmark_id = test_case.benchmark_type.short_name
 
-        # Use Claude as judge
         judge_service = LLMJudgeService()
-        evaluation = judge_service.evaluate_response(test_case, response, rubric)
+        evaluation = judge_service.evaluate_response(test_case, response, benchmark_id)
 
-        # Convert judge scores to metrics
-        accuracy_metric_obj = EvaluationMetric(
-            name="accuracy",
-            value=evaluation.accuracy_score / 5.0,
-            weight=1.0,
-            description="LLM judge accuracy score"
-        )
+        if evaluation.judge_error:
+            return [
+                EvaluationMetric(
+                    name="judge_error",
+                    value=0.0,
+                    weight=1.0,
+                    description=f"Judge error: {evaluation.error_message}",
+                )
+            ]
 
-        completeness_metric_obj = EvaluationMetric(
-            name="completeness",
-            value=evaluation.completeness_score / 5.0,
-            weight=0.8,
-            description="LLM judge completeness score"
-        )
+        metrics: List[EvaluationMetric] = []
+        for dim in evaluation.dimensions:
+            metrics.append(
+                EvaluationMetric(
+                    name=dim.name,
+                    value=dim.score / 3.0,
+                    weight=dim.weight,
+                    description=f"LLM judge {dim.name} (0-3 scale, normalized)",
+                )
+            )
 
-        alignment_metric_obj = EvaluationMetric(
-            name="alignment",
-            value=evaluation.alignment_score / 5.0,
-            weight=1.0,
-            description="LLM judge audit alignment score"
-        )
-
-        return [accuracy_metric_obj, completeness_metric_obj, alignment_metric_obj]
-
-    @staticmethod
-    def _get_tier3_rubric(benchmark_type: Any) -> dict[str, str]:
-        """
-        Get evaluation rubric for Tier 3 benchmarks.
-
-        Args:
-            benchmark_type: Benchmark type object
-
-        Returns:
-            Dictionary with evaluation criteria
-        """
-        rubrics = {
-            "B12": {
-                "accuracy": "Does the response correctly identify audit perspective issues?",
-                "completeness": "Are all relevant audit concerns covered?",
-                "alignment": "Does this match how CSA auditors would evaluate CII compliance?"
-            },
-            "B13": {
-                "accuracy": "Does the response demonstrate awareness of required evidence?",
-                "completeness": "Are all evidence categories mentioned?",
-                "alignment": "Does this match audit documentation expectations?"
-            },
-            "B20": {
-                "accuracy": "Does the response avoid over-specifying requirements?",
-                "completeness": "Are regulatory boundaries clearly stated?",
-                "alignment": "Does this match principle-based compliance approach?"
-            }
-        }
-
-        # Get benchmark short name (e.g., "B12" from "B12_Audit_Perspective_Alignment")
-        # BenchmarkType has value and short_name attributes
-        short_name = str(benchmark_type)[:3]  # Extract "B12" from string representation
-        if hasattr(benchmark_type, 'short_name'):
-            short_name = benchmark_type.short_name
-
-        return rubrics.get(short_name, rubrics["B12"])
+        return metrics
 
     @staticmethod
     def _calculate_basic_accuracy(
