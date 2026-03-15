@@ -10,30 +10,30 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1.1 of 8 (Evaluation Infrastructure Upgrade)
-Plan: 2 of 5 in current phase (01.1-01, 01.1-04 complete)
+Plan: 3 of 5 in current phase (01.1-01, 01.1-02, 01.1-04 complete)
 Status: In progress
-Last activity: 2026-03-15 — Completed 01.1-01-PLAN.md (Evaluation Rubrics Foundation)
+Last activity: 2026-03-15 — Completed 01.1-02-PLAN.md (LLM Judge Service Upgrade)
 
-Progress: [███████░░░] 67%
+Progress: [███████░░░] 72%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 13
 - Average duration: 5.4 min
-- Total execution time: 1.08 hours
+- Total execution time: 1.16 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. RAG Infrastructure | 4/5 | 28 min | 7 min |
-| 1.1. Evaluation Infrastructure Upgrade | 2/5 | 5 min | 2.5 min |
+| 1.1. Evaluation Infrastructure Upgrade | 3/5 | 10 min | 3.3 min |
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
 | 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01.2-04 (10min), 01.3-01 (12min), 01.3-02 (3min), 01.1-01 (0min), 01.1-04 (5min)
+- Last 5 plans: 01.3-01 (12min), 01.3-02 (3min), 01.1-01 (0min), 01.1-04 (5min), 01.1-02 (5min)
 - Trend: Stable (implementation tasks 0-12min, quality maintained)
 
 *Updated after each plan completion*
@@ -96,6 +96,10 @@ Recent decisions affecting current work:
 - **[01.1-01] Skip-and-flag error pattern:** judge_error=True with overall_score=0.0 and empty dimensions. No fallback conservative scores (hides failures). Errors flagged for manual review
 - **[01.1-01] Dynamic dimension scoring:** List[DimensionScore] replaces fixed accuracy/completeness/alignment fields. Supports any number of dimensions per benchmark
 - **[01.1-01] Rubric templates in docs/ not code:** evaluation-rubrics.md is single source of truth. Code references it, doesn't embed prompts. Enables non-engineer rubric iteration
+- **[01.1-02] Configurable rubric file path:** LLMJudgeService constructor accepts optional rubric_path. Default resolves from project root via Path(__file__). Enables test isolation
+- **[01.1-02] Rubric parsing by markdown structure:** Split on `## B{N}:` headers, extract code block after `### Judge Prompt Template`. Cached at init, never reloaded
+- **[01.1-02] Score clamping with warning:** Out-of-range judge scores (below 0 or above 3) are clamped, not rejected. Warning logged for observability
+- **[01.1-02] ScoringService dynamic dimension conversion:** Tier 3 scorer converts each DimensionScore to EvaluationMetric (score/3.0 normalization). Judge errors produce single judge_error metric with value 0.0
 
 ### Pending Todos
 
@@ -114,5 +118,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-15
-Stopped at: Completed 01.1-01-PLAN.md (Evaluation Rubrics Foundation)
+Stopped at: Completed 01.1-02-PLAN.md (LLM Judge Service Upgrade)
 Resume file: None
