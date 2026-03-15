@@ -5,9 +5,14 @@ Represents the outcome of evaluating a model on a test case.
 Entity with identity (result_id) combining test case, model response, and scoring.
 """
 
+from __future__ import annotations
+
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from uuid import UUID, uuid4
+
+if TYPE_CHECKING:
+    from domain.services.ragas_evaluation_service import RagasEvaluation
 
 from domain.entities.model_response import ModelResponse
 from domain.entities.test_case import TestCase
@@ -32,13 +37,14 @@ class EvaluationResult:
         self,
         test_case: TestCase,
         model_response: ModelResponse,
-        result_id: UUID | None = None,
-        metrics: List[EvaluationMetric] | None = None,
-        overall_score: float | None = None,
-        passed: bool | None = None,
+        result_id: Optional[UUID] = None,
+        metrics: Optional[List[EvaluationMetric]] = None,
+        overall_score: Optional[float] = None,
+        passed: Optional[bool] = None,
         evaluator_notes: str = "",
-        evaluated_at: datetime | None = None,
-        metadata: Dict[str, any] | None = None,
+        evaluated_at: Optional[datetime] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        ragas_evaluation: Optional[Any] = None,
     ) -> None:
         """
         Initialize EvaluationResult entity.
@@ -53,6 +59,7 @@ class EvaluationResult:
             evaluator_notes: Additional notes from evaluator
             evaluated_at: Timestamp of evaluation
             metadata: Additional result metadata
+            ragas_evaluation: RAGAs evaluation results (Layer 2 quality metrics)
 
         Raises:
             EvaluationError: If validation fails
@@ -66,7 +73,8 @@ class EvaluationResult:
         self._evaluator_notes = evaluator_notes
         self._evaluated_at = evaluated_at or datetime.utcnow()
         self._metadata = metadata or {}
-        self._threshold_used: Optional[float] = None  # Phase 2: Track threshold used
+        self._threshold_used: Optional[float] = None
+        self._ragas_evaluation = ragas_evaluation
 
         self._validate()
 
@@ -188,7 +196,7 @@ class EvaluationResult:
             self.calculate_overall_score()
             self.determine_pass_fail(threshold=threshold)
 
-    def get_performance_summary(self) -> Dict[str, any]:
+    def get_performance_summary(self) -> Dict[str, Any]:
         """
         Get human-readable performance summary.
 
@@ -291,9 +299,14 @@ class EvaluationResult:
         return self._evaluated_at
 
     @property
-    def metadata(self) -> Dict[str, any]:
+    def metadata(self) -> Dict[str, Any]:
         """Additional metadata (immutable copy)."""
         return self._metadata.copy()
+
+    @property
+    def ragas_evaluation(self) -> Optional[Any]:
+        """RAGAs evaluation results (Layer 2 quality metrics). None if not evaluated."""
+        return self._ragas_evaluation
 
     # Equality based on identity
 

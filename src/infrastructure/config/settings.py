@@ -244,6 +244,16 @@ class Settings(BaseSettings):
         description="Cross-encoder model for reranking (HuggingFace model ID)"
     )
 
+    # RAGAs Configuration
+    ragas_enabled: bool = Field(
+        default=True,
+        description="Enable RAGAs evaluation alongside benchmark scoring"
+    )
+    ragas_evaluator_model: str = Field(
+        default="claude-sonnet-4",
+        description="Model name for RAGAs evaluator LLM"
+    )
+
     # Qdrant Configuration (Local RAG)
     qdrant_url: Optional[str] = Field(
         default=None,

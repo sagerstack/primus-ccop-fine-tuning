@@ -19,6 +19,14 @@ class MetricDTO(BaseModel):
     description: Optional[str] = None
 
 
+class RagasMetricDTO(BaseModel):
+    """DTO for a single RAGAs metric."""
+
+    name: str
+    score: float = Field(..., ge=0.0, le=1.0)
+    applicable: bool = True
+
+
 class EvaluationResultDTO(BaseModel):
     """
     DTO for evaluation result.
@@ -40,6 +48,15 @@ class EvaluationResultDTO(BaseModel):
     latency_ms: int = Field(default=0, description="Response latency")
     evaluated_at: datetime = Field(default_factory=datetime.utcnow, description="Evaluation timestamp")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    ragas_metrics: Optional[List[RagasMetricDTO]] = Field(
+        None, description="RAGAs quality metrics (Layer 2)"
+    )
+    ragas_is_rag_response: Optional[bool] = Field(
+        None, description="Whether context metrics were evaluated"
+    )
+    ragas_error: Optional[str] = Field(
+        None, description="RAGAs evaluation error message if failed"
+    )
 
     model_config = {
         "json_schema_extra": {
