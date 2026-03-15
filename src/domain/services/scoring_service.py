@@ -11,7 +11,6 @@ from typing import List
 from domain.entities.model_response import ModelResponse
 from domain.entities.test_case import TestCase
 from domain.services.llm_judge_service import LLMJudgeService
-from domain.services.semantic_similarity_service import SemanticSimilarityService
 from domain.value_objects.benchmark_type import BenchmarkType
 from domain.value_objects.evaluation_metric import (
     EvaluationMetric,
@@ -53,28 +52,30 @@ class ScoringService:
         # Map benchmark short names to scoring functions
         # BenchmarkType supports string comparison via __eq__
         benchmark_scorers = {
-            # Tier 1: Fully implemented benchmarks
+            # Rule-based benchmarks (6 total)
             "B1": ScoringService._score_b1_interpretation,
             "B2": ScoringService._score_b2_citation,
-            "B3": ScoringService._score_b3_hallucination,
             "B4": ScoringService._score_b4_terminology,
             "B5": ScoringService._score_b5_classification,
             "B6": ScoringService._score_b6_violation_detection,
-            "B21": ScoringService._score_b3_hallucination,  # Uses B3 hallucination detection
+            "B21": ScoringService._score_b3_hallucination,
 
-            # Tier 2: Reasoning track (semantic similarity)
-            "B8": ScoringService._score_reasoning_track,
-            "B9": ScoringService._score_reasoning_track,
-            "B11": ScoringService._score_reasoning_track,
-            "B15": ScoringService._score_reasoning_track,
-            "B17": ScoringService._score_reasoning_track,
-            "B18": ScoringService._score_reasoning_track,
-            "B19": ScoringService._score_reasoning_track,
-
-            # Tier 3: LLM-as-Judge (subjective evaluation)
-            "B12": ScoringService._score_tier3_llm_judge,
-            "B13": ScoringService._score_tier3_llm_judge,
-            "B20": ScoringService._score_tier3_llm_judge,
+            # LLM-as-Judge benchmarks (15 total)
+            "B3": ScoringService._score_llm_judge,
+            "B7": ScoringService._score_llm_judge,
+            "B8": ScoringService._score_llm_judge,
+            "B9": ScoringService._score_llm_judge,
+            "B10": ScoringService._score_llm_judge,
+            "B11": ScoringService._score_llm_judge,
+            "B12": ScoringService._score_llm_judge,
+            "B13": ScoringService._score_llm_judge,
+            "B14": ScoringService._score_llm_judge,
+            "B15": ScoringService._score_llm_judge,
+            "B16": ScoringService._score_llm_judge,
+            "B17": ScoringService._score_llm_judge,
+            "B18": ScoringService._score_llm_judge,
+            "B19": ScoringService._score_llm_judge,
+            "B20": ScoringService._score_llm_judge,
         }
 
         # Find scorer by checking if benchmark type matches each key
@@ -82,12 +83,9 @@ class ScoringService:
             if test_case.benchmark_type == benchmark_key:
                 return scorer(test_case, response)
 
-        # No fallback: Raise error for unimplemented benchmarks
-        # This forces explicit implementation for B7, B10, B14, B16
-        raise NotImplementedError(
-            f"Benchmark {test_case.benchmark_type.value} requires Tier 2 Expert Rubric "
-            f"(not yet implemented). "
-            f"Implemented benchmarks: B1-B6, B8, B9, B11-B13, B15, B17-B21"
+        raise ValueError(
+            f"Unknown benchmark: {test_case.benchmark_type.value}. "
+            f"All 21 benchmarks (B1-B21) should be mapped."
         )
 
     @staticmethod
@@ -264,60 +262,20 @@ class ScoringService:
         ]
 
     @staticmethod
-    def _score_reasoning_track(
+    def _score_llm_judge(
         test_case: TestCase,
         response: ModelResponse
     ) -> List[EvaluationMetric]:
         """
-        Tier 2: Semantic similarity + key-fact recall for reasoning track.
+        LLM-as-Judge evaluation for all 15 LLM-judged benchmarks.
 
-        Benchmarks: B8, B9, B11, B15, B17, B18, B19
-
-        Uses sentence embeddings instead of Jaccard word overlap to better
-        capture semantic meaning in reasoning-heavy responses.
-        """
-        # Initialize semantic service (singleton)
-        semantic_service = SemanticSimilarityService()
-
-        # 1. Semantic similarity (replaces Jaccard)
-        semantic_score = semantic_service.calculate_similarity(
-            test_case.expected_response,
-            response.content
-        )
-
-        # Apply penalty for low semantic similarity (Option A fix)
-        # Addresses score inflation from partial answers scoring too high
-        if semantic_score < 0.70:
-            penalty = (0.70 - semantic_score) * 0.5
-            semantic_score = max(0.0, semantic_score - penalty)
-
-        accuracy = EvaluationMetric(
-            name="accuracy",
-            value=semantic_score,
-            weight=1.0,
-            description="Semantic similarity using sentence embeddings"
-        )
-
-        # 2. Key-fact recall
-        completeness = ScoringService._calculate_completeness(test_case, response)
-
-        # 3. Grounding check
-        grounding = ScoringService._calculate_grounding_score(test_case, response)
-
-        return [accuracy, completeness, grounding]
-
-    @staticmethod
-    def _score_tier3_llm_judge(
-        test_case: TestCase,
-        response: ModelResponse
-    ) -> List[EvaluationMetric]:
-        """
-        Tier 3: LLM-as-Judge evaluation for subjective benchmarks.
+        Benchmarks: B3, B7-B20
 
         Uses benchmark-specific rubric prompts from evaluation-rubrics.md.
         Dynamic dimensions parsed from judge response (0-3 scale, normalized to 0-1).
 
-        On judge error, returns metrics with zero scores (skip-and-flag pattern).
+        On judge error, returns single metric with value=0.0 and
+        "judge_error" in description (skip-and-flag pattern).
         """
         benchmark_id = test_case.benchmark_type.short_name
 
@@ -330,7 +288,7 @@ class ScoringService:
                     name="judge_error",
                     value=0.0,
                     weight=1.0,
-                    description=f"Judge error: {evaluation.error_message}",
+                    description=f"judge_error: {evaluation.error_message}",
                 )
             ]
 
