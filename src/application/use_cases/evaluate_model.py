@@ -12,6 +12,7 @@ from application.dtos.evaluation_result_dto import (
     EvaluationResultDTO,
     EvaluationSummaryDTO,
     MetricDTO,
+    RagasMetricDTO,
 )
 from application.ports.input.i_evaluate_model_use_case import IEvaluateModelUseCase
 from application.ports.output.i_logger import ILogger
@@ -42,11 +43,13 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         test_case_repository: ITestCaseRepository,
         result_repository: IResultRepository,
         logger: ILogger,
+        ragas_service=None,
     ) -> None:
         self._model_gateway = model_gateway
         self._test_case_repository = test_case_repository
         self._result_repository = result_repository
         self._logger = logger
+        self._ragas_service = ragas_service
 
     async def execute(self, request: EvaluationRequestDTO) -> EvaluationSummaryDTO:
         """Execute model evaluation."""
@@ -162,14 +165,39 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             system_prompt="You are a cybersecurity compliance expert specializing in Singapore's CCoP 2.0.",
         )
 
-        # Score response
+        # Score response (Layer 1: Benchmark scoring)
         metrics = ScoringService.score_response(test_case, model_response)
+
+        # Evaluate with RAGAs (Layer 2: Quality metrics)
+        ragas_evaluation = None
+        if self._ragas_service is not None:
+            try:
+                reference = test_case.expected_response or ""
+                key_facts = test_case.key_facts
+
+                ragas_evaluation = self._ragas_service.evaluate_response(
+                    question=test_case.question,
+                    response=model_response.content,
+                    reference=reference,
+                    retrieved_contexts=None,
+                    key_facts=key_facts if isinstance(key_facts, list) and len(key_facts) > 0 else None,
+                )
+
+                if ragas_evaluation.evaluation_error:
+                    self._logger.warning(
+                        f"RAGAs evaluation error for {test_case.test_id}: {ragas_evaluation.error_message}"
+                    )
+            except Exception as e:
+                self._logger.warning(
+                    f"RAGAs evaluation failed for {test_case.test_id}: {str(e)}"
+                )
 
         # Create evaluation result
         result = EvaluationResult(
             test_case=test_case,
             model_response=model_response,
             metrics=metrics,
+            ragas_evaluation=ragas_evaluation,
         )
 
         # Finalize (calculate score and pass/fail with configurable threshold)
@@ -443,6 +471,27 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             for m in result.metrics
         ]
 
+        # Build RAGAs DTO fields
+        ragas_metrics = None
+        ragas_is_rag_response = None
+        ragas_error = None
+
+        if result.ragas_evaluation is not None:
+            ragas_eval = result.ragas_evaluation
+            ragas_is_rag_response = ragas_eval.is_rag_response
+
+            if ragas_eval.evaluation_error:
+                ragas_error = ragas_eval.error_message
+            else:
+                ragas_metrics = [
+                    RagasMetricDTO(
+                        name=m.name,
+                        score=m.score,
+                        applicable=m.applicable,
+                    )
+                    for m in ragas_eval.metrics
+                ]
+
         return EvaluationResultDTO(
             result_id=result.result_id,
             test_id=result.test_case.test_id,
@@ -458,4 +507,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             latency_ms=result.model_response.latency_ms,
             evaluated_at=result.evaluated_at,
             metadata=result.metadata,
+            ragas_metrics=ragas_metrics,
+            ragas_is_rag_response=ragas_is_rag_response,
+            ragas_error=ragas_error,
         )

@@ -88,6 +88,26 @@ class Container(containers.DeclarativeContainer):
         logger=logger,
     )
 
+    # RAGAs Evaluation Service (optional - only initialized if ragas_enabled)
+    @staticmethod
+    def _create_ragas_service(settings):
+        """
+        Create RagasEvaluationService if RAGAs is enabled.
+
+        Returns None when ragas_enabled is False, preventing any RAGAs calls.
+        """
+        if not settings.ragas_enabled:
+            return None
+
+        from domain.services.ragas_evaluation_service import RagasEvaluationService
+
+        return RagasEvaluationService(model_name=settings.ragas_evaluator_model)
+
+    ragas_service = providers.Singleton(
+        _create_ragas_service,
+        settings=config,
+    )
+
     # Use Cases
     evaluate_model_use_case = providers.Factory(
         EvaluateModelUseCase,
@@ -95,6 +115,7 @@ class Container(containers.DeclarativeContainer):
         test_case_repository=test_case_repository,
         result_repository=result_repository,
         logger=logger,
+        ragas_service=ragas_service,
     )
 
     setup_model_use_case = providers.Factory(

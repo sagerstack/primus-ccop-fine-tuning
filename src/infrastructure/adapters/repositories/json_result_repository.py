@@ -110,7 +110,7 @@ class JSONResultRepository(IResultRepository):
 
     def _serialize(self, result: EvaluationResult) -> dict:
         """Serialize result to dict."""
-        return {
+        serialized = {
             "result_id": str(result.result_id),
             "test_id": result.test_case.test_id,
             "benchmark": result.test_case.benchmark_type.value,
@@ -126,6 +126,30 @@ class JSONResultRepository(IResultRepository):
             "latency_ms": result.model_response.latency_ms,
             "evaluated_at": result.evaluated_at.isoformat(),
         }
+
+        # Add RAGAs section if evaluation was performed
+        ragas_eval = result.ragas_evaluation
+        if ragas_eval is not None:
+            if ragas_eval.evaluation_error:
+                serialized["ragas"] = {
+                    "error": True,
+                    "error_message": ragas_eval.error_message,
+                }
+            else:
+                serialized["ragas"] = {
+                    "error": False,
+                    "is_rag_response": ragas_eval.is_rag_response,
+                    "metrics": [
+                        {
+                            "name": m.name,
+                            "score": m.score,
+                            "applicable": m.applicable,
+                        }
+                        for m in ragas_eval.metrics
+                    ],
+                }
+
+        return serialized
 
     def _serialize_with_question(self, result: EvaluationResult) -> dict:
         """Serialize result with question included."""
