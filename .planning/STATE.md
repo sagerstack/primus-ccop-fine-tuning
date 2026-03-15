@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1.1 of 8 (Evaluation Infrastructure Upgrade)
-Plan: 2 of 5 in current phase
+Plan: 2 of 5 in current phase (01.1-01, 01.1-04 complete)
 Status: In progress
-Last activity: 2026-03-15 — Completed 01.1-04-PLAN.md (RAGAs Evaluation Service)
+Last activity: 2026-03-15 — Completed 01.1-01-PLAN.md (Evaluation Rubrics Foundation)
 
 Progress: [███████░░░] 67%
 
@@ -90,6 +90,12 @@ Recent decisions affecting current work:
 - **[01.1-04] Lazy LLM initialization for RAGAs:** ChatAnthropic not loaded until first evaluate_response() call
 - **[01.1-04] RagasEvaluationService independent from ScoringService:** Layer 1 (benchmark scoring) and Layer 2 (RAG quality) are separate domain services with no coupling
 - **[01.1-04] langchain-anthropic version constraint:** Used <1.0 constraint to get 0.3.22 (compatible with langchain 0.3.x), avoiding langchain-core version conflict
+- **[01.1-01] 0-3 anchored scale for LLM judge dimensions:** Matches criteria-establishment.md Component 2 exactly. Discrete level descriptions with concrete CCoP-specific examples at each anchor. Not continuous 0-1 (no anchors) or 1-5 (wrong scale)
+- **[01.1-01] Binary 0/3 for safety dimensions:** Over-specification and hallucination (B20, B21) are pass/fail — any fabrication = failure. No partial credit maintains safety threshold
+- **[01.1-01] Chain-of-Thought in judge prompts:** "Think step-by-step" instruction increases transparency and justification coherence per LalaEval methodology
+- **[01.1-01] Skip-and-flag error pattern:** judge_error=True with overall_score=0.0 and empty dimensions. No fallback conservative scores (hides failures). Errors flagged for manual review
+- **[01.1-01] Dynamic dimension scoring:** List[DimensionScore] replaces fixed accuracy/completeness/alignment fields. Supports any number of dimensions per benchmark
+- **[01.1-01] Rubric templates in docs/ not code:** evaluation-rubrics.md is single source of truth. Code references it, doesn't embed prompts. Enables non-engineer rubric iteration
 
 ### Pending Todos
 
@@ -108,5 +114,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-15
-Stopped at: Completed 01.1-04-PLAN.md (RAGAs Evaluation Service)
+Stopped at: Completed 01.1-01-PLAN.md (Evaluation Rubrics Foundation)
 Resume file: None
