@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: RAG Infrastructure** - Document ingestion, vector storage, retrieval pipeline with citations
 - [ ] **Phase 1.2: Local RAG Migration** (INSERTED) - Migrate from Databricks to Qdrant + local BGE with port/adapter abstraction
 - [ ] **Phase 1.3: RAG Quality — Clause-Level Chunking & Retrieval** (INSERTED) - Replace PyMuPDF4LLM with Docling, clause-aware chunking, cross-encoder reranking, fix RRF threshold
-- [ ] **Phase 1.1: Evaluation Infrastructure Upgrade** (INSERTED) - LLM-as-Judge rubrics, ModelGateway unification, MLflow tracking
+- [x] **Phase 1.1: Evaluation Infrastructure Upgrade** (INSERTED) - LLM-as-Judge rubrics for 15 benchmarks, RAGAs quality metrics, SemanticSimilarityService removed
 - [ ] **Phase 2: RAG Evaluation** - Run RAG-augmented model against 49.2% baseline on 118 cases, identify gaps
 - [ ] **Phase 3: Ground Truth Dataset Expansion** - Expand from 118 to 1000+ test cases across all 21 benchmarks
 - [ ] **Phase 4: Re-Baseline & Re-Evaluate** - Run both base model and RAG-augmented on expanded dataset for statistically valid comparison
@@ -109,13 +109,14 @@ Plans:
   8. SemanticSimilarityService removed -- no semantic similarity scoring in evaluation pipeline
   9. RagasEvaluationService provides Layer 2 quality metrics: answer_correctness, answer_relevancy for all responses; faithfulness, context_precision, context_recall for RAG responses
   10. RAGAs evaluator uses Claude Sonnet via LangchainLLMWrapper(ChatAnthropic)
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
-- [ ] 01.1-01-PLAN.md — Evaluation rubrics document (Component 4) + JudgeEvaluation redesign (dynamic dimensions)
-- [ ] 01.1-02-PLAN.md — LLMJudgeService upgrade (rubric loading, 0-3 scale, skip-and-flag)
-- [ ] 01.1-03-PLAN.md — ScoringService migration (rewire 15 benchmarks) + SemanticSimilarityService removal
-- [ ] 01.1-04-PLAN.md — RagasEvaluationService (RAGAs metrics, ChatAnthropic wrapper, dependencies)
+- [x] 01.1-01-PLAN.md — Evaluation rubrics document (Component 4) + JudgeEvaluation redesign (dynamic dimensions)
+- [x] 01.1-02-PLAN.md — LLMJudgeService upgrade (rubric loading, 0-3 scale, skip-and-flag)
+- [x] 01.1-03-PLAN.md — ScoringService migration (rewire 15 benchmarks) + SemanticSimilarityService removal
+- [x] 01.1-04-PLAN.md — RagasEvaluationService (RAGAs metrics, ChatAnthropic wrapper, dependencies)
+- [x] 01.1-05-PLAN.md — RAGAs pipeline wiring (settings, entity, DTO, use case, container, JSON serialization)
 
 ### Phase 2: RAG Evaluation
 **Goal**: Evaluate RAG-augmented model against 49.2% baseline (from Phase 1 paper) on existing 118 test cases to measure factual grounding improvements and identify benchmark gaps
