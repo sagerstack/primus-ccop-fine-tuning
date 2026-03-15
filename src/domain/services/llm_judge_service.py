@@ -7,24 +7,94 @@ Uses Claude as an expert judge to evaluate complex compliance reasoning.
 
 import json
 import subprocess
-from dataclasses import dataclass
-from typing import Any, Dict
+from dataclasses import dataclass, field
+from typing import Any, Dict, List
 
 from domain.entities.model_response import ModelResponse
 from domain.entities.test_case import TestCase
 
 
 @dataclass
-class JudgeEvaluation:
-    """LLM judge evaluation result."""
+class DimensionScore:
+    """Single dimension score from LLM judge."""
 
-    accuracy_score: int  # 1-5
-    completeness_score: int  # 1-5
-    alignment_score: int  # 1-5
-    justification: str
-    overall_score: float  # 0-1
-    confidence: float  # 0-1
-    raw_response: str  # Full judge response
+    name: str           # e.g., "gap_prioritization"
+    score: int          # 0-3 anchored scale
+    weight: float       # From criteria-establishment.md
+
+
+@dataclass
+class JudgeEvaluation:
+    """LLM judge evaluation result with dynamic dimensions."""
+
+    dimensions: List[DimensionScore]  # Benchmark-specific dimension scores
+    justification: str                # CoT explanation with evidence
+    overall_score: float              # 0-1 normalized (weighted avg of dimensions)
+    confidence: float                 # 0-1 judge self-assessed confidence
+    raw_response: str                 # Full judge response for debugging
+    judge_error: bool = False         # True if evaluation failed (skip-and-flag)
+    error_message: str = ""           # Error details when judge_error=True
+
+    @staticmethod
+    def from_dimensions(
+        dimensions: List[DimensionScore],
+        justification: str,
+        confidence: float,
+        raw_response: str
+    ) -> "JudgeEvaluation":
+        """
+        Create JudgeEvaluation from dimension scores.
+
+        Calculates overall_score as weighted average normalized to 0-1:
+        sum(d.score * d.weight for d in dimensions) / (3.0 * sum(d.weight for d in dimensions))
+
+        Args:
+            dimensions: List of dimension scores (0-3 scale)
+            justification: CoT explanation
+            confidence: Judge self-assessed confidence (0-1)
+            raw_response: Full judge response
+
+        Returns:
+            JudgeEvaluation with calculated overall_score
+        """
+        total_weight = sum(d.weight for d in dimensions)
+        if total_weight == 0:
+            overall = 0.0
+        else:
+            weighted_sum = sum(d.score * d.weight for d in dimensions)
+            overall = weighted_sum / (3.0 * total_weight)
+
+        return JudgeEvaluation(
+            dimensions=dimensions,
+            justification=justification,
+            overall_score=overall,
+            confidence=confidence,
+            raw_response=raw_response,
+            judge_error=False,
+            error_message=""
+        )
+
+    @staticmethod
+    def error(error_message: str, raw_response: str = "") -> "JudgeEvaluation":
+        """
+        Create skip-and-flag JudgeEvaluation for evaluation failures.
+
+        Args:
+            error_message: Error details
+            raw_response: Raw response if available
+
+        Returns:
+            JudgeEvaluation with judge_error=True and zero scores
+        """
+        return JudgeEvaluation(
+            dimensions=[],
+            justification="",
+            overall_score=0.0,
+            confidence=0.0,
+            raw_response=raw_response,
+            judge_error=True,
+            error_message=error_message
+        )
 
 
 class LLMJudgeService:
