@@ -10,30 +10,30 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1.1 of 8 (Evaluation Infrastructure Upgrade)
-Plan: 4 of 5 in current phase (01.1-01, 01.1-02, 01.1-04, 01.1-05 complete)
-Status: In progress
-Last activity: 2026-03-15 — Completed 01.1-05-PLAN.md (RAGAs Pipeline Integration)
+Plan: 5 of 5 in current phase (01.1-01, 01.1-02, 01.1-03, 01.1-04, 01.1-05 complete)
+Status: Phase complete
+Last activity: 2026-03-15 — Completed 01.1-03-PLAN.md (ScoringService LLM-as-Judge Migration)
 
-Progress: [███████░░░] 74%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: 5.4 min
-- Total execution time: 1.26 hours
+- Total plans completed: 15
+- Average duration: 5.3 min
+- Total execution time: 1.31 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. RAG Infrastructure | 4/5 | 28 min | 7 min |
-| 1.1. Evaluation Infrastructure Upgrade | 4/5 | 16 min | 4 min |
+| 1.1. Evaluation Infrastructure Upgrade | 5/5 | 19 min | 3.8 min |
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
 | 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01.3-02 (3min), 01.1-01 (0min), 01.1-04 (5min), 01.1-02 (5min), 01.1-05 (6min)
+- Last 5 plans: 01.1-01 (0min), 01.1-04 (5min), 01.1-02 (5min), 01.1-05 (6min), 01.1-03 (3min)
 - Trend: Stable (implementation tasks 0-12min, quality maintained)
 
 *Updated after each plan completion*
@@ -103,6 +103,9 @@ Recent decisions affecting current work:
 - **[01.1-05] Conditional DI via factory returning None:** staticmethod factory returns None when ragas_enabled=False. Use case checks for None before calling RAGAs
 - **[01.1-05] RAGAs provider placement before use cases:** DeclarativeContainer processes attributes top-to-bottom; ragas_service must be defined before evaluate_model_use_case
 - **[01.1-05] retrieved_contexts=None for all RAGAs calls:** Current IModelGateway returns ModelResponse without documents. Context metrics deferred until ModelGateway exposes GraphState
+- **[01.1-03] Unified _score_llm_judge for all 15 benchmarks:** Single method routes B3, B7-B20 through LLMJudgeService. Benchmark-specific behavior in rubric templates, not code branching
+- **[01.1-03] B3 migrated from hallucination detection to LLM judge:** B3 measures conditional reasoning quality, not hallucination presence. LLM judge with B3-specific rubric evaluates appropriate dimensions
+- **[01.1-03] B21 retains rule-based hallucination detection:** B21 is binary pass/fail for fabrication detection, appropriate for rule-based scoring. Stays in 6 rule-based benchmarks
 
 ### Pending Todos
 
@@ -121,5 +124,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-15
-Stopped at: Completed 01.1-05-PLAN.md (RAGAs Pipeline Integration)
+Stopped at: Completed 01.1-03-PLAN.md (ScoringService LLM-as-Judge Migration) - Phase 1.1 complete
 Resume file: None
