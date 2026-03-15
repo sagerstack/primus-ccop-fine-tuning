@@ -10,30 +10,30 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 1.1 of 8 (Evaluation Infrastructure Upgrade)
-Plan: 3 of 5 in current phase (01.1-01, 01.1-02, 01.1-04 complete)
+Plan: 4 of 5 in current phase (01.1-01, 01.1-02, 01.1-04, 01.1-05 complete)
 Status: In progress
-Last activity: 2026-03-15 — Completed 01.1-02-PLAN.md (LLM Judge Service Upgrade)
+Last activity: 2026-03-15 — Completed 01.1-05-PLAN.md (RAGAs Pipeline Integration)
 
-Progress: [███████░░░] 72%
+Progress: [███████░░░] 74%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
+- Total plans completed: 14
 - Average duration: 5.4 min
-- Total execution time: 1.16 hours
+- Total execution time: 1.26 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. RAG Infrastructure | 4/5 | 28 min | 7 min |
-| 1.1. Evaluation Infrastructure Upgrade | 3/5 | 10 min | 3.3 min |
+| 1.1. Evaluation Infrastructure Upgrade | 4/5 | 16 min | 4 min |
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
 | 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01.3-01 (12min), 01.3-02 (3min), 01.1-01 (0min), 01.1-04 (5min), 01.1-02 (5min)
+- Last 5 plans: 01.3-02 (3min), 01.1-01 (0min), 01.1-04 (5min), 01.1-02 (5min), 01.1-05 (6min)
 - Trend: Stable (implementation tasks 0-12min, quality maintained)
 
 *Updated after each plan completion*
@@ -100,6 +100,9 @@ Recent decisions affecting current work:
 - **[01.1-02] Rubric parsing by markdown structure:** Split on `## B{N}:` headers, extract code block after `### Judge Prompt Template`. Cached at init, never reloaded
 - **[01.1-02] Score clamping with warning:** Out-of-range judge scores (below 0 or above 3) are clamped, not rejected. Warning logged for observability
 - **[01.1-02] ScoringService dynamic dimension conversion:** Tier 3 scorer converts each DimensionScore to EvaluationMetric (score/3.0 normalization). Judge errors produce single judge_error metric with value 0.0
+- **[01.1-05] Conditional DI via factory returning None:** staticmethod factory returns None when ragas_enabled=False. Use case checks for None before calling RAGAs
+- **[01.1-05] RAGAs provider placement before use cases:** DeclarativeContainer processes attributes top-to-bottom; ragas_service must be defined before evaluate_model_use_case
+- **[01.1-05] retrieved_contexts=None for all RAGAs calls:** Current IModelGateway returns ModelResponse without documents. Context metrics deferred until ModelGateway exposes GraphState
 
 ### Pending Todos
 
@@ -118,5 +121,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-15
-Stopped at: Completed 01.1-02-PLAN.md (LLM Judge Service Upgrade)
+Stopped at: Completed 01.1-05-PLAN.md (RAGAs Pipeline Integration)
 Resume file: None
