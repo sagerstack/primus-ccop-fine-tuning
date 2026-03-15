@@ -9,31 +9,32 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 1.3 of 8 (RAG Quality - Chunking & Retrieval)
-Plan: 2 of 4 in current phase
+Phase: 1.1 of 8 (Evaluation Infrastructure Upgrade)
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-03-02 — Completed 01.3-02-PLAN.md (Reranking Pipeline)
+Last activity: 2026-03-15 — Completed 01.1-04-PLAN.md (RAGAs Evaluation Service)
 
-Progress: [███░░░░░░░] 27%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: 5.8 min
-- Total execution time: 0.97 hours
+- Total plans completed: 12
+- Average duration: 5.4 min
+- Total execution time: 1.08 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. RAG Infrastructure | 4/5 | 28 min | 7 min |
+| 1.1. Evaluation Infrastructure Upgrade | 2/5 | 5 min | 2.5 min |
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
 | 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01.2-03 (0min), 01.2-04 (10min), 01.3-01 (12min), 01.3-02 (3min)
-- Trend: Stable (implementation tasks 3-12min, quality maintained)
+- Last 5 plans: 01.2-04 (10min), 01.3-01 (12min), 01.3-02 (3min), 01.1-01 (0min), 01.1-04 (5min)
+- Trend: Stable (implementation tasks 0-12min, quality maintained)
 
 *Updated after each plan completion*
 
@@ -85,6 +86,10 @@ Recent decisions affecting current work:
 - **[01.3-02] Cross-encoder reranking funnel:** Retrieve 20 with bi-encoder, rerank with cross-encoder, keep top-3 for LLM. Improves precision@3 by 25-35%
 - **[01.3-02] Measurement-only grading:** No filtering, logs reranker scores for observability. LLM-as-judge grading removed (slow, inconsistent)
 - **[01.3-02] Lazy cross-encoder loading:** Thread-safe singleton defers 400MB model load until first use
+- **[01.1-04] RAGAs evaluator uses Claude Sonnet:** LangchainLLMWrapper(ChatAnthropic) for RAGAs metrics evaluation
+- **[01.1-04] Lazy LLM initialization for RAGAs:** ChatAnthropic not loaded until first evaluate_response() call
+- **[01.1-04] RagasEvaluationService independent from ScoringService:** Layer 1 (benchmark scoring) and Layer 2 (RAG quality) are separate domain services with no coupling
+- **[01.1-04] langchain-anthropic version constraint:** Used <1.0 constraint to get 0.3.22 (compatible with langchain 0.3.x), avoiding langchain-core version conflict
 
 ### Pending Todos
 
@@ -102,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-02
-Stopped at: Completed 01.3-02-PLAN.md (Reranking Pipeline)
+Last session: 2026-03-15
+Stopped at: Completed 01.1-04-PLAN.md (RAGAs Evaluation Service)
 Resume file: None
