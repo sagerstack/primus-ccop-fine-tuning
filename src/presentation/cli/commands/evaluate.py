@@ -128,7 +128,8 @@ def run(
             score_str = f"{r.overall_score:.2f}" if r.overall_score is not None else "N/A"
             border_style = "green" if r.passed else "red"
 
-            title = f"{r.test_id} | {r.benchmark_type} | {'PASS' if r.passed else 'FAIL'} | Score: {score_str}"
+            mode_suffix = f" | {r.evaluation_mode}" if r.evaluation_mode else ""
+            title = f"{r.test_id} | {r.benchmark_type} | {'PASS' if r.passed else 'FAIL'} | Score: {score_str}{mode_suffix}"
 
             lines = []
 
@@ -171,6 +172,18 @@ def run(
             if r.ragas_is_rag_response:
                 lines.append("\n[dim]RAG response detected — context metrics included above[/dim]")
 
+            # RAG Context info (hybrid mode)
+            if r.evaluation_mode and r.chunk_count is not None:
+                if r.chunk_count > 0 and r.retrieved_chunk_ids:
+                    # Format chunk IDs for display (truncate if too many)
+                    chunk_display = ", ".join(r.retrieved_chunk_ids[:5])
+                    if len(r.retrieved_chunk_ids) > 5:
+                        chunk_display += f", ... ({len(r.retrieved_chunk_ids)} total)"
+                    lines.append(f"\n[bold]RAG Context:[/bold] {r.chunk_count} chunks ({chunk_display})")
+                elif r.evaluation_mode == "hybrid":
+                    lines.append(f"\n[bold]RAG Context:[/bold] No chunks retrieved")
+                # For llm-only mode, don't show RAG Context line
+
             panel_content = "\n".join(lines)
             console.print(Panel(panel_content, title=title, border_style=border_style))
 
@@ -188,6 +201,10 @@ def run(
         table.add_row("Failed", str(summary.failed_tests))
         table.add_row("Overall Score", f"{summary.overall_score:.2%}")
         table.add_row("Duration", f"{summary.total_duration_seconds:.1f}s")
+
+        # Add evaluation mode if available
+        if summary.results and summary.results[0].evaluation_mode:
+            table.add_row("Evaluation Mode", summary.results[0].evaluation_mode)
 
         console.print(table)
 
