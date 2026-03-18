@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2 of 8 (RAG Evaluation)
-Plan: 0 of ? in current phase (not yet planned)
-Status: Not started
-Last activity: 2026-03-15 — Completed Phase 1.1 (Evaluation Infrastructure Upgrade) — verified 10/10
+Plan: 1 of ? in current phase
+Status: In progress
+Last activity: 2026-03-18 — Completed 02-01-PLAN.md (RAG Evaluation Mode Foundation)
 
-Progress: [████████░░] 83%
+Progress: [████████░░] 84%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
-- Average duration: 5.3 min
-- Total execution time: 1.31 hours
+- Total plans completed: 16
+- Average duration: 5.1 min
+- Total execution time: 1.36 hours
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [████████░░] 83%
 | 1.1. Evaluation Infrastructure Upgrade | 5/5 | 19 min | 3.8 min |
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
 | 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
+| 2. RAG Evaluation | 1/? | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01.1-01 (0min), 01.1-04 (5min), 01.1-02 (5min), 01.1-05 (6min), 01.1-03 (3min)
+- Last 5 plans: 01.1-04 (5min), 01.1-02 (5min), 01.1-05 (6min), 01.1-03 (3min), 02-01 (3min)
 - Trend: Stable (implementation tasks 0-12min, quality maintained)
 
 *Updated after each plan completion*
@@ -106,6 +107,9 @@ Recent decisions affecting current work:
 - **[01.1-03] Unified _score_llm_judge for all 15 benchmarks:** Single method routes B3, B7-B20 through LLMJudgeService. Benchmark-specific behavior in rubric templates, not code branching
 - **[01.1-03] B3 migrated from hallucination detection to LLM judge:** B3 measures conditional reasoning quality, not hallucination presence. LLM judge with B3-specific rubric evaluates appropriate dimensions
 - **[01.1-03] B21 retains rule-based hallucination detection:** B21 is binary pass/fail for fabrication detection, appropriate for rule-based scoring. Stays in 6 rule-based benchmarks
+- **[02-01] evaluation_mode defaults to hybrid:** RAG-augmented evaluation is the primary use case
+- **[02-01] rag-only excluded from evaluation modes:** Not meaningful for benchmark scoring (per CONTEXT.md)
+- **[02-01] RAG metadata fields are optional:** retrieved_chunk_ids, chunk_count, evaluation_mode set to None when not RAG-augmented
 
 ### Pending Todos
 
@@ -123,6 +127,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15
-Stopped at: Phase 1.1 complete — all 5 plans executed, verified 10/10. Next: Phase 2 (RAG Evaluation)
+Last session: 2026-03-18
+Stopped at: Completed 02-01-PLAN.md — RAG evaluation mode data layer foundation ready
 Resume file: None
