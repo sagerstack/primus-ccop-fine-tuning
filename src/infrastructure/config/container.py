@@ -13,7 +13,9 @@ from infrastructure.adapters.converters.gguf_converter import GGUFConverter
 from infrastructure.adapters.logging.console_logger import ConsoleLogger
 from infrastructure.adapters.logging.structlog_adapter import StructlogAdapter
 from infrastructure.adapters.models.mock_gateway import MockModelGateway
+from infrastructure.adapters.models.claude_cli_gateway import ClaudeCliGateway
 from infrastructure.adapters.models.ollama_gateway import OllamaGateway
+from infrastructure.adapters.models.routing_gateway import RoutingModelGateway
 from infrastructure.adapters.repositories.json_result_repository import JSONResultRepository
 from infrastructure.adapters.repositories.jsonl_test_case_repository import (
     JSONLTestCaseRepository,
@@ -59,10 +61,24 @@ class Container(containers.DeclarativeContainer):
         ),
     )
 
-    # Model Gateway (defaults to Ollama, can be overridden with mock_mode=True)
-    model_gateway = providers.Singleton(
+    # Model Gateways (backend-specific)
+    claude_gateway = providers.Singleton(
+        ClaudeCliGateway,
+        logger=logger,
+        timeout=config.provided.claude_cli_timeout,
+    )
+
+    ollama_gateway = providers.Singleton(
         OllamaGateway,
         client=ollama_client,
+        logger=logger,
+    )
+
+    # Routing Gateway: Claude models → claude CLI, everything else → Ollama
+    model_gateway = providers.Singleton(
+        RoutingModelGateway,
+        claude_gateway=claude_gateway,
+        ollama_gateway=ollama_gateway,
         logger=logger,
     )
 
@@ -101,11 +117,31 @@ class Container(containers.DeclarativeContainer):
 
         from domain.services.ragas_evaluation_service import RagasEvaluationService
 
-        return RagasEvaluationService(model_name=settings.ragas_evaluator_model)
+        return RagasEvaluationService(
+            model_name=settings.ragas_evaluator_model,
+            embedding_model=settings.ragas_embedding_model,
+            api_key=settings.ragas_api_key,
+            api_base_url=settings.ragas_api_base_url,
+        )
 
     ragas_service = providers.Singleton(
         _create_ragas_service,
         settings=config,
+    )
+
+    # RAG Pipeline (for query and evaluation)
+    @staticmethod
+    def _create_rag_adapter(settings, logger):
+        from rag.infrastructure.adapters.langgraph_rag_adapter import (
+            LangGraphRagAdapter,
+        )
+
+        return LangGraphRagAdapter(settings=settings, logger=logger)
+
+    rag_pipeline = providers.Singleton(
+        _create_rag_adapter,
+        settings=config,
+        logger=logger,
     )
 
     # Use Cases
@@ -116,6 +152,7 @@ class Container(containers.DeclarativeContainer):
         result_repository=result_repository,
         logger=logger,
         ragas_service=ragas_service,
+        rag_pipeline=rag_pipeline,
     )
 
     setup_model_use_case = providers.Factory(
@@ -218,14 +255,6 @@ class Container(containers.DeclarativeContainer):
             return None
 
     @staticmethod
-    def _create_rag_adapter(settings, logger):
-        from rag.infrastructure.adapters.langgraph_rag_adapter import (
-            LangGraphRagAdapter,
-        )
-
-        return LangGraphRagAdapter(settings=settings, logger=logger)
-
-    @staticmethod
     def _create_query_use_case(rag_pipeline, logger):
         from rag.application.use_cases.query_compliance import QueryComplianceUseCase
 
@@ -239,12 +268,6 @@ class Container(containers.DeclarativeContainer):
 
     indexer = providers.Singleton(
         _create_indexer_adapter,
-        settings=config,
-        logger=logger,
-    )
-
-    rag_pipeline = providers.Singleton(
-        _create_rag_adapter,
         settings=config,
         logger=logger,
     )
