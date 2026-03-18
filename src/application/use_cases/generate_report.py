@@ -143,6 +143,7 @@ class GenerateReportUseCase(IGenerateReportUseCase):
                 result_id=r.result_id,
                 test_id=r.test_case.test_id,
                 benchmark_type=r.test_case.benchmark_type.value,
+                question=r.test_case.question,
                 model_name=r.model_response.model_name,
                 response_content=r.model_response.content,
                 metrics=metrics_dtos,
@@ -154,6 +155,9 @@ class GenerateReportUseCase(IGenerateReportUseCase):
                 latency_ms=r.model_response.latency_ms,
                 evaluated_at=r.evaluated_at,
                 metadata=r.metadata,
+                evaluation_mode=getattr(r, 'evaluation_mode', None),
+                retrieved_chunk_ids=getattr(r, 'retrieved_chunk_ids', None),
+                chunk_count=getattr(r, 'chunk_count', None),
             ))
 
         return EvaluationSummaryDTO(

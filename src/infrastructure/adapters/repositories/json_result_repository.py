@@ -149,6 +149,13 @@ class JSONResultRepository(IResultRepository):
                     ],
                 }
 
+        # RAG evaluation metadata
+        if result.evaluation_mode is not None:
+            serialized["evaluation_mode"] = result.evaluation_mode
+        if result.retrieved_chunk_ids is not None:
+            serialized["retrieved_chunk_ids"] = result.retrieved_chunk_ids
+            serialized["chunk_count"] = result.chunk_count or 0
+
         return serialized
 
     def _serialize_with_question(self, result: EvaluationResult) -> dict:
@@ -177,6 +184,9 @@ class JSONResultRepository(IResultRepository):
         # Add optional parts if present
         if metadata.get("evaluation_phase"):
             parts.append(f"phase-{metadata['evaluation_phase']}")
+
+        if metadata.get("evaluation_mode"):
+            parts.append(f"mode-{metadata['evaluation_mode']}")
 
         if metadata.get("tier"):
             parts.append(f"tier-{metadata['tier']}")
