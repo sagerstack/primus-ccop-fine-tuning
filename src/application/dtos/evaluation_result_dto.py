@@ -37,6 +37,7 @@ class EvaluationResultDTO(BaseModel):
     result_id: UUID = Field(..., description="Unique result identifier")
     test_id: str = Field(..., description="Test case ID")
     benchmark_type: str = Field(..., description="Benchmark category")
+    question: str = Field(..., description="Original test case question")
     model_name: str = Field(..., description="Model name")
     response_content: str = Field(..., description="Model's response")
     metrics: List[MetricDTO] = Field(default_factory=list, description="Evaluation metrics")
@@ -57,6 +58,15 @@ class EvaluationResultDTO(BaseModel):
     ragas_error: Optional[str] = Field(
         None, description="RAGAs evaluation error message if failed"
     )
+    evaluation_mode: Optional[str] = Field(
+        None, description="Evaluation mode used: hybrid or llm-only"
+    )
+    retrieved_chunk_ids: Optional[List[str]] = Field(
+        None, description="IDs of chunks retrieved by RAG pipeline"
+    )
+    chunk_count: Optional[int] = Field(
+        None, ge=0, description="Number of RAG chunks retrieved"
+    )
 
     model_config = {
         "json_schema_extra": {
@@ -64,6 +74,7 @@ class EvaluationResultDTO(BaseModel):
                 "result_id": "123e4567-e89b-12d3-a456-426614174000",
                 "test_id": "B1-001",
                 "benchmark_type": "B1",
+                "question": "What does CCoP 2.0 require for...",
                 "model_name": "primus-reasoning",
                 "response_content": "CCoP 2.0 requires...",
                 "metrics": [

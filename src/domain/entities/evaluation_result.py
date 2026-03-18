@@ -45,6 +45,9 @@ class EvaluationResult:
         evaluated_at: Optional[datetime] = None,
         metadata: Optional[Dict[str, Any]] = None,
         ragas_evaluation: Optional[Any] = None,
+        retrieved_chunk_ids: Optional[List[str]] = None,
+        chunk_count: Optional[int] = None,
+        evaluation_mode: Optional[str] = None,
     ) -> None:
         """
         Initialize EvaluationResult entity.
@@ -60,6 +63,9 @@ class EvaluationResult:
             evaluated_at: Timestamp of evaluation
             metadata: Additional result metadata
             ragas_evaluation: RAGAs evaluation results (Layer 2 quality metrics)
+            retrieved_chunk_ids: IDs of chunks retrieved by RAG pipeline
+            chunk_count: Number of RAG chunks retrieved
+            evaluation_mode: Evaluation mode used (hybrid or llm-only)
 
         Raises:
             EvaluationError: If validation fails
@@ -75,6 +81,9 @@ class EvaluationResult:
         self._metadata = metadata or {}
         self._threshold_used: Optional[float] = None
         self._ragas_evaluation = ragas_evaluation
+        self._retrieved_chunk_ids = retrieved_chunk_ids
+        self._chunk_count = chunk_count
+        self._evaluation_mode = evaluation_mode
 
         self._validate()
 
@@ -307,6 +316,21 @@ class EvaluationResult:
     def ragas_evaluation(self) -> Optional[Any]:
         """RAGAs evaluation results (Layer 2 quality metrics). None if not evaluated."""
         return self._ragas_evaluation
+
+    @property
+    def retrieved_chunk_ids(self) -> Optional[List[str]]:
+        """IDs of chunks retrieved by RAG pipeline. None if not RAG-augmented."""
+        return self._retrieved_chunk_ids
+
+    @property
+    def chunk_count(self) -> Optional[int]:
+        """Number of RAG chunks retrieved. None if not RAG-augmented."""
+        return self._chunk_count
+
+    @property
+    def evaluation_mode(self) -> Optional[str]:
+        """Evaluation mode used (hybrid or llm-only). None if not specified."""
+        return self._evaluation_mode
 
     # Equality based on identity
 

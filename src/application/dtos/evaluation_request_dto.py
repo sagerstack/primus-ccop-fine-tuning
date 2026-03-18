@@ -52,6 +52,10 @@ class EvaluationRequestDTO(BaseModel):
         le=1.0,
         description="Pass threshold override (if None, uses phase-specific default)"
     )
+    evaluation_mode: str = Field(
+        default="hybrid",
+        description="Evaluation mode: hybrid (RAG-augmented) or llm-only"
+    )
 
     model_config = {
         "json_schema_extra": {
