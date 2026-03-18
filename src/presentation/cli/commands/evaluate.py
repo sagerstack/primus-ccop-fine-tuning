@@ -9,6 +9,7 @@ from typing import List, Optional
 
 import typer
 from rich.console import Console
+from rich.panel import Panel
 from rich.table import Table
 
 from application.dtos.evaluation_request_dto import EvaluationRequestDTO
@@ -16,6 +17,8 @@ from domain.value_objects.evaluation_tier import EvaluationTier
 
 evaluate_app = typer.Typer()
 console = Console()
+
+VALID_EVAL_MODES = ["hybrid", "llm-only"]
 
 
 @evaluate_app.command()
@@ -43,10 +46,21 @@ def run(
         max=1.0,
         help="Pass threshold override (0.0-1.0). Overrides phase-specific threshold."
     ),
+    mode: str = typer.Option(
+        "hybrid",
+        "--mode",
+        "-m",
+        help="Evaluation mode: hybrid (RAG-augmented) or llm-only"
+    ),
 ) -> None:
     """Run model evaluation."""
     container = ctx.obj["container"]
     use_case = container.evaluate_model_use_case()
+
+    # Validate mode parameter
+    if mode not in VALID_EVAL_MODES:
+        console.print(f"[red]Invalid mode: {mode}. Must be one of: {', '.join(VALID_EVAL_MODES)}[/red]")
+        raise typer.Exit(1)
 
     # Handle --tier argument (takes precedence over --benchmarks)
     if tier is not None:
@@ -82,6 +96,7 @@ def run(
     console.print(f"[bold]Evaluating model:[/bold] {model}")
     console.print(f"[bold]Benchmarks:[/bold] {', '.join(benchmarks)}")
     console.print(f"[bold]Evaluation Phase:[/bold] {phase}")
+    console.print(f"[bold]Evaluation Mode:[/bold] {mode}")
 
     # Display threshold being used
     if threshold is not None:
@@ -99,11 +114,65 @@ def run(
         save_results=save,
         evaluation_phase=phase,
         pass_threshold=threshold,
+        evaluation_mode=mode,
     )
 
     try:
         console.print("\n[yellow]Running evaluation...[/yellow]\n")
         summary = asyncio.run(use_case.execute(request))
+
+        # Per-test-case detail output
+        console.print("\n[bold]Per-Test-Case Results[/bold]\n")
+        for r in summary.results:
+            status_label = "[bold green]PASS[/bold green]" if r.passed else "[bold red]FAIL[/bold red]"
+            score_str = f"{r.overall_score:.2f}" if r.overall_score is not None else "N/A"
+            border_style = "green" if r.passed else "red"
+
+            title = f"{r.test_id} | {r.benchmark_type} | {'PASS' if r.passed else 'FAIL'} | Score: {score_str}"
+
+            lines = []
+
+            # Question (truncated)
+            q = r.question
+            if len(q) > 200:
+                q = q[:200] + "..."
+            lines.append(f"[bold]Question:[/bold]\n  {q}")
+
+            # Response (truncated)
+            resp = r.response_content
+            if len(resp) > 200:
+                resp = resp[:200] + "..."
+            lines.append(f"\n[bold]Response[/bold] ({r.tokens_used} tokens, {r.latency_ms}ms):\n  {resp}")
+
+            # LLM Judge Dimensions
+            judge_metrics = [m for m in r.metrics if m.name != "judge_error"]
+            judge_errors = [m for m in r.metrics if m.name == "judge_error"]
+
+            if judge_metrics or judge_errors:
+                lines.append("\n[bold]LLM Judge Dimensions:[/bold]")
+                for m in judge_metrics:
+                    raw_score = round(m.value * 3)
+                    lines.append(f"  {m.name:<30s} {raw_score}/3  (weight: {m.weight:.2f})")
+                for m in judge_errors:
+                    lines.append(f"  [yellow]⚠ Judge Error[/yellow]")
+
+            # RAGAs Quality Metrics
+            if r.ragas_metrics:
+                lines.append("\n[bold]RAGAs Quality Metrics:[/bold]")
+                for rm in r.ragas_metrics:
+                    if rm.applicable:
+                        lines.append(f"  {rm.name:<30s} {rm.score:.2f}")
+                    else:
+                        lines.append(f"  {rm.name:<30s} N/A (not applicable)")
+            elif r.ragas_error:
+                lines.append(f"\n[bold]RAGAs:[/bold] [yellow]⚠ {r.ragas_error}[/yellow]")
+
+            # RAG chunks section (only when RAG response detected)
+            if r.ragas_is_rag_response:
+                lines.append("\n[dim]RAG response detected — context metrics included above[/dim]")
+
+            panel_content = "\n".join(lines)
+            console.print(Panel(panel_content, title=title, border_style=border_style))
 
         # Display results
         console.print("\n[bold green]Evaluation Complete![/bold green]\n")
