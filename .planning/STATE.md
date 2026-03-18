@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2 of 8 (RAG Evaluation)
-Plan: 1 of ? in current phase
+Plan: 2 of ? in current phase
 Status: In progress
-Last activity: 2026-03-18 — Completed 02-01-PLAN.md (RAG Evaluation Mode Foundation)
+Last activity: 2026-03-18 — Completed 02-02-PLAN.md (RAG Pipeline Integration)
 
-Progress: [████████░░] 84%
+Progress: [████████░░] 85%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
-- Average duration: 5.1 min
-- Total execution time: 1.36 hours
+- Total plans completed: 17
+- Average duration: 5.0 min
+- Total execution time: 1.43 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: [████████░░] 84%
 | 1.1. Evaluation Infrastructure Upgrade | 5/5 | 19 min | 3.8 min |
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
 | 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
-| 2. RAG Evaluation | 1/? | 3 min | 3 min |
+| 2. RAG Evaluation | 2/? | 7 min | 3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01.1-04 (5min), 01.1-02 (5min), 01.1-05 (6min), 01.1-03 (3min), 02-01 (3min)
+- Last 5 plans: 01.1-02 (5min), 01.1-05 (6min), 01.1-03 (3min), 02-01 (3min), 02-02 (4min)
 - Trend: Stable (implementation tasks 0-12min, quality maintained)
 
 *Updated after each plan completion*
@@ -110,6 +110,10 @@ Recent decisions affecting current work:
 - **[02-01] evaluation_mode defaults to hybrid:** RAG-augmented evaluation is the primary use case
 - **[02-01] rag-only excluded from evaluation modes:** Not meaningful for benchmark scoring (per CONTEXT.md)
 - **[02-01] RAG metadata fields are optional:** retrieved_chunk_ids, chunk_count, evaluation_mode set to None when not RAG-augmented
+- **[02-02] Graph-based evaluation:** Evaluation routes through full LangGraph RAG graph instead of direct model_gateway calls. hybrid mode gets RAG-augmented responses, llm-only mode gets fallback generation
+- **[02-02] filtered_documents extraction:** Graph's filtered_documents extracted as retrieved_contexts and passed to RAGAs for context-aware metrics
+- **[02-02] Qdrant unavailable raises error:** If Qdrant unavailable in hybrid mode, raise clear error instead of silent fallback. User must explicitly choose --mode llm-only
+- **[02-02] Backward compatible fallback:** When rag_pipeline is None (not configured), fall back to existing model_gateway.generate_response() path
 
 ### Pending Todos
 
@@ -128,5 +132,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-18
-Stopped at: Completed 02-01-PLAN.md — RAG evaluation mode data layer foundation ready
+Stopped at: Completed 02-02-PLAN.md — RAG pipeline integration into evaluation use case complete
 Resume file: None
