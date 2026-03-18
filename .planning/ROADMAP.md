@@ -128,10 +128,12 @@ Plans:
   3. Gap analysis identifies which benchmarks improved with RAG and which still underperform
   4. Findings inform Phase 3 dataset expansion priorities (which benchmarks need more test cases)
   5. Initial signal on hallucination reduction from RAG grounding
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] TBD during phase planning
+- [ ] 02-01-PLAN.md — DTOs, entity RAG metadata fields, CLI --mode parameter
+- [ ] 02-02-PLAN.md — EvaluateModelUseCase wires RAG graph, container DI, RAGAs context injection
+- [ ] 02-03-PLAN.md — CLI panel RAG context display, JSON result serialization, .env.example
 
 ### Phase 3: Ground Truth Dataset Expansion
 **Goal**: Expand test dataset from 118 to 1000+ cases with multi-source generation, enabling statistically valid evaluation and providing training data for fine-tuning
