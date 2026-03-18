@@ -37,6 +37,9 @@ class RagResponse(BaseModel):
     )
     query: str = Field(description="Original query")
     error: Optional[str] = Field(default=None, description="Error message if any")
+    retrieved_contexts: list[str] = Field(
+        default_factory=list, description="Text content of retrieved documents for RAGAs evaluation"
+    )
 
 
 class IRagPipeline(ABC):

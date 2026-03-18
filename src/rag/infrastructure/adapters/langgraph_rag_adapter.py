@@ -60,6 +60,11 @@ class LangGraphRagAdapter(IRagPipeline):
         try:
             final_state = self._pipeline(question, mode)
 
+            # Extract retrieved context text for RAGAs evaluation
+            retrieved_contexts = [
+                doc.page_content for doc in final_state.get("filtered_documents", [])
+            ]
+
             response = RagResponse(
                 response=final_state.get("generation", ""),
                 raw_response=final_state.get("raw_generation", ""),
@@ -69,6 +74,7 @@ class LangGraphRagAdapter(IRagPipeline):
                 grading_scores=final_state.get("grading_scores", []),
                 query=question,
                 error=final_state.get("error"),
+                retrieved_contexts=retrieved_contexts,
             )
 
             return response

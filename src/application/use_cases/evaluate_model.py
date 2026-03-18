@@ -5,7 +5,10 @@ Orchestrates model evaluation across test cases.
 """
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
+
+if TYPE_CHECKING:
+    from rag.application.ports.i_rag_pipeline import IRagPipeline
 
 from application.dtos.evaluation_request_dto import EvaluationRequestDTO
 from application.dtos.evaluation_result_dto import (
@@ -44,12 +47,14 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         result_repository: IResultRepository,
         logger: ILogger,
         ragas_service=None,
+        rag_pipeline: Optional["IRagPipeline"] = None,
     ) -> None:
         self._model_gateway = model_gateway
         self._test_case_repository = test_case_repository
         self._result_repository = result_repository
         self._logger = logger
         self._ragas_service = ragas_service
+        self._rag_pipeline = rag_pipeline
 
     async def execute(self, request: EvaluationRequestDTO) -> EvaluationSummaryDTO:
         """Execute model evaluation."""
@@ -154,16 +159,63 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         # Determine max tokens
         max_tokens = request.max_tokens or test_case.get_max_tokens_for_response()
 
-        # Generate response
-        model_response = await self._model_gateway.generate_response(
-            prompt=test_case.question,
-            model_name=request.model_name,
-            temperature=request.temperature,
-            max_tokens=max_tokens,
-            top_p=request.top_p,
-            top_k=request.top_k,
-            system_prompt="You are a cybersecurity compliance expert specializing in Singapore's CCoP 2.0.",
-        )
+        # Route through RAG pipeline if available, otherwise use direct model gateway
+        retrieved_chunk_ids = None
+        chunk_count = None
+        retrieved_contexts = None
+
+        if self._rag_pipeline is not None and request.evaluation_mode:
+            # RAG pipeline path
+            mode = request.evaluation_mode
+
+            # Check RAG pipeline availability for requested mode
+            is_rag_available = await self._rag_pipeline.is_available(mode)
+            if mode == "hybrid" and not is_rag_available:
+                raise ValueError(
+                    f"RAG pipeline not available for hybrid mode. "
+                    f"Ensure Qdrant is running and configured. "
+                    f"Use --mode llm-only to evaluate without RAG."
+                )
+
+            # Query RAG pipeline
+            rag_response = await self._rag_pipeline.query(
+                question=test_case.question,
+                mode=mode,
+            )
+
+            # Build ModelResponse from RagResponse
+            from domain.entities.model_response import ModelResponse
+            model_response = ModelResponse(
+                content=rag_response.response,
+                model_name=request.model_name,
+                tokens_used=0,  # Not tracked from graph this phase
+                latency_ms=0,   # Not tracked from graph this phase
+                temperature=request.temperature,
+            )
+
+            # Extract retrieved chunk IDs from citations
+            if rag_response.citations:
+                retrieved_chunk_ids = []
+                for citation in rag_response.citations:
+                    chunk_id = f"{citation.get('document', 'Unknown')}::{citation.get('clause', citation.get('section', 'N/A'))}"
+                    retrieved_chunk_ids.append(chunk_id)
+                chunk_count = len(retrieved_chunk_ids)
+
+            # Extract retrieved contexts for RAGAs
+            if rag_response.is_rag_augmented:
+                retrieved_contexts = rag_response.retrieved_contexts
+
+        else:
+            # Direct model gateway path (backward compatibility)
+            model_response = await self._model_gateway.generate_response(
+                prompt=test_case.question,
+                model_name=request.model_name,
+                temperature=request.temperature,
+                max_tokens=max_tokens,
+                top_p=request.top_p,
+                top_k=request.top_k,
+                system_prompt="You are a cybersecurity compliance expert specializing in Singapore's CCoP 2.0.",
+            )
 
         # Score response (Layer 1: Benchmark scoring)
         metrics = ScoringService.score_response(test_case, model_response)
@@ -179,7 +231,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
                     question=test_case.question,
                     response=model_response.content,
                     reference=reference,
-                    retrieved_contexts=None,
+                    retrieved_contexts=retrieved_contexts,
                     key_facts=key_facts if isinstance(key_facts, list) and len(key_facts) > 0 else None,
                 )
 
@@ -198,6 +250,9 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             model_response=model_response,
             metrics=metrics,
             ragas_evaluation=ragas_evaluation,
+            retrieved_chunk_ids=retrieved_chunk_ids,
+            chunk_count=chunk_count,
+            evaluation_mode=request.evaluation_mode if self._rag_pipeline else None,
         )
 
         # Finalize (calculate score and pass/fail with configurable threshold)
@@ -334,6 +389,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         metadata = {
             "model_name": request.model_name,
             "evaluation_phase": request.evaluation_phase,
+            "evaluation_mode": request.evaluation_mode,
             "pass_threshold": request.pass_threshold or self._get_threshold(request),
             "benchmarks": request.benchmark_types,
             "total_tests": summary.total_tests,
@@ -496,6 +552,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             result_id=result.result_id,
             test_id=result.test_case.test_id,
             benchmark_type=result.test_case.benchmark_type.value,
+            question=result.test_case.question,
             model_name=result.model_response.model_name,
             response_content=result.model_response.content,
             metrics=metrics_dtos,
@@ -510,4 +567,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             ragas_metrics=ragas_metrics,
             ragas_is_rag_response=ragas_is_rag_response,
             ragas_error=ragas_error,
+            evaluation_mode=result.evaluation_mode,
+            retrieved_chunk_ids=result.retrieved_chunk_ids,
+            chunk_count=result.chunk_count,
         )
