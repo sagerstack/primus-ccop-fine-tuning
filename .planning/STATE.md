@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2 of 8 (RAG Evaluation)
-Plan: 2 of ? in current phase
-Status: In progress
-Last activity: 2026-03-18 — Completed 02-02-PLAN.md (RAG Pipeline Integration)
+Plan: 3 of 3 in current phase
+Status: All plans executed, pending verification
+Last activity: 2026-03-19 — Completed 02-03-PLAN.md (Presentation & Persistence)
 
-Progress: [████████░░] 85%
+Progress: [████████░░] 87%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
-- Average duration: 5.0 min
-- Total execution time: 1.43 hours
+- Total plans completed: 18
+- Average duration: 4.9 min
+- Total execution time: 1.48 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: [████████░░] 85%
 | 1.1. Evaluation Infrastructure Upgrade | 5/5 | 19 min | 3.8 min |
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
 | 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
-| 2. RAG Evaluation | 2/? | 7 min | 3.5 min |
+| 2. RAG Evaluation | 3/3 | 10 min | 3.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01.1-02 (5min), 01.1-05 (6min), 01.1-03 (3min), 02-01 (3min), 02-02 (4min)
+- Last 5 plans: 01.1-05 (6min), 01.1-03 (3min), 02-01 (3min), 02-02 (4min), 02-03 (3min)
 - Trend: Stable (implementation tasks 0-12min, quality maintained)
 
 *Updated after each plan completion*
@@ -114,6 +114,10 @@ Recent decisions affecting current work:
 - **[02-02] filtered_documents extraction:** Graph's filtered_documents extracted as retrieved_contexts and passed to RAGAs for context-aware metrics
 - **[02-02] Qdrant unavailable raises error:** If Qdrant unavailable in hybrid mode, raise clear error instead of silent fallback. User must explicitly choose --mode llm-only
 - **[02-02] Backward compatible fallback:** When rag_pipeline is None (not configured), fall back to existing model_gateway.generate_response() path
+- **[02-03] RAG Context truncation at 5 IDs:** Display first 5 chunk IDs in panel, show total count if more
+- **[02-03] llm-only suppresses RAG Context line:** No RAG Context shown for llm-only mode
+- **[02-03] Mode in JSON filename:** mode-hybrid or mode-llm-only appended for easy run identification
+- **[02-03] getattr for backward compat:** Older EvaluationResult objects without RAG fields handled gracefully
 
 ### Pending Todos
 
@@ -131,6 +135,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-18
-Stopped at: Completed 02-02-PLAN.md — RAG pipeline integration into evaluation use case complete
+Last session: 2026-03-19
+Stopped at: Phase 2 all plans executed — pending verification
 Resume file: None
