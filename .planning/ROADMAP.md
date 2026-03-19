@@ -144,13 +144,15 @@ Plans:
   1. All 6 evaluation metrics categorized into three diagnostic groups with clear labels
   2. RAGAs metrics aggregated at benchmark level (currently only per test case)
   3. RAGAs metrics aggregated at overall level across all benchmarks
-  4. CLI displays categorized quality summary table after evaluation run
+  4. CLI displays categorized quality summary replacing existing flat tables
   5. Categorized aggregate scores persisted in JSON result metadata
-  6. Per-test-case panel display unchanged (existing RAGAs and LLM Judge detail preserved)
-**Plans**: TBD
+  6. Per-test-case panels reorganized into 3 diagnostic groups matching summary structure
+**Plans**: 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 2.1 to break down)
+- [ ] 02.1-01-PLAN.md — QualityGroup value object, DTO extensions, aggregation logic in EvaluateModelUseCase
+- [ ] 02.1-02-PLAN.md — CLI categorized summary tables and reorganized per-test-case panels
+- [ ] 02.1-03-PLAN.md — JSON persistence with grouped ragas structure and quality_categories in metadata
 
 ### Phase 3: Ground Truth Dataset Expansion
 **Goal**: Expand test dataset from 118 to 1000+ cases with multi-source generation, enabling statistically valid evaluation and providing training data for fine-tuning
@@ -260,7 +262,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 1.3. RAG Quality — Clause-Level Chunking & Retrieval | 0/3 | Planning complete | - |
 | 1.1. Evaluation Infrastructure Upgrade | 0/4 | Planning complete | - |
 | 2. RAG Evaluation | 0/TBD | Not started | - |
-| 2.1. Evaluation Quality Categorization | 0/TBD | Not started | - |
+| 2.1. Evaluation Quality Categorization | 0/3 | Planning complete | - |
 | 3. Ground Truth Dataset Expansion | 0/TBD | Not started | - |
 | 4. Re-Baseline & Re-Evaluate | 0/TBD | Not started | - |
 | 5. Fine-Tuning Pipeline | 0/TBD | Not started | - |
@@ -270,4 +272,4 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 
 ---
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-03-02*
+*Last updated: 2026-03-20*
