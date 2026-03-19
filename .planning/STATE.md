@@ -128,6 +128,7 @@ None yet.
 - Phase 1.1 inserted after Phase 1: MLflow Experiment Tracking (URGENT) — Record and compare results across all 5 model iterations (baseline LLM, naive RAG, optimized RAG, fine-tuned LLM, hybrid). Phase 2 now depends on 1.1.
 - Phase 1.2 inserted after Phase 1: Local RAG Migration — Migrate from Databricks to Qdrant + local BGE. Phase 1.2 runs before Phase 1.1.
 - Phase 1.3 inserted after Phase 1.2: RAG Quality — Clause-Level Chunking & Retrieval (URGENT) — Replace PyMuPDF4LLM with Docling, clause-aware chunking, cross-encoder reranking, fix RRF threshold. Discovered during Phase 1.2 human verification: 66 chunks too coarse, RRF threshold broken, zero citations resolving. Research completed first. Phase 1.3 runs before Phase 1.1.
+- Phase 2.1 inserted after Phase 2: Evaluation Quality Categorization — Categorize 6 metrics into 3 diagnostic groups (retrieval quality, model grounding, response quality), aggregate RAGAs at benchmark/overall level, CLI summary table, JSON persistence. Discovered during Phase 2 manual verification: RAGAs metrics only shown per test case with no aggregation, no categorized view for diagnosis.
 
 ### Blockers/Concerns
 

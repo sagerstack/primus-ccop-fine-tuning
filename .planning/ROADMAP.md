@@ -17,6 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1.3: RAG Quality — Clause-Level Chunking & Retrieval** (INSERTED) - Replace PyMuPDF4LLM with Docling, clause-aware chunking, cross-encoder reranking, fix RRF threshold
 - [x] **Phase 1.1: Evaluation Infrastructure Upgrade** (INSERTED) - LLM-as-Judge rubrics for 15 benchmarks, RAGAs quality metrics, SemanticSimilarityService removed
 - [ ] **Phase 2: RAG Evaluation** - Run RAG-augmented model against 49.2% baseline on 118 cases, identify gaps
+- [ ] **Phase 2.1: Evaluation Quality Categorization** (INSERTED) - Categorize and aggregate metrics by retrieval quality, model grounding, and response quality
 - [ ] **Phase 3: Ground Truth Dataset Expansion** - Expand from 118 to 1000+ test cases across all 21 benchmarks
 - [ ] **Phase 4: Re-Baseline & Re-Evaluate** - Run both base model and RAG-augmented on expanded dataset for statistically valid comparison
 - [ ] **Phase 5: Fine-Tuning Pipeline** - QLoRA training on reasoning gaps identified by Phase 4
@@ -135,9 +136,25 @@ Plans:
 - [ ] 02-02-PLAN.md — EvaluateModelUseCase wires RAG graph, container DI, RAGAs context injection
 - [ ] 02-03-PLAN.md — CLI panel RAG context display, JSON result serialization, .env.example
 
+### Phase 2.1: Evaluation Quality Categorization (INSERTED)
+**Goal**: Categorize evaluation metrics into three diagnostic groups — (a) Retrieval Quality vs Ground Truth (context_recall, context_precision), (b) Model Response vs Retrieved Chunks (faithfulness), (c) Model Response vs Ground Truth (LLM Judge, answer_correctness, answer_relevancy) — with aggregation at benchmark and overall level, CLI summary display, and JSON persistence.
+**Depends on**: Phase 2
+**Requirements**: EVAL-02, EVAL-03
+**Success Criteria** (what must be TRUE):
+  1. All 6 evaluation metrics categorized into three diagnostic groups with clear labels
+  2. RAGAs metrics aggregated at benchmark level (currently only per test case)
+  3. RAGAs metrics aggregated at overall level across all benchmarks
+  4. CLI displays categorized quality summary table after evaluation run
+  5. Categorized aggregate scores persisted in JSON result metadata
+  6. Per-test-case panel display unchanged (existing RAGAs and LLM Judge detail preserved)
+**Plans**: TBD
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 2.1 to break down)
+
 ### Phase 3: Ground Truth Dataset Expansion
 **Goal**: Expand test dataset from 118 to 1000+ cases with multi-source generation, enabling statistically valid evaluation and providing training data for fine-tuning
-**Depends on**: Phase 2 (gap analysis informs expansion priorities)
+**Depends on**: Phase 2.1 (gap analysis informs expansion priorities)
 **Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06
 **Success Criteria** (what must be TRUE):
   1. Each of 21 benchmarks has minimum 50 test cases (1050+ total test cases)
@@ -233,7 +250,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute: 1 -> 1.2 -> 1.3 -> 1.1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Phases execute: 1 -> 1.2 -> 1.3 -> 1.1 -> 2 -> 2.1 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 runs before 1.1 so eval infrastructure measures improved retrieval.
 
 | Phase | Plans Complete | Status | Completed |
@@ -243,6 +260,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 1.3. RAG Quality — Clause-Level Chunking & Retrieval | 0/3 | Planning complete | - |
 | 1.1. Evaluation Infrastructure Upgrade | 0/4 | Planning complete | - |
 | 2. RAG Evaluation | 0/TBD | Not started | - |
+| 2.1. Evaluation Quality Categorization | 0/TBD | Not started | - |
 | 3. Ground Truth Dataset Expansion | 0/TBD | Not started | - |
 | 4. Re-Baseline & Re-Evaluate | 0/TBD | Not started | - |
 | 5. Fine-Tuning Pipeline | 0/TBD | Not started | - |
