@@ -27,6 +27,7 @@ from domain.entities.test_case import TestCase
 from domain.services.scoring_service import ScoringService
 from domain.value_objects.benchmark_type import BenchmarkType
 from domain.value_objects.evaluation_category import EvaluationCategory
+from domain.value_objects.quality_group import QualityGroup
 
 
 class EvaluateModelUseCase(IEvaluateModelUseCase):
@@ -283,6 +284,9 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         # Group by difficulty
         by_difficulty = self._group_by_difficulty(results)
 
+        # Aggregate quality categories
+        quality_categories = self._aggregate_quality_categories(results)
+
         # Convert results to DTOs
         result_dtos = [self._result_to_dto(r) for r in results]
 
@@ -300,6 +304,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             evaluation_completed_at=end_time,
             total_duration_seconds=duration,
             results=result_dtos,
+            quality_categories=quality_categories,
         )
 
     def _calculate_category_weighted_score(
@@ -365,6 +370,192 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
 
         return weighted_score
 
+    def _aggregate_quality_categories(
+        self,
+        results: List[EvaluationResult]
+    ) -> Dict[str, any]:
+        """
+        Aggregate quality metrics into categorized groups at per-benchmark and overall levels.
+
+        Computes:
+        1. Per-benchmark group scores (simple average across test cases)
+        2. Overall group scores (weighted average using category weights)
+
+        Handles:
+        - llm-only mode: Retrieval Quality and Model-RAG Grounding show N/A
+        - RAGAs errors: count as 0 in averages
+        - LLM Judge normalization: already 0-1 from scoring service
+
+        Args:
+            results: List of evaluation results
+
+        Returns:
+            Dict with structure: {"overall": {"groups": [...]}, "by_benchmark": {"B1": {"groups": [...]}, ...}}
+        """
+        if not results:
+            return {"overall": {"groups": []}, "by_benchmark": {}}
+
+        # Determine evaluation mode from first result (all share same mode in a run)
+        evaluation_mode = results[0].evaluation_mode if results[0].evaluation_mode else "llm-only"
+        rag_only_groups = QualityGroup.get_rag_only_groups()
+
+        # Group results by benchmark
+        benchmark_groups = {}
+        for result in results:
+            benchmark_key = result.test_case.benchmark_type.short_name
+            if benchmark_key not in benchmark_groups:
+                benchmark_groups[benchmark_key] = []
+            benchmark_groups[benchmark_key].append(result)
+
+        # Process each benchmark
+        by_benchmark = {}
+        for benchmark_key, bench_results in benchmark_groups.items():
+            benchmark_data = {"groups": []}
+
+            for quality_group in QualityGroup.get_all_groups():
+                group_dict = {
+                    "name": quality_group.name,
+                    "metrics": [],
+                    "average": None
+                }
+
+                # Check if this group should show N/A in llm-only mode
+                if quality_group.name in rag_only_groups and evaluation_mode != "hybrid":
+                    # Mark all metrics as N/A
+                    for metric_name in quality_group.metrics:
+                        group_dict["metrics"].append({
+                            "name": QualityGroup.get_display_name(metric_name),
+                            "value": None
+                        })
+                    group_dict["average"] = None
+                else:
+                    # Compute metrics for this group
+                    metric_values = []
+                    for metric_name in quality_group.metrics:
+                        if metric_name == "llm_judge":
+                            # LLM Judge: use overall_score (already 0-1 normalized)
+                            scores = [r.overall_score for r in bench_results if r.overall_score is not None]
+                            if scores:
+                                metric_avg = sum(scores) / len(scores)
+                                metric_values.append(metric_avg)
+                                group_dict["metrics"].append({
+                                    "name": QualityGroup.get_display_name(metric_name),
+                                    "value": metric_avg
+                                })
+                            else:
+                                group_dict["metrics"].append({
+                                    "name": QualityGroup.get_display_name(metric_name),
+                                    "value": None
+                                })
+                        else:
+                            # RAGAs metric
+                            scores = []
+                            for result in bench_results:
+                                if result.ragas_evaluation is None:
+                                    continue
+                                if result.ragas_evaluation.evaluation_error:
+                                    # Error: count as 0
+                                    scores.append(0.0)
+                                else:
+                                    # Find matching metric
+                                    for ragas_metric in result.ragas_evaluation.metrics:
+                                        if ragas_metric.name == metric_name:
+                                            if ragas_metric.applicable:
+                                                scores.append(ragas_metric.score)
+                                            # If not applicable, skip (don't count toward average)
+                                            break
+
+                            if scores:
+                                metric_avg = sum(scores) / len(scores)
+                                metric_values.append(metric_avg)
+                                group_dict["metrics"].append({
+                                    "name": QualityGroup.get_display_name(metric_name),
+                                    "value": metric_avg
+                                })
+                            else:
+                                group_dict["metrics"].append({
+                                    "name": QualityGroup.get_display_name(metric_name),
+                                    "value": None
+                                })
+
+                    # Calculate group average from non-None metric values
+                    if metric_values:
+                        group_dict["average"] = sum(metric_values) / len(metric_values)
+
+                benchmark_data["groups"].append(group_dict)
+
+            by_benchmark[benchmark_key] = benchmark_data
+
+        # Compute overall scores using category-level weighting
+        categories = EvaluationCategory.get_all_categories()
+        overall_groups = []
+
+        for quality_group in QualityGroup.get_all_groups():
+            group_dict = {
+                "name": quality_group.name,
+                "metrics": [],
+                "average": None
+            }
+
+            # Check if this group should show N/A in llm-only mode
+            if quality_group.name in rag_only_groups and evaluation_mode != "hybrid":
+                # Mark all metrics as N/A at overall level
+                for metric_name in quality_group.metrics:
+                    group_dict["metrics"].append({
+                        "name": QualityGroup.get_display_name(metric_name),
+                        "value": None
+                    })
+                group_dict["average"] = None
+            else:
+                # Compute category-weighted average for this group
+                # Step 1: Compute category-level group averages
+                category_group_scores = {}
+                total_weight = 0.0
+
+                for category in categories:
+                    # Find benchmarks in this category that we have results for
+                    category_benchmark_avgs = []
+                    for benchmark_key in category.benchmarks:
+                        if benchmark_key in by_benchmark:
+                            # Find this group's average in the benchmark data
+                            for group_data in by_benchmark[benchmark_key]["groups"]:
+                                if group_data["name"] == quality_group.name:
+                                    if group_data["average"] is not None:
+                                        category_benchmark_avgs.append(group_data["average"])
+                                    break
+
+                    # Category-level average for this group
+                    if category_benchmark_avgs:
+                        category_avg = sum(category_benchmark_avgs) / len(category_benchmark_avgs)
+                        category_group_scores[category.name] = category_avg
+                        total_weight += category.weight
+
+                # Step 2: Compute weighted overall group score
+                if category_group_scores and total_weight > 0:
+                    weighted_sum = sum(
+                        score * categories[i].weight
+                        for i, (cat_name, score) in enumerate(category_group_scores.items())
+                        for category in categories if category.name == cat_name
+                    )
+                    # Normalize by actual weight used
+                    group_dict["average"] = weighted_sum / total_weight
+                else:
+                    group_dict["average"] = None
+
+                # Populate per-metric values at overall level (same as group average for display)
+                for metric_name in quality_group.metrics:
+                    group_dict["metrics"].append({
+                        "name": QualityGroup.get_display_name(metric_name),
+                        "value": group_dict["average"]  # Overall metrics show group average
+                    })
+
+            overall_groups.append(group_dict)
+
+        return {
+            "overall": {"groups": overall_groups},
+            "by_benchmark": by_benchmark
+        }
+
     def _build_evaluation_metadata(
         self,
         request: EvaluationRequestDTO,
@@ -415,6 +606,10 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
 
         # Add category scores
         metadata["category_scores"] = self._calculate_category_scores(summary.results)
+
+        # Add quality categories
+        if summary.quality_categories:
+            metadata["quality_categories"] = summary.quality_categories
 
         return metadata
 
