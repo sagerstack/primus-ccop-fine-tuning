@@ -297,6 +297,14 @@ def run(
                     format_metric(group_avg)
                 )
 
+            # Overall Score row
+            overall_table.add_section()
+            overall_table.add_row(
+                "[bold]Overall Score[/bold]",
+                "", "", "", "", "", "",
+                f"[bold]{format_metric(summary.overall_score)}[/bold]"
+            )
+
             console.print(overall_table)
 
             # Per-Benchmark Quality Breakdown
@@ -328,8 +336,13 @@ def run(
                     short_name = benchmark.split("_")[0]
                     bench_groups = by_benchmark_data.get(short_name, {}).get("groups", [])
 
-                    # For each benchmark, show all 3 groups
-                    for group_data in bench_groups:
+                    # Reorder: Model Response Quality first (shows benchmark name), then sub-groups
+                    ordered_groups = sorted(
+                        bench_groups,
+                        key=lambda g: 0 if g["name"] == "Model Response Quality" else 1
+                    )
+
+                    for i, group_data in enumerate(ordered_groups):
                         group_name = group_data["name"]
                         metrics_data = {m["name"]: m["value"] for m in group_data["metrics"]}
 
@@ -340,8 +353,8 @@ def run(
                         context_recall = metrics_data.get("RAGAs: context_recall")
                         context_precision = metrics_data.get("RAGAs: context_precision")
 
-                        # First group for this benchmark shows short name, others show group name
-                        display_name = f"{short_name}" if group_name == "Model Response Quality" else f"  └─ {group_name}"
+                        # First row shows benchmark name, subsequent rows show group name
+                        display_name = f"{short_name}" if i == 0 else f"  └─ {group_name}"
 
                         bench_table.add_row(
                             display_name,
