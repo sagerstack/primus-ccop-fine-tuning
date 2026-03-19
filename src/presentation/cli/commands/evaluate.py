@@ -315,11 +315,18 @@ def run(
                 bench_table.add_column("RAGAs: context_recall", justify="center")
                 bench_table.add_column("RAGAs: context_precision", justify="center")
 
-                # Sort benchmarks (B1, B2, ..., B21)
-                sorted_benchmarks = sorted(summary.by_benchmark.keys(), key=lambda x: int(x[1:]) if x[1:].isdigit() else 0)
+                # Sort benchmarks (B1, B2, ..., B21) — extract short name for sorting
+                def _bench_sort_key(full_name: str) -> int:
+                    short = full_name.split("_")[0]
+                    num = short[1:] if short.startswith("B") else short
+                    return int(num) if num.isdigit() else 0
+
+                sorted_benchmarks = sorted(summary.by_benchmark.keys(), key=_bench_sort_key)
 
                 for benchmark in sorted_benchmarks:
-                    bench_groups = by_benchmark_data.get(benchmark, {}).get("groups", [])
+                    # quality_categories uses short names (B1), by_benchmark uses full names
+                    short_name = benchmark.split("_")[0]
+                    bench_groups = by_benchmark_data.get(short_name, {}).get("groups", [])
 
                     # For each benchmark, show all 3 groups
                     for group_data in bench_groups:
@@ -333,8 +340,8 @@ def run(
                         context_recall = metrics_data.get("RAGAs: context_recall")
                         context_precision = metrics_data.get("RAGAs: context_precision")
 
-                        # First group for this benchmark shows benchmark name, others show group name
-                        display_name = f"{benchmark}" if group_name == "Model Response Quality" else f"  └─ {group_name}"
+                        # First group for this benchmark shows short name, others show group name
+                        display_name = f"{short_name}" if group_name == "Model Response Quality" else f"  └─ {group_name}"
 
                         bench_table.add_row(
                             display_name,
