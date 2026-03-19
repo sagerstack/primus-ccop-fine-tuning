@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1.3: RAG Quality — Clause-Level Chunking & Retrieval** (INSERTED) - Replace PyMuPDF4LLM with Docling, clause-aware chunking, cross-encoder reranking, fix RRF threshold
 - [x] **Phase 1.1: Evaluation Infrastructure Upgrade** (INSERTED) - LLM-as-Judge rubrics for 15 benchmarks, RAGAs quality metrics, SemanticSimilarityService removed
 - [ ] **Phase 2: RAG Evaluation** - Run RAG-augmented model against 49.2% baseline on 118 cases, identify gaps
-- [ ] **Phase 2.1: Evaluation Quality Categorization** (INSERTED) - Categorize and aggregate metrics by retrieval quality, model grounding, and response quality
+- [x] **Phase 2.1: Evaluation Quality Categorization** (INSERTED) - Categorize and aggregate metrics by retrieval quality, model grounding, and response quality
 - [ ] **Phase 3: Ground Truth Dataset Expansion** - Expand from 118 to 1000+ test cases across all 21 benchmarks
 - [ ] **Phase 4: Re-Baseline & Re-Evaluate** - Run both base model and RAG-augmented on expanded dataset for statistically valid comparison
 - [ ] **Phase 5: Fine-Tuning Pipeline** - QLoRA training on reasoning gaps identified by Phase 4
@@ -150,9 +150,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02.1-01-PLAN.md — QualityGroup value object, DTO extensions, aggregation logic in EvaluateModelUseCase
-- [ ] 02.1-02-PLAN.md — CLI categorized summary tables and reorganized per-test-case panels
-- [ ] 02.1-03-PLAN.md — JSON persistence with grouped ragas structure and quality_categories in metadata
+- [x] 02.1-01-PLAN.md — QualityGroup value object, DTO extensions, aggregation logic in EvaluateModelUseCase
+- [x] 02.1-02-PLAN.md — CLI categorized summary tables and reorganized per-test-case panels
+- [x] 02.1-03-PLAN.md — JSON persistence with grouped ragas structure and quality_categories in metadata
 
 ### Phase 3: Ground Truth Dataset Expansion
 **Goal**: Expand test dataset from 118 to 1000+ cases with multi-source generation, enabling statistically valid evaluation and providing training data for fine-tuning
@@ -262,7 +262,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 1.3. RAG Quality — Clause-Level Chunking & Retrieval | 0/3 | Planning complete | - |
 | 1.1. Evaluation Infrastructure Upgrade | 0/4 | Planning complete | - |
 | 2. RAG Evaluation | 0/TBD | Not started | - |
-| 2.1. Evaluation Quality Categorization | 0/3 | Planning complete | - |
+| 2.1. Evaluation Quality Categorization | 3/3 | Complete | 2026-03-20 |
 | 3. Ground Truth Dataset Expansion | 0/TBD | Not started | - |
 | 4. Re-Baseline & Re-Evaluate | 0/TBD | Not started | - |
 | 5. Fine-Tuning Pipeline | 0/TBD | Not started | - |
