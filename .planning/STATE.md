@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2.1 of 8 (Evaluation Quality Categorization)
-Plan: 2 of 3 in current phase (Wave 2)
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-03-19 — Completed 02.1-03-PLAN.md (JSON result serialization)
+Last activity: 2026-03-20 — Completed 02.1-02-PLAN.md (CLI categorized quality display)
 
 Progress: [████████░░] 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
-- Average duration: 5.4 min
-- Total execution time: 1.98 hours
+- Total plans completed: 21
+- Average duration: 6.2 min
+- Total execution time: 2.15 hours
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Progress: [████████░░] 90%
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
 | 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
 | 2. RAG Evaluation | 3/3 | 10 min | 3.3 min |
-| 2.1. Evaluation Quality Categorization | 2/3 | 60 min | 30 min |
+| 2.1. Evaluation Quality Categorization | 2/3 | 90 min | 45 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (3min), 02-02 (4min), 02-03 (3min), 02.1-01 (45min), 02.1-03 (15min)
-- Trend: Phase 2.1 more complex than earlier phases due to aggregation and restructuring logic
+- Last 5 plans: 02-02 (4min), 02-03 (3min), 02.1-01 (45min), 02.1-02 (30min), 02.1-03 (15min)
+- Trend: Phase 2.1 more complex than earlier phases due to aggregation, restructuring, and display logic
 
 *Updated after each plan completion*
 
@@ -124,6 +124,10 @@ Recent decisions affecting current work:
 - **[02.1-01] quality_categories as Dict[str, Any]:** Avoids Pydantic nested serialization complexity. Structure: {"overall": {"groups": [...]}, "by_benchmark": {"B1": {"groups": [...]}, ...}}
 - **[02.1-01] RAGAs error handling:** evaluation_error=True counts as 0.0 in averages (simple math, no None propagation)
 - **[02.1-01] llm-only mode N/A display:** Check rag_only_groups list (Retrieval Quality, Model-RAG Grounding) and mark metrics as None when evaluation_mode != "hybrid"
+- **[02.1-02] Categorized CLI summary tables:** Replace old Evaluation Summary and Results by Benchmark tables with Overall Quality Summary (all 6 metrics grouped by category) and Per-Benchmark Quality Breakdown (all 6 metrics per benchmark with tree structure)
+- **[02.1-02] 3-group per-test-case panels:** Model Response Quality (LLM Judge + answer metrics), Model-RAG Grounding (faithfulness), Retrieval Quality (context metrics). Color-coded headers for diagnostic clarity
+- **[02.1-02] Metric display consistency:** QualityGroup.get_display_name() for all metric labels. RAGAs metrics with "RAGAs:" prefix, LLM Judge with "LLM Judge" label
+- **[02.1-02] Color-coded metrics:** Green >= 0.7, yellow 0.4-0.7, red < 0.4, dim for N/A. Immediate visual feedback on quality thresholds
 - **[02.1-03] Grouped ragas structure:** Per-test-case ragas metrics organized by diagnostic group (retrieval_quality, grounding, response_quality). Breaking change from flat metrics array (schema_version: 2)
 - **[02.1-03] Self-describing JSON format:** group_definitions included in both ragas output and quality_categories metadata. Consumers don't need external docs to understand metric groupings
 - **[02.1-03] JSON group key mapping:** "Retrieval Quality" -> "retrieval_quality", "Model-RAG Grounding" -> "grounding", "Model Response Quality" -> "response_quality" for JSON-friendly snake_case
@@ -145,6 +149,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T17:10:29Z
-Stopped at: Completed 02.1-03-PLAN.md (JSON result serialization)
+Last session: 2026-03-20T01:10:49+08:00
+Stopped at: Completed 02.1-02-PLAN.md (CLI categorized quality display)
 Resume file: None
