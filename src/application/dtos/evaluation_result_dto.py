@@ -116,6 +116,10 @@ class EvaluationSummaryDTO(BaseModel):
     evaluation_completed_at: datetime
     total_duration_seconds: float = Field(..., ge=0.0, description="Total evaluation duration")
     results: List[EvaluationResultDTO] = Field(default_factory=list, description="Individual results")
+    quality_categories: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Categorized quality scores at benchmark and overall levels"
+    )
 
     model_config = {
         "json_schema_extra": {
