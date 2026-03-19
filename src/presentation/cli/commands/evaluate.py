@@ -141,32 +141,80 @@ def run(
             # Response
             lines.append(f"\n[bold]Response[/bold] ({r.tokens_used} tokens, {r.latency_ms}ms):\n  {r.response_content}")
 
+            # REORGANIZED INTO 3 DIAGNOSTIC GROUPS
+
+            # Group 1: Model Response Quality (LLM Judge + answer metrics)
+            lines.append("\n[bold cyan]─── Model Response Quality ───[/bold cyan]")
+
             # LLM Judge Dimensions
             judge_metrics = [m for m in r.metrics if m.name != "judge_error"]
             judge_errors = [m for m in r.metrics if m.name == "judge_error"]
 
-            if judge_metrics or judge_errors:
-                lines.append("\n[bold]LLM Judge Dimensions:[/bold]")
+            if judge_metrics:
+                lines.append("[bold]LLM Judge:[/bold]")
                 for m in judge_metrics:
                     raw_score = round(m.value * 3)
                     lines.append(f"  {m.name:<30s} {raw_score}/3  (weight: {m.weight:.2f})")
-                for m in judge_errors:
-                    lines.append(f"  [yellow]⚠ Judge Error[/yellow]")
+            if judge_errors:
+                lines.append("[bold]LLM Judge:[/bold] [yellow]⚠ Judge Error[/yellow]")
 
-            # RAGAs Quality Metrics
+            # RAGAs answer metrics (answer_correctness, answer_relevancy)
             if r.ragas_metrics:
-                lines.append("\n[bold]RAGAs Quality Metrics:[/bold]")
-                for rm in r.ragas_metrics:
+                answer_metrics = [rm for rm in r.ragas_metrics if rm.name in ["answer_correctness", "answer_relevancy"]]
+                for rm in answer_metrics:
+                    metric_display = QualityGroup.get_display_name(rm.name)
                     if rm.applicable:
-                        lines.append(f"  {rm.name:<30s} {rm.score:.2f}")
+                        lines.append(f"[bold]{metric_display}:[/bold] {rm.score:.2f}")
                     else:
-                        lines.append(f"  {rm.name:<30s} N/A (not applicable)")
+                        lines.append(f"[bold]{metric_display}:[/bold] N/A (not applicable)")
             elif r.ragas_error:
-                lines.append(f"\n[bold]RAGAs:[/bold] [yellow]⚠ {r.ragas_error}[/yellow]")
+                lines.append(f"[bold]RAGAs answer metrics:[/bold] [yellow]⚠ {r.ragas_error}[/yellow]")
 
-            # RAG chunks section (only when RAG response detected)
+            # Group 2: Model-RAG Grounding (faithfulness)
+            lines.append("\n[bold magenta]─── Model-RAG Grounding ───[/bold magenta]")
+
+            if r.evaluation_mode == "llm-only":
+                lines.append("[dim]N/A (llm-only mode)[/dim]")
+            elif r.ragas_metrics:
+                faithfulness_metrics = [rm for rm in r.ragas_metrics if rm.name == "faithfulness"]
+                if faithfulness_metrics:
+                    for rm in faithfulness_metrics:
+                        metric_display = QualityGroup.get_display_name(rm.name)
+                        if rm.applicable:
+                            lines.append(f"[bold]{metric_display}:[/bold] {rm.score:.2f}")
+                        else:
+                            lines.append(f"[bold]{metric_display}:[/bold] N/A (not applicable)")
+                else:
+                    lines.append("[dim]No faithfulness metric available[/dim]")
+            elif r.ragas_error:
+                lines.append(f"[bold]RAGAs faithfulness:[/bold] [yellow]⚠ {r.ragas_error}[/yellow]")
+            else:
+                lines.append("[dim]No RAGAs metrics available[/dim]")
+
+            # Group 3: Retrieval Quality (context metrics)
+            lines.append("\n[bold yellow]─── Retrieval Quality ───[/bold yellow]")
+
+            if r.evaluation_mode == "llm-only":
+                lines.append("[dim]N/A (llm-only mode)[/dim]")
+            elif r.ragas_metrics:
+                context_metrics = [rm for rm in r.ragas_metrics if rm.name in ["context_recall", "context_precision"]]
+                if context_metrics:
+                    for rm in context_metrics:
+                        metric_display = QualityGroup.get_display_name(rm.name)
+                        if rm.applicable:
+                            lines.append(f"[bold]{metric_display}:[/bold] {rm.score:.2f}")
+                        else:
+                            lines.append(f"[bold]{metric_display}:[/bold] N/A (not applicable)")
+                else:
+                    lines.append("[dim]No context metrics available[/dim]")
+            elif r.ragas_error:
+                lines.append(f"[bold]RAGAs context metrics:[/bold] [yellow]⚠ {r.ragas_error}[/yellow]")
+            else:
+                lines.append("[dim]No RAGAs metrics available[/dim]")
+
+            # RAG response detection note
             if r.ragas_is_rag_response:
-                lines.append("\n[dim]RAG response detected — context metrics included above[/dim]")
+                lines.append("\n[dim]RAG response detected — context metrics evaluated[/dim]")
 
             # RAG Context info (hybrid mode)
             if r.evaluation_mode and r.chunk_count is not None:
