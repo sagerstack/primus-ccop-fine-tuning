@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 2 of 8 (RAG Evaluation)
-Plan: 3 of 3 in current phase
-Status: All plans executed, pending verification
-Last activity: 2026-03-19 — Completed 02-03-PLAN.md (Presentation & Persistence)
+Phase: 2.1 of 8 (Evaluation Quality Categorization)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-03-19 — Completed 02.1-01-PLAN.md (quality group domain model & aggregation)
 
-Progress: [████████░░] 87%
+Progress: [████████░░] 88%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
-- Average duration: 4.9 min
-- Total execution time: 1.48 hours
+- Total plans completed: 19
+- Average duration: 5.2 min
+- Total execution time: 1.73 hours
 
 **By Phase:**
 
@@ -32,10 +32,11 @@ Progress: [████████░░] 87%
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
 | 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
 | 2. RAG Evaluation | 3/3 | 10 min | 3.3 min |
+| 2.1. Evaluation Quality Categorization | 1/3 | 45 min | 45 min |
 
 **Recent Trend:**
-- Last 5 plans: 01.1-05 (6min), 01.1-03 (3min), 02-01 (3min), 02-02 (4min), 02-03 (3min)
-- Trend: Stable (implementation tasks 0-12min, quality maintained)
+- Last 5 plans: 01.1-03 (3min), 02-01 (3min), 02-02 (4min), 02-03 (3min), 02.1-01 (45min)
+- Trend: Significant increase on 02.1-01 due to complex aggregation logic implementation
 
 *Updated after each plan completion*
 
@@ -118,6 +119,11 @@ Recent decisions affecting current work:
 - **[02-03] llm-only suppresses RAG Context line:** No RAG Context shown for llm-only mode
 - **[02-03] Mode in JSON filename:** mode-hybrid or mode-llm-only appended for easy run identification
 - **[02-03] getattr for backward compat:** Older EvaluationResult objects without RAG fields handled gracefully
+- **[02.1-01] Three quality groups:** Retrieval Quality (context_recall, context_precision), Model-RAG Grounding (faithfulness), Model Response Quality (llm_judge, answer_correctness, answer_relevancy). LLM Judge sits inside Model Response Quality, not separate
+- **[02.1-01] Category-weighted overall aggregation:** Two-step: Step 1 computes category-level group averages, Step 2 computes weighted sum using EvaluationCategory weights. Prevents over-weighting categories with more benchmarks
+- **[02.1-01] quality_categories as Dict[str, Any]:** Avoids Pydantic nested serialization complexity. Structure: {"overall": {"groups": [...]}, "by_benchmark": {"B1": {"groups": [...]}, ...}}
+- **[02.1-01] RAGAs error handling:** evaluation_error=True counts as 0.0 in averages (simple math, no None propagation)
+- **[02.1-01] llm-only mode N/A display:** Check rag_only_groups list (Retrieval Quality, Model-RAG Grounding) and mark metrics as None when evaluation_mode != "hybrid"
 
 ### Pending Todos
 
@@ -136,6 +142,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19
-Stopped at: Phase 2 all plans executed — pending verification
+Last session: 2026-03-19T17:05:31Z
+Stopped at: Completed 02.1-01-PLAN.md (quality group domain model & aggregation)
 Resume file: None
