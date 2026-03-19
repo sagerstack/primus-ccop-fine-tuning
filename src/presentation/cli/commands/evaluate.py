@@ -11,9 +11,11 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+from rich.text import Text
 
 from application.dtos.evaluation_request_dto import EvaluationRequestDTO
 from domain.value_objects.evaluation_tier import EvaluationTier
+from domain.value_objects.quality_group import QualityGroup
 
 evaluate_app = typer.Typer()
 console = Console()
@@ -133,17 +135,11 @@ def run(
 
             lines = []
 
-            # Question (truncated)
-            q = r.question
-            if len(q) > 200:
-                q = q[:200] + "..."
-            lines.append(f"[bold]Question:[/bold]\n  {q}")
+            # Question
+            lines.append(f"[bold]Question:[/bold]\n  {r.question}")
 
-            # Response (truncated)
-            resp = r.response_content
-            if len(resp) > 200:
-                resp = resp[:200] + "..."
-            lines.append(f"\n[bold]Response[/bold] ({r.tokens_used} tokens, {r.latency_ms}ms):\n  {resp}")
+            # Response
+            lines.append(f"\n[bold]Response[/bold] ({r.tokens_used} tokens, {r.latency_ms}ms):\n  {r.response_content}")
 
             # LLM Judge Dimensions
             judge_metrics = [m for m in r.metrics if m.name != "judge_error"]
@@ -190,42 +186,160 @@ def run(
         # Display results
         console.print("\n[bold green]Evaluation Complete![/bold green]\n")
 
-        # Summary table
-        table = Table(title="Evaluation Summary")
-        table.add_column("Metric", style="cyan")
-        table.add_column("Value", style="magenta")
+        # Determine evaluation mode
+        eval_mode = summary.results[0].evaluation_mode if summary.results else "hybrid"
 
-        table.add_row("Model", summary.model_name)
-        table.add_row("Total Tests", str(summary.total_tests))
-        table.add_row("Passed", str(summary.passed_tests))
-        table.add_row("Failed", str(summary.failed_tests))
-        table.add_row("Overall Score", f"{summary.overall_score:.2%}")
-        table.add_row("Duration", f"{summary.total_duration_seconds:.1f}s")
+        # Check if quality_categories is available (new format)
+        if summary.quality_categories:
+            # NEW CATEGORIZED QUALITY DISPLAY
 
-        # Add evaluation mode if available
-        if summary.results and summary.results[0].evaluation_mode:
-            table.add_row("Evaluation Mode", summary.results[0].evaluation_mode)
+            # Run info header
+            console.print(f"[bold]Model:[/bold] {summary.model_name}")
+            console.print(f"[bold]Tests:[/bold] {summary.total_tests} total | {summary.passed_tests} passed | {summary.failed_tests} failed")
+            console.print(f"[bold]Duration:[/bold] {summary.total_duration_seconds:.1f}s")
+            console.print(f"[bold]Mode:[/bold] {eval_mode}\n")
 
-        console.print(table)
+            # Overall Quality Summary table
+            overall_table = Table(title="Overall Quality Summary", show_header=True)
+            overall_table.add_column("Quality Group", style="cyan", no_wrap=True)
+            overall_table.add_column("LLM Judge", justify="center")
+            overall_table.add_column("RAGAs: answer_correctness", justify="center")
+            overall_table.add_column("RAGAs: answer_relevancy", justify="center")
+            overall_table.add_column("RAGAs: faithfulness", justify="center")
+            overall_table.add_column("RAGAs: context_recall", justify="center")
+            overall_table.add_column("RAGAs: context_precision", justify="center")
+            overall_table.add_column("Group Avg", justify="center", style="bold")
 
-        # Benchmark breakdown
-        if summary.by_benchmark:
-            console.print("\n[bold]Results by Benchmark:[/bold]")
-            bench_table = Table()
-            bench_table.add_column("Benchmark")
-            bench_table.add_column("Total")
-            bench_table.add_column("Passed")
-            bench_table.add_column("Score")
+            # Helper to format metric value with color
+            def format_metric(value: Optional[float]) -> str:
+                if value is None:
+                    return "[dim]N/A[/dim]"
+                if value >= 0.7:
+                    return f"[green]{value:.2f}[/green]"
+                elif value >= 0.4:
+                    return f"[yellow]{value:.2f}[/yellow]"
+                else:
+                    return f"[red]{value:.2f}[/red]"
 
-            for benchmark, stats in summary.by_benchmark.items():
-                bench_table.add_row(
-                    benchmark,
-                    str(stats["total"]),
-                    str(stats["passed"]),
-                    f"{stats['score']:.2%}"
+            # Extract overall quality categories
+            overall_groups = summary.quality_categories.get("overall", {}).get("groups", [])
+
+            # Build rows for each quality group
+            for group_data in overall_groups:
+                group_name = group_data["name"]
+                metrics_data = {m["name"]: m["value"] for m in group_data["metrics"]}
+                group_avg = group_data["average"]
+
+                # Map metric display names to values
+                llm_judge = metrics_data.get("LLM Judge")
+                answer_correctness = metrics_data.get("RAGAs: answer_correctness")
+                answer_relevancy = metrics_data.get("RAGAs: answer_relevancy")
+                faithfulness = metrics_data.get("RAGAs: faithfulness")
+                context_recall = metrics_data.get("RAGAs: context_recall")
+                context_precision = metrics_data.get("RAGAs: context_precision")
+
+                overall_table.add_row(
+                    group_name,
+                    format_metric(llm_judge),
+                    format_metric(answer_correctness),
+                    format_metric(answer_relevancy),
+                    format_metric(faithfulness),
+                    format_metric(context_recall),
+                    format_metric(context_precision),
+                    format_metric(group_avg)
                 )
 
-            console.print(bench_table)
+            console.print(overall_table)
+
+            # Per-Benchmark Quality Breakdown
+            if summary.by_benchmark:
+                console.print("\n[bold]Quality Breakdown by Benchmark:[/bold]\n")
+
+                by_benchmark_data = summary.quality_categories.get("by_benchmark", {})
+
+                # Create table with group header rows
+                bench_table = Table(show_header=True)
+                bench_table.add_column("Benchmark", style="cyan", no_wrap=True)
+                bench_table.add_column("LLM Judge", justify="center")
+                bench_table.add_column("RAGAs: answer_correctness", justify="center")
+                bench_table.add_column("RAGAs: answer_relevancy", justify="center")
+                bench_table.add_column("RAGAs: faithfulness", justify="center")
+                bench_table.add_column("RAGAs: context_recall", justify="center")
+                bench_table.add_column("RAGAs: context_precision", justify="center")
+
+                # Sort benchmarks (B1, B2, ..., B21)
+                sorted_benchmarks = sorted(summary.by_benchmark.keys(), key=lambda x: int(x[1:]) if x[1:].isdigit() else 0)
+
+                for benchmark in sorted_benchmarks:
+                    bench_groups = by_benchmark_data.get(benchmark, {}).get("groups", [])
+
+                    # For each benchmark, show all 3 groups
+                    for group_data in bench_groups:
+                        group_name = group_data["name"]
+                        metrics_data = {m["name"]: m["value"] for m in group_data["metrics"]}
+
+                        llm_judge = metrics_data.get("LLM Judge")
+                        answer_correctness = metrics_data.get("RAGAs: answer_correctness")
+                        answer_relevancy = metrics_data.get("RAGAs: answer_relevancy")
+                        faithfulness = metrics_data.get("RAGAs: faithfulness")
+                        context_recall = metrics_data.get("RAGAs: context_recall")
+                        context_precision = metrics_data.get("RAGAs: context_precision")
+
+                        # First group for this benchmark shows benchmark name, others show group name
+                        display_name = f"{benchmark}" if group_name == "Model Response Quality" else f"  └─ {group_name}"
+
+                        bench_table.add_row(
+                            display_name,
+                            format_metric(llm_judge),
+                            format_metric(answer_correctness),
+                            format_metric(answer_relevancy),
+                            format_metric(faithfulness),
+                            format_metric(context_recall),
+                            format_metric(context_precision)
+                        )
+
+                console.print(bench_table)
+
+        else:
+            # FALLBACK: OLD FORMAT (if quality_categories is None)
+            console.print("[yellow]Note: Using legacy display format (quality_categories not available)[/yellow]\n")
+
+            # Summary table
+            table = Table(title="Evaluation Summary")
+            table.add_column("Metric", style="cyan")
+            table.add_column("Value", style="magenta")
+
+            table.add_row("Model", summary.model_name)
+            table.add_row("Total Tests", str(summary.total_tests))
+            table.add_row("Passed", str(summary.passed_tests))
+            table.add_row("Failed", str(summary.failed_tests))
+            table.add_row("Overall Score", f"{summary.overall_score:.2%}")
+            table.add_row("Duration", f"{summary.total_duration_seconds:.1f}s")
+
+            # Add evaluation mode if available
+            if summary.results and summary.results[0].evaluation_mode:
+                table.add_row("Evaluation Mode", summary.results[0].evaluation_mode)
+
+            console.print(table)
+
+            # Benchmark breakdown
+            if summary.by_benchmark:
+                console.print("\n[bold]Results by Benchmark:[/bold]")
+                bench_table = Table()
+                bench_table.add_column("Benchmark")
+                bench_table.add_column("Total")
+                bench_table.add_column("Passed")
+                bench_table.add_column("Score")
+
+                for benchmark, stats in summary.by_benchmark.items():
+                    bench_table.add_row(
+                        benchmark,
+                        str(stats["total"]),
+                        str(stats["passed"]),
+                        f"{stats['score']:.2%}"
+                    )
+
+                console.print(bench_table)
 
     except Exception as e:
         console.print(f"[red]Evaluation failed: {e}[/red]")
