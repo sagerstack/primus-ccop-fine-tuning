@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2.1 of 8 (Evaluation Quality Categorization)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase (Wave 2)
 Status: In progress
-Last activity: 2026-03-19 — Completed 02.1-01-PLAN.md (quality group domain model & aggregation)
+Last activity: 2026-03-19 — Completed 02.1-03-PLAN.md (JSON result serialization)
 
-Progress: [████████░░] 88%
+Progress: [████████░░] 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
-- Average duration: 5.2 min
-- Total execution time: 1.73 hours
+- Total plans completed: 20
+- Average duration: 5.4 min
+- Total execution time: 1.98 hours
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Progress: [████████░░] 88%
 | 1.2. Local RAG Migration | 4/5 | 17 min | 4.25 min |
 | 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
 | 2. RAG Evaluation | 3/3 | 10 min | 3.3 min |
-| 2.1. Evaluation Quality Categorization | 1/3 | 45 min | 45 min |
+| 2.1. Evaluation Quality Categorization | 2/3 | 60 min | 30 min |
 
 **Recent Trend:**
-- Last 5 plans: 01.1-03 (3min), 02-01 (3min), 02-02 (4min), 02-03 (3min), 02.1-01 (45min)
-- Trend: Significant increase on 02.1-01 due to complex aggregation logic implementation
+- Last 5 plans: 02-01 (3min), 02-02 (4min), 02-03 (3min), 02.1-01 (45min), 02.1-03 (15min)
+- Trend: Phase 2.1 more complex than earlier phases due to aggregation and restructuring logic
 
 *Updated after each plan completion*
 
@@ -124,6 +124,9 @@ Recent decisions affecting current work:
 - **[02.1-01] quality_categories as Dict[str, Any]:** Avoids Pydantic nested serialization complexity. Structure: {"overall": {"groups": [...]}, "by_benchmark": {"B1": {"groups": [...]}, ...}}
 - **[02.1-01] RAGAs error handling:** evaluation_error=True counts as 0.0 in averages (simple math, no None propagation)
 - **[02.1-01] llm-only mode N/A display:** Check rag_only_groups list (Retrieval Quality, Model-RAG Grounding) and mark metrics as None when evaluation_mode != "hybrid"
+- **[02.1-03] Grouped ragas structure:** Per-test-case ragas metrics organized by diagnostic group (retrieval_quality, grounding, response_quality). Breaking change from flat metrics array (schema_version: 2)
+- **[02.1-03] Self-describing JSON format:** group_definitions included in both ragas output and quality_categories metadata. Consumers don't need external docs to understand metric groupings
+- **[02.1-03] JSON group key mapping:** "Retrieval Quality" -> "retrieval_quality", "Model-RAG Grounding" -> "grounding", "Model Response Quality" -> "response_quality" for JSON-friendly snake_case
 
 ### Pending Todos
 
@@ -142,6 +145,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T17:05:31Z
-Stopped at: Completed 02.1-01-PLAN.md (quality group domain model & aggregation)
+Last session: 2026-03-19T17:10:29Z
+Stopped at: Completed 02.1-03-PLAN.md (JSON result serialization)
 Resume file: None
