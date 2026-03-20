@@ -19,6 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: RAG Evaluation** - Run RAG-augmented model against 49.2% baseline on 118 cases, identify gaps
 - [x] **Phase 2.1: Evaluation Quality Categorization** (INSERTED) - Categorize and aggregate metrics by retrieval quality, model grounding, and response quality
 - [x] **Phase 2.2: RAGAs Hallucination Metric and Metric Renaming** (INSERTED) - Add ground-truth faithfulness metric for hallucination detection, rename existing metrics for clarity
+- [ ] **Phase 2.3: RAGAs Metric Split & Scoring Formula** (INSERTED) - Replace aggregated answer_correctness with separate FactualCorrectness (precision/recall), SemanticSimilarity (diagnostic), and multiplicative hallucination penalty formula
 - [ ] **Phase 3: Ground Truth Dataset Expansion** - Expand from 118 to 1000+ test cases across all 21 benchmarks
 - [ ] **Phase 4: Re-Baseline & Re-Evaluate** - Run both base model and RAG-augmented on expanded dataset for statistically valid comparison
 - [ ] **Phase 5: Fine-Tuning Pipeline** - QLoRA training on reasoning gaps identified by Phase 4
@@ -181,6 +182,29 @@ Plans:
 - [x] 02.2-02-PLAN.md — CLI display: restructure panels/tables with information flow order, two-column summary, expanded hybrid panels
 - [x] 02.2-03-PLAN.md — JSON persistence (schema v3) and query ask scoring with --no-score flag
 
+### Phase 2.3: RAGAs Metric Split & Scoring Formula (INSERTED)
+**Goal**: Replace the aggregated `answer_correctness` metric (which masks hallucination behind semantic similarity) with separate `FactualCorrectness` (precision + recall modes), keep `answer_relevancy`, add `SemanticSimilarity` as display-only diagnostic, drop the `hallucination` metric (redundant with FactualCorrectness precision), and implement a multiplicative penalty scoring formula: `ragas_score = base_score * factual_precision` where `base_score = w1*factual_recall + w2*factual_precision + w3*answer_relevancy`. This ensures hallucinating responses receive dramatically lower scores than grounded ones.
+**Depends on**: Phase 2.2
+**Requirements**: EVAL-02, EVAL-03
+**Success Criteria** (what must be TRUE):
+  1. `answer_correctness` metric removed, replaced by `FactualCorrectness(mode="precision")` and `FactualCorrectness(mode="recall")` as separate metrics
+  2. `hallucination` metric removed (redundant with factual_precision)
+  3. `SemanticSimilarity` metric added as display-only diagnostic (not included in aggregated RAGAs score)
+  4. `answer_relevancy` retained unchanged
+  5. Context metrics unchanged: `context_faithfulness`, `context_precision`, `context_recall`
+  6. Multiplicative penalty formula implemented: `ragas_score = (w1*factual_recall + w2*factual_precision + w3*answer_relevancy) * factual_precision`
+  7. Hallucinating LLM-only responses score dramatically lower than grounded hybrid responses (verified on B3-001)
+  8. Quality groups updated: "Model Response Quality" contains factual_precision, factual_recall, answer_relevancy, semantic_similarity, llm_judge
+  9. CLI displays updated with new metric names in per-test panels, summary tables, and benchmark breakdown
+  10. JSON serialization updated with new metric names and schema
+  11. All existing tests updated, new tests added for scoring formula
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02.3-01-PLAN.md — Domain layer: FactualCorrectness + SemanticSimilarity metrics, QualityGroup update, multiplicative penalty formula
+- [ ] 02.3-02-PLAN.md — CLI display and JSON serialization with new metric names and schema v4
+- [ ] 02.3-03-PLAN.md — Update all tests for new metrics and scoring formula
+
 ### Phase 3: Ground Truth Dataset Expansion
 **Goal**: Expand test dataset from 118 to 1000+ cases with multi-source generation, enabling statistically valid evaluation and providing training data for fine-tuning
 **Depends on**: Phase 2.2 (gap analysis informs expansion priorities)
@@ -279,7 +303,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute: 1 -> 1.2 -> 1.3 -> 1.1 -> 2 -> 2.1 -> 2.2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Phases execute: 1 -> 1.2 -> 1.3 -> 1.1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 runs before 1.1 so eval infrastructure measures improved retrieval.
 
 | Phase | Plans Complete | Status | Completed |
@@ -291,6 +315,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 2. RAG Evaluation | 0/TBD | Not started | - |
 | 2.1. Evaluation Quality Categorization | 3/3 | Complete | 2026-03-20 |
 | 2.2. RAGAs Hallucination Metric and Metric Renaming | 3/3 | Complete | 2026-03-20 |
+| 2.3. RAGAs Metric Split & Scoring Formula | 0/3 | Planning complete | - |
 | 3. Ground Truth Dataset Expansion | 0/TBD | Not started | - |
 | 4. Re-Baseline & Re-Evaluate | 0/TBD | Not started | - |
 | 5. Fine-Tuning Pipeline | 0/TBD | Not started | - |
