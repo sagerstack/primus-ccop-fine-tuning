@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2.3 of 8 (RAGAs Metric Split & Scoring Formula)
-Plan: 0 of TBD
-Status: Not started — planning next
-Last activity: 2026-03-21 — Phase 2.3 inserted after Phase 2.2
+Plan: 1 of 1 — PHASE COMPLETE
+Status: Phase 2.3 complete — ready for Phase 3
+Last activity: 2026-03-21 — Completed 02.3-01-PLAN.md
 
 Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 24
-- Average duration: 6.5 min
-- Total execution time: 2.6 hours
+- Total plans completed: 25
+- Average duration: 6.4 min
+- Total execution time: 2.7 hours
 
 **By Phase:**
 
@@ -34,11 +34,12 @@ Progress: [░░░░░░░░░░] 0%
 | 2. RAG Evaluation | 3/3 | 10 min | 3.3 min |
 | 2.1. Evaluation Quality Categorization | 3/3 | 105 min | 35 min |
 | 2.2. RAGAs Hallucination Metric & Renaming | 3/3 | ~17 min | ~6 min |
+| 2.3. RAGAs Metric Split & Scoring Formula | 1/1 | ~5 min | ~5 min |
 
 **Recent Trend:**
-- Last 5 plans: 02.1-02 (30min), 02.1-03 (15min), 02.2-01 (8min), 02.2-02 (5min), 02.2-03 (4min)
-- Trend: Phase 2.2 faster than 2.1 — well-defined plans with clear instructions, parallel execution in Wave 2
-- Phase 2.2 complete: 3/3 plans, 2 waves (01 serial, 02+03 parallel)
+- Last 5 plans: 02.1-03 (15min), 02.2-01 (8min), 02.2-02 (5min), 02.2-03 (4min), 02.3-01 (5min)
+- Trend: Phase 2.3 execution fast — clear metric restructuring, domain-centric architecture
+- Phase 2.3 complete: 1/1 plan (single wave)
 
 *Updated after each plan completion*
 
@@ -143,6 +144,12 @@ Recent decisions affecting current work:
 - **[02.2-02] SC13(c) deferred:** Full prompt display (system prompt + user prompt with RAG context) requires data model changes to propagate llm_context from GraphState through RagResponse to EvaluationResult
 - **[02.2-03] JSON schema_version 3:** context_faithfulness in grounding, hallucination in response_quality. Backward compat note for v2 files
 - **[02.2-03] Query scoring with --no-score:** Only context_faithfulness and answer_relevancy shown (don't require ground truth). Errors suppressed unless verbose
+- **[02.3-01] FactualCorrectness split:** answer_correctness replaced by FactualCorrectness(mode="precision") + FactualCorrectness(mode="recall"). Splits 75% factual F1 into separate precision/recall metrics
+- **[02.3-01] Hallucination metric removed:** Redundant with factual_precision — both measure ground truth support. Cleaner metric set
+- **[02.3-01] SemanticSimilarity diagnostic:** Display-only metric (not in composite score). Useful for understanding semantic overlap without polluting quality signal
+- **[02.3-01] Multiplicative penalty formula:** ragas_score = base_score * factual_precision. Quadratic effect: 0.2 precision → 0.11 score, 0.9 precision → 0.75 score. Dramatic separation vs linear averaging
+- **[02.3-01] Domain scoring property:** EvaluationResult.ragas_composite_score centralizes formula logic. Single source of truth, application layer is thin delegate
+- **[02.3-01] Combined score removed:** Avg of benchmark + RAGAs dropped. Two scores measure different things at different scales — averaging was meaningless
 
 ### Pending Todos
 
@@ -164,5 +171,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-21
-Stopped at: Phase 2.3 inserted — next is /gsd:plan-phase 2.3
+Stopped at: Completed Phase 2.3 (02.3-01-PLAN.md) — ready for Phase 3
 Resume file: None
