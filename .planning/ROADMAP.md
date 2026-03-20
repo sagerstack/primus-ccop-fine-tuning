@@ -18,6 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1.1: Evaluation Infrastructure Upgrade** (INSERTED) - LLM-as-Judge rubrics for 15 benchmarks, RAGAs quality metrics, SemanticSimilarityService removed
 - [ ] **Phase 2: RAG Evaluation** - Run RAG-augmented model against 49.2% baseline on 118 cases, identify gaps
 - [x] **Phase 2.1: Evaluation Quality Categorization** (INSERTED) - Categorize and aggregate metrics by retrieval quality, model grounding, and response quality
+- [ ] **Phase 2.2: RAGAs Hallucination Metric and Metric Renaming** (INSERTED) - Add ground-truth faithfulness metric for hallucination detection, rename existing metrics for clarity
 - [ ] **Phase 3: Ground Truth Dataset Expansion** - Expand from 118 to 1000+ test cases across all 21 benchmarks
 - [ ] **Phase 4: Re-Baseline & Re-Evaluate** - Run both base model and RAG-augmented on expanded dataset for statistically valid comparison
 - [ ] **Phase 5: Fine-Tuning Pipeline** - QLoRA training on reasoning gaps identified by Phase 4
@@ -154,9 +155,35 @@ Plans:
 - [x] 02.1-02-PLAN.md — CLI categorized summary tables and reorganized per-test-case panels
 - [x] 02.1-03-PLAN.md — JSON persistence with grouped ragas structure and quality_categories in metadata
 
+### Phase 2.2: RAGAs Hallucination Metric and Metric Renaming (INSERTED)
+**Goal**: Add a new RAGAs "hallucination" metric that runs faithfulness against the ground-truth expected_response (detecting claims beyond/contradicting the correct answer), and rename existing metrics for clarity: faithfulness → context_faithfulness. The new hallucination metric works in both hybrid and llm-only modes since it uses expected_response as context, not retrieved documents.
+**Depends on**: Phase 2.1
+**Requirements**: EVAL-02, EVAL-03
+**Success Criteria** (what must be TRUE):
+  1. New "hallucination" metric computed via RAGAs faithfulness with `[expected_response]` as context instead of retrieved documents
+  2. Existing "faithfulness" metric renamed to "context_faithfulness" throughout codebase (service, DTOs, CLI, JSON, quality groups)
+  3. Hallucination metric available in both hybrid and llm-only modes (not dependent on RAG retrieval)
+  4. context_faithfulness remains hybrid-only (requires retrieved documents)
+  5. Hallucination metric placed in "Model Response Quality" group (checks response vs ground truth)
+  6. context_faithfulness remains in "Model-RAG Grounding" group (checks response vs retrieved context)
+  7. Per-test-case panel group order changed to information flow: Retrieval Quality → Model-RAG Grounding → Model Response Quality (currently reversed)
+  8. Overall Quality Summary table restructured: quality groups as parent rows with individual metrics as indented children (two-column layout: name + score), replacing the 6-column N/A-heavy matrix
+  9. Per-Benchmark Quality Breakdown table restructured: multi-level header (row 1 = quality group names spanning columns, row 2 = metric names), flat benchmark rows with code + name (e.g., "B3: Conditional Logic"), column order follows information flow (Retrieval Quality → Model-RAG Grounding → Model Response Quality)
+  10. CLI displays and JSON output updated with renamed and new metrics
+  11. Overall Score normalizes by present category weights (currently sums weighted contributions without dividing by total weight of present categories, producing incorrect scores when running a subset of benchmarks)
+  12. `query ask` command shows RAGAs quality scores (context_faithfulness, answer_relevancy) after response — metrics that don't require ground truth. Enabled by default in hybrid mode, suppressible with `--no-score`
+  13. Per-test-case panel in hybrid mode expanded to show: (a) question (already exists), (b) retrieved citations with first 10 words of each source, (c) full prompt sent to model (system prompt + user prompt with RAG context), (d) model response
+  14. Existing tests updated, new tests added for hallucination metric
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02.2-01-PLAN.md — Domain layer: rename faithfulness to context_faithfulness, add hallucination metric, fix overall score normalization
+- [ ] 02.2-02-PLAN.md — CLI display: restructure panels/tables with information flow order, two-column summary, expanded hybrid panels
+- [ ] 02.2-03-PLAN.md — JSON persistence (schema v3) and query ask scoring with --no-score flag
+
 ### Phase 3: Ground Truth Dataset Expansion
 **Goal**: Expand test dataset from 118 to 1000+ cases with multi-source generation, enabling statistically valid evaluation and providing training data for fine-tuning
-**Depends on**: Phase 2.1 (gap analysis informs expansion priorities)
+**Depends on**: Phase 2.2 (gap analysis informs expansion priorities)
 **Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06
 **Success Criteria** (what must be TRUE):
   1. Each of 21 benchmarks has minimum 50 test cases (1050+ total test cases)
@@ -252,7 +279,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute: 1 -> 1.2 -> 1.3 -> 1.1 -> 2 -> 2.1 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Phases execute: 1 -> 1.2 -> 1.3 -> 1.1 -> 2 -> 2.1 -> 2.2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 runs before 1.1 so eval infrastructure measures improved retrieval.
 
 | Phase | Plans Complete | Status | Completed |
@@ -263,6 +290,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 1.1. Evaluation Infrastructure Upgrade | 0/4 | Planning complete | - |
 | 2. RAG Evaluation | 0/TBD | Not started | - |
 | 2.1. Evaluation Quality Categorization | 3/3 | Complete | 2026-03-20 |
+| 2.2. RAGAs Hallucination Metric and Metric Renaming | 0/3 | Planning complete | - |
 | 3. Ground Truth Dataset Expansion | 0/TBD | Not started | - |
 | 4. Re-Baseline & Re-Evaluate | 0/TBD | Not started | - |
 | 5. Fine-Tuning Pipeline | 0/TBD | Not started | - |
