@@ -42,6 +42,7 @@ class EvaluationResultDTO(BaseModel):
     response_content: str = Field(..., description="Model's response")
     metrics: List[MetricDTO] = Field(default_factory=list, description="Evaluation metrics")
     overall_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="Overall score")
+    ragas_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="RAGAs composite score (base_score * factual_precision penalty)")
     passed: Optional[bool] = Field(None, description="Pass/fail status")
     threshold: float = Field(..., ge=0.0, le=1.0, description="Passing threshold")
     evaluator_notes: str = Field(default="", description="Additional notes")
@@ -104,6 +105,7 @@ class EvaluationSummaryDTO(BaseModel):
     passed_tests: int = Field(..., ge=0, description="Number of passed tests")
     failed_tests: int = Field(..., ge=0, description="Number of failed tests")
     overall_score: float = Field(..., ge=0.0, le=1.0, description="Overall score")
+    ragas_overall_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="Category-weighted RAGAs composite score (base_score * factual_precision penalty)")
     by_benchmark: Dict[str, Dict[str, Any]] = Field(
         default_factory=dict,
         description="Results grouped by benchmark"

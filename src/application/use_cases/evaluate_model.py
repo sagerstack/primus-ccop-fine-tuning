@@ -263,6 +263,53 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
 
         return result
 
+    def _extract_ragas_score(self, result: EvaluationResult) -> Optional[float]:
+        """Extract RAGAs composite score from domain entity."""
+        return result.ragas_composite_score
+
+    def _calculate_category_weighted_ragas_score(
+        self,
+        results: List[EvaluationResult]
+    ) -> Optional[float]:
+        """
+        Calculate category-weighted RAGAs composite score.
+
+        Uses same category weighting as _calculate_category_weighted_score
+        but with per-test ragas_composite_score instead of overall_score.
+
+        Returns None if no results have RAGAs scores.
+        """
+        if not results:
+            return None
+
+        categories = EvaluationCategory.get_all_categories()
+
+        category_scores = {}
+        for category in categories:
+            category_ragas = []
+            for r in results:
+                if r.test_case.benchmark_type.short_name in category.benchmarks:
+                    ragas_score = self._extract_ragas_score(r)
+                    if ragas_score is not None:
+                        category_ragas.append(ragas_score)
+
+            if category_ragas:
+                category_avg = sum(category_ragas) / len(category_ragas)
+                category_scores[category.name] = {
+                    "average": category_avg,
+                    "weight": category.weight,
+                }
+
+        if not category_scores:
+            return None
+
+        weighted_sum = sum(
+            cat["average"] * cat["weight"]
+            for cat in category_scores.values()
+        )
+        total_weight = sum(cat["weight"] for cat in category_scores.values())
+        return weighted_sum / total_weight if total_weight > 0 else None
+
     def _generate_summary(
         self,
         model_name: str,
@@ -287,6 +334,9 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         # Aggregate quality categories
         quality_categories = self._aggregate_quality_categories(results)
 
+        # Calculate summary-level RAGAs score
+        ragas_overall_score = self._calculate_category_weighted_ragas_score(results)
+
         # Convert results to DTOs
         result_dtos = [self._result_to_dto(r) for r in results]
 
@@ -298,6 +348,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             passed_tests=passed_tests,
             failed_tests=failed_tests,
             overall_score=overall_score,
+            ragas_overall_score=ragas_overall_score,
             by_benchmark=by_benchmark,
             by_difficulty=by_difficulty,
             evaluation_started_at=start_time,
@@ -623,6 +674,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             "passed_tests": summary.passed_tests,
             "failed_tests": summary.failed_tests,
             "overall_score": summary.overall_score,
+            "ragas_overall_score": summary.ragas_overall_score,
             "evaluated_at": start_time.isoformat(),
             "completed_at": end_time.isoformat(),
             "duration_seconds": summary.total_duration_seconds,
@@ -779,6 +831,9 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
                     for m in ragas_eval.metrics
                 ]
 
+        # Compute per-test RAGAs score
+        ragas_score = self._extract_ragas_score(result)
+
         return EvaluationResultDTO(
             result_id=result.result_id,
             test_id=result.test_case.test_id,
@@ -788,6 +843,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             response_content=result.model_response.content,
             metrics=metrics_dtos,
             overall_score=result.overall_score,
+            ragas_score=ragas_score,
             passed=result.passed,
             threshold=result.test_case.get_passing_threshold(),
             evaluator_notes=result.evaluator_notes,

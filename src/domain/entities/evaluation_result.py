@@ -318,6 +318,42 @@ class EvaluationResult:
         return self._ragas_evaluation
 
     @property
+    def ragas_composite_score(self) -> Optional[float]:
+        """
+        Compute RAGAs composite score using multiplicative penalty formula.
+
+        Formula: ragas_score = base_score * factual_precision
+        where base_score = (w1*factual_recall + w2*factual_precision + w3*answer_relevancy)
+        with equal weights w1=w2=w3=1/3.
+
+        The factual_precision multiplier penalizes hallucinating responses:
+        - Grounded response (precision=0.9): base=0.83, score=0.75
+        - Hallucinating response (precision=0.2): base=0.57, score=0.11
+
+        semantic_similarity is excluded — it is display-only diagnostic.
+
+        Returns:
+            Composite score (0.0-1.0), or None if RAGAs evaluation unavailable.
+        """
+        if self._ragas_evaluation is None:
+            return None
+        if self._ragas_evaluation.evaluation_error:
+            return None
+
+        metrics = {m.name: m.score for m in self._ragas_evaluation.metrics if m.applicable}
+
+        factual_precision = metrics.get("factual_precision")
+        factual_recall = metrics.get("factual_recall")
+        answer_relevancy = metrics.get("answer_relevancy")
+
+        if factual_precision is None or factual_recall is None or answer_relevancy is None:
+            return None
+
+        w = 1.0 / 3.0
+        base_score = w * factual_recall + w * factual_precision + w * answer_relevancy
+        return base_score * factual_precision
+
+    @property
     def retrieved_chunk_ids(self) -> Optional[List[str]]:
         """IDs of chunks retrieved by RAG pipeline. None if not RAG-augmented."""
         return self._retrieved_chunk_ids
