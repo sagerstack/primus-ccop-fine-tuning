@@ -192,12 +192,13 @@ Plans:
   3. `SemanticSimilarity` metric added as display-only diagnostic (not included in aggregated RAGAs score)
   4. `answer_relevancy` retained unchanged
   5. Context metrics unchanged: `context_faithfulness`, `context_precision`, `context_recall`
-  6. Multiplicative penalty formula implemented: `ragas_score = (w1*factual_recall + w2*factual_precision + w3*answer_relevancy) * factual_precision`
-  7. Hallucinating LLM-only responses score dramatically lower than grounded hybrid responses (verified on B3-001)
-  8. Quality groups updated: "Model Response Quality" contains factual_precision, factual_recall, answer_relevancy, semantic_similarity, llm_judge
-  9. CLI displays updated with new metric names in per-test panels, summary tables, and benchmark breakdown
-  10. JSON serialization updated with new metric names and schema
-  11. All existing tests updated, new tests added for scoring formula
+  6. Multiplicative penalty formula implemented in domain entity (`EvaluationResult.ragas_composite_score`): `ragas_score = (w1*factual_recall + w2*factual_precision + w3*answer_relevancy) * factual_precision`
+  7. Combined score dropped — benchmark and RAGAs scores shown independently (averaging incompatible scoring methods produces meaningless numbers)
+  8. Hallucinating LLM-only responses score dramatically lower than grounded hybrid responses (verified on B3-001)
+  9. Quality groups updated: "Model Response Quality" contains factual_precision, factual_recall, answer_relevancy, semantic_similarity, llm_judge
+  10. CLI displays updated with new metric names, 2 overall scores (Benchmark + RAGAs, no Combined)
+  11. JSON serialization updated with new metric names, schema v4, no combined_score
+  12. All existing tests updated, new tests added for scoring formula
 **Plans**: 3 plans
 
 Plans:
