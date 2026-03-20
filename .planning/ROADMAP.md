@@ -207,7 +207,7 @@ Plans:
 
 ### Phase 3: Ground Truth Dataset Expansion
 **Goal**: Expand test dataset from 118 to 1000+ cases with multi-source generation, enabling statistically valid evaluation and providing training data for fine-tuning
-**Depends on**: Phase 2.2 (gap analysis informs expansion priorities)
+**Depends on**: Phase 2.3 (gap analysis informs expansion priorities)
 **Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06
 **Success Criteria** (what must be TRUE):
   1. Each of 21 benchmarks has minimum 50 test cases (1050+ total test cases)
