@@ -136,8 +136,9 @@ def run(
             score_str = f"{r.overall_score:.2f}" if r.overall_score is not None else "N/A"
             border_style = "green" if r.passed else "red"
 
+            ragas_str = f"{r.ragas_score:.2f}" if r.ragas_score is not None else "N/A"
             mode_suffix = f" | {r.evaluation_mode}" if r.evaluation_mode else ""
-            title = f"{r.test_id} | {r.benchmark_type} | {'PASS' if r.passed else 'FAIL'} | Score: {score_str}{mode_suffix}"
+            title = f"{r.test_id} | {r.benchmark_type} | {'PASS' if r.passed else 'FAIL'} | Bench: {score_str} | RAGAs: {ragas_str}{mode_suffix}"
 
             lines = []
 
@@ -199,7 +200,7 @@ def run(
             else:
                 lines.append("[dim]No RAGAs metrics available[/dim]")
 
-            # Group 3: Model Response Quality (LLM Judge + answer metrics + hallucination)
+            # Group 3: Model Response Quality (LLM Judge + answer metrics)
             lines.append("\n[bold cyan]─── Model Response Quality ───[/bold cyan]")
 
             # LLM Judge Dimensions
@@ -214,19 +215,10 @@ def run(
             if judge_errors:
                 lines.append("[bold]LLM Judge:[/bold] [yellow]⚠ Judge Error[/yellow]")
 
-            # RAGAs answer metrics (answer_correctness, answer_relevancy)
+            # RAGAs answer metrics (factual_precision, factual_recall, answer_relevancy, semantic_similarity)
             if r.ragas_metrics:
-                answer_metrics = [rm for rm in r.ragas_metrics if rm.name in ["answer_correctness", "answer_relevancy"]]
+                answer_metrics = [rm for rm in r.ragas_metrics if rm.name in ["factual_precision", "factual_recall", "answer_relevancy", "semantic_similarity"]]
                 for rm in answer_metrics:
-                    metric_display = QualityGroup.get_display_name(rm.name)
-                    if rm.applicable:
-                        lines.append(f"[bold]{metric_display}:[/bold] {rm.score:.2f}")
-                    else:
-                        lines.append(f"[bold]{metric_display}:[/bold] N/A (not applicable)")
-
-                # Hallucination metric
-                hallucination_metrics = [rm for rm in r.ragas_metrics if rm.name == "hallucination"]
-                for rm in hallucination_metrics:
                     metric_display = QualityGroup.get_display_name(rm.name)
                     if rm.applicable:
                         lines.append(f"[bold]{metric_display}:[/bold] {rm.score:.2f}")
@@ -308,10 +300,14 @@ def run(
                 # Visual separator between groups
                 overall_table.add_section()
 
-            # Overall score row
+            # Overall score rows (triple)
             overall_table.add_row(
-                "[bold]Overall Score[/bold]",
+                "[bold]Benchmark Score[/bold]",
                 f"[bold]{format_metric(summary.overall_score)}[/bold]"
+            )
+            overall_table.add_row(
+                "[bold]RAGAs Score[/bold]",
+                f"[bold]{format_metric(summary.ragas_overall_score)}[/bold]"
             )
 
             console.print(overall_table)
@@ -337,9 +333,10 @@ def run(
                 bench_table.add_column("ctx_recall", justify="center", header_style="yellow")
                 bench_table.add_column("ctx_precision", justify="center", header_style="yellow")
                 bench_table.add_column("ctx_faith", justify="center", header_style="magenta")
-                bench_table.add_column("halluc", justify="center", header_style="cyan")
-                bench_table.add_column("ans_correct", justify="center", header_style="cyan")
+                bench_table.add_column("fct_prec", justify="center", header_style="cyan")
+                bench_table.add_column("fct_recl", justify="center", header_style="cyan")
                 bench_table.add_column("ans_relev", justify="center", header_style="cyan")
+                bench_table.add_column("sem_sim", justify="center", header_style="cyan")
                 bench_table.add_column("LLM Judge", justify="center", header_style="cyan")
 
                 # Sort benchmarks (B1, B2, ..., B21) — extract short name for sorting
@@ -368,9 +365,10 @@ def run(
                         format_metric(metrics_flat.get("RAGAs: context_recall")),
                         format_metric(metrics_flat.get("RAGAs: context_precision")),
                         format_metric(metrics_flat.get("RAGAs: context_faithfulness")),
-                        format_metric(metrics_flat.get("RAGAs: hallucination")),
-                        format_metric(metrics_flat.get("RAGAs: answer_correctness")),
+                        format_metric(metrics_flat.get("RAGAs: factual_precision")),
+                        format_metric(metrics_flat.get("RAGAs: factual_recall")),
                         format_metric(metrics_flat.get("RAGAs: answer_relevancy")),
+                        format_metric(metrics_flat.get("RAGAs: semantic_similarity")),
                         format_metric(metrics_flat.get("LLM Judge")),
                     )
 
