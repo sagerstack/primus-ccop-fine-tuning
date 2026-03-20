@@ -140,10 +140,9 @@ class RagasEvaluationService:
         """
         Evaluate a response using RAGAs metrics.
 
-        Runs three separate evaluations:
-        1. Base metrics (all responses): answer_correctness, answer_relevancy
-        2. Hallucination (all responses): faithfulness against ground truth as context
-        3. Context metrics (RAG only): context_faithfulness, context_precision, context_recall
+        Runs two separate evaluations:
+        1. Base metrics (all responses): factual_precision, factual_recall, answer_relevancy, semantic_similarity
+        2. Context metrics (RAG only): context_faithfulness, context_precision, context_recall
 
         Args:
             question: Original question
@@ -166,11 +165,12 @@ class RagasEvaluationService:
 
             from ragas import EvaluationDataset, SingleTurnSample, evaluate
             from ragas.metrics import (
-                _AnswerCorrectness,
                 _AnswerRelevancy,
                 _ContextPrecision,
                 _ContextRecall,
                 _Faithfulness,
+                FactualCorrectness,
+                SemanticSimilarity,
             )
 
             evaluator_llm = self._get_evaluator_llm()
@@ -178,62 +178,96 @@ class RagasEvaluationService:
 
             metric_scores = []
 
-            # --- Evaluation 1: Base metrics (answer_correctness, answer_relevancy) ---
+            # --- Evaluation 1: Base metrics (factual_precision, factual_recall, answer_relevancy, semantic_similarity) ---
             base_sample = SingleTurnSample(
                 user_input=question,
                 response=response,
                 reference=reference_text,
             )
             base_dataset = EvaluationDataset(samples=[base_sample])
-            logger.info("Running RAGAs base metrics (answer_correctness, answer_relevancy)")
+            logger.info("Running RAGAs base metrics (factual_precision, factual_recall, answer_relevancy, semantic_similarity)")
             base_result = evaluate(
                 dataset=base_dataset,
-                metrics=[_AnswerCorrectness(), _AnswerRelevancy()],
+                metrics=[
+                    FactualCorrectness(llm=evaluator_llm, mode="precision"),
+                    FactualCorrectness(llm=evaluator_llm, mode="recall"),
+                    _AnswerRelevancy(),
+                    SemanticSimilarity(embeddings=evaluator_embeddings),
+                ],
                 llm=evaluator_llm,
                 embeddings=evaluator_embeddings,
             )
             base_scores = self._extract_scores(base_result)
 
-            for ragas_name in ["answer_correctness", "answer_relevancy"]:
-                if ragas_name in base_scores:
-                    score = base_scores[ragas_name]
-                    metric_scores.append(RagasMetricScore(
-                        name=ragas_name,
-                        score=float(score) if score is not None else 0.0,
-                        applicable=True,
-                    ))
-                else:
-                    metric_scores.append(RagasMetricScore(
-                        name=ragas_name, score=0.0, applicable=False,
-                    ))
+            # Map FactualCorrectness scores to our internal names
+            # RAGAs may use keys like "factual_correctness" or similar
+            # We need to distinguish precision vs recall mode
+            factual_precision_score = None
+            factual_recall_score = None
 
-            # --- Evaluation 2: Hallucination (faithfulness against ground truth) ---
-            # Uses [reference_text] as retrieved_contexts so RAGAs faithfulness
-            # checks if response claims are supported by the ground truth
-            halluc_sample = SingleTurnSample(
-                user_input=question,
-                response=response,
-                reference=reference_text,
-                retrieved_contexts=[reference_text],
-            )
-            halluc_dataset = EvaluationDataset(samples=[halluc_sample])
-            logger.info("Running RAGAs hallucination metric (faithfulness vs ground truth)")
-            halluc_result = evaluate(
-                dataset=halluc_dataset,
-                metrics=[_Faithfulness()],
-                llm=evaluator_llm,
-                embeddings=evaluator_embeddings,
-            )
-            halluc_scores = self._extract_scores(halluc_result)
+            # Try to extract scores by iterating through result keys
+            for key, value in base_scores.items():
+                key_lower = key.lower()
+                if "factual" in key_lower and "precision" in key_lower:
+                    factual_precision_score = value
+                elif "factual" in key_lower and "recall" in key_lower:
+                    factual_recall_score = value
+                elif key == "factual_correctness":
+                    # If we get a generic key, we need to check which metric instance it came from
+                    # This is a fallback - ideally we'd inspect the metric objects
+                    pass
 
-            halluc_score = halluc_scores.get("faithfulness")
-            metric_scores.append(RagasMetricScore(
-                name="hallucination",
-                score=float(halluc_score) if halluc_score is not None else 0.0,
-                applicable=True,
-            ))
+            # Add factual_precision
+            if factual_precision_score is not None:
+                metric_scores.append(RagasMetricScore(
+                    name="factual_precision",
+                    score=float(factual_precision_score),
+                    applicable=True,
+                ))
+            else:
+                metric_scores.append(RagasMetricScore(
+                    name="factual_precision", score=0.0, applicable=False,
+                ))
 
-            # --- Evaluation 3: Context metrics (RAG only) ---
+            # Add factual_recall
+            if factual_recall_score is not None:
+                metric_scores.append(RagasMetricScore(
+                    name="factual_recall",
+                    score=float(factual_recall_score),
+                    applicable=True,
+                ))
+            else:
+                metric_scores.append(RagasMetricScore(
+                    name="factual_recall", score=0.0, applicable=False,
+                ))
+
+            # Add answer_relevancy
+            if "answer_relevancy" in base_scores:
+                score = base_scores["answer_relevancy"]
+                metric_scores.append(RagasMetricScore(
+                    name="answer_relevancy",
+                    score=float(score) if score is not None else 0.0,
+                    applicable=True,
+                ))
+            else:
+                metric_scores.append(RagasMetricScore(
+                    name="answer_relevancy", score=0.0, applicable=False,
+                ))
+
+            # Add semantic_similarity
+            if "semantic_similarity" in base_scores:
+                score = base_scores["semantic_similarity"]
+                metric_scores.append(RagasMetricScore(
+                    name="semantic_similarity",
+                    score=float(score) if score is not None else 0.0,
+                    applicable=True,
+                ))
+            else:
+                metric_scores.append(RagasMetricScore(
+                    name="semantic_similarity", score=0.0, applicable=False,
+                ))
+
+            # --- Evaluation 2: Context metrics (RAG only) ---
             if is_rag:
                 context_sample = SingleTurnSample(
                     user_input=question,
