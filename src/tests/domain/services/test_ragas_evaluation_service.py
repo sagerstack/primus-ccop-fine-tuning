@@ -52,7 +52,8 @@ def _run_evaluate(service, mock_evaluate_results, retrieved_contexts=None, **kwa
          patch(f"{RAGAS_PKG}.evaluate") as mock_evaluate, \
          patch(f"{RAGAS_PKG}.EvaluationDataset"), \
          patch(f"{RAGAS_PKG}.SingleTurnSample"), \
-         patch(f"{RAGAS_METRICS_PKG}._AnswerCorrectness"), \
+         patch(f"{RAGAS_METRICS_PKG}.FactualCorrectness"), \
+         patch(f"{RAGAS_METRICS_PKG}.SemanticSimilarity"), \
          patch(f"{RAGAS_METRICS_PKG}._AnswerRelevancy"), \
          patch(f"{RAGAS_METRICS_PKG}._Faithfulness"), \
          patch(f"{RAGAS_METRICS_PKG}._ContextPrecision"), \
@@ -68,14 +69,13 @@ def _run_evaluate(service, mock_evaluate_results, retrieved_contexts=None, **kwa
         )
 
 
-class TestHallucinationMetric:
-    """Test hallucination metric behavior."""
+class TestFactualPrecisionMetric:
+    """Test factual_precision metric behavior."""
 
-    def test_hallucination_present_in_hybrid_mode(self, service):
-        """Hallucination metric returned with applicable=True in hybrid mode."""
+    def test_factual_precision_present_in_hybrid_mode(self, service):
+        """factual_precision metric returned with applicable=True in hybrid mode."""
         results = [
-            _mock_evaluate_result({"answer_correctness": 0.8, "answer_relevancy": 0.7}),
-            _mock_evaluate_result({"faithfulness": 0.9}),
+            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
             _mock_evaluate_result({"faithfulness": 0.6, "context_precision": 0.7, "context_recall": 0.8}),
         ]
 
@@ -83,28 +83,27 @@ class TestHallucinationMetric:
 
         assert not result.evaluation_error
         metric_names = [m.name for m in result.metrics]
-        assert "hallucination" in metric_names
+        assert "factual_precision" in metric_names
 
-        halluc = [m for m in result.metrics if m.name == "hallucination"][0]
-        assert halluc.applicable is True
-        assert halluc.score == 0.9
+        precision = [m for m in result.metrics if m.name == "factual_precision"][0]
+        assert precision.applicable is True
+        assert precision.score == 0.9
 
-    def test_hallucination_present_in_llm_only_mode(self, service):
-        """Hallucination metric returned with applicable=True even without retrieved_contexts."""
+    def test_factual_precision_present_in_llm_only_mode(self, service):
+        """factual_precision metric returned with applicable=True even without retrieved_contexts."""
         results = [
-            _mock_evaluate_result({"answer_correctness": 0.8, "answer_relevancy": 0.7}),
-            _mock_evaluate_result({"faithfulness": 0.85}),
+            _mock_evaluate_result({"factual_correctness_precision": 0.85, "factual_correctness_recall": 0.75, "answer_relevancy": 0.8, "semantic_similarity": 0.9}),
         ]
 
         result = _run_evaluate(service, results, retrieved_contexts=None)
 
         assert not result.evaluation_error
         metric_names = [m.name for m in result.metrics]
-        assert "hallucination" in metric_names
+        assert "factual_precision" in metric_names
 
-        halluc = [m for m in result.metrics if m.name == "hallucination"][0]
-        assert halluc.applicable is True
-        assert halluc.score == 0.85
+        precision = [m for m in result.metrics if m.name == "factual_precision"][0]
+        assert precision.applicable is True
+        assert precision.score == 0.85
 
 
 class TestContextFaithfulness:
@@ -113,8 +112,7 @@ class TestContextFaithfulness:
     def test_context_faithfulness_applicable_in_hybrid(self, service):
         """context_faithfulness returned with applicable=True when retrieved_contexts provided."""
         results = [
-            _mock_evaluate_result({"answer_correctness": 0.8, "answer_relevancy": 0.7}),
-            _mock_evaluate_result({"faithfulness": 0.9}),
+            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
             _mock_evaluate_result({"faithfulness": 0.75, "context_precision": 0.7, "context_recall": 0.8}),
         ]
 
@@ -128,8 +126,7 @@ class TestContextFaithfulness:
     def test_context_faithfulness_not_applicable_without_contexts(self, service):
         """context_faithfulness returned with applicable=False when no retrieved_contexts."""
         results = [
-            _mock_evaluate_result({"answer_correctness": 0.8, "answer_relevancy": 0.7}),
-            _mock_evaluate_result({"faithfulness": 0.85}),
+            _mock_evaluate_result({"factual_correctness_precision": 0.85, "factual_correctness_recall": 0.75, "answer_relevancy": 0.8, "semantic_similarity": 0.9}),
         ]
 
         result = _run_evaluate(service, results, retrieved_contexts=None)
@@ -143,47 +140,44 @@ class TestContextFaithfulness:
 class TestMetricCompleteness:
     """Test that all expected metrics are present."""
 
-    def test_hybrid_mode_has_six_metrics(self, service):
-        """Hybrid mode produces 6 metrics."""
+    def test_hybrid_mode_has_seven_metrics(self, service):
+        """Hybrid mode produces 7 metrics."""
         results = [
-            _mock_evaluate_result({"answer_correctness": 0.8, "answer_relevancy": 0.7}),
-            _mock_evaluate_result({"faithfulness": 0.9}),
-            _mock_evaluate_result({"faithfulness": 0.6, "context_precision": 0.7, "context_recall": 0.8}),
+            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
+            _mock_evaluate_result({"faithfulness": 0.75, "context_precision": 0.7, "context_recall": 0.8}),
         ]
 
         result = _run_evaluate(service, results, retrieved_contexts=["ctx"])
 
         metric_names = sorted([m.name for m in result.metrics])
         expected = sorted([
-            "hallucination", "context_faithfulness",
-            "context_precision", "context_recall",
-            "answer_correctness", "answer_relevancy"
+            "factual_precision", "factual_recall", "answer_relevancy", "semantic_similarity",
+            "context_faithfulness", "context_precision", "context_recall"
         ])
         assert metric_names == expected
 
     def test_llm_only_mode_metrics(self, service):
-        """LLM-only mode produces all 6 metrics with appropriate applicable flags."""
+        """LLM-only mode produces all 7 metrics with appropriate applicable flags."""
         results = [
-            _mock_evaluate_result({"answer_correctness": 0.8, "answer_relevancy": 0.7}),
-            _mock_evaluate_result({"faithfulness": 0.85}),
+            _mock_evaluate_result({"factual_correctness_precision": 0.85, "factual_correctness_recall": 0.75, "answer_relevancy": 0.8, "semantic_similarity": 0.9}),
         ]
 
         result = _run_evaluate(service, results, retrieved_contexts=None)
 
         metric_names = sorted([m.name for m in result.metrics])
         expected = sorted([
-            "hallucination", "context_faithfulness",
-            "context_precision", "context_recall",
-            "answer_correctness", "answer_relevancy"
+            "factual_precision", "factual_recall", "answer_relevancy", "semantic_similarity",
+            "context_faithfulness", "context_precision", "context_recall"
         ])
         assert metric_names == expected
 
         applicable_metrics = [m.name for m in result.metrics if m.applicable]
         not_applicable_metrics = [m.name for m in result.metrics if not m.applicable]
 
-        assert "hallucination" in applicable_metrics
-        assert "answer_correctness" in applicable_metrics
+        assert "factual_precision" in applicable_metrics
+        assert "factual_recall" in applicable_metrics
         assert "answer_relevancy" in applicable_metrics
+        assert "semantic_similarity" in applicable_metrics
         assert "context_faithfulness" in not_applicable_metrics
         assert "context_precision" in not_applicable_metrics
         assert "context_recall" in not_applicable_metrics
@@ -191,12 +185,67 @@ class TestMetricCompleteness:
     def test_no_bare_faithfulness_metric(self, service):
         """No metric should be named 'faithfulness'."""
         results = [
-            _mock_evaluate_result({"answer_correctness": 0.8, "answer_relevancy": 0.7}),
-            _mock_evaluate_result({"faithfulness": 0.9}),
-            _mock_evaluate_result({"faithfulness": 0.6, "context_precision": 0.7, "context_recall": 0.8}),
+            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
+            _mock_evaluate_result({"faithfulness": 0.75, "context_precision": 0.7, "context_recall": 0.8}),
         ]
 
         result = _run_evaluate(service, results, retrieved_contexts=["ctx"])
 
         metric_names = [m.name for m in result.metrics]
         assert "faithfulness" not in metric_names
+
+    def test_no_answer_correctness_metric(self, service):
+        """No metric should be named 'answer_correctness' (split into precision/recall)."""
+        results = [
+            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
+            _mock_evaluate_result({"faithfulness": 0.75, "context_precision": 0.7, "context_recall": 0.8}),
+        ]
+
+        result = _run_evaluate(service, results, retrieved_contexts=["ctx"])
+
+        metric_names = [m.name for m in result.metrics]
+        assert "answer_correctness" not in metric_names
+
+    def test_no_hallucination_metric(self, service):
+        """No metric should be named 'hallucination' (replaced by factual_precision)."""
+        results = [
+            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
+            _mock_evaluate_result({"faithfulness": 0.75, "context_precision": 0.7, "context_recall": 0.8}),
+        ]
+
+        result = _run_evaluate(service, results, retrieved_contexts=["ctx"])
+
+        metric_names = [m.name for m in result.metrics]
+        assert "hallucination" not in metric_names
+
+
+class TestSemanticSimilarityMetric:
+    """Test semantic_similarity metric behavior."""
+
+    def test_semantic_similarity_present_always(self, service):
+        """semantic_similarity metric returned with applicable=True in both modes."""
+        # Test hybrid mode
+        results_hybrid = [
+            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.92}),
+            _mock_evaluate_result({"faithfulness": 0.75, "context_precision": 0.7, "context_recall": 0.8}),
+        ]
+        result = _run_evaluate(service, results_hybrid, retrieved_contexts=["ctx"])
+
+        assert not result.evaluation_error
+        metric_names = [m.name for m in result.metrics]
+        assert "semantic_similarity" in metric_names
+
+        sem_sim = [m for m in result.metrics if m.name == "semantic_similarity"][0]
+        assert sem_sim.applicable is True
+        assert sem_sim.score == 0.92
+
+        # Test llm-only mode
+        results_llm = [
+            _mock_evaluate_result({"factual_correctness_precision": 0.85, "factual_correctness_recall": 0.75, "answer_relevancy": 0.8, "semantic_similarity": 0.88}),
+        ]
+        result_llm = _run_evaluate(service, results_llm, retrieved_contexts=None)
+
+        assert not result_llm.evaluation_error
+        sem_sim_llm = [m for m in result_llm.metrics if m.name == "semantic_similarity"][0]
+        assert sem_sim_llm.applicable is True
+        assert sem_sim_llm.score == 0.88
