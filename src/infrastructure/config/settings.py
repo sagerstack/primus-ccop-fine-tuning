@@ -29,6 +29,18 @@ class Settings(BaseSettings):
         description="Ollama request timeout in seconds"
     )
 
+    # Claude CLI Configuration
+    claude_cli_timeout: int = Field(
+        default=120,
+        description="Claude CLI request timeout in seconds"
+    )
+
+    # LLM Judge Configuration
+    llm_judge_model: str = Field(
+        default="sonnet",
+        description="Model for LLM-as-Judge benchmark scoring (via Claude CLI)"
+    )
+
     # Model Configuration
     model_name: str = Field(
         default="primus-reasoning",
@@ -89,10 +101,10 @@ class Settings(BaseSettings):
 
     # LLM Inference Parameters
     default_temperature: float = Field(
-        default=0.7,
+        default=0.3,
         ge=0.0,
         le=2.0,
-        description="Default temperature"
+        description="Default temperature (0.3 balances reproducibility with reasoning depth)"
     )
     default_top_p: float = Field(
         default=0.9,
@@ -250,8 +262,20 @@ class Settings(BaseSettings):
         description="Enable RAGAs evaluation alongside benchmark scoring"
     )
     ragas_evaluator_model: str = Field(
-        default="claude-sonnet-4",
+        default="mistral-small-latest",
         description="Model name for RAGAs evaluator LLM"
+    )
+    ragas_api_key: Optional[str] = Field(
+        default=None,
+        description="API key for RAGAs evaluator LLM provider (OpenAI-compatible)"
+    )
+    ragas_api_base_url: str = Field(
+        default="https://api.mistral.ai/v1",
+        description="API base URL for RAGAs evaluator LLM provider (OpenAI-compatible)"
+    )
+    ragas_embedding_model: str = Field(
+        default="BAAI/bge-large-en-v1.5",
+        description="HuggingFace embedding model for RAGAs semantic similarity"
     )
 
     # Qdrant Configuration (Local RAG)

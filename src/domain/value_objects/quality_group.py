@@ -39,12 +39,12 @@ class QualityGroup:
             ),
             QualityGroup(
                 name="Model-RAG Grounding",
-                metrics=["faithfulness"],
+                metrics=["context_faithfulness"],
                 description="How faithfully the model uses retrieved context in its response"
             ),
             QualityGroup(
                 name="Model Response Quality",
-                metrics=["llm_judge", "answer_correctness", "answer_relevancy"],
+                metrics=["hallucination", "llm_judge", "answer_correctness", "answer_relevancy"],
                 description="How correct, relevant, and well-structured the model response is"
             ),
         ]
@@ -93,7 +93,8 @@ class QualityGroup:
         display_names = {
             "context_recall": "RAGAs: context_recall",
             "context_precision": "RAGAs: context_precision",
-            "faithfulness": "RAGAs: faithfulness",
+            "context_faithfulness": "RAGAs: context_faithfulness",
+            "hallucination": "RAGAs: hallucination",
             "answer_correctness": "RAGAs: answer_correctness",
             "answer_relevancy": "RAGAs: answer_relevancy",
             "llm_judge": "LLM Judge",

@@ -116,7 +116,7 @@ class LLMJudgeService:
 
     def __init__(
         self,
-        model_name: str = "claude-sonnet-4",
+        model_name: Optional[str] = None,
         rubric_path: Optional[str] = None,
     ) -> None:
         """
@@ -125,10 +125,18 @@ class LLMJudgeService:
         Loads and caches rubric templates from evaluation-rubrics.md.
 
         Args:
-            model_name: Claude model to use for judging
+            model_name: Claude model to use for judging. If None, reads from
+                CCOP_LLM_JUDGE_MODEL setting (defaults to "sonnet").
             rubric_path: Path to evaluation-rubrics.md. Defaults to
                 docs/phase-2/evaluation-rubrics.md relative to project root.
         """
+        if model_name is None:
+            from infrastructure.config.settings import get_settings
+            settings = get_settings()
+            model_name = settings.llm_judge_model
+            self._timeout = settings.claude_cli_timeout
+        else:
+            self._timeout = 120
         self._model = model_name
         self._rubric_path = Path(rubric_path) if rubric_path else (
             _PROJECT_ROOT / "docs" / "phase-2" / "evaluation-rubrics.md"
@@ -243,7 +251,7 @@ class LLMJudgeService:
             input=prompt,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=self._timeout,
         )
 
         if result.returncode != 0:

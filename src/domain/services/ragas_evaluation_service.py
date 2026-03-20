@@ -49,31 +49,85 @@ class RagasEvaluationService:
     (a response can score high on RAGAs but low on benchmarks, or vice versa).
     """
 
-    def __init__(self, model_name: str = "claude-sonnet-4"):
+    def __init__(
+        self,
+        model_name: Optional[str] = None,
+        embedding_model: Optional[str] = None,
+        api_key: Optional[str] = None,
+        api_base_url: Optional[str] = None,
+    ):
         """
         Initialize RAGAs evaluation service.
 
         Args:
-            model_name: Claude model name for RAGAs evaluator LLM.
-                       Defaults to claude-sonnet-4 but can be overridden via config.
+            model_name: Model name for RAGAs evaluator LLM (OpenAI-compatible).
+                       If None, reads from CCOP_RAGAS_EVALUATOR_MODEL setting.
+            embedding_model: HuggingFace embedding model for semantic similarity.
+                       If None, reads from CCOP_RAGAS_EMBEDDING_MODEL setting.
+            api_key: API key for LLM provider (OpenAI-compatible).
+                    If None, reads from CCOP_RAGAS_API_KEY setting.
+            api_base_url: Base URL for LLM provider API (OpenAI-compatible).
+                         If None, reads from CCOP_RAGAS_API_BASE_URL setting.
         """
-        self._model_name = model_name
+        from infrastructure.config.settings import get_settings
+        settings = get_settings()
+        self._model_name = model_name or settings.ragas_evaluator_model
+        self._embedding_model_name = embedding_model or settings.ragas_embedding_model
+        self._api_key = api_key or settings.ragas_api_key
+        self._api_base_url = api_base_url or settings.ragas_api_base_url
         self._evaluator_llm = None  # Lazy init
+        self._evaluator_embeddings = None  # Lazy init
 
     def _get_evaluator_llm(self):
-        """Lazy initialization of RAGAs evaluator LLM."""
+        """Lazy initialization of RAGAs evaluator LLM via llm_factory (OpenAI-compatible)."""
         if self._evaluator_llm is None:
             try:
-                from langchain_anthropic import ChatAnthropic
-                from ragas.llms import LangchainLLMWrapper
+                from openai import OpenAI
+                from ragas.llms import llm_factory
 
-                llm = ChatAnthropic(model=self._model_name)
-                self._evaluator_llm = LangchainLLMWrapper(llm)
-                logger.info(f"Initialized RAGAs evaluator with {self._model_name}")
+                client = OpenAI(
+                    api_key=self._api_key,
+                    base_url=self._api_base_url,
+                )
+                self._evaluator_llm = llm_factory(
+                    self._model_name,
+                    provider="openai",
+                    client=client,
+                    max_tokens=8192,
+                )
+                logger.info(f"Initialized RAGAs evaluator with {self._model_name} via {self._api_base_url}")
             except Exception as e:
                 logger.error(f"Failed to initialize RAGAs evaluator LLM: {e}")
                 raise
         return self._evaluator_llm
+
+    def _get_evaluator_embeddings(self):
+        """Lazy initialization of RAGAs evaluator embeddings (LangChain-compatible)."""
+        if self._evaluator_embeddings is None:
+            try:
+                from langchain_community.embeddings import HuggingFaceEmbeddings
+
+                self._evaluator_embeddings = HuggingFaceEmbeddings(
+                    model_name=self._embedding_model_name,
+                )
+                logger.info(f"Initialized RAGAs embeddings with {self._embedding_model_name}")
+            except Exception as e:
+                logger.error(f"Failed to initialize RAGAs embeddings: {e}")
+                raise
+        return self._evaluator_embeddings
+
+    def _extract_scores(self, result) -> dict:
+        """Extract scores dictionary from RAGAs evaluate() result."""
+        scores_dict = result
+        if hasattr(result, 'scores'):
+            scores = result.scores
+            if hasattr(scores, 'to_dict'):
+                scores_dict = scores.to_dict("records")[0]
+            elif isinstance(scores, list) and len(scores) > 0:
+                scores_dict = scores[0]
+            else:
+                scores_dict = dict(result)
+        return scores_dict
 
     def evaluate_response(
         self,
@@ -86,9 +140,10 @@ class RagasEvaluationService:
         """
         Evaluate a response using RAGAs metrics.
 
-        For all responses: answer_correctness, answer_relevancy
-        For RAG responses (retrieved_contexts provided):
-            + faithfulness, context_precision, context_recall
+        Runs three separate evaluations:
+        1. Base metrics (all responses): answer_correctness, answer_relevancy
+        2. Hallucination (all responses): faithfulness against ground truth as context
+        3. Context metrics (RAG only): context_faithfulness, context_precision, context_recall
 
         Args:
             question: Original question
@@ -107,89 +162,121 @@ class RagasEvaluationService:
                 key_facts_text = "\n".join(key_facts)
                 reference_text = f"{reference}\n\n{key_facts_text}"
 
-            # Determine if this is a RAG response
             is_rag = retrieved_contexts is not None and len(retrieved_contexts) > 0
 
-            # Create SingleTurnSample
-            from ragas import EvaluationDataset, SingleTurnSample
-
-            sample = SingleTurnSample(
-                user_input=question,
-                response=response,
-                reference=reference_text,
-                retrieved_contexts=retrieved_contexts if is_rag else None,
-            )
-
-            # Select metrics based on response type
-            from ragas.metrics.collections import (
-                AnswerCorrectness,
-                AnswerRelevancy,
-                ContextPrecision,
-                ContextRecall,
-                Faithfulness,
+            from ragas import EvaluationDataset, SingleTurnSample, evaluate
+            from ragas.metrics import (
+                _AnswerCorrectness,
+                _AnswerRelevancy,
+                _ContextPrecision,
+                _ContextRecall,
+                _Faithfulness,
             )
 
             evaluator_llm = self._get_evaluator_llm()
+            evaluator_embeddings = self._get_evaluator_embeddings()
 
-            # Base metrics (all responses)
-            metrics = [
-                AnswerCorrectness(llm=evaluator_llm),
-                AnswerRelevancy(llm=evaluator_llm),
-            ]
-
-            # Context metrics (RAG responses only)
-            if is_rag:
-                metrics.extend(
-                    [
-                        Faithfulness(llm=evaluator_llm),
-                        ContextPrecision(llm=evaluator_llm),
-                        ContextRecall(llm=evaluator_llm),
-                    ]
-                )
-
-            # Create EvaluationDataset and evaluate
-            from ragas import evaluate
-
-            dataset = EvaluationDataset(samples=[sample])
-
-            logger.info(f"Running RAGAs evaluation (is_rag={is_rag}, metrics={len(metrics)})")
-            result = evaluate(dataset=dataset, metrics=metrics)
-
-            # Extract scores from result
-            # RAGAs result.scores is a pandas DataFrame-like object with metric names as columns
-            scores_dict = result.scores.to_dict("records")[0]  # First (only) sample
-
-            # Build RagasEvaluation from scores
             metric_scores = []
 
-            # Map RAGAs metric names to our names
-            ragas_metric_names = {
-                "answer_correctness": "answer_correctness",
-                "answer_relevancy": "answer_relevancy",
-                "faithfulness": "faithfulness",
-                "context_precision": "context_precision",
-                "context_recall": "context_recall",
-            }
+            # --- Evaluation 1: Base metrics (answer_correctness, answer_relevancy) ---
+            base_sample = SingleTurnSample(
+                user_input=question,
+                response=response,
+                reference=reference_text,
+            )
+            base_dataset = EvaluationDataset(samples=[base_sample])
+            logger.info("Running RAGAs base metrics (answer_correctness, answer_relevancy)")
+            base_result = evaluate(
+                dataset=base_dataset,
+                metrics=[_AnswerCorrectness(), _AnswerRelevancy()],
+                llm=evaluator_llm,
+                embeddings=evaluator_embeddings,
+            )
+            base_scores = self._extract_scores(base_result)
 
-            for ragas_name, our_name in ragas_metric_names.items():
-                if ragas_name in scores_dict:
-                    score = scores_dict[ragas_name]
-                    metric_scores.append(
-                        RagasMetricScore(
-                            name=our_name,
-                            score=float(score) if score is not None else 0.0,
-                            applicable=True,
-                        )
-                    )
+            for ragas_name in ["answer_correctness", "answer_relevancy"]:
+                if ragas_name in base_scores:
+                    score = base_scores[ragas_name]
+                    metric_scores.append(RagasMetricScore(
+                        name=ragas_name,
+                        score=float(score) if score is not None else 0.0,
+                        applicable=True,
+                    ))
                 else:
-                    # Metric not computed (e.g., context metrics for non-RAG)
-                    metric_scores.append(
-                        RagasMetricScore(
-                            name=our_name,
-                            score=0.0,
-                            applicable=False,
-                        )
-                    )
+                    metric_scores.append(RagasMetricScore(
+                        name=ragas_name, score=0.0, applicable=False,
+                    ))
+
+            # --- Evaluation 2: Hallucination (faithfulness against ground truth) ---
+            # Uses [reference_text] as retrieved_contexts so RAGAs faithfulness
+            # checks if response claims are supported by the ground truth
+            halluc_sample = SingleTurnSample(
+                user_input=question,
+                response=response,
+                reference=reference_text,
+                retrieved_contexts=[reference_text],
+            )
+            halluc_dataset = EvaluationDataset(samples=[halluc_sample])
+            logger.info("Running RAGAs hallucination metric (faithfulness vs ground truth)")
+            halluc_result = evaluate(
+                dataset=halluc_dataset,
+                metrics=[_Faithfulness()],
+                llm=evaluator_llm,
+                embeddings=evaluator_embeddings,
+            )
+            halluc_scores = self._extract_scores(halluc_result)
+
+            halluc_score = halluc_scores.get("faithfulness")
+            metric_scores.append(RagasMetricScore(
+                name="hallucination",
+                score=float(halluc_score) if halluc_score is not None else 0.0,
+                applicable=True,
+            ))
+
+            # --- Evaluation 3: Context metrics (RAG only) ---
+            if is_rag:
+                context_sample = SingleTurnSample(
+                    user_input=question,
+                    response=response,
+                    reference=reference_text,
+                    retrieved_contexts=retrieved_contexts,
+                )
+                context_dataset = EvaluationDataset(samples=[context_sample])
+                logger.info("Running RAGAs context metrics (faithfulness, precision, recall)")
+                context_result = evaluate(
+                    dataset=context_dataset,
+                    metrics=[_Faithfulness(), _ContextPrecision(), _ContextRecall()],
+                    llm=evaluator_llm,
+                    embeddings=evaluator_embeddings,
+                )
+                context_scores = self._extract_scores(context_result)
+
+                # Map faithfulness -> context_faithfulness
+                cf_score = context_scores.get("faithfulness")
+                metric_scores.append(RagasMetricScore(
+                    name="context_faithfulness",
+                    score=float(cf_score) if cf_score is not None else 0.0,
+                    applicable=True,
+                ))
+
+                for ragas_name in ["context_precision", "context_recall"]:
+                    score = context_scores.get(ragas_name)
+                    metric_scores.append(RagasMetricScore(
+                        name=ragas_name,
+                        score=float(score) if score is not None else 0.0,
+                        applicable=True,
+                    ))
+            else:
+                # Non-RAG: context metrics not applicable
+                metric_scores.append(RagasMetricScore(
+                    name="context_faithfulness", score=0.0, applicable=False,
+                ))
+                metric_scores.append(RagasMetricScore(
+                    name="context_precision", score=0.0, applicable=False,
+                ))
+                metric_scores.append(RagasMetricScore(
+                    name="context_recall", score=0.0, applicable=False,
+                ))
 
             logger.info(
                 f"RAGAs evaluation succeeded: {len([m for m in metric_scores if m.applicable])} "

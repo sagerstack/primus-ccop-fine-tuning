@@ -136,7 +136,7 @@ class JSONResultRepository(IResultRepository):
         if ragas_eval is not None:
             if ragas_eval.evaluation_error:
                 serialized["ragas"] = {
-                    "schema_version": 2,
+                    "schema_version": 3,
                     "error": True,
                     "error_message": ragas_eval.error_message,
                 }
@@ -166,14 +166,16 @@ class JSONResultRepository(IResultRepository):
 
         Converts flat metrics array into 3 diagnostic groups:
         - retrieval_quality: context_recall, context_precision
-        - grounding: faithfulness
-        - response_quality: answer_correctness, answer_relevancy
+        - grounding: context_faithfulness
+        - response_quality: answer_correctness, answer_relevancy, hallucination
+
+        Note: schema_version 2 files use "faithfulness" instead of "context_faithfulness"
 
         Args:
             ragas_eval: RagasEvaluation object
 
         Returns:
-            Grouped structure with schema_version 2
+            Grouped structure with schema_version 3
         """
         # Build group definitions
         group_definitions = {}
@@ -215,13 +217,13 @@ class JSONResultRepository(IResultRepository):
 
             if metric.name in ["context_recall", "context_precision"]:
                 retrieval_quality[metric.name] = metric_data
-            elif metric.name == "faithfulness":
+            elif metric.name == "context_faithfulness":
                 grounding[metric.name] = metric_data
-            elif metric.name in ["answer_correctness", "answer_relevancy"]:
+            elif metric.name in ["answer_correctness", "answer_relevancy", "hallucination"]:
                 response_quality[metric.name] = metric_data
 
         return {
-            "schema_version": 2,
+            "schema_version": 3,
             "error": False,
             "is_rag_response": ragas_eval.is_rag_response,
             "group_definitions": group_definitions,

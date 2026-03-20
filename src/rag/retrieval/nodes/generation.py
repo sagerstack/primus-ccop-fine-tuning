@@ -137,10 +137,9 @@ INSTRUCTIONS:
             raw_generation, resolved_citations
         )
 
-        # Fallback: if LLM failed to cite correctly, append source references
-        # from the filtered documents so sources are always visible
+        # Fallback: if LLM failed to cite correctly, build citations from
+        # filtered documents so sources are always traceable
         if not resolved_citations and filtered_docs:
-            source_refs = ["\n\nSources:"]
             seen = set()
             for doc in filtered_docs:
                 source = doc.metadata.get("document_source", "Unknown")
@@ -150,11 +149,21 @@ INSTRUCTIONS:
                 if ref_key in seen:
                     continue
                 seen.add(ref_key)
-                ref = f"- {source}"
-                if clause:
-                    ref += f", Clause {clause}"
-                elif section:
-                    ref += f", Section {section}"
+                resolved_citations.append({
+                    "document": source,
+                    "section": section,
+                    "clause": clause,
+                    "citation_id": doc.metadata.get("citation_id", ""),
+                    "document_type": doc.metadata.get("document_type", "standard"),
+                })
+
+            source_refs = ["\n\nSources:"]
+            for citation in resolved_citations:
+                ref = f"- {citation['document']}"
+                if citation["clause"]:
+                    ref += f", Clause {citation['clause']}"
+                elif citation["section"]:
+                    ref += f", Section {citation['section']}"
                 source_refs.append(ref)
             formatted_generation = formatted_generation.strip() + "\n".join(source_refs)
 

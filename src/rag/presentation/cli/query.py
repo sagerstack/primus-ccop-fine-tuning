@@ -28,6 +28,7 @@ def query_command(
     question: str = typer.Argument(..., help="Question about CCoP compliance"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show metadata"),
     mode: str = typer.Option("hybrid", "--mode", "-m", help="Pipeline mode: hybrid, llm-only, rag-only"),
+    no_score: bool = typer.Option(False, "--no-score", help="Skip quality scoring (hybrid mode)"),
 ) -> None:
     """
     Query CCoP compliance information.
@@ -55,10 +56,10 @@ def query_command(
     for noisy in ("httpx", "httpcore", "urllib3", "databricks", "mlflow"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
 
-    asyncio.run(_execute_query(question, mode, verbose))
+    asyncio.run(_execute_query(question, mode, verbose, no_score))
 
 
-async def _execute_query(question: str, mode: str, verbose: bool) -> None:
+async def _execute_query(question: str, mode: str, verbose: bool, no_score: bool = False) -> None:
     """Execute query and display formatted response."""
     try:
         container = get_container()
@@ -105,6 +106,41 @@ async def _execute_query(question: str, mode: str, verbose: bool) -> None:
         console.print(f"\n[bold yellow]Question:[/bold yellow] {response.query}\n")
         console.print(f"[bold blue]{mode_label.get(mode, 'Response')}:[/bold blue]\n")
         console.print(Markdown(response.response))
+
+        # Quality scoring (hybrid mode only, requires retrieved contexts)
+        if mode == "hybrid" and not no_score and response.retrieved_contexts:
+            try:
+                ragas_service = container.ragas_service()
+                if ragas_service is not None:
+                    with console.status("[bold green]Computing quality scores..."):
+                        from domain.value_objects.quality_group import QualityGroup
+                        ragas_eval = ragas_service.evaluate_response(
+                            question=response.query,
+                            response=response.response,
+                            reference="",
+                            retrieved_contexts=response.retrieved_contexts,
+                            key_facts=None,
+                        )
+
+                    if not ragas_eval.evaluation_error:
+                        console.print("\n[bold]Quality Scores:[/bold]")
+                        for metric in ragas_eval.metrics:
+                            if metric.name in ["context_faithfulness", "answer_relevancy"] and metric.applicable:
+                                display_name = QualityGroup.get_display_name(metric.name)
+                                if metric.score >= 0.7:
+                                    score_str = f"[green]{metric.score:.2f}[/green]"
+                                elif metric.score >= 0.4:
+                                    score_str = f"[yellow]{metric.score:.2f}[/yellow]"
+                                else:
+                                    score_str = f"[red]{metric.score:.2f}[/red]"
+                                console.print(f"  {display_name}: {score_str}")
+                    else:
+                        if verbose:
+                            console.print(f"\n[yellow]Quality scoring failed: {ragas_eval.error_message}[/yellow]")
+            except Exception as e:
+                if verbose:
+                    console.print(f"\n[yellow]Quality scoring error: {e}[/yellow]")
+                logging.getLogger(__name__).warning(f"Quality scoring failed: {e}")
 
         # Display metadata if verbose
         if verbose:

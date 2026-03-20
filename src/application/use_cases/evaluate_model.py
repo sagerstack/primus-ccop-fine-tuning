@@ -356,19 +356,24 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
                     f"Category '{category.name}': {category_avg:.2%} (weight: {category.weight:.0%}, tests: {len(category_results)})"
                 )
 
-        # Calculate weighted overall score
+        # Calculate weighted overall score, normalized by total weight of present categories
         if not category_scores:
             # Fallback to simple average if no category matches
             return sum(r.overall_score for r in results if r.overall_score is not None) / len(results)
 
-        weighted_score = sum(
+        weighted_sum = sum(
             cat["average"] * cat["weight"]
             for cat in category_scores.values()
         )
+        total_weight = sum(cat["weight"] for cat in category_scores.values())
+        normalized_score = weighted_sum / total_weight if total_weight > 0 else 0.0
 
-        self._logger.info(f"Category-weighted overall score: {weighted_score:.2%}")
+        self._logger.info(
+            f"Category-weighted overall score: {normalized_score:.2%} "
+            f"(weighted_sum={weighted_sum:.4f}, total_weight={total_weight:.2f})"
+        )
 
-        return weighted_score
+        return normalized_score
 
     def _aggregate_quality_categories(
         self,
@@ -542,11 +547,42 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
                 else:
                     group_dict["average"] = None
 
-                # Populate per-metric values at overall level (same as group average for display)
+                # Populate per-metric values at overall level (category-weighted per metric)
                 for metric_name in quality_group.metrics:
+                    # Compute category-weighted average for this individual metric
+                    metric_category_scores = {}
+                    metric_total_weight = 0.0
+
+                    for category in categories:
+                        category_metric_values = []
+                        for benchmark_key in category.benchmarks:
+                            if benchmark_key in by_benchmark:
+                                for group_data in by_benchmark[benchmark_key]["groups"]:
+                                    if group_data["name"] == quality_group.name:
+                                        for m in group_data["metrics"]:
+                                            if m["name"] == QualityGroup.get_display_name(metric_name):
+                                                if m["value"] is not None:
+                                                    category_metric_values.append(m["value"])
+                                        break
+
+                        if category_metric_values:
+                            cat_avg = sum(category_metric_values) / len(category_metric_values)
+                            metric_category_scores[category.name] = cat_avg
+                            metric_total_weight += category.weight
+
+                    if metric_category_scores and metric_total_weight > 0:
+                        weighted_sum = sum(
+                            score * cat.weight
+                            for cat_name, score in metric_category_scores.items()
+                            for cat in categories if cat.name == cat_name
+                        )
+                        metric_overall = weighted_sum / metric_total_weight
+                    else:
+                        metric_overall = None
+
                     group_dict["metrics"].append({
                         "name": QualityGroup.get_display_name(metric_name),
-                        "value": group_dict["average"]  # Overall metrics show group average
+                        "value": metric_overall
                     })
 
             overall_groups.append(group_dict)

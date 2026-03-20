@@ -207,6 +207,7 @@ class TestCategoryScoresCalculation:
                 result_id=str(uuid4()),
                 test_id="B1-001",
                 benchmark_type="B1_CCoP_Applicability_Scope",
+                question="Test question for B1-001",
                 model_name="test-model",
                 response_content="Response",
                 overall_score=0.8,
@@ -221,6 +222,7 @@ class TestCategoryScoresCalculation:
                 result_id=str(uuid4()),
                 test_id="B2-001",
                 benchmark_type="B2_Compliance_Classification_Accuracy",
+                question="Test question for B2-001",
                 model_name="test-model",
                 response_content="Response",
                 overall_score=0.9,
@@ -254,6 +256,7 @@ class TestCategoryScoresCalculation:
                 result_id=str(uuid4()),
                 test_id="B1-001",
                 benchmark_type="B1_CCoP_Applicability_Scope",
+                question="Test question for B1-001",
                 model_name="test-model",
                 response_content="Response",
                 overall_score=0.6,
@@ -268,6 +271,7 @@ class TestCategoryScoresCalculation:
                 result_id=str(uuid4()),
                 test_id="B1-002",
                 benchmark_type="B1_CCoP_Applicability_Scope",
+                question="Test question for B1-002",
                 model_name="test-model",
                 response_content="Response",
                 overall_score=0.8,
@@ -304,6 +308,7 @@ class TestCategoryScoresCalculation:
                 result_id=str(uuid4()),
                 test_id="B1-001",
                 benchmark_type="B1_CCoP_Applicability_Scope",
+                question="Test question for B1-001",
                 model_name="test-model",
                 response_content="Response",
                 overall_score=0.8,
@@ -319,6 +324,7 @@ class TestCategoryScoresCalculation:
                 result_id=str(uuid4()),
                 test_id="B21-001",
                 benchmark_type="B21_Hallucination_Rate",
+                question="Test question for B21-001",
                 model_name="test-model",
                 response_content="Response",
                 overall_score=0.5,
@@ -353,6 +359,93 @@ class TestCategoryScoresCalculation:
 
         # Should return empty dict
         assert category_scores == {}
+
+
+class TestOverallScoreNormalization:
+    """Test _calculate_category_weighted_score normalization."""
+
+    def setup_method(self):
+        """Setup test fixtures."""
+        self.model_gateway = Mock()
+        self.test_case_repository = Mock()
+        self.result_repository = Mock()
+        self.logger = Mock()
+
+        self.use_case = EvaluateModelUseCase(
+            self.model_gateway,
+            self.test_case_repository,
+            self.result_repository,
+            self.logger
+        )
+
+    def _make_result(self, benchmark_short_name: str, overall_score: float) -> EvaluationResult:
+        """Create a mock EvaluationResult with the given benchmark and score."""
+        test_case = Mock(spec=TestCase)
+        test_case.benchmark_type = Mock()
+        test_case.benchmark_type.short_name = benchmark_short_name
+        test_case.benchmark_type.value = f"{benchmark_short_name}_Test"
+
+        model_response = Mock(spec=ModelResponse)
+        model_response.content = "Response"
+        model_response.model_name = "test-model"
+        model_response.tokens_used = 100
+        model_response.latency_ms = 500
+
+        result = Mock(spec=EvaluationResult)
+        result.test_case = test_case
+        result.model_response = model_response
+        result.overall_score = overall_score
+        result.passed = overall_score >= 0.5
+        result.ragas_evaluation = None
+        result.evaluation_mode = None
+
+        return result
+
+    def test_normalization_single_category(self):
+        """Single category (B3, weight 0.25): score should be category avg, not avg * weight.
+
+        Bug: Without normalization, score = 0.6 * 0.25 = 0.15.
+        Fixed: score = (0.6 * 0.25) / 0.25 = 0.6.
+        """
+        results = [
+            self._make_result("B3", 0.6),
+            self._make_result("B3", 0.6),
+        ]
+
+        score = self.use_case._calculate_category_weighted_score(results)
+
+        # Should equal category average (0.6), not 0.6 * 0.25 = 0.15
+        assert abs(score - 0.6) < 0.001
+
+    def test_normalization_two_categories(self):
+        """Two categories: B1 (weight 0.25) and B21 (weight 0.20).
+
+        Expected: weighted_sum / total_weight = (0.8*0.25 + 0.5*0.20) / 0.45
+        """
+        results = [
+            self._make_result("B1", 0.8),
+            self._make_result("B21", 0.5),
+        ]
+
+        score = self.use_case._calculate_category_weighted_score(results)
+
+        expected = (0.8 * 0.25 + 0.5 * 0.20) / (0.25 + 0.20)
+        assert abs(score - expected) < 0.001
+
+    def test_normalization_all_five_categories(self):
+        """All 5 categories present: weights sum to 1.0, so normalization has no effect."""
+        results = [
+            self._make_result("B1", 0.8),   # Regulatory (0.25)
+            self._make_result("B6", 0.7),   # Compliance (0.25)
+            self._make_result("B13", 0.9),  # Remediation (0.20)
+            self._make_result("B17", 0.6),  # Governance (0.10)
+            self._make_result("B20", 0.5),  # Safety (0.20)
+        ]
+
+        score = self.use_case._calculate_category_weighted_score(results)
+
+        expected = (0.8 * 0.25 + 0.7 * 0.25 + 0.9 * 0.20 + 0.6 * 0.10 + 0.5 * 0.20) / 1.0
+        assert abs(score - expected) < 0.001
 
 
 if __name__ == "__main__":

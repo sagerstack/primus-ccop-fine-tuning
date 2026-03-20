@@ -117,6 +117,27 @@ Each decision should include:
 - RAG may not improve: B3, B8, B9, B11, B12, B15 (reasoning/judgment)
 - Fine-tuning targets: benchmarks that remain low after RAG
 
+### ADR-005: Default Evaluation Temperature 0.0 (2026-03-20)
+
+**Context:**
+- Default temperature was 0.7, causing different model responses on every run of the same test case
+- Benchmark scores fluctuated between runs due to sampling randomness, not model capability
+- Impossible to reliably measure whether code changes improved or degraded performance
+
+**Decision:**
+- Change default evaluation temperature from 0.7 to 0.3
+- Low temperature reduces variance while preserving reasoning elaboration
+
+**Alternatives Considered:**
+- Keep 0.7 → Rejected: too much variance between runs for benchmarking
+- 0.0 (fully deterministic) → Rejected: greedy decoding produced terse responses that scored poorly on reasoning rubrics (B3 dropped from 1/3 to 0/3)
+- 0.1-0.2 → Not tested, 0.3 chosen as known middle ground
+
+**Consequences:**
+- More consistent evaluation results across runs (less variance than 0.7)
+- Preserves reasoning depth in model responses (avoids greedy truncation at 0.0)
+- Still not fully deterministic — slight variation between runs expected
+
 ---
 
 ## Tips

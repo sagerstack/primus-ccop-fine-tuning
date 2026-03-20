@@ -43,6 +43,111 @@ Read the project paper [Primus-Fine-Tuning-CCOP2-SG-v2.0-SagarPratapSingh-101073
 ### Repository Structure Guidance
 - 1. SKIP files under research/archived* folder. They are not relevant to the context
 
+## CLI Reference (ccop-eval)
+
+All commands run from `src/` directory using `poetry run ccop-eval`.
+
+### Evaluate — Run model evaluation
+
+```bash
+# Full batch: all 21 benchmarks (118 test cases), hybrid mode (default)
+cd src && poetry run ccop-eval evaluate run --model primus-reasoning
+
+# Full batch: llm-only mode (no RAG)
+cd src && poetry run ccop-eval evaluate run --model primus-reasoning --mode llm-only
+
+# Single benchmark
+cd src && poetry run ccop-eval evaluate run --model primus-reasoning --benchmarks B3
+
+# Multiple benchmarks (repeat --benchmarks flag)
+cd src && poetry run ccop-eval evaluate run --model primus-reasoning --benchmarks B1 --benchmarks B3 --benchmarks B21
+
+# By tier (overrides --benchmarks)
+cd src && poetry run ccop-eval evaluate run --model primus-reasoning --tier 1
+cd src && poetry run ccop-eval evaluate run --model primus-reasoning --tier 3
+
+# Specific test cases
+cd src && poetry run ccop-eval evaluate run --model primus-reasoning --test-ids B3-001 --test-ids B3-002
+
+# Custom temperature
+cd src && poetry run ccop-eval evaluate run --model primus-reasoning --benchmarks B1 --temperature 0.3
+
+# Skip saving results
+cd src && poetry run ccop-eval evaluate run --model primus-reasoning --benchmarks B1 --no-save
+
+# Custom pass threshold (0.0-1.0, overrides phase default)
+cd src && poetry run ccop-eval evaluate run --model primus-reasoning --threshold 0.5
+
+# Evaluation phase (sets pass threshold: baseline=15%, finetuned=50%, deployment=85%)
+cd src && poetry run ccop-eval evaluate run --model primus-reasoning --phase finetuned
+```
+
+### Query — Ask CCoP compliance questions via RAG
+
+```bash
+# Hybrid mode (default): RAG retrieval + LLM generation
+cd src && poetry run ccop-eval query ask "What are the access control requirements?"
+
+# LLM-only mode
+cd src && poetry run ccop-eval query ask "What are the MFA requirements?" --mode llm-only
+
+# RAG-only mode
+cd src && poetry run ccop-eval query ask "What does clause 5.2.1 say?" --mode rag-only
+
+# Verbose (show metadata)
+cd src && poetry run ccop-eval query ask "How should CII organizations implement MFA?" --verbose
+```
+
+### Report — Generate evaluation reports
+
+```bash
+# Generate JSON report (default)
+cd src && poetry run ccop-eval report generate --model primus-reasoning
+
+# Generate markdown report
+cd src && poetry run ccop-eval report generate --model primus-reasoning --format markdown
+
+# Generate to specific file
+cd src && poetry run ccop-eval report generate --model primus-reasoning --format html --output report.html
+
+# Show evaluation summary
+cd src && poetry run ccop-eval report summary --model primus-reasoning
+```
+
+### Setup — Model setup and prerequisites
+
+```bash
+# Check prerequisites (Ollama, etc.)
+cd src && poetry run ccop-eval setup check
+
+# Set up model (default: primus-reasoning with Q5_K_M quantization)
+cd src && poetry run ccop-eval setup model
+
+# Custom model setup
+cd src && poetry run ccop-eval setup model --hf-repo trendmicro-ailab/Llama-Primus-Reasoning --model-name primus-reasoning --quantization Q8_0
+
+# Force reconversion
+cd src && poetry run ccop-eval setup model --force
+```
+
+### Benchmark Reference
+
+| Benchmarks | Type | Description |
+|------------|------|-------------|
+| B1, B2, B4, B5, B6 | Rule-based | Keyword matching, Jaccard word overlap |
+| B21 | Rule-based | Regex hallucination detection (binary pass/fail) |
+| B3, B7-B20 | LLM-as-Judge | Rubric-based evaluation via Claude (0-3 anchored scale) |
+
+### Global Options
+
+```bash
+# Verbose output
+cd src && poetry run ccop-eval --verbose evaluate run --model primus-reasoning
+
+# Debug mode
+cd src && poetry run ccop-eval --debug evaluate run --model primus-reasoning
+```
+
 ## Project Memory System
 
 This project maintains institutional knowledge in `docs/project_notes/` for consistency across sessions.

@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 3 - Ground Truth Dataset Expansion
+**Current focus:** Phase 2.2 complete — next is Phase 3 (Ground Truth Dataset Expansion)
 
 ## Current Position
 
-Phase: 2.1 of 8 (Evaluation Quality Categorization)
+Phase: 2.2 of 8 (RAGAs Hallucination Metric and Metric Renaming)
 Plan: 3 of 3 complete
 Status: Complete
-Last activity: 2026-03-20 — Phase 2.1 complete (all 3 plans executed, verified, orchestrator correction applied)
+Last activity: 2026-03-20 — Phase 2.2 complete (3 plans across 2 waves: domain layer, CLI restructuring, JSON + query scoring)
 
 Progress: [██████████] 100%
 
@@ -33,11 +33,12 @@ Progress: [██████████] 100%
 | 1.3. RAG Quality - Chunking & Retrieval | 2/4 | 15 min | 7.5 min |
 | 2. RAG Evaluation | 3/3 | 10 min | 3.3 min |
 | 2.1. Evaluation Quality Categorization | 3/3 | 105 min | 35 min |
+| 2.2. RAGAs Hallucination Metric & Renaming | 3/3 | ~17 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 02.1-01 (45min), 02.1-02 (30min), 02.1-03 (15min)
-- Trend: Phase 2.1 more complex than earlier phases due to aggregation, restructuring, and display logic
-- Phase 2.1 complete: 3/3 plans, 1 orchestrator correction (CLI benchmark key mismatch)
+- Last 5 plans: 02.1-02 (30min), 02.1-03 (15min), 02.2-01 (8min), 02.2-02 (5min), 02.2-03 (4min)
+- Trend: Phase 2.2 faster than 2.1 — well-defined plans with clear instructions, parallel execution in Wave 2
+- Phase 2.2 complete: 3/3 plans, 2 waves (01 serial, 02+03 parallel)
 
 *Updated after each plan completion*
 
@@ -132,6 +133,16 @@ Recent decisions affecting current work:
 - **[02.1-03] Grouped ragas structure:** Per-test-case ragas metrics organized by diagnostic group (retrieval_quality, grounding, response_quality). Breaking change from flat metrics array (schema_version: 2)
 - **[02.1-03] Self-describing JSON format:** group_definitions included in both ragas output and quality_categories metadata. Consumers don't need external docs to understand metric groupings
 - **[02.1-03] JSON group key mapping:** "Retrieval Quality" -> "retrieval_quality", "Model-RAG Grounding" -> "grounding", "Model Response Quality" -> "response_quality" for JSON-friendly snake_case
+- **[02.2-01] Three separate RAGAs evaluate() calls:** Base metrics, hallucination (faithfulness vs ground truth), and context metrics (faithfulness vs retrieved docs). Each uses different `retrieved_contexts` argument
+- **[02.2-01] Hallucination via faithfulness trick:** Pass `[expected_response]` as `retrieved_contexts` to RAGAs faithfulness — checks if response claims are supported by ground truth. Always applicable (both modes)
+- **[02.2-01] context_faithfulness hybrid-only:** Only computed when actual retrieved_contexts available. Non-RAG mode adds with applicable=False, score=0.0
+- **[02.2-01] Overall score normalization fix:** `weighted_sum / total_weight` instead of just `weighted_sum`. Running only B3 (weight 0.25) now returns 0.44, not 0.11
+- **[02.2-02] Information flow panel order:** Retrieval Quality → Model-RAG Grounding → Model Response Quality. Left-to-right follows RAG pipeline: retrieve → ground → respond
+- **[02.2-02] Two-column Overall Quality Summary:** Quality groups as parent rows, individual metrics as indented children. Replaces 6-column N/A-heavy matrix
+- **[02.2-02] Flat benchmark table with color-coded headers:** Abbreviated column headers (ctx_recall, ctx_faith, halluc, etc.), one row per benchmark, yellow/magenta/cyan for quality groups
+- **[02.2-02] SC13(c) deferred:** Full prompt display (system prompt + user prompt with RAG context) requires data model changes to propagate llm_context from GraphState through RagResponse to EvaluationResult
+- **[02.2-03] JSON schema_version 3:** context_faithfulness in grounding, hallucination in response_quality. Backward compat note for v2 files
+- **[02.2-03] Query scoring with --no-score:** Only context_faithfulness and answer_relevancy shown (don't require ground truth). Errors suppressed unless verbose
 
 ### Pending Todos
 
@@ -143,6 +154,7 @@ None yet.
 - Phase 1.2 inserted after Phase 1: Local RAG Migration — Migrate from Databricks to Qdrant + local BGE. Phase 1.2 runs before Phase 1.1.
 - Phase 1.3 inserted after Phase 1.2: RAG Quality — Clause-Level Chunking & Retrieval (URGENT) — Replace PyMuPDF4LLM with Docling, clause-aware chunking, cross-encoder reranking, fix RRF threshold. Discovered during Phase 1.2 human verification: 66 chunks too coarse, RRF threshold broken, zero citations resolving. Research completed first. Phase 1.3 runs before Phase 1.1.
 - Phase 2.1 inserted after Phase 2: Evaluation Quality Categorization — Categorize 6 metrics into 3 diagnostic groups (retrieval quality, model grounding, response quality), aggregate RAGAs at benchmark/overall level, CLI summary table, JSON persistence. Discovered during Phase 2 manual verification: RAGAs metrics only shown per test case with no aggregation, no categorized view for diagnosis.
+- Phase 2.2 inserted after Phase 2.1: RAGAs Hallucination Metric and Metric Renaming (URGENT) — Add ground-truth faithfulness metric for hallucination detection (works in both modes), rename faithfulness → context_faithfulness for clarity. Discovered during Phase 2.1 UAT: no metric checks model response claims against ground truth expected_response, and "faithfulness" name is ambiguous (faithful to what?).
 
 ### Blockers/Concerns
 
@@ -151,5 +163,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Phase 2.1 complete — next is Phase 3 (Ground Truth Dataset Expansion)
+Stopped at: Phase 2.2 complete — next is /gsd:verify-work 2.2 or Phase 3 planning
 Resume file: None
