@@ -114,6 +114,9 @@ class JSONResultRepository(IResultRepository):
 
     def _serialize(self, result: EvaluationResult) -> dict:
         """Serialize result to dict."""
+        # Get RAGAs composite score from domain entity (multiplicative penalty formula)
+        ragas_score = result.ragas_composite_score
+
         serialized = {
             "result_id": str(result.result_id),
             "test_id": result.test_case.test_id,
@@ -121,6 +124,7 @@ class JSONResultRepository(IResultRepository):
             "model": result.model_response.model_name,
             "response": result.model_response.content,
             "score": result.overall_score,
+            "ragas_score": ragas_score,
             "passed": result.passed,
             "metrics": [
                 {"name": m.name, "value": m.value, "weight": m.weight}
@@ -132,7 +136,6 @@ class JSONResultRepository(IResultRepository):
         }
 
         # Add RAGAs section if evaluation was performed
-        ragas_eval = result.ragas_evaluation
         if ragas_eval is not None:
             if ragas_eval.evaluation_error:
                 serialized["ragas"] = {
@@ -167,15 +170,17 @@ class JSONResultRepository(IResultRepository):
         Converts flat metrics array into 3 diagnostic groups:
         - retrieval_quality: context_recall, context_precision
         - grounding: context_faithfulness
-        - response_quality: answer_correctness, answer_relevancy, hallucination
+        - response_quality: factual_precision, factual_recall, answer_relevancy, semantic_similarity
 
-        Note: schema_version 2 files use "faithfulness" instead of "context_faithfulness"
+        Note: schema_version 3 files use "answer_correctness" and "hallucination" instead of
+        factual_precision/factual_recall/semantic_similarity. Version 2 uses "faithfulness"
+        instead of "context_faithfulness".
 
         Args:
             ragas_eval: RagasEvaluation object
 
         Returns:
-            Grouped structure with schema_version 3
+            Grouped structure with schema_version 4
         """
         # Build group definitions
         group_definitions = {}
@@ -219,11 +224,11 @@ class JSONResultRepository(IResultRepository):
                 retrieval_quality[metric.name] = metric_data
             elif metric.name == "context_faithfulness":
                 grounding[metric.name] = metric_data
-            elif metric.name in ["answer_correctness", "answer_relevancy", "hallucination"]:
+            elif metric.name in ["factual_precision", "factual_recall", "answer_relevancy", "semantic_similarity"]:
                 response_quality[metric.name] = metric_data
 
         return {
-            "schema_version": 3,
+            "schema_version": 4,
             "error": False,
             "is_rag_response": ragas_eval.is_rag_response,
             "group_definitions": group_definitions,
