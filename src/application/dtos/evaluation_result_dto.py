@@ -68,6 +68,24 @@ class EvaluationResultDTO(BaseModel):
     chunk_count: Optional[int] = Field(
         None, ge=0, description="Number of RAG chunks retrieved"
     )
+    judge_mode: Optional[str] = Field(
+        None, description="Judge mode used: rubric or universal"
+    )
+    hallucination_detected: Optional[bool] = Field(
+        None, description="Binary hallucination flag (universal judge only)"
+    )
+    unsupported_count: Optional[int] = Field(
+        None, ge=0, description="Count of unsupported claims (universal judge only)"
+    )
+    contradicted_count: Optional[int] = Field(
+        None, ge=0, description="Count of contradicted claims (universal judge only)"
+    )
+    reasoning_criteria_met: Optional[Dict[str, Optional[bool]]] = Field(
+        None, description="Reasoning criteria transparency (universal judge only)"
+    )
+    claims: Optional[List[Dict[str, str]]] = Field(
+        None, description="Claim-level verification details (universal judge only)"
+    )
 
     model_config = {
         "json_schema_extra": {

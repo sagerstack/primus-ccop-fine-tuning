@@ -218,8 +218,36 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
                 system_prompt="You are a cybersecurity compliance expert specializing in Singapore's CCoP 2.0.",
             )
 
+        # Shadow retrieval: retrieve contexts for universal judge (not passed to model)
+        if (
+            getattr(request, 'judge_mode', 'rubric') == "universal"
+            and request.evaluation_mode == "llm-only"
+            and self._rag_pipeline is not None
+            and retrieved_contexts is None
+        ):
+            try:
+                shadow_response = await self._rag_pipeline.query(
+                    question=test_case.question, mode="hybrid"
+                )
+                if shadow_response.is_rag_augmented:
+                    retrieved_contexts = shadow_response.retrieved_contexts
+                    self._logger.info(
+                        f"Shadow retrieval for universal judge: "
+                        f"{len(retrieved_contexts)} contexts retrieved"
+                    )
+            except Exception as e:
+                self._logger.warning(
+                    f"Shadow retrieval failed for {test_case.test_id}: {e}"
+                )
+                # retrieved_contexts stays None — judge skips hallucination check
+
         # Score response (Layer 1: Benchmark scoring)
-        metrics = ScoringService.score_response(test_case, model_response)
+        metrics = ScoringService.score_response(
+            test_case,
+            model_response,
+            judge_mode=getattr(request, 'judge_mode', 'rubric'),
+            retrieved_contexts=retrieved_contexts,
+        )
 
         # Evaluate with RAGAs (Layer 2: Quality metrics)
         ragas_evaluation = None
@@ -834,6 +862,34 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         # Compute per-test RAGAs score
         ragas_score = self._extract_ragas_score(result)
 
+        # Extract judge metadata if universal judge was used
+        judge_mode = None
+        hallucination_detected = None
+        unsupported_count = None
+        contradicted_count = None
+        reasoning_criteria_met = None
+        claims = None
+
+        for metric in result.metrics:
+            if metric.name == "universal_judge":
+                judge_mode = "universal"
+                try:
+                    import json
+                    judge_data = json.loads(metric.description)
+                    hallucination_detected = judge_data.get("hallucination_detected")
+                    unsupported_count = judge_data.get("unsupported_count")
+                    contradicted_count = judge_data.get("contradicted_count")
+                    reasoning_criteria_met = judge_data.get("reasoning_criteria_met")
+                    claims = judge_data.get("claims")
+                except (json.JSONDecodeError, AttributeError):
+                    # If description is not JSON or missing, skip
+                    pass
+                break
+            elif metric.name in ["accuracy", "completeness", "alignment"]:
+                # Rubric-based dimensions indicate rubric mode
+                judge_mode = "rubric"
+                break
+
         return EvaluationResultDTO(
             result_id=result.result_id,
             test_id=result.test_case.test_id,
@@ -857,4 +913,10 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             evaluation_mode=result.evaluation_mode,
             retrieved_chunk_ids=result.retrieved_chunk_ids,
             chunk_count=result.chunk_count,
+            judge_mode=judge_mode,
+            hallucination_detected=hallucination_detected,
+            unsupported_count=unsupported_count,
+            contradicted_count=contradicted_count,
+            reasoning_criteria_met=reasoning_criteria_met,
+            claims=claims,
         )

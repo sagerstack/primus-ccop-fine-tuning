@@ -40,6 +40,10 @@ class Settings(BaseSettings):
         default="sonnet",
         description="Model for LLM-as-Judge benchmark scoring (via Claude CLI)"
     )
+    judge_mode: str = Field(
+        default="rubric",
+        description="Judge mode: rubric (per-benchmark rubrics) or universal (reasoning depth + hallucination)"
+    )
 
     # Model Configuration
     model_name: str = Field(

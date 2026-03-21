@@ -56,6 +56,10 @@ class EvaluationRequestDTO(BaseModel):
         default="hybrid",
         description="Evaluation mode: hybrid (RAG-augmented) or llm-only"
     )
+    judge_mode: str = Field(
+        default="rubric",
+        description="Judge mode: rubric (per-benchmark rubrics) or universal (reasoning depth + hallucination)"
+    )
 
     model_config = {
         "json_schema_extra": {

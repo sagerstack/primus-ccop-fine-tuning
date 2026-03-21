@@ -5,6 +5,7 @@ Domain service containing business logic for scoring model responses.
 Stateless service with pure functions (no external dependencies).
 """
 
+import json
 import re
 from typing import List, Optional
 
@@ -355,12 +356,22 @@ class ScoringService:
                 )
             ]
 
+        # Serialize judge metadata as JSON for consumption by application layer
+        judge_metadata = json.dumps({
+            "hallucination_detected": evaluation.hallucination_detected,
+            "unsupported_count": evaluation.unsupported_count,
+            "contradicted_count": evaluation.contradicted_count,
+            "reasoning_criteria_met": evaluation.reasoning_criteria_met,
+            "claims": evaluation.claims,
+            "justification": evaluation.justification,
+        })
+
         return [
             EvaluationMetric(
                 name="universal_judge",
                 value=evaluation.overall_score,
                 weight=1.0,
-                description="Universal judge (reasoning_depth + hallucination)",
+                description=judge_metadata,
             )
         ]
 
