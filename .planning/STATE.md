@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2.4 of 8 (LLM Judge Redesign and Metric Simplification)
-Plan: 0 of TBD — NOT PLANNED
-Status: Phase 2.4 inserted — needs planning
-Last activity: 2026-03-21 — Inserted Phase 2.4
+Plan: 2 of 5 — IN PROGRESS
+Status: Wave 1 complete (plans 01-02) — 3 plans remaining
+Last activity: 2026-03-22 — Completed 02.4-02-PLAN.md
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 40% (2/5 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27
-- Average duration: 6.5 min
-- Total execution time: 2.9 hours
+- Total plans completed: 28
+- Average duration: 6.3 min
+- Total execution time: 2.95 hours
 
 **By Phase:**
 
@@ -35,11 +35,12 @@ Progress: [░░░░░░░░░░] 0%
 | 2.1. Evaluation Quality Categorization | 3/3 | 105 min | 35 min |
 | 2.2. RAGAs Hallucination Metric & Renaming | 3/3 | ~17 min | ~6 min |
 | 2.3. RAGAs Metric Split & Scoring Formula | 3/3 | ~22 min | ~7 min |
+| 2.4. LLM Judge Redesign & Metric Simplification | 2/5 | ~1 min | ~1 min |
 
 **Recent Trend:**
-- Last 5 plans: 02.2-02 (5min), 02.2-03 (4min), 02.3-01 (5min), 02.3-02 (7min), 02.3-03 (10min)
-- Trend: Phase 2.3 execution fast — clear metric restructuring, three-wave approach (domain → CLI/JSON → tests)
-- Phase 2.3 complete: 3/3 plans (Wave 1: domain, Wave 2: CLI/JSON, Wave 3: tests)
+- Last 5 plans: 02.2-03 (4min), 02.3-01 (5min), 02.3-02 (7min), 02.3-03 (10min), 02.4-02 (1min)
+- Trend: Phase 2.4 plan 02 very fast — prompt string replacements only, no logic changes
+- Phase 2.4 in progress: 2/5 plans complete (Wave 1: universal judge + prompts)
 
 *Updated after each plan completion*
 
@@ -152,6 +153,10 @@ Recent decisions affecting current work:
 - **[02.3-01] Combined score removed:** Avg of benchmark + RAGAs dropped. Two scores measure different things at different scales — averaging was meaningless
 - **[02.3-02] JSON schema version 4:** response_quality group with factual_precision, factual_recall, answer_relevancy, semantic_similarity. Backward compat note for v3 (answer_correctness, hallucination)
 - **[02.3-02] Persistence delegates to domain for ragas_score:** JSON reads from result.ragas_composite_score property. No formula duplication in persistence layer
+- **[02.4-02] Identical RESPONSE STRUCTURE guidance:** Both generation and fallback prompts use same three elements (clause citations, conditional analysis, actionable steps) for consistent judge evaluation
+- **[02.4-02] Citation anchor format preserved:** `<c>Document::Clause</c>` format retained for citation resolution pipeline compatibility (Plan 01-04)
+- **[02.4-02] Adaptive structure acknowledgment:** Prompts explicitly state "not all questions require all three elements" to prevent forced structure when inappropriate
+- **[02.4-02] CIIO context maintained:** Responses scoped for Critical Information Infrastructure Owners in Singapore
 
 ### Pending Todos
 
@@ -173,6 +178,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21
-Stopped at: Completed Phase 2.3 (all 3 plans, 2 waves) — ready for Phase 3
-Resume file: None
+Last session: 2026-03-22
+Stopped at: Completed 02.4-02-PLAN.md (RAG system prompt redesign)
+Resume file: .planning/phases/02.4-llm-judge-redesign-and-metric-simplification/02.4-03-PLAN.md
