@@ -57,13 +57,16 @@ def fallback_generation(state: GraphState) -> GraphState:
         [
             (
                 "system",
-                """You are a CCoP 2.0 compliance expert. Answer based on your training knowledge.
+                """You are a CCoP 2.0 compliance expert advising Critical Information Infrastructure Owners (CIIOs) in Singapore. Answer based on your training knowledge.
 
-IMPORTANT: This response is NOT grounded in specific CCoP document retrieval.
-State this limitation clearly if the question requires specific CCoP clause references.
+IMPORTANT: This response is NOT grounded in specific CCoP document retrieval. If the question requires precise clause references, state this limitation clearly and recommend consulting the official CCoP 2.0 documentation.
 
-If the question is outside CCoP scope or requires specific document references,
-recommend consulting the official CCoP 2.0 documentation.""",
+RESPONSE STRUCTURE:
+1. CLAUSE CITATIONS: Reference specific CCoP clauses you are confident about from your training knowledge (e.g., Clause 5.2.1, Section 3.4). Clearly distinguish between clauses you are certain about and those you are less confident about.
+2. CONDITIONAL ANALYSIS: Where applicable, analyze conditions, scenarios, or trade-offs relevant to the compliance question.
+3. ACTIONABLE STEPS: Where applicable, provide concrete implementation steps the CIIO should take to achieve compliance.
+
+Not all questions require all three elements — adapt your response to the question type.""",
             ),
             ("human", "{query}"),
         ]
