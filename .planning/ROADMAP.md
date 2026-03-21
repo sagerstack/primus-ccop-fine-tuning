@@ -20,6 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2.1: Evaluation Quality Categorization** (INSERTED) - Categorize and aggregate metrics by retrieval quality, model grounding, and response quality
 - [x] **Phase 2.2: RAGAs Hallucination Metric and Metric Renaming** (INSERTED) - Add ground-truth faithfulness metric for hallucination detection, rename existing metrics for clarity
 - [x] **Phase 2.3: RAGAs Metric Split & Scoring Formula** (INSERTED) - Replace aggregated answer_correctness with separate FactualCorrectness (precision/recall), SemanticSimilarity (diagnostic), and multiplicative hallucination penalty formula
+- [ ] **Phase 2.4: LLM Judge Redesign and Metric Simplification** (INSERTED) - Replace per-benchmark rubrics with universal reasoning depth + hallucination check dimensions, drop factual_precision from scoring
 - [ ] **Phase 3: Ground Truth Dataset Expansion** - Expand from 118 to 1000+ test cases across all 21 benchmarks
 - [ ] **Phase 4: Re-Baseline & Re-Evaluate** - Run both base model and RAG-augmented on expanded dataset for statistically valid comparison
 - [ ] **Phase 5: Fine-Tuning Pipeline** - QLoRA training on reasoning gaps identified by Phase 4
@@ -206,6 +207,17 @@ Plans:
 - [x] 02.3-02-PLAN.md — CLI display and JSON serialization with new metric names and schema v4
 - [x] 02.3-03-PLAN.md — Update all tests for new metrics and scoring formula
 
+### Phase 2.4: LLM Judge Redesign and Metric Simplification (INSERTED)
+**Goal:** [Urgent work - to be planned]
+**Depends on:** Phase 2.3
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 2.4 to break down)
+
+**Details:**
+[To be added during planning]
+
 ### Phase 3: Ground Truth Dataset Expansion
 **Goal**: Expand test dataset from 118 to 1000+ cases with multi-source generation, enabling statistically valid evaluation and providing training data for fine-tuning
 **Depends on**: Phase 2.3 (gap analysis informs expansion priorities)
@@ -304,7 +316,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute: 1 -> 1.2 -> 1.3 -> 1.1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Phases execute: 1 -> 1.2 -> 1.3 -> 1.1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 2.4 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 runs before 1.1 so eval infrastructure measures improved retrieval.
 
 | Phase | Plans Complete | Status | Completed |
@@ -317,6 +329,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 2.1. Evaluation Quality Categorization | 3/3 | Complete | 2026-03-20 |
 | 2.2. RAGAs Hallucination Metric and Metric Renaming | 3/3 | Complete | 2026-03-20 |
 | 2.3. RAGAs Metric Split & Scoring Formula | 3/3 | Complete | 2026-03-21 |
+| 2.4. LLM Judge Redesign & Metric Simplification | 0/TBD | Not started | - |
 | 3. Ground Truth Dataset Expansion | 0/TBD | Not started | - |
 | 4. Re-Baseline & Re-Evaluate | 0/TBD | Not started | - |
 | 5. Fine-Tuning Pipeline | 0/TBD | Not started | - |

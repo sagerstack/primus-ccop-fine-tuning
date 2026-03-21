@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 2.3 — RAGAs Metric Split & Scoring Formula (urgent insertion after 2.2)
+**Current focus:** Phase 2.4 — LLM Judge Redesign and Metric Simplification (urgent insertion after 2.3)
 
 ## Current Position
 
-Phase: 2.3 of 8 (RAGAs Metric Split & Scoring Formula)
-Plan: 3 of 3 — PHASE COMPLETE
-Status: Phase 2.3 complete — ready for Phase 3
-Last activity: 2026-03-20 — Completed 02.3-03-PLAN.md
+Phase: 2.4 of 8 (LLM Judge Redesign and Metric Simplification)
+Plan: 0 of TBD — NOT PLANNED
+Status: Phase 2.4 inserted — needs planning
+Last activity: 2026-03-21 — Inserted Phase 2.4
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -165,6 +165,7 @@ None yet.
 - Phase 2.1 inserted after Phase 2: Evaluation Quality Categorization — Categorize 6 metrics into 3 diagnostic groups (retrieval quality, model grounding, response quality), aggregate RAGAs at benchmark/overall level, CLI summary table, JSON persistence. Discovered during Phase 2 manual verification: RAGAs metrics only shown per test case with no aggregation, no categorized view for diagnosis.
 - Phase 2.2 inserted after Phase 2.1: RAGAs Hallucination Metric and Metric Renaming (URGENT) — Add ground-truth faithfulness metric for hallucination detection (works in both modes), rename faithfulness → context_faithfulness for clarity. Discovered during Phase 2.1 UAT: no metric checks model response claims against ground truth expected_response, and "faithfulness" name is ambiguous (faithful to what?).
 - Phase 2.3 inserted after Phase 2.2: RAGAs Metric Split & Scoring Formula (URGENT) — Replace aggregated answer_correctness (masks hallucination behind semantic similarity) with separate FactualCorrectness(precision/recall), drop redundant hallucination metric, add SemanticSimilarity as diagnostic, implement multiplicative penalty formula. Discovered during Phase 2.3 triple-score UAT: LLM-only (hallucinating) and hybrid (grounded) responses scored nearly identically (0.87 vs 0.85 RAGAs) because answer_correctness blends 75% factual overlap F1 + 25% semantic similarity.
+- Phase 2.4 inserted after Phase 2.3: LLM Judge Redesign and Metric Simplification (URGENT) — Replace per-benchmark rubric dimensions with two universal LLM Judge dimensions (reasoning depth + hallucination check against retrieved context), drop factual_precision from RAGAs scoring (penalizes valid reasoning). Discovered during Phase 2.3 UAT: factual_precision (0.27) penalizes model for introducing valid reasoning not in ground truth; LLM Judge and RAGAs metrics contradict each other; per-benchmark rubrics redundant with RAGAs factual_recall/relevancy/similarity.
 
 ### Blockers/Concerns
 
