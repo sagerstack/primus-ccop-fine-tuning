@@ -6,7 +6,7 @@ Stateless service with pure functions (no external dependencies).
 """
 
 import re
-from typing import List
+from typing import List, Optional
 
 from domain.entities.model_response import ModelResponse
 from domain.entities.test_case import TestCase
@@ -35,7 +35,9 @@ class ScoringService:
     @staticmethod
     def score_response(
         test_case: TestCase,
-        response: ModelResponse
+        response: ModelResponse,
+        judge_mode: str = "rubric",
+        retrieved_contexts: Optional[List[str]] = None,
     ) -> List[EvaluationMetric]:
         """
         Business rule: Score a model response based on benchmark type.
@@ -45,12 +47,25 @@ class ScoringService:
         Args:
             test_case: The test case
             response: The model response
+            judge_mode: "rubric" (default) or "universal" judge routing
+            retrieved_contexts: Retrieved contexts for universal judge hallucination check
 
         Returns:
             List of evaluation metrics
         """
-        # Map benchmark short names to scoring functions
-        # BenchmarkType supports string comparison via __eq__
+        # Universal judge routing: B3, B7-B20, B21 route through universal judge
+        if judge_mode == "universal":
+            universal_benchmarks = {
+                "B3", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14",
+                "B15", "B16", "B17", "B18", "B19", "B20", "B21"
+            }
+            benchmark_short_name = test_case.benchmark_type.short_name
+            if benchmark_short_name in universal_benchmarks:
+                return ScoringService._score_universal_judge(
+                    test_case, response, retrieved_contexts
+                )
+
+        # Rubric-based routing (default): existing benchmark scorers
         benchmark_scorers = {
             # Rule-based benchmarks (6 total)
             "B1": ScoringService._score_b1_interpretation,
@@ -304,6 +319,50 @@ class ScoringService:
             )
 
         return metrics
+
+    @staticmethod
+    def _score_universal_judge(
+        test_case: TestCase,
+        response: ModelResponse,
+        retrieved_contexts: Optional[List[str]] = None,
+    ) -> List[EvaluationMetric]:
+        """
+        Universal judge evaluation for B3, B7-B21 when judge_mode="universal".
+
+        Evaluates two dimensions in single call:
+        1. Reasoning depth (clause_citations, conditional_analysis, actionable_steps)
+        2. Hallucination detection (claim verification against retrieved_contexts)
+
+        Overall score: 0.0 if hallucination detected, else reasoning_depth/3.0
+
+        On judge error, returns single metric with value=0.0 and
+        "judge_error" in description (skip-and-flag pattern).
+        """
+        benchmark_id = test_case.benchmark_type.short_name
+
+        judge_service = LLMJudgeService()
+        evaluation = judge_service.universal_evaluate_response(
+            test_case, response, benchmark_id, retrieved_contexts
+        )
+
+        if evaluation.judge_error:
+            return [
+                EvaluationMetric(
+                    name="judge_error",
+                    value=0.0,
+                    weight=1.0,
+                    description=f"judge_error: {evaluation.error_message}",
+                )
+            ]
+
+        return [
+            EvaluationMetric(
+                name="universal_judge",
+                value=evaluation.overall_score,
+                weight=1.0,
+                description="Universal judge (reasoning_depth + hallucination)",
+            )
+        ]
 
     @staticmethod
     def _calculate_basic_accuracy(
