@@ -6,13 +6,36 @@ Validates ragas_composite_score formula after Phase 2.4 changes
 """
 
 import pytest
-from datetime import datetime
 
 from domain.entities.evaluation_result import EvaluationResult
+from domain.entities.model_response import ModelResponse
+from domain.entities.test_case import TestCase
 from domain.services.ragas_evaluation_service import RagasEvaluation, RagasMetricScore
 from domain.value_objects.benchmark_type import BenchmarkType
 from domain.value_objects.ccop_section import CCoPSection
 from domain.value_objects.difficulty_level import DifficultyLevel
+
+
+def _make_test_case(test_id: str = "B3-001") -> TestCase:
+    """Helper to create a minimal TestCase for composite score tests."""
+    return TestCase(
+        test_id=test_id,
+        benchmark_type=BenchmarkType("B3_Conditional_Compliance_Reasoning"),
+        section=CCoPSection("Section 3: Governance"),
+        clause_reference="3.1.1",
+        difficulty=DifficultyLevel("medium"),
+        question="Test question with at least fifty characters for validation to pass successfully",
+        expected_response="Test expected response content",
+        evaluation_criteria={"accuracy": "test"},
+    )
+
+
+def _make_model_response() -> ModelResponse:
+    """Helper to create a minimal ModelResponse for composite score tests."""
+    return ModelResponse(
+        content="Test response content",
+        model_name="test-model",
+    )
 
 
 def _make_ragas_evaluation(
@@ -47,19 +70,9 @@ class TestRagasCompositeScore:
         )
 
         result = EvaluationResult(
-            test_id="B3-001",
-            benchmark_type=BenchmarkType("B3_Conditional_Compliance_Reasoning"),
-            section=CCoPSection("Section 3: Governance"),
-            clause_reference="3.1.1",
-            difficulty=DifficultyLevel("medium"),
-            question="Test question",
-            expected_response="Test expected",
-            model_response_content="Test response",
-            model_name="test-model",
+            test_case=_make_test_case(),
+            model_response=_make_model_response(),
             overall_score=0.8,
-            metrics=[],
-            evaluation_metadata={},
-            evaluation_timestamp=datetime.now(),
             ragas_evaluation=ragas,
         )
 
@@ -77,19 +90,9 @@ class TestRagasCompositeScore:
         ragas = RagasEvaluation(metrics=metrics, is_rag_response=True, evaluation_error=False)
 
         result = EvaluationResult(
-            test_id="B3-002",
-            benchmark_type=BenchmarkType("B3_Conditional_Compliance_Reasoning"),
-            section=CCoPSection("Section 3: Governance"),
-            clause_reference="3.1.1",
-            difficulty=DifficultyLevel("medium"),
-            question="Test question",
-            expected_response="Test expected",
-            model_response_content="Test response",
-            model_name="test-model",
+            test_case=_make_test_case("B3-002"),
+            model_response=_make_model_response(),
             overall_score=0.8,
-            metrics=[],
-            evaluation_metadata={},
-            evaluation_timestamp=datetime.now(),
             ragas_evaluation=ragas,
         )
 
@@ -105,19 +108,9 @@ class TestRagasCompositeScore:
         ragas = RagasEvaluation(metrics=metrics, is_rag_response=True, evaluation_error=False)
 
         result = EvaluationResult(
-            test_id="B3-003",
-            benchmark_type=BenchmarkType("B3_Conditional_Compliance_Reasoning"),
-            section=CCoPSection("Section 3: Governance"),
-            clause_reference="3.1.1",
-            difficulty=DifficultyLevel("medium"),
-            question="Test question",
-            expected_response="Test expected",
-            model_response_content="Test response",
-            model_name="test-model",
+            test_case=_make_test_case("B3-003"),
+            model_response=_make_model_response(),
             overall_score=0.8,
-            metrics=[],
-            evaluation_metadata={},
-            evaluation_timestamp=datetime.now(),
             ragas_evaluation=ragas,
         )
 
@@ -126,19 +119,9 @@ class TestRagasCompositeScore:
     def test_ragas_composite_score_no_ragas_evaluation_returns_none(self):
         """ragas_score returns None when ragas_evaluation is None."""
         result = EvaluationResult(
-            test_id="B1-001",
-            benchmark_type=BenchmarkType("B1_CCoP_Applicability_Scope"),
-            section=CCoPSection("Section 3: Governance"),
-            clause_reference="3.1.1",
-            difficulty=DifficultyLevel("low"),
-            question="Test question",
-            expected_response="Test expected",
-            model_response_content="Test response",
-            model_name="test-model",
+            test_case=_make_test_case("B3-010"),
+            model_response=_make_model_response(),
             overall_score=0.8,
-            metrics=[],
-            evaluation_metadata={},
-            evaluation_timestamp=datetime.now(),
             ragas_evaluation=None,
         )
 
@@ -149,19 +132,9 @@ class TestRagasCompositeScore:
         ragas = RagasEvaluation(metrics=[], is_rag_response=True, evaluation_error=True)
 
         result = EvaluationResult(
-            test_id="B3-004",
-            benchmark_type=BenchmarkType("B3_Conditional_Compliance_Reasoning"),
-            section=CCoPSection("Section 3: Governance"),
-            clause_reference="3.1.1",
-            difficulty=DifficultyLevel("medium"),
-            question="Test question",
-            expected_response="Test expected",
-            model_response_content="Test response",
-            model_name="test-model",
+            test_case=_make_test_case("B3-004"),
+            model_response=_make_model_response(),
             overall_score=0.8,
-            metrics=[],
-            evaluation_metadata={},
-            evaluation_timestamp=datetime.now(),
             ragas_evaluation=ragas,
         )
 
@@ -172,19 +145,9 @@ class TestRagasCompositeScore:
         # Test case 1: All metrics at 1.0
         ragas1 = _make_ragas_evaluation(1.0, 1.0, 1.0)
         result1 = EvaluationResult(
-            test_id="B3-005",
-            benchmark_type=BenchmarkType("B3_Conditional_Compliance_Reasoning"),
-            section=CCoPSection("Section 3: Governance"),
-            clause_reference="3.1.1",
-            difficulty=DifficultyLevel("medium"),
-            question="Test question",
-            expected_response="Test expected",
-            model_response_content="Test response",
-            model_name="test-model",
+            test_case=_make_test_case("B3-005"),
+            model_response=_make_model_response(),
             overall_score=1.0,
-            metrics=[],
-            evaluation_metadata={},
-            evaluation_timestamp=datetime.now(),
             ragas_evaluation=ragas1,
         )
         assert result1.ragas_composite_score == pytest.approx(1.0, rel=0.01)
@@ -192,19 +155,9 @@ class TestRagasCompositeScore:
         # Test case 2: All metrics at 0.0
         ragas2 = _make_ragas_evaluation(0.0, 0.0, 0.0)
         result2 = EvaluationResult(
-            test_id="B3-006",
-            benchmark_type=BenchmarkType("B3_Conditional_Compliance_Reasoning"),
-            section=CCoPSection("Section 3: Governance"),
-            clause_reference="3.1.1",
-            difficulty=DifficultyLevel("medium"),
-            question="Test question",
-            expected_response="Test expected",
-            model_response_content="Test response",
-            model_name="test-model",
+            test_case=_make_test_case("B3-006"),
+            model_response=_make_model_response(),
             overall_score=0.0,
-            metrics=[],
-            evaluation_metadata={},
-            evaluation_timestamp=datetime.now(),
             ragas_evaluation=ragas2,
         )
         assert result2.ragas_composite_score == pytest.approx(0.0, rel=0.01)
@@ -212,19 +165,9 @@ class TestRagasCompositeScore:
         # Test case 3: Mixed values
         ragas3 = _make_ragas_evaluation(0.6, 0.8, 0.7)
         result3 = EvaluationResult(
-            test_id="B3-007",
-            benchmark_type=BenchmarkType("B3_Conditional_Compliance_Reasoning"),
-            section=CCoPSection("Section 3: Governance"),
-            clause_reference="3.1.1",
-            difficulty=DifficultyLevel("medium"),
-            question="Test question",
-            expected_response="Test expected",
-            model_response_content="Test response",
-            model_name="test-model",
+            test_case=_make_test_case("B3-007"),
+            model_response=_make_model_response(),
             overall_score=0.7,
-            metrics=[],
-            evaluation_metadata={},
-            evaluation_timestamp=datetime.now(),
             ragas_evaluation=ragas3,
         )
         # (0.6 + 0.8 + 0.7) / 3 = 2.1 / 3 = 0.7
