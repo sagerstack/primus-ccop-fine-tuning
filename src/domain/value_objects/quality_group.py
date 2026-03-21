@@ -13,7 +13,7 @@ class QualityGroup:
     """
     Value object representing a quality diagnostic group.
 
-    Quality groups categorize the 8 evaluation metrics into 3 diagnostic areas:
+    Quality groups categorize the 7 evaluation metrics into 3 diagnostic areas:
     - Retrieval Quality: How well the retriever finds relevant context
     - Model-RAG Grounding: How faithfully the model uses retrieved context
     - Model Response Quality: How correct, relevant, and well-structured the response is
@@ -44,7 +44,7 @@ class QualityGroup:
             ),
             QualityGroup(
                 name="Model Response Quality",
-                metrics=["factual_precision", "factual_recall", "answer_relevancy", "semantic_similarity", "llm_judge"],
+                metrics=["factual_recall", "answer_relevancy", "semantic_similarity", "llm_judge"],
                 description="How correct, relevant, and well-structured the model response is"
             ),
         ]
@@ -94,7 +94,6 @@ class QualityGroup:
             "context_recall": "RAGAs: context_recall",
             "context_precision": "RAGAs: context_precision",
             "context_faithfulness": "RAGAs: context_faithfulness",
-            "factual_precision": "RAGAs: factual_precision",
             "factual_recall": "RAGAs: factual_recall",
             "answer_relevancy": "RAGAs: answer_relevancy",
             "semantic_similarity": "RAGAs: semantic_similarity",

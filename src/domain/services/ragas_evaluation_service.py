@@ -116,6 +116,13 @@ class RagasEvaluationService:
                 raise
         return self._evaluator_embeddings
 
+    @staticmethod
+    def _clamp_score(value) -> float:
+        """Clamp a score to [0.0, 1.0]. RAGAs can return values slightly out of range."""
+        if value is None:
+            return 0.0
+        return min(1.0, max(0.0, float(value)))
+
     def _extract_scores(self, result) -> dict:
         """Extract scores dictionary from RAGAs evaluate() result."""
         scores_dict = result
@@ -141,7 +148,7 @@ class RagasEvaluationService:
         Evaluate a response using RAGAs metrics.
 
         Runs two separate evaluations:
-        1. Base metrics (all responses): factual_precision, factual_recall, answer_relevancy, semantic_similarity
+        1. Base metrics (all responses): factual_recall, answer_relevancy, semantic_similarity
         2. Context metrics (RAG only): context_faithfulness, context_precision, context_recall
 
         Args:
@@ -178,62 +185,41 @@ class RagasEvaluationService:
 
             metric_scores = []
 
-            # --- Evaluation 1: Base metrics (factual_precision, factual_recall, answer_relevancy, semantic_similarity) ---
+            # --- Evaluation 1: Base metrics (factual_recall, answer_relevancy, semantic_similarity) ---
             base_sample = SingleTurnSample(
                 user_input=question,
                 response=response,
                 reference=reference_text,
             )
             base_dataset = EvaluationDataset(samples=[base_sample])
-            logger.info("Running RAGAs base metrics (factual_precision, factual_recall, answer_relevancy, semantic_similarity)")
+            logger.info("Running RAGAs base metrics (factual_recall, answer_relevancy, semantic_similarity)")
             base_result = evaluate(
                 dataset=base_dataset,
                 metrics=[
-                    FactualCorrectness(llm=evaluator_llm, mode="precision"),
                     FactualCorrectness(llm=evaluator_llm, mode="recall"),
                     _AnswerRelevancy(),
-                    SemanticSimilarity(embeddings=evaluator_embeddings),
+                    SemanticSimilarity(),
                 ],
                 llm=evaluator_llm,
                 embeddings=evaluator_embeddings,
             )
             base_scores = self._extract_scores(base_result)
 
-            # Map FactualCorrectness scores to our internal names
-            # RAGAs may use keys like "factual_correctness" or similar
-            # We need to distinguish precision vs recall mode
-            factual_precision_score = None
+            # Map FactualCorrectness(recall) to factual_recall
             factual_recall_score = None
-
-            # Try to extract scores by iterating through result keys
             for key, value in base_scores.items():
                 key_lower = key.lower()
-                if "factual" in key_lower and "precision" in key_lower:
-                    factual_precision_score = value
-                elif "factual" in key_lower and "recall" in key_lower:
+                if "factual" in key_lower and "recall" in key_lower:
                     factual_recall_score = value
                 elif key == "factual_correctness":
-                    # If we get a generic key, we need to check which metric instance it came from
-                    # This is a fallback - ideally we'd inspect the metric objects
-                    pass
-
-            # Add factual_precision
-            if factual_precision_score is not None:
-                metric_scores.append(RagasMetricScore(
-                    name="factual_precision",
-                    score=float(factual_precision_score),
-                    applicable=True,
-                ))
-            else:
-                metric_scores.append(RagasMetricScore(
-                    name="factual_precision", score=0.0, applicable=False,
-                ))
+                    # Fallback: single FactualCorrectness metric in recall mode
+                    factual_recall_score = value
 
             # Add factual_recall
             if factual_recall_score is not None:
                 metric_scores.append(RagasMetricScore(
                     name="factual_recall",
-                    score=float(factual_recall_score),
+                    score=self._clamp_score(factual_recall_score),
                     applicable=True,
                 ))
             else:
@@ -246,7 +232,7 @@ class RagasEvaluationService:
                 score = base_scores["answer_relevancy"]
                 metric_scores.append(RagasMetricScore(
                     name="answer_relevancy",
-                    score=float(score) if score is not None else 0.0,
+                    score=self._clamp_score(score),
                     applicable=True,
                 ))
             else:
@@ -259,7 +245,7 @@ class RagasEvaluationService:
                 score = base_scores["semantic_similarity"]
                 metric_scores.append(RagasMetricScore(
                     name="semantic_similarity",
-                    score=float(score) if score is not None else 0.0,
+                    score=self._clamp_score(score),
                     applicable=True,
                 ))
             else:
@@ -289,7 +275,7 @@ class RagasEvaluationService:
                 cf_score = context_scores.get("faithfulness")
                 metric_scores.append(RagasMetricScore(
                     name="context_faithfulness",
-                    score=float(cf_score) if cf_score is not None else 0.0,
+                    score=self._clamp_score(cf_score),
                     applicable=True,
                 ))
 
@@ -297,7 +283,7 @@ class RagasEvaluationService:
                     score = context_scores.get(ragas_name)
                     metric_scores.append(RagasMetricScore(
                         name=ragas_name,
-                        score=float(score) if score is not None else 0.0,
+                        score=self._clamp_score(score),
                         applicable=True,
                     ))
             else:

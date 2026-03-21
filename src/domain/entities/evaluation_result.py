@@ -320,17 +320,17 @@ class EvaluationResult:
     @property
     def ragas_composite_score(self) -> Optional[float]:
         """
-        Compute RAGAs composite score using multiplicative penalty formula.
+        Compute RAGAs composite score as simple average of orthogonal quality dimensions.
 
-        Formula: ragas_score = base_score * factual_precision
-        where base_score = (w1*factual_recall + w2*factual_precision + w3*answer_relevancy)
-        with equal weights w1=w2=w3=1/3.
+        Formula: ragas_score = (factual_recall + answer_relevancy + semantic_similarity) / 3
 
-        The factual_precision multiplier penalizes hallucinating responses:
-        - Grounded response (precision=0.9): base=0.83, score=0.75
-        - Hallucinating response (precision=0.2): base=0.57, score=0.11
+        Each dimension measures independent quality aspect:
+        - factual_recall: Does response cover ground truth facts?
+        - answer_relevancy: Is response relevant to the question?
+        - semantic_similarity: How semantically close to reference?
 
-        semantic_similarity is excluded — it is display-only diagnostic.
+        LLM Judge handles hallucination detection separately (claim verification).
+        RAGAs metrics are independent — no multiplicative penalty needed.
 
         Returns:
             Composite score (0.0-1.0), or None if RAGAs evaluation unavailable.
@@ -342,16 +342,14 @@ class EvaluationResult:
 
         metrics = {m.name: m.score for m in self._ragas_evaluation.metrics if m.applicable}
 
-        factual_precision = metrics.get("factual_precision")
         factual_recall = metrics.get("factual_recall")
         answer_relevancy = metrics.get("answer_relevancy")
+        semantic_similarity = metrics.get("semantic_similarity")
 
-        if factual_precision is None or factual_recall is None or answer_relevancy is None:
+        if factual_recall is None or answer_relevancy is None or semantic_similarity is None:
             return None
 
-        w = 1.0 / 3.0
-        base_score = w * factual_recall + w * factual_precision + w * answer_relevancy
-        return base_score * factual_precision
+        return (factual_recall + answer_relevancy + semantic_similarity) / 3.0
 
     @property
     def retrieved_chunk_ids(self) -> Optional[List[str]]:
