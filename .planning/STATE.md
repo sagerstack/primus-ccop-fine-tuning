@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2.4 of 8 (LLM Judge Redesign and Metric Simplification)
-Plan: 2 of 5 — IN PROGRESS
-Status: Wave 1 complete (plans 01-02) — 3 plans remaining
-Last activity: 2026-03-22 — Completed 02.4-02-PLAN.md
+Plan: 1 of 5 — IN PROGRESS
+Status: Wave 1 in progress (plan 01 complete, 02 pending) — 4 plans remaining
+Last activity: 2026-03-22 — Completed 02.4-01-PLAN.md (Universal Judge Domain Model)
 
-Progress: [██░░░░░░░░] 40% (2/5 plans)
+Progress: [██░░░░░░░░] 20% (1/5 plans)
 
 ## Performance Metrics
 
@@ -35,12 +35,12 @@ Progress: [██░░░░░░░░] 40% (2/5 plans)
 | 2.1. Evaluation Quality Categorization | 3/3 | 105 min | 35 min |
 | 2.2. RAGAs Hallucination Metric & Renaming | 3/3 | ~17 min | ~6 min |
 | 2.3. RAGAs Metric Split & Scoring Formula | 3/3 | ~22 min | ~7 min |
-| 2.4. LLM Judge Redesign & Metric Simplification | 2/5 | ~1 min | ~1 min |
+| 2.4. LLM Judge Redesign & Metric Simplification | 1/5 | ~3 min | ~3 min |
 
 **Recent Trend:**
-- Last 5 plans: 02.2-03 (4min), 02.3-01 (5min), 02.3-02 (7min), 02.3-03 (10min), 02.4-02 (1min)
-- Trend: Phase 2.4 plan 02 very fast — prompt string replacements only, no logic changes
-- Phase 2.4 in progress: 2/5 plans complete (Wave 1: universal judge + prompts)
+- Last 5 plans: 02.3-01 (5min), 02.3-02 (7min), 02.3-03 (10min), 02.4-01 (3min)
+- Trend: Phase 2.4 plan 01 very fast — domain model extensions with clean factories
+- Phase 2.4 in progress: 1/5 plans complete (Wave 1: universal judge domain model)
 
 *Updated after each plan completion*
 
@@ -153,10 +153,12 @@ Recent decisions affecting current work:
 - **[02.3-01] Combined score removed:** Avg of benchmark + RAGAs dropped. Two scores measure different things at different scales — averaging was meaningless
 - **[02.3-02] JSON schema version 4:** response_quality group with factual_precision, factual_recall, answer_relevancy, semantic_similarity. Backward compat note for v3 (answer_correctness, hallucination)
 - **[02.3-02] Persistence delegates to domain for ragas_score:** JSON reads from result.ragas_composite_score property. No formula duplication in persistence layer
-- **[02.4-02] Identical RESPONSE STRUCTURE guidance:** Both generation and fallback prompts use same three elements (clause citations, conditional analysis, actionable steps) for consistent judge evaluation
-- **[02.4-02] Citation anchor format preserved:** `<c>Document::Clause</c>` format retained for citation resolution pipeline compatibility (Plan 01-04)
-- **[02.4-02] Adaptive structure acknowledgment:** Prompts explicitly state "not all questions require all three elements" to prevent forced structure when inappropriate
-- **[02.4-02] CIIO context maintained:** Responses scoped for Critical Information Infrastructure Owners in Singapore
+- **[02.4-01] Universal judge fields in JudgeEvaluation:** hallucination_detected, claims, unsupported_count, contradicted_count, reasoning_criteria_met added with backward-compatible defaults
+- **[02.4-01] from_universal_judge factory with hallucination gate:** overall_score = 0.0 if hallucination detected, else reasoning_depth_score / 3.0
+- **[02.4-01] Question-adaptive reasoning criteria:** clause_citations, conditional_analysis, actionable_steps evaluated for applicability (null for N/A) before scoring
+- **[02.4-01] Final answer extraction:** extract_final_answer utility removes chain-of-thought reasoning before judge evaluation to prevent contamination
+- **[02.4-01] Combined two-dimension prompt:** UNIVERSAL_JUDGE_PROMPT evaluates hallucination (claim-level verification) + reasoning depth in single Claude call
+- **[02.4-01] Path preservation:** Existing rubric-based evaluate_response method unchanged, toggle between paths happens in ScoringService (Plan 03)
 
 ### Pending Todos
 
@@ -179,5 +181,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-22
-Stopped at: Completed 02.4-02-PLAN.md (RAG system prompt redesign)
-Resume file: .planning/phases/02.4-llm-judge-redesign-and-metric-simplification/02.4-03-PLAN.md
+Stopped at: Completed 02.4-01-PLAN.md (Universal Judge Domain Model)
+Resume file: .planning/phases/02.4-llm-judge-redesign-and-metric-simplification/02.4-02-PLAN.md
