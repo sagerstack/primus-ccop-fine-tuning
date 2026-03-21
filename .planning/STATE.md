@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2.4 of 8 (LLM Judge Redesign and Metric Simplification)
-Plan: 3 of 5 — IN PROGRESS
-Status: Wave 2 in progress (plans 01-03 complete) — 2 plans remaining
-Last activity: 2026-03-22 — Completed 02.4-03-PLAN.md (Scoring Service Toggle and RAGAs Simplification)
+Plan: 4 of 5 — IN PROGRESS
+Status: Wave 3 in progress (plans 01-04 complete) — 1 plan remaining
+Last activity: 2026-03-22 — Completed 02.4-04-PLAN.md (Application Stack Wiring)
 
-Progress: [██████░░░░] 60% (3/5 plans)
+Progress: [████████░░] 80% (4/5 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 29
-- Average duration: 6.1 min
-- Total execution time: 2.96 hours
+- Total plans completed: 30
+- Average duration: 6.0 min
+- Total execution time: 3.01 hours
 
 **By Phase:**
 
@@ -35,12 +35,12 @@ Progress: [██████░░░░] 60% (3/5 plans)
 | 2.1. Evaluation Quality Categorization | 3/3 | 105 min | 35 min |
 | 2.2. RAGAs Hallucination Metric & Renaming | 3/3 | ~17 min | ~6 min |
 | 2.3. RAGAs Metric Split & Scoring Formula | 3/3 | ~22 min | ~7 min |
-| 2.4. LLM Judge Redesign & Metric Simplification | 3/5 | ~7 min | ~2.3 min |
+| 2.4. LLM Judge Redesign & Metric Simplification | 4/5 | ~12 min | ~3 min |
 
 **Recent Trend:**
-- Last 5 plans: 02.3-02 (7min), 02.3-03 (10min), 02.4-01 (3min), 02.4-03 (4min)
-- Trend: Phase 2.4 consistently fast — well-defined domain changes with minimal dependencies
-- Phase 2.4 in progress: 3/5 plans complete (Wave 2: scoring toggle and RAGAs simplification)
+- Last 5 plans: 02.3-03 (10min), 02.4-01 (3min), 02.4-03 (4min), 02.4-04 (5min)
+- Trend: Phase 2.4 consistently fast (3-5min) — well-defined cross-layer integration tasks
+- Phase 2.4 in progress: 4/5 plans complete (Wave 3: application stack wiring complete)
 
 *Updated after each plan completion*
 
@@ -164,6 +164,11 @@ Recent decisions affecting current work:
 - **[02.4-03] Simple average RAGAs formula:** ragas_score = (factual_recall + answer_relevancy + semantic_similarity) / 3. No multiplicative penalty — dimensions are independent
 - **[02.4-03] factual_precision removed:** Dropped from RAGAs metrics, QualityGroup, and composite formula. Penalized valid alternative reasoning, duplicates LLM Judge hallucination check
 - **[02.4-03] 7 total metrics:** Model Response Quality reduced from 5 to 4 metrics (factual_precision removed). Total metrics: 6 RAGAs + 1 LLM Judge = 7 (was 8)
+- **[02.4-04] Shadow retrieval implementation:** In universal+llm-only mode, RAG pipeline queries for contexts using hybrid mode but only passes them to judge (not model). Enables hallucination detection without changing model input
+- **[02.4-04] Judge metadata as JSON in description:** _score_universal_judge serializes judge data as JSON in EvaluationMetric.description. Application layer parses it in _result_to_dto. Avoids modifying domain entity structure
+- **[02.4-04] CLI criteria transparency:** Shows clause_citations/conditional_analysis/actionable_steps as YES/NO/N/A with color coding. Hallucination shows binary YES/NO with claim counts (N claims: M unsupported, K contradicted)
+- **[02.4-04] JSON schema v5 with judge_evaluation:** New top-level object in test results containing hallucination_detected, unsupported/contradicted counts, reasoning_depth_score, reasoning_criteria_met, claims, justification. Rubric mode gets judge_mode='rubric' without judge_evaluation object
+- **[02.4-04] factual_precision display removal:** Dropped from flat benchmark table (7 columns now), RAGAs answer metrics display, and JSON response_quality group check. Already removed from RAGAs service in Plan 03
 
 ### Pending Todos
 
@@ -186,5 +191,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-22
-Stopped at: Completed 02.4-01-PLAN.md (Universal Judge Domain Model)
-Resume file: .planning/phases/02.4-llm-judge-redesign-and-metric-simplification/02.4-02-PLAN.md
+Stopped at: Completed 02.4-04-PLAN.md (Application Stack Wiring)
+Resume file: .planning/phases/02.4-llm-judge-redesign-and-metric-simplification/02.4-05-PLAN.md
