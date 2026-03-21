@@ -16,6 +16,7 @@ from typing import Dict, List, Optional, Union
 
 from domain.entities.model_response import ModelResponse
 from domain.entities.test_case import TestCase
+from domain.services.response_extractor import extract_final_answer
 
 logger = logging.getLogger(__name__)
 
@@ -190,6 +191,84 @@ class LLMJudgeService:
     Avoids model self-evaluation by using external Claude instance.
     """
 
+    UNIVERSAL_JUDGE_PROMPT = """You are evaluating a CCoP 2.0 compliance response on two dimensions: hallucination detection and reasoning depth.
+
+**QUESTION:**
+{question}
+
+**RESPONSE (extracted final answer):**
+{response}
+
+**RETRIEVED CONTEXTS (from CCoP 2.0 documents):**
+{contexts}
+
+---
+
+## EVALUATION INSTRUCTIONS
+
+### PART 1: HALLUCINATION CHECK
+
+1. Extract all atomic factual claims from the RESPONSE
+2. For each claim, verify against RETRIEVED CONTEXTS:
+   - SUPPORTED: Claim is directly supported by contexts or is a valid inference from them
+   - UNSUPPORTED: Claim makes assertions not found in contexts
+   - CONTRADICTED: Claim directly contradicts information in contexts
+
+**IMPORTANT:** A claim citing a different clause than expected is SUPPORTED if that clause is factually correct per the contexts. Valid inference from provided contexts is NOT hallucination.
+
+3. Verdict: hallucination_detected = true if ANY claim is UNSUPPORTED or CONTRADICTED
+
+### PART 2: REASONING DEPTH (question-adaptive)
+
+Evaluate which of these 3 criteria are **applicable** to this question type, then score each applicable criterion:
+
+1. **clause_citations**: Does response reference specific CCoP 2.0 clause numbers?
+   - Applicable for: Most questions (factual, advisory, classification)
+   - Not applicable if: Question doesn't require regulatory citation
+   - Met: true/false
+
+2. **conditional_analysis**: Does response analyze if-then scenarios or conditional compliance?
+   - Applicable for: Reasoning questions, scenario-based questions
+   - Not applicable if: Pure factual lookup or simple classification
+   - Met: true/false / null (if N/A)
+
+3. **actionable_steps**: Does response provide concrete CIIO implementation steps?
+   - Applicable for: Advisory questions, implementation guidance
+   - Not applicable if: Pure classification, factual lookup, or theoretical analysis
+   - Met: true/false / null (if N/A)
+
+**Scoring:** For each applicable criterion, evaluate true (met) or false (not met). Use null for criteria that are not applicable to this question type.
+
+reasoning_depth_score = count of criteria marked true (0-3)
+
+---
+
+## OUTPUT FORMAT
+
+Return ONLY valid JSON (no markdown):
+
+{{
+  "claims": [
+    {{
+      "text": "Extracted claim text",
+      "status": "SUPPORTED|UNSUPPORTED|CONTRADICTED",
+      "evidence": "Quote from contexts or 'No evidence found'"
+    }}
+  ],
+  "hallucination_detected": true/false,
+  "unsupported_count": <count of UNSUPPORTED claims>,
+  "contradicted_count": <count of CONTRADICTED claims>,
+  "reasoning_depth_score": 0-3,
+  "reasoning_criteria_met": {{
+    "clause_citations": true/false/null,
+    "conditional_analysis": true/false/null,
+    "actionable_steps": true/false/null
+  }},
+  "justification": "Brief explanation of hallucination verdict and reasoning depth assessment",
+  "confidence": 0.0-1.0
+}}
+"""
+
     def __init__(
         self,
         model_name: Optional[str] = None,
@@ -305,6 +384,62 @@ class LLMJudgeService:
             logger.error("Judge evaluation failed for %s: %s", benchmark_id, e)
             return JudgeEvaluation.error(
                 error_message=f"Judge evaluation failed for {benchmark_id}: {str(e)}",
+                raw_response="",
+            )
+
+    def universal_evaluate_response(
+        self,
+        test_case: TestCase,
+        response: ModelResponse,
+        benchmark_id: str,
+        retrieved_contexts: Optional[List[str]] = None,
+    ) -> JudgeEvaluation:
+        """
+        Evaluate response using universal two-dimension judge (hallucination + reasoning depth).
+
+        Uses combined prompt to evaluate:
+        1. Hallucination detection (binary gate with claim-level verification)
+        2. Reasoning depth (question-adaptive criteria: citations, conditional analysis, actionable steps)
+
+        Args:
+            test_case: Test case being evaluated
+            response: Model response to evaluate
+            benchmark_id: Benchmark short name (for logging)
+            retrieved_contexts: List of retrieved context strings from RAG
+
+        Returns:
+            JudgeEvaluation with hallucination fields and reasoning_depth dimension.
+            On failure, returns JudgeEvaluation with judge_error=True (skip-and-flag).
+        """
+        try:
+            # Extract final answer from chain-of-thought output
+            final_answer = extract_final_answer(response.content)
+
+            # Prepare contexts text
+            contexts_text = (
+                "\n\n".join(retrieved_contexts)
+                if retrieved_contexts
+                else "No retrieved contexts available"
+            )
+
+            # Build universal judge prompt
+            judge_prompt = self.UNIVERSAL_JUDGE_PROMPT.format(
+                question=test_case.question,
+                response=final_answer,
+                contexts=contexts_text,
+            )
+
+            # Call Claude judge
+            judge_response = self._call_claude_agent(judge_prompt)
+
+            # Parse universal judge response
+            evaluation = self._parse_universal_judge_response(judge_response)
+            return evaluation
+
+        except Exception as e:
+            logger.error("Universal judge evaluation failed for %s: %s", benchmark_id, e)
+            return JudgeEvaluation.error(
+                error_message=f"Universal judge evaluation failed for {benchmark_id}: {str(e)}",
                 raw_response="",
             )
 
@@ -434,3 +569,70 @@ class LLMJudgeService:
             confidence=float(data.get("confidence", 0.5)),
             raw_response=response,
         )
+
+    def _parse_universal_judge_response(self, response: str) -> JudgeEvaluation:
+        """
+        Parse JSON response from universal judge into JudgeEvaluation.
+
+        Expects format:
+        {
+            "claims": [{"text": "...", "status": "...", "evidence": "..."}],
+            "hallucination_detected": true/false,
+            "unsupported_count": N,
+            "contradicted_count": M,
+            "reasoning_depth_score": 0-3,
+            "reasoning_criteria_met": {
+                "clause_citations": true/false/null,
+                "conditional_analysis": true/false/null,
+                "actionable_steps": true/false/null
+            },
+            "justification": "...",
+            "confidence": 0.0-1.0
+        }
+
+        Args:
+            response: Raw response from Claude
+
+        Returns:
+            Parsed JudgeEvaluation with hallucination and reasoning depth fields
+
+        Raises:
+            json.JSONDecodeError: If response is not valid JSON
+            KeyError: If required fields are missing
+        """
+        try:
+            # Extract JSON from response (handle markdown code blocks)
+            json_str = response.strip()
+            if "```json" in json_str:
+                json_str = json_str.split("```json")[1].split("```")[0].strip()
+            elif "```" in json_str:
+                json_str = json_str.split("```")[1].split("```")[0].strip()
+
+            data = json.loads(json_str)
+
+            # Extract fields
+            claims = data.get("claims", [])
+            hallucination_detected = bool(data.get("hallucination_detected", False))
+            unsupported_count = int(data.get("unsupported_count", 0))
+            contradicted_count = int(data.get("contradicted_count", 0))
+            reasoning_criteria_met = data.get("reasoning_criteria_met", {})
+            justification = data.get("justification", "")
+            confidence = float(data.get("confidence", 0.5))
+
+            return JudgeEvaluation.from_universal_judge(
+                reasoning_criteria_met=reasoning_criteria_met,
+                hallucination_detected=hallucination_detected,
+                claims=claims,
+                unsupported_count=unsupported_count,
+                contradicted_count=contradicted_count,
+                justification=justification,
+                confidence=confidence,
+                raw_response=response,
+            )
+
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            logger.error("Failed to parse universal judge response: %s", e)
+            return JudgeEvaluation.error(
+                error_message=f"Failed to parse universal judge response: {str(e)}",
+                raw_response=response,
+            )
