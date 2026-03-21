@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 2.4 of 8 (LLM Judge Redesign and Metric Simplification)
-Plan: 1 of 5 — IN PROGRESS
-Status: Wave 1 in progress (plan 01 complete, 02 pending) — 4 plans remaining
-Last activity: 2026-03-22 — Completed 02.4-01-PLAN.md (Universal Judge Domain Model)
+Plan: 3 of 5 — IN PROGRESS
+Status: Wave 2 in progress (plans 01-03 complete) — 2 plans remaining
+Last activity: 2026-03-22 — Completed 02.4-03-PLAN.md (Scoring Service Toggle and RAGAs Simplification)
 
-Progress: [██░░░░░░░░] 20% (1/5 plans)
+Progress: [██████░░░░] 60% (3/5 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28
-- Average duration: 6.3 min
-- Total execution time: 2.95 hours
+- Total plans completed: 29
+- Average duration: 6.1 min
+- Total execution time: 2.96 hours
 
 **By Phase:**
 
@@ -35,12 +35,12 @@ Progress: [██░░░░░░░░] 20% (1/5 plans)
 | 2.1. Evaluation Quality Categorization | 3/3 | 105 min | 35 min |
 | 2.2. RAGAs Hallucination Metric & Renaming | 3/3 | ~17 min | ~6 min |
 | 2.3. RAGAs Metric Split & Scoring Formula | 3/3 | ~22 min | ~7 min |
-| 2.4. LLM Judge Redesign & Metric Simplification | 1/5 | ~3 min | ~3 min |
+| 2.4. LLM Judge Redesign & Metric Simplification | 3/5 | ~7 min | ~2.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 02.3-01 (5min), 02.3-02 (7min), 02.3-03 (10min), 02.4-01 (3min)
-- Trend: Phase 2.4 plan 01 very fast — domain model extensions with clean factories
-- Phase 2.4 in progress: 1/5 plans complete (Wave 1: universal judge domain model)
+- Last 5 plans: 02.3-02 (7min), 02.3-03 (10min), 02.4-01 (3min), 02.4-03 (4min)
+- Trend: Phase 2.4 consistently fast — well-defined domain changes with minimal dependencies
+- Phase 2.4 in progress: 3/5 plans complete (Wave 2: scoring toggle and RAGAs simplification)
 
 *Updated after each plan completion*
 
@@ -159,6 +159,11 @@ Recent decisions affecting current work:
 - **[02.4-01] Final answer extraction:** extract_final_answer utility removes chain-of-thought reasoning before judge evaluation to prevent contamination
 - **[02.4-01] Combined two-dimension prompt:** UNIVERSAL_JUDGE_PROMPT evaluates hallucination (claim-level verification) + reasoning depth in single Claude call
 - **[02.4-01] Path preservation:** Existing rubric-based evaluate_response method unchanged, toggle between paths happens in ScoringService (Plan 03)
+- **[02.4-03] judge_mode toggle in ScoringService:** judge_mode parameter (rubric or universal) routes B3, B7-B21 through appropriate judge path. Default "rubric" preserves existing behavior
+- **[02.4-03] B21 universal routing:** B21 routes through universal judge hallucination detection when judge_mode="universal" (more sophisticated than regex), stays rule-based when "rubric"
+- **[02.4-03] Simple average RAGAs formula:** ragas_score = (factual_recall + answer_relevancy + semantic_similarity) / 3. No multiplicative penalty — dimensions are independent
+- **[02.4-03] factual_precision removed:** Dropped from RAGAs metrics, QualityGroup, and composite formula. Penalized valid alternative reasoning, duplicates LLM Judge hallucination check
+- **[02.4-03] 7 total metrics:** Model Response Quality reduced from 5 to 4 metrics (factual_precision removed). Total metrics: 6 RAGAs + 1 LLM Judge = 7 (was 8)
 
 ### Pending Todos
 
