@@ -136,10 +136,11 @@ class JSONResultRepository(IResultRepository):
         }
 
         # Add RAGAs section if evaluation was performed
+        ragas_eval = result.ragas_evaluation
         if ragas_eval is not None:
             if ragas_eval.evaluation_error:
                 serialized["ragas"] = {
-                    "schema_version": 3,
+                    "schema_version": 5,
                     "error": True,
                     "error_message": ragas_eval.error_message,
                 }
@@ -153,6 +154,36 @@ class JSONResultRepository(IResultRepository):
         if result.retrieved_chunk_ids is not None:
             serialized["retrieved_chunk_ids"] = result.retrieved_chunk_ids
             serialized["chunk_count"] = result.chunk_count or 0
+
+        # Judge evaluation metadata (schema v5)
+        # Detect judge mode from metrics
+        judge_mode = None
+        for metric in result.metrics:
+            if metric.name == "universal_judge":
+                judge_mode = "universal"
+                # Parse judge metadata from description
+                try:
+                    import json as json_module
+                    judge_data = json_module.loads(metric.description)
+                    serialized["judge_mode"] = "universal"
+                    serialized["judge_evaluation"] = {
+                        "hallucination_detected": judge_data.get("hallucination_detected"),
+                        "unsupported_count": judge_data.get("unsupported_count"),
+                        "contradicted_count": judge_data.get("contradicted_count"),
+                        "reasoning_depth_score": round(metric.value * 3),  # Denormalize to 0-3 scale
+                        "reasoning_criteria_met": judge_data.get("reasoning_criteria_met"),
+                        "claims": judge_data.get("claims"),
+                        "justification": judge_data.get("justification"),
+                    }
+                except (json_module.JSONDecodeError, AttributeError):
+                    pass
+                break
+            elif metric.name in ["accuracy", "completeness", "alignment"]:
+                judge_mode = "rubric"
+                break
+
+        if judge_mode == "rubric":
+            serialized["judge_mode"] = "rubric"
 
         return serialized
 
@@ -224,17 +255,18 @@ class JSONResultRepository(IResultRepository):
                 retrieval_quality[metric.name] = metric_data
             elif metric.name == "context_faithfulness":
                 grounding[metric.name] = metric_data
-            elif metric.name in ["factual_precision", "factual_recall", "answer_relevancy", "semantic_similarity"]:
+            elif metric.name in ["factual_recall", "answer_relevancy", "semantic_similarity"]:
                 response_quality[metric.name] = metric_data
 
         return {
-            "schema_version": 4,
+            "schema_version": 5,
             "error": False,
             "is_rag_response": ragas_eval.is_rag_response,
             "group_definitions": group_definitions,
             "retrieval_quality": retrieval_quality,
             "grounding": grounding,
             "response_quality": response_quality,
+            "schema_notes": "v5: factual_precision removed, judge_evaluation added. v4: factual_precision/recall/semantic_similarity replace answer_correctness/hallucination. v3: context_faithfulness, hallucination added. v2: grouped structure."
         }
 
     def _enrich_quality_categories_metadata(self, metadata: Dict[str, any]) -> Dict[str, any]:

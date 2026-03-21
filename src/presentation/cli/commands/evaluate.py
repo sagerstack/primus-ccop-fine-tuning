@@ -54,6 +54,11 @@ def run(
         "-m",
         help="Evaluation mode: hybrid (RAG-augmented) or llm-only"
     ),
+    judge_mode: str = typer.Option(
+        "rubric",
+        "--judge-mode",
+        help="Judge mode: rubric (per-benchmark rubrics) or universal (reasoning depth + hallucination)"
+    ),
 ) -> None:
     """Run model evaluation."""
     from infrastructure.config.settings import get_settings
@@ -68,6 +73,11 @@ def run(
     # Validate mode parameter
     if mode not in VALID_EVAL_MODES:
         console.print(f"[red]Invalid mode: {mode}. Must be one of: {', '.join(VALID_EVAL_MODES)}[/red]")
+        raise typer.Exit(1)
+
+    # Validate judge_mode parameter
+    if judge_mode not in ["rubric", "universal"]:
+        console.print(f"[red]Invalid judge_mode: {judge_mode}. Must be 'rubric' or 'universal'.[/red]")
         raise typer.Exit(1)
 
     # Handle --tier argument (takes precedence over --benchmarks)
@@ -105,6 +115,7 @@ def run(
     console.print(f"[bold]Benchmarks:[/bold] {', '.join(benchmarks)}")
     console.print(f"[bold]Evaluation Phase:[/bold] {phase}")
     console.print(f"[bold]Evaluation Mode:[/bold] {mode}")
+    console.print(f"[bold]Judge Mode:[/bold] {judge_mode}")
 
     # Display threshold being used
     if threshold is not None:
@@ -123,6 +134,7 @@ def run(
         evaluation_phase=phase,
         pass_threshold=threshold,
         evaluation_mode=mode,
+        judge_mode=judge_mode,
     )
 
     try:
@@ -203,11 +215,36 @@ def run(
             # Group 3: Model Response Quality (LLM Judge + answer metrics)
             lines.append("\n[bold cyan]─── Model Response Quality ───[/bold cyan]")
 
-            # LLM Judge Dimensions
-            judge_metrics = [m for m in r.metrics if m.name != "judge_error"]
+            # LLM Judge Dimensions / Judge Criteria Transparency
+            judge_metrics = [m for m in r.metrics if m.name not in ["judge_error", "universal_judge"]]
             judge_errors = [m for m in r.metrics if m.name == "judge_error"]
+            universal_judge_metrics = [m for m in r.metrics if m.name == "universal_judge"]
 
-            if judge_metrics:
+            if universal_judge_metrics and r.judge_mode == "universal":
+                # Universal judge mode: show criteria transparency
+                lines.append("[bold]LLM Judge (Universal):[/bold]")
+                lines.append(f"  Overall Score: {r.overall_score:.2f}")
+
+                if r.reasoning_criteria_met:
+                    lines.append("\n  [bold]Reasoning Criteria:[/bold]")
+                    for criterion, met in r.reasoning_criteria_met.items():
+                        if met is None:
+                            status = "[dim]N/A[/dim]"
+                        elif met:
+                            status = "[green]YES[/green]"
+                        else:
+                            status = "[red]NO[/red]"
+                        lines.append(f"    {criterion.replace('_', ' ').title()}: {status}")
+
+                if r.hallucination_detected is not None:
+                    halluc_status = "[red]YES[/red]" if r.hallucination_detected else "[green]NO[/green]"
+                    claim_info = ""
+                    if r.unsupported_count is not None and r.contradicted_count is not None:
+                        total_claims = len(r.claims) if r.claims else 0
+                        claim_info = f" ({total_claims} claims: {r.unsupported_count} unsupported, {r.contradicted_count} contradicted)"
+                    lines.append(f"  [bold]Hallucination:[/bold] {halluc_status}{claim_info}")
+            elif judge_metrics:
+                # Rubric mode: show dimension scores
                 lines.append("[bold]LLM Judge:[/bold]")
                 for m in judge_metrics:
                     raw_score = round(m.value * 3)
@@ -215,9 +252,9 @@ def run(
             if judge_errors:
                 lines.append("[bold]LLM Judge:[/bold] [yellow]⚠ Judge Error[/yellow]")
 
-            # RAGAs answer metrics (factual_precision, factual_recall, answer_relevancy, semantic_similarity)
+            # RAGAs answer metrics (factual_recall, answer_relevancy, semantic_similarity)
             if r.ragas_metrics:
-                answer_metrics = [rm for rm in r.ragas_metrics if rm.name in ["factual_precision", "factual_recall", "answer_relevancy", "semantic_similarity"]]
+                answer_metrics = [rm for rm in r.ragas_metrics if rm.name in ["factual_recall", "answer_relevancy", "semantic_similarity"]]
                 for rm in answer_metrics:
                     metric_display = QualityGroup.get_display_name(rm.name)
                     if rm.applicable:
@@ -333,7 +370,6 @@ def run(
                 bench_table.add_column("ctx_recall", justify="center", header_style="yellow")
                 bench_table.add_column("ctx_precision", justify="center", header_style="yellow")
                 bench_table.add_column("ctx_faith", justify="center", header_style="magenta")
-                bench_table.add_column("fct_prec", justify="center", header_style="cyan")
                 bench_table.add_column("fct_recl", justify="center", header_style="cyan")
                 bench_table.add_column("ans_relev", justify="center", header_style="cyan")
                 bench_table.add_column("sem_sim", justify="center", header_style="cyan")
@@ -365,7 +401,6 @@ def run(
                         format_metric(metrics_flat.get("RAGAs: context_recall")),
                         format_metric(metrics_flat.get("RAGAs: context_precision")),
                         format_metric(metrics_flat.get("RAGAs: context_faithfulness")),
-                        format_metric(metrics_flat.get("RAGAs: factual_precision")),
                         format_metric(metrics_flat.get("RAGAs: factual_recall")),
                         format_metric(metrics_flat.get("RAGAs: answer_relevancy")),
                         format_metric(metrics_flat.get("RAGAs: semantic_similarity")),
