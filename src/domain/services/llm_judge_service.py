@@ -10,7 +10,7 @@ import json
 import logging
 import re
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
@@ -42,6 +42,13 @@ class JudgeEvaluation:
     raw_response: str                 # Full judge response for debugging
     judge_error: bool = False         # True if evaluation failed (skip-and-flag)
     error_message: str = ""           # Error details when judge_error=True
+
+    # Universal judge fields (hallucination detection + reasoning depth)
+    hallucination_detected: bool = False                          # Binary gate for hallucination
+    unsupported_count: int = 0                                    # Count of UNSUPPORTED claims
+    contradicted_count: int = 0                                   # Count of CONTRADICTED claims
+    claims: List[Dict[str, str]] = field(default_factory=list)   # List of claim verification results
+    reasoning_criteria_met: Dict[str, Optional[bool]] = field(default_factory=dict)  # Reasoning criteria evaluation
 
     @staticmethod
     def from_dimensions(
@@ -80,6 +87,75 @@ class JudgeEvaluation:
             raw_response=raw_response,
             judge_error=False,
             error_message=""
+        )
+
+    @staticmethod
+    def from_universal_judge(
+        reasoning_criteria_met: Dict[str, Optional[bool]],
+        hallucination_detected: bool,
+        claims: List[Dict[str, str]],
+        unsupported_count: int,
+        contradicted_count: int,
+        justification: str,
+        confidence: float,
+        raw_response: str,
+    ) -> "JudgeEvaluation":
+        """
+        Create JudgeEvaluation from universal judge evaluation.
+
+        Computes overall_score as:
+        - If hallucination_detected: overall_score = 0.0
+        - Else: overall_score = reasoning_depth_score / 3.0
+        - Where reasoning_depth_score is sum of True values in reasoning_criteria_met
+          (excluding None/N/A entries)
+
+        Args:
+            reasoning_criteria_met: Dict of criteria names to True/False/None
+            hallucination_detected: Binary hallucination gate
+            claims: List of claim verification results
+            unsupported_count: Count of UNSUPPORTED claims
+            contradicted_count: Count of CONTRADICTED claims
+            justification: CoT explanation
+            confidence: Judge self-assessed confidence (0-1)
+            raw_response: Full judge response
+
+        Returns:
+            JudgeEvaluation with computed overall_score
+        """
+        # Calculate reasoning depth score (count of True values, excluding None)
+        reasoning_depth_score = sum(
+            1 for value in reasoning_criteria_met.values()
+            if value is True
+        )
+
+        # Apply hallucination gate
+        if hallucination_detected:
+            overall_score = 0.0
+        else:
+            overall_score = reasoning_depth_score / 3.0
+
+        # Create single dimension for reasoning depth
+        dimensions = [
+            DimensionScore(
+                name="reasoning_depth",
+                score=reasoning_depth_score,
+                weight=1.0,
+            )
+        ]
+
+        return JudgeEvaluation(
+            dimensions=dimensions,
+            justification=justification,
+            overall_score=overall_score,
+            confidence=confidence,
+            raw_response=raw_response,
+            judge_error=False,
+            error_message="",
+            hallucination_detected=hallucination_detected,
+            unsupported_count=unsupported_count,
+            contradicted_count=contradicted_count,
+            claims=claims,
+            reasoning_criteria_met=reasoning_criteria_met,
         )
 
     @staticmethod
