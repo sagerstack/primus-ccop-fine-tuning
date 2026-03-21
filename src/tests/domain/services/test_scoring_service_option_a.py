@@ -319,5 +319,65 @@ class TestOptionAIntegration:
         assert total_score >= 0.75, f"Complete answer scored too low: {total_score:.2f}"
 
 
+class TestJudgeModeToggle:
+    """Test judge_mode parameter routing in score_response."""
+
+    def test_score_response_default_judge_mode_is_rubric(self):
+        """Default judge_mode='rubric' produces rule-based or rubric results."""
+        test_case = TestCase(
+            test_id="B1-800",
+            benchmark_type=BenchmarkType("B1_CCoP_Applicability_Scope"),
+            section=CCoPSection("Section 3: Governance"),
+            clause_reference="3.1.1",
+            difficulty=DifficultyLevel("low"),
+            question="Test question with at least fifty characters for validation to pass successfully",
+            expected_response="Critical Information Infrastructure Owners are required.",
+            evaluation_criteria={"accuracy": "test"},
+            key_facts=[]
+        )
+
+        response = ModelResponse(
+            content="Critical Infrastructure Owners must follow guidelines.",
+            model_name="test-model"
+        )
+
+        # Call without judge_mode (default is "rubric")
+        metrics = ScoringService.score_response(test_case, response)
+
+        # Should return rule-based metrics (accuracy, completeness)
+        metric_names = [m.name for m in metrics]
+        assert "accuracy" in metric_names or "completeness" in metric_names
+        # Should not have judge-specific metrics
+        assert "llm_judge" not in metric_names
+
+    def test_score_response_universal_keeps_rule_based(self):
+        """judge_mode='universal' keeps B1 (rule-based) as rule-based."""
+        test_case = TestCase(
+            test_id="B1-801",
+            benchmark_type=BenchmarkType("B1_CCoP_Applicability_Scope"),
+            section=CCoPSection("Section 3: Governance"),
+            clause_reference="3.1.1",
+            difficulty=DifficultyLevel("low"),
+            question="Test question with at least fifty characters for validation to pass successfully",
+            expected_response="Critical Information Infrastructure Owners are required.",
+            evaluation_criteria={"accuracy": "test"},
+            key_facts=[]
+        )
+
+        response = ModelResponse(
+            content="Critical Infrastructure Owners must follow guidelines.",
+            model_name="test-model"
+        )
+
+        # Call with judge_mode="universal"
+        metrics = ScoringService.score_response(
+            test_case, response, judge_mode="universal"
+        )
+
+        # B1 should still use rule-based scoring
+        metric_names = [m.name for m in metrics]
+        assert "accuracy" in metric_names or "completeness" in metric_names
+
+
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])

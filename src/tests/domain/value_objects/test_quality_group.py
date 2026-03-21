@@ -21,20 +21,19 @@ class TestQualityGroupMetrics:
         assert "context_faithfulness" in grounding.metrics
         assert "faithfulness" not in grounding.metrics
 
-    def test_response_quality_group_has_factual_precision(self):
-        """Model Response Quality group contains factual_precision metric."""
-        groups = QualityGroup.get_all_groups()
-        response_quality = [g for g in groups if g.name == "Model Response Quality"][0]
-
-        assert "factual_precision" in response_quality.metrics
-
     def test_response_quality_group_has_all_expected_metrics(self):
-        """Model Response Quality group contains factual_precision, factual_recall, answer_relevancy, semantic_similarity, llm_judge."""
+        """Model Response Quality group contains factual_recall, answer_relevancy, semantic_similarity, llm_judge (factual_precision removed)."""
         groups = QualityGroup.get_all_groups()
         response_quality = [g for g in groups if g.name == "Model Response Quality"][0]
 
-        expected = ["factual_precision", "factual_recall", "answer_relevancy", "semantic_similarity", "llm_judge"]
+        expected = ["factual_recall", "answer_relevancy", "semantic_similarity", "llm_judge"]
         assert response_quality.metrics == expected
+
+    def test_factual_precision_not_in_any_group(self):
+        """factual_precision should NOT be in any group (removed)."""
+        groups = QualityGroup.get_all_groups()
+        all_metrics = [m for g in groups for m in g.metrics]
+        assert "factual_precision" not in all_metrics
 
     def test_retrieval_quality_group_unchanged(self):
         """Retrieval Quality group remains context_recall, context_precision."""
@@ -43,11 +42,11 @@ class TestQualityGroupMetrics:
 
         assert retrieval.metrics == ["context_recall", "context_precision"]
 
-    def test_total_metrics_count_is_eight(self):
-        """Total metrics across all groups is 8 (was 6 before split)."""
+    def test_total_metrics_count_is_seven(self):
+        """Total metrics across all groups is 7 (factual_precision removed)."""
         groups = QualityGroup.get_all_groups()
         total = sum(len(g.metrics) for g in groups)
-        assert total == 8
+        assert total == 7
 
     def test_faithfulness_not_in_any_group(self):
         """Bare 'faithfulness' should not appear in any group's metrics."""
@@ -63,9 +62,9 @@ class TestQualityGroupDisplayNames:
         """context_faithfulness maps to 'RAGAs: context_faithfulness'."""
         assert QualityGroup.get_display_name("context_faithfulness") == "RAGAs: context_faithfulness"
 
-    def test_factual_precision_display_name(self):
-        """factual_precision maps to 'RAGAs: factual_precision'."""
-        assert QualityGroup.get_display_name("factual_precision") == "RAGAs: factual_precision"
+    def test_factual_precision_display_name_falls_through(self):
+        """factual_precision falls through to default (removed metric)."""
+        assert QualityGroup.get_display_name("factual_precision") == "factual_precision"
 
     def test_factual_recall_display_name(self):
         """factual_recall maps to 'RAGAs: factual_recall'."""
@@ -98,11 +97,10 @@ class TestQualityGroupDisplayNames:
 class TestQualityGroupLookup:
     """Test get_group_for_metric lookups."""
 
-    def test_factual_precision_in_response_quality(self):
-        """factual_precision belongs to Model Response Quality group."""
+    def test_factual_precision_not_found(self):
+        """factual_precision should not be found in any group (removed)."""
         group = QualityGroup.get_group_for_metric("factual_precision")
-        assert group is not None
-        assert group.name == "Model Response Quality"
+        assert group is None
 
     def test_factual_recall_in_response_quality(self):
         """factual_recall belongs to Model Response Quality group."""

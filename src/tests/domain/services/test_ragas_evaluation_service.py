@@ -69,13 +69,13 @@ def _run_evaluate(service, mock_evaluate_results, retrieved_contexts=None, **kwa
         )
 
 
-class TestFactualPrecisionMetric:
-    """Test factual_precision metric behavior."""
+class TestFactualRecallMetric:
+    """Test factual_recall metric behavior."""
 
-    def test_factual_precision_present_in_hybrid_mode(self, service):
-        """factual_precision metric returned with applicable=True in hybrid mode."""
+    def test_factual_recall_present_in_hybrid_mode(self, service):
+        """factual_recall metric returned with applicable=True in hybrid mode."""
         results = [
-            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
+            _mock_evaluate_result({"factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
             _mock_evaluate_result({"faithfulness": 0.6, "context_precision": 0.7, "context_recall": 0.8}),
         ]
 
@@ -83,27 +83,40 @@ class TestFactualPrecisionMetric:
 
         assert not result.evaluation_error
         metric_names = [m.name for m in result.metrics]
-        assert "factual_precision" in metric_names
+        assert "factual_recall" in metric_names
 
-        precision = [m for m in result.metrics if m.name == "factual_precision"][0]
-        assert precision.applicable is True
-        assert precision.score == 0.9
+        recall = [m for m in result.metrics if m.name == "factual_recall"][0]
+        assert recall.applicable is True
+        assert recall.score == 0.8
 
-    def test_factual_precision_present_in_llm_only_mode(self, service):
-        """factual_precision metric returned with applicable=True even without retrieved_contexts."""
+    def test_factual_recall_present_in_llm_only_mode(self, service):
+        """factual_recall metric returned with applicable=True even without retrieved_contexts."""
         results = [
-            _mock_evaluate_result({"factual_correctness_precision": 0.85, "factual_correctness_recall": 0.75, "answer_relevancy": 0.8, "semantic_similarity": 0.9}),
+            _mock_evaluate_result({"factual_correctness_recall": 0.75, "answer_relevancy": 0.8, "semantic_similarity": 0.9}),
         ]
 
         result = _run_evaluate(service, results, retrieved_contexts=None)
 
         assert not result.evaluation_error
         metric_names = [m.name for m in result.metrics]
-        assert "factual_precision" in metric_names
+        assert "factual_recall" in metric_names
 
-        precision = [m for m in result.metrics if m.name == "factual_precision"][0]
-        assert precision.applicable is True
-        assert precision.score == 0.85
+        recall = [m for m in result.metrics if m.name == "factual_recall"][0]
+        assert recall.applicable is True
+        assert recall.score == 0.75
+
+    def test_no_factual_precision_metric(self, service):
+        """factual_precision should NOT be present (removed from RAGAs)."""
+        results = [
+            _mock_evaluate_result({"factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
+            _mock_evaluate_result({"faithfulness": 0.6, "context_precision": 0.7, "context_recall": 0.8}),
+        ]
+
+        result = _run_evaluate(service, results, retrieved_contexts=["Context about CCoP."])
+
+        assert not result.evaluation_error
+        metric_names = [m.name for m in result.metrics]
+        assert "factual_precision" not in metric_names
 
 
 class TestContextFaithfulness:
@@ -140,10 +153,10 @@ class TestContextFaithfulness:
 class TestMetricCompleteness:
     """Test that all expected metrics are present."""
 
-    def test_hybrid_mode_has_seven_metrics(self, service):
-        """Hybrid mode produces 7 metrics."""
+    def test_hybrid_mode_has_six_metrics(self, service):
+        """Hybrid mode produces 6 metrics (factual_precision removed)."""
         results = [
-            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
+            _mock_evaluate_result({"factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
             _mock_evaluate_result({"faithfulness": 0.75, "context_precision": 0.7, "context_recall": 0.8}),
         ]
 
@@ -151,22 +164,22 @@ class TestMetricCompleteness:
 
         metric_names = sorted([m.name for m in result.metrics])
         expected = sorted([
-            "factual_precision", "factual_recall", "answer_relevancy", "semantic_similarity",
+            "factual_recall", "answer_relevancy", "semantic_similarity",
             "context_faithfulness", "context_precision", "context_recall"
         ])
         assert metric_names == expected
 
     def test_llm_only_mode_metrics(self, service):
-        """LLM-only mode produces all 7 metrics with appropriate applicable flags."""
+        """LLM-only mode produces all 6 metrics with appropriate applicable flags."""
         results = [
-            _mock_evaluate_result({"factual_correctness_precision": 0.85, "factual_correctness_recall": 0.75, "answer_relevancy": 0.8, "semantic_similarity": 0.9}),
+            _mock_evaluate_result({"factual_correctness_recall": 0.75, "answer_relevancy": 0.8, "semantic_similarity": 0.9}),
         ]
 
         result = _run_evaluate(service, results, retrieved_contexts=None)
 
         metric_names = sorted([m.name for m in result.metrics])
         expected = sorted([
-            "factual_precision", "factual_recall", "answer_relevancy", "semantic_similarity",
+            "factual_recall", "answer_relevancy", "semantic_similarity",
             "context_faithfulness", "context_precision", "context_recall"
         ])
         assert metric_names == expected
@@ -174,7 +187,6 @@ class TestMetricCompleteness:
         applicable_metrics = [m.name for m in result.metrics if m.applicable]
         not_applicable_metrics = [m.name for m in result.metrics if not m.applicable]
 
-        assert "factual_precision" in applicable_metrics
         assert "factual_recall" in applicable_metrics
         assert "answer_relevancy" in applicable_metrics
         assert "semantic_similarity" in applicable_metrics
@@ -185,7 +197,7 @@ class TestMetricCompleteness:
     def test_no_bare_faithfulness_metric(self, service):
         """No metric should be named 'faithfulness'."""
         results = [
-            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
+            _mock_evaluate_result({"factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
             _mock_evaluate_result({"faithfulness": 0.75, "context_precision": 0.7, "context_recall": 0.8}),
         ]
 
@@ -195,9 +207,9 @@ class TestMetricCompleteness:
         assert "faithfulness" not in metric_names
 
     def test_no_answer_correctness_metric(self, service):
-        """No metric should be named 'answer_correctness' (split into precision/recall)."""
+        """No metric should be named 'answer_correctness' (only recall remains, precision removed)."""
         results = [
-            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
+            _mock_evaluate_result({"factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
             _mock_evaluate_result({"faithfulness": 0.75, "context_precision": 0.7, "context_recall": 0.8}),
         ]
 
@@ -207,9 +219,9 @@ class TestMetricCompleteness:
         assert "answer_correctness" not in metric_names
 
     def test_no_hallucination_metric(self, service):
-        """No metric should be named 'hallucination' (replaced by factual_precision)."""
+        """No metric should be named 'hallucination' (removed from RAGAs)."""
         results = [
-            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
+            _mock_evaluate_result({"factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.85}),
             _mock_evaluate_result({"faithfulness": 0.75, "context_precision": 0.7, "context_recall": 0.8}),
         ]
 
@@ -226,7 +238,7 @@ class TestSemanticSimilarityMetric:
         """semantic_similarity metric returned with applicable=True in both modes."""
         # Test hybrid mode
         results_hybrid = [
-            _mock_evaluate_result({"factual_correctness_precision": 0.9, "factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.92}),
+            _mock_evaluate_result({"factual_correctness_recall": 0.8, "answer_relevancy": 0.7, "semantic_similarity": 0.92}),
             _mock_evaluate_result({"faithfulness": 0.75, "context_precision": 0.7, "context_recall": 0.8}),
         ]
         result = _run_evaluate(service, results_hybrid, retrieved_contexts=["ctx"])
@@ -241,7 +253,7 @@ class TestSemanticSimilarityMetric:
 
         # Test llm-only mode
         results_llm = [
-            _mock_evaluate_result({"factual_correctness_precision": 0.85, "factual_correctness_recall": 0.75, "answer_relevancy": 0.8, "semantic_similarity": 0.88}),
+            _mock_evaluate_result({"factual_correctness_recall": 0.75, "answer_relevancy": 0.8, "semantic_similarity": 0.88}),
         ]
         result_llm = _run_evaluate(service, results_llm, retrieved_contexts=None)
 
