@@ -54,17 +54,11 @@ class ScoringService:
         Returns:
             List of evaluation metrics
         """
-        # Universal judge routing: B3, B7-B20, B21 route through universal judge
+        # Universal judge routing: ALL benchmarks route through universal judge
         if judge_mode == "universal":
-            universal_benchmarks = {
-                "B3", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14",
-                "B15", "B16", "B17", "B18", "B19", "B20", "B21"
-            }
-            benchmark_short_name = test_case.benchmark_type.short_name
-            if benchmark_short_name in universal_benchmarks:
-                return ScoringService._score_universal_judge(
-                    test_case, response, retrieved_contexts
-                )
+            return ScoringService._score_universal_judge(
+                test_case, response, retrieved_contexts
+            )
 
         # Rubric-based routing (default): existing benchmark scorers
         benchmark_scorers = {

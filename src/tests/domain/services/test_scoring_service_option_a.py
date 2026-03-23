@@ -124,8 +124,8 @@ class TestJudgeModeToggle:
         # Should not have judge-specific metrics
         assert "llm_judge" not in metric_names
 
-    def test_score_response_universal_keeps_rule_based(self):
-        """judge_mode='universal' keeps B1 (rule-based) as rule-based."""
+    def test_score_response_universal_routes_all_to_universal_judge(self):
+        """judge_mode='universal' routes ALL benchmarks through universal judge, including B1."""
         test_case = TestCase(
             test_id="B1-801",
             benchmark_type=BenchmarkType("B1_CCoP_Applicability_Scope"),
@@ -143,14 +143,15 @@ class TestJudgeModeToggle:
             model_name="test-model"
         )
 
-        # Call with judge_mode="universal"
+        # Call with judge_mode="universal" — should route to universal judge
+        # which requires Claude API, so it will return judge_error in test env
         metrics = ScoringService.score_response(
             test_case, response, judge_mode="universal"
         )
 
-        # B1 should still use rule-based scoring
+        # Universal judge returns either "universal_judge" or "judge_error" metric
         metric_names = [m.name for m in metrics]
-        assert "accuracy" in metric_names or "completeness" in metric_names
+        assert "universal_judge" in metric_names or "judge_error" in metric_names
 
 
 if __name__ == '__main__':
