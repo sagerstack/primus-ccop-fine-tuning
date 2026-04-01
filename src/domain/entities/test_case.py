@@ -124,10 +124,10 @@ class TestCase:
                 field="expected_response"
             )
 
-        # Rule 5: evaluation criteria required
-        if not self._evaluation_criteria or not isinstance(self._evaluation_criteria, dict):
+        # Rule 5: evaluation criteria must be a dict (can be empty for v2 universal judge)
+        if not isinstance(self._evaluation_criteria, dict):
             raise ValidationError(
-                "Evaluation criteria must be a non-empty dictionary",
+                "Evaluation criteria must be a dictionary",
                 field="evaluation_criteria"
             )
 

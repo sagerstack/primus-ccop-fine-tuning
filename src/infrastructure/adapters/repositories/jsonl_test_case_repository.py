@@ -48,7 +48,7 @@ class JSONLTestCaseRepository(ITestCaseRepository):
                     first_line = f.readline().strip()
                     if first_line:
                         data = json.loads(first_line)
-                        benchmark_type = data.get("benchmark_type")
+                        benchmark_type = data.get("benchmark_type") or data.get("benchmark_id")
                         if benchmark_type:
                             # Store mapping: benchmark_type -> filepath
                             self._benchmark_files[benchmark_type] = filepath
@@ -139,7 +139,13 @@ class JSONLTestCaseRepository(ITestCaseRepository):
         return case is not None
 
     def _parse_test_case(self, data: dict) -> TestCase:
-        """Parse JSON data to TestCase entity."""
+        """Parse JSON data to TestCase entity. Handles both v1 flat and v2 nested formats."""
+        if data.get("version") == "2.0":
+            return self._parse_v2_test_case(data)
+        return self._parse_v1_test_case(data)
+
+    def _parse_v1_test_case(self, data: dict) -> TestCase:
+        """Parse v1 flat format (backward compatibility)."""
         return TestCase(
             test_id=data["test_id"],
             benchmark_type=BenchmarkType.from_string(data["benchmark_type"]),
@@ -154,4 +160,46 @@ class JSONLTestCaseRepository(ITestCaseRepository):
             key_facts=data.get("key_facts", []),
             expected_label=data.get("expected_label"),
             forbidden_claims=data.get("forbidden_claims", []),
+        )
+
+    def _parse_v2_test_case(self, data: dict) -> TestCase:
+        """Parse v2 nested format."""
+        inp = data.get("input", {})
+        gt = data.get("ground_truth", {})
+        fc = data.get("fail_conditions", {})
+        meta = data.get("metadata", {})
+
+        # Extract key_facts as list[str] for scorer backward compatibility
+        raw_key_facts = gt.get("key_facts", [])
+        key_facts_strings = [kf["fact"] for kf in raw_key_facts if isinstance(kf, dict)]
+
+        # Merge v2-specific fields into metadata for downstream access
+        enriched_metadata = {
+            **meta,
+            "scenario_sector": inp.get("scenario_sector"),
+            "scenario_role": inp.get("scenario_role"),
+            "test_category": meta.get("test_category"),
+            "reasoning_chain": gt.get("reasoning_chain", []),
+            "acceptable_variations": gt.get("acceptable_variations", []),
+            "key_facts_structured": raw_key_facts,
+            "hallucination_patterns": fc.get("hallucination_patterns", []),
+        }
+
+        # Build clause_reference as string (v1 format expects string, not list)
+        clause_refs = meta.get("clause_reference", [])
+        clause_ref_str = ", ".join(clause_refs) if isinstance(clause_refs, list) else clause_refs
+
+        return TestCase(
+            test_id=data["test_id"],
+            benchmark_type=BenchmarkType.from_string(data["benchmark_id"]),
+            section=CCoPSection.from_string(meta.get("section", "N/A")),
+            clause_reference=clause_ref_str,
+            difficulty=DifficultyLevel.from_string(meta.get("difficulty", "Medium")),
+            question=inp["question"],
+            expected_response=gt["expected_response"],
+            evaluation_criteria={},  # v2 uses universal judge — no per-test criteria
+            metadata=enriched_metadata,
+            key_facts=key_facts_strings,
+            expected_label=gt.get("expected_label"),
+            forbidden_claims=fc.get("forbidden_claims", []),
         )
