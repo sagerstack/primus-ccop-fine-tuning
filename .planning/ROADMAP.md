@@ -2,7 +2,7 @@
 
 ## Overview
 
-This roadmap delivers a hybrid Fine-tuned + RAG-augmented compliance assistant that helps Critical Information Infrastructure (CII) organizations understand and implement Singapore's Cybersecurity Code of Practice (CCoP 2.0). The journey begins with building RAG infrastructure for document grounding (learning priority), evaluates RAG against the existing 49.2% baseline on 118 test cases, then expands the ground truth dataset to 1000+ cases informed by RAG gap analysis, re-evaluates both base model and RAG on the expanded set, fine-tunes the model on reasoning weaknesses, integrates both approaches into a hybrid system, adds safety guardrails, and concludes with comprehensive comparison across all model iterations. The critical decision point is after Phase 4, where re-evaluation results on the expanded dataset determine the scope and focus areas for Phase 5 fine-tuning.
+This roadmap delivers a hybrid Fine-tuned + RAG-augmented compliance assistant that helps Critical Information Infrastructure (CII) organizations understand and implement Singapore's Cybersecurity Code of Practice (CCoP 2.0). The journey begins with building RAG infrastructure for document grounding (learning priority), evaluates RAG against the existing 49.2% baseline on 118 test cases, then overhauls the ground truth with a research-informed v2 dataset (~435 cases across 18 restructured benchmarks targeting Risk Managers), re-evaluates both base model and RAG on the v2 dataset, fine-tunes the model on reasoning weaknesses, integrates both approaches into a hybrid system, adds safety guardrails, and concludes with comprehensive comparison across all model iterations. The critical decision point is after Phase 4, where re-evaluation results on the expanded dataset determine the scope and focus areas for Phase 5 fine-tuning.
 
 ## Phases
 
@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2.2: RAGAs Hallucination Metric and Metric Renaming** (INSERTED) - Add ground-truth faithfulness metric for hallucination detection, rename existing metrics for clarity
 - [x] **Phase 2.3: RAGAs Metric Split & Scoring Formula** (INSERTED) - Replace aggregated answer_correctness with separate FactualCorrectness (precision/recall), SemanticSimilarity (diagnostic), and multiplicative hallucination penalty formula
 - [x] **Phase 2.4: LLM Judge Redesign and Metric Simplification** (INSERTED) - Replace per-benchmark rubrics with universal reasoning depth + hallucination check dimensions, drop factual_precision from scoring
-- [ ] **Phase 3: Ground Truth Dataset Expansion** - Expand from 118 to 1000+ test cases across all 21 benchmarks
+- [ ] **Phase 3: Ground Truth V2 Overhaul** - Replace v1 ground truth with research-informed v2 (~435 cases, 18 benchmarks, unified schema, Risk Manager focus)
 - [ ] **Phase 4: Re-Baseline & Re-Evaluate** - Run both base model and RAG-augmented on expanded dataset for statistically valid comparison
 - [ ] **Phase 5: Fine-Tuning Pipeline** - QLoRA training on reasoning gaps identified by Phase 4
 - [ ] **Phase 6: Hybrid Integration** - Combine fine-tuned model + RAG with adaptive routing
@@ -219,25 +219,45 @@ Plans:
 - [x] 02.4-04-PLAN.md — Application stack wiring (CLI, DTOs, shadow retrieval, JSON schema v5, criteria transparency)
 - [x] 02.4-05-PLAN.md — Test suite updates (new tests for universal judge, updated tests for formula/metrics)
 
-### Phase 3: Ground Truth Dataset Expansion
-**Goal**: Expand test dataset from 118 to 1000+ cases with multi-source generation, enabling statistically valid evaluation and providing training data for fine-tuning
-**Depends on**: Phase 2.3 (gap analysis informs expansion priorities)
-**Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06
+### Phase 3: Ground Truth V2 Overhaul
+**Goal**: Replace v1 ground truth (118 test cases, inconsistent schema, 21 benchmarks) with research-informed v2 ground truth (~435 test cases, unified schema, ~18 benchmarks) targeting Risk Managers in CII organizations. Single-phase effort covering schema design, benchmark restructuring, test case generation, and expert validation prep.
+**Depends on**: Phase 2.4 (evaluation framework must be stable before ground truth redesign)
+**Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05
 **Success Criteria** (what must be TRUE):
-  1. Each of 21 benchmarks has minimum 50 test cases (1050+ total test cases)
-  2. Test cases cover all 11 CCoP sections with balanced distribution across IT, OT, and cross-cutting scenarios
-  3. Multi-source questions: CIIO practitioner scenarios, audit/assessment questions, adapted external compliance datasets (NIST, ISO 27001), and any existing CCoP datasets
-  4. Tier-specific generation: factual, reasoning, and safety tiers use separate prompt templates
-  5. Synthetic QA pairs validated by domain experts with >90% approval rate
-  6. Fine-tuning instruction-tuning dataset prepared in format compatible with Unsloth/Axolotl
-  7. Dataset diversity metrics confirm no section underrepresentation (each section >5% of total)
-**Plans**: TBD
+  1. V2 JSON schema defined with separated concerns: ground_truth (tiered key_facts, reasoning_chain, acceptable_variations), fail_conditions (forbidden_claims, hallucination_patterns), metadata (section, clause_reference, domain, difficulty, test_category)
+  2. Schema validator passes 100% of test cases with 0 errors
+  3. Benchmark set restructured from 21 to ~18: 3 merges (B8+B11, B14+B15, B9+B16), 3 removals (B17→B7, B19→cross-benchmark, B20→B21), 3 new (B22 Waiver Reasoning, B23 Multi-Regulator, B24 Incident Response)
+  4. Minimum 20 test cases per benchmark, ~435 total
+  5. Every key_fact has source reference and tier (critical/important/supporting)
+  6. Every reasoning benchmark test case has >= 2 critical-tier key_facts
+  7. All questions are scenario-grounded and sector-aware (>= 3 sectors per benchmark)
+  8. CCoP section coverage: 11/11 sections
+  9. Difficulty distribution per benchmark: ~25% low, ~45% medium, ~30% high
+  10. V1 ground truth archived to ground-truth/archive/phase-2/
+  11. Repository parser updated to handle v2 nested format (backward-compatible with v1)
+  12. Expert validation spreadsheet generated for domain expert review
+  13. Coverage matrix documents benchmark x section x sector distribution
+**Plans**: 11 plans
 
 Plans:
-- [ ] TBD during phase planning
+- [ ] 03-01-PLAN.md — Archive v1 ground truth, create v2 directory structure, JSON schema, validator, sample test case
+- [ ] 03-02-PLAN.md — Benchmark audit and v2 benchmark registry document
+- [ ] 03-03-PLAN.md — Triage all 118 v1 test cases (keep/revise/discard with v2 mapping)
+- [ ] 03-04-PLAN.md — Update JSONL repository parser for v2 nested format (backward-compatible)
+- [ ] 03-05-PLAN.md — Generate rule-based benchmark test cases: B1 (25), B2 (25), B4 (25), B21 (25)
+- [ ] 03-06-PLAN.md — Generate core reasoning test cases: B3 (30), B5 (25), B6 (20)
+- [ ] 03-07-PLAN.md — Generate gap and risk justification test cases: B7 (30), B10 (20)
+- [ ] 03-08-PLAN.md — Generate risk and remediation test cases: B8 (25), B9 (25), B14 (30)
+- [ ] 03-09-PLAN.md — Generate audit and governance test cases: B12 (20), B13 (20), B18 (25)
+- [ ] 03-10-PLAN.md — Generate new benchmark test cases: B22 (20), B23 (20), B24 (25)
+- [ ] 03-11-PLAN.md — Coverage matrix, expert validation spreadsheet, migration report, config update, final validation
+
+**Spec:** `docs/superpowers/specs/2026-04-01-ground-truth-v2-design.md`
+**Research:** `artifacts/research/2026-04-01-llm-eval-ground-truth-quality-deep-dive.md`, `artifacts/research/2026-04-01-singapore-ciio-ccop-practices-deep-dive.md`
+**Reference Plan:** `docs/superpowers/plans/2026-04-01-ground-truth-v2.md`
 
 ### Phase 4: Re-Baseline & Re-Evaluate
-**Goal**: Run both base model and RAG-augmented model on expanded 1000+ dataset for statistically valid comparison, replacing the 118-case results
+**Goal**: Run both base model and RAG-augmented model on v2 ground truth (~435 cases, 18 benchmarks) for statistically valid comparison, replacing the 118-case results
 **Depends on**: Phase 3
 **Requirements**: EVAL-01, EVAL-02, EVAL-03, EVAL-06
 **Success Criteria** (what must be TRUE):
@@ -331,7 +351,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 2.2. RAGAs Hallucination Metric and Metric Renaming | 3/3 | Complete | 2026-03-20 |
 | 2.3. RAGAs Metric Split & Scoring Formula | 3/3 | Complete | 2026-03-21 |
 | 2.4. LLM Judge Redesign & Metric Simplification | 5/5 | Complete | 2026-03-22 |
-| 3. Ground Truth Dataset Expansion | 0/TBD | Not started | - |
+| 3. Ground Truth V2 Overhaul | 0/11 | Planning complete | - |
 | 4. Re-Baseline & Re-Evaluate | 0/TBD | Not started | - |
 | 5. Fine-Tuning Pipeline | 0/TBD | Not started | - |
 | 6. Hybrid Integration | 0/TBD | Not started | - |
@@ -340,4 +360,4 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 
 ---
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-03-22*
+*Last updated: 2026-04-01*
