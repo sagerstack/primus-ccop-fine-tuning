@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 2.4 COMPLETE — Next: Phase 3 (Ground Truth Dataset Expansion)
+**Current focus:** Phase 2.4 COMPLETE — Next: Phase 3 (Ground Truth V2 Overhaul)
 
 ## Current Position
 
@@ -183,6 +183,7 @@ None yet.
 - Phase 2.2 inserted after Phase 2.1: RAGAs Hallucination Metric and Metric Renaming (URGENT) — Add ground-truth faithfulness metric for hallucination detection (works in both modes), rename faithfulness → context_faithfulness for clarity. Discovered during Phase 2.1 UAT: no metric checks model response claims against ground truth expected_response, and "faithfulness" name is ambiguous (faithful to what?).
 - Phase 2.3 inserted after Phase 2.2: RAGAs Metric Split & Scoring Formula (URGENT) — Replace aggregated answer_correctness (masks hallucination behind semantic similarity) with separate FactualCorrectness(precision/recall), drop redundant hallucination metric, add SemanticSimilarity as diagnostic, implement multiplicative penalty formula. Discovered during Phase 2.3 triple-score UAT: LLM-only (hallucinating) and hybrid (grounded) responses scored nearly identically (0.87 vs 0.85 RAGAs) because answer_correctness blends 75% factual overlap F1 + 25% semantic similarity.
 - Phase 2.4 inserted after Phase 2.3: LLM Judge Redesign and Metric Simplification (URGENT) — Replace per-benchmark rubric dimensions with two universal LLM Judge dimensions (reasoning depth + hallucination check against retrieved context), drop factual_precision from RAGAs scoring (penalizes valid reasoning). Discovered during Phase 2.3 UAT: factual_precision (0.27) penalizes model for introducing valid reasoning not in ground truth; LLM Judge and RAGAs metrics contradict each other; per-benchmark rubrics redundant with RAGAs factual_recall/relevancy/similarity.
+- Phase 3 replaced: "Ground Truth Dataset Expansion" (1000+ cases, 21 benchmarks) → "Ground Truth V2 Overhaul" (~435 cases, 18 restructured benchmarks, unified v2 schema, Risk Manager focus). Driven by research on LLM eval ground truth quality practices and Singapore CIIO/CCoP compliance landscape. Spec: docs/superpowers/specs/2026-04-01-ground-truth-v2-design.md
 
 ### Blockers/Concerns
 
