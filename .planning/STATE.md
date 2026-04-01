@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 2.4 COMPLETE — Next: Phase 3 (Ground Truth V2 Overhaul)
+**Current focus:** Phase 3 (Ground Truth V2 Overhaul) — In progress
 
 ## Current Position
 
-Phase: 2.4 of 8 (LLM Judge Redesign and Metric Simplification)
-Plan: 5 of 5 — COMPLETE
-Status: Phase 2.4 VERIFIED and COMPLETE — All 23/23 must-haves passed, 86/86 tests passing
-Last activity: 2026-03-22 — Phase verified and marked complete
+Phase: 3 of 8 (Ground Truth V2 Overhaul)
+Plan: 1 of 11 — COMPLETE
+Status: In progress
+Last activity: 2026-04-01 — Completed 03-01-PLAN.md (archive v1, schema, validator)
 
-Progress: [██████████] 100% (5/5 plans)
+Progress: [█░░░░░░░░░] 9% (1/11 plans)
 
 ## Performance Metrics
 
@@ -169,6 +169,9 @@ Recent decisions affecting current work:
 - **[02.4-04] CLI criteria transparency:** Shows clause_citations/conditional_analysis/actionable_steps as YES/NO/N/A with color coding. Hallucination shows binary YES/NO with claim counts (N claims: M unsupported, K contradicted)
 - **[02.4-04] JSON schema v5 with judge_evaluation:** New top-level object in test results containing hallucination_detected, unsupported/contradicted counts, reasoning_depth_score, reasoning_criteria_met, claims, justification. Rubric mode gets judge_mode='rubric' without judge_evaluation object
 - **[02.4-04] factual_precision display removal:** Dropped from flat benchmark table (7 columns now), RAGAs answer metrics display, and JSON response_quality group check. Already removed from RAGAs service in Plan 03
+- **[03-01] *.json gitignore exception for schema file:** ground-truth/schema/test-case-v2.schema.json requires `git add -f` (*.json is project-wide gitignored). Future plans must use force-add for *.json files in schema/
+- **[03-01] V2 schema version const "2.0":** JSON Schema `const` enforces exact version string on all test cases
+- **[03-01] Business rules complement JSON Schema:** JSON Schema validates structure, validate.py business rules check: test_id prefix match, reasoning_chain for LLM-judge benchmarks, >=2 critical key_facts, expected_label for rule-based benchmarks
 
 ### Pending Todos
 
@@ -191,6 +194,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22
-Stopped at: Phase 2.4 complete — verified and marked done
-Resume file: N/A (phase complete, next phase is Phase 3)
+Last session: 2026-04-01
+Stopped at: Completed 03-01-PLAN.md — archive v1 ground truth, v2 schema, validator, B3-001 sample
+Resume file: .planning/phases/03-ground-truth-v2-overhaul/03-02-PLAN.md
