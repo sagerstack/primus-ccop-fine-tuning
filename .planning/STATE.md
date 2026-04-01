@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 8 (Ground Truth V2 Overhaul)
-Plan: 3 of 11 — COMPLETE
+Plan: 4 of 11 — COMPLETE
 Status: In progress
-Last activity: 2026-04-01 — Completed 03-03-PLAN.md (triage: classified all 118 v1 test cases — 52 Keep, 36 Revise, 30 Discard)
+Last activity: 2026-04-01 — Completed 03-04-PLAN.md (v2 JSONL parser with v1/v2 auto-detection, backward compat)
 
-Progress: [███░░░░░░░] 27% (3/11 plans)
+Progress: [████░░░░░░] 36% (4/11 plans)
 
 ## Performance Metrics
 
@@ -175,6 +175,9 @@ Recent decisions affecting current work:
 - **[03-02] 18 benchmark set finalized:** 21 v1 → 18 v2 via 3 merges (B8+B11, B14+B15, B9+B16), 3 absorptions (B17→B7, B19 removed, B20→B21), 3 new (B22 Waiver, B23 Multi-Regulator, B24 Incident Response)
 - **[03-02] Waiver Reasoning as separate benchmark:** Section 11(7) waiver process is a top CIIO pain point; no v1 coverage; distinct enough from B3 conditional compliance to warrant its own benchmark
 - **[03-02] Multi-Regulator Coordination new benchmark:** CCoP+MAS-TRM, CCoP+IM8 overlap is top-3 CIIO challenge; no existing benchmark captures regulatory navigation across frameworks
+- **[03-04] evaluation_criteria allows empty dict for v2:** V2 test cases use universal judge (no per-test criteria). TestCase Rule 5 relaxed from "non-empty dict" to "must be dict". V1 behavior unchanged.
+- **[03-04] _discover_benchmark_files checks both fields:** V2 JSONL files use `benchmark_id` not `benchmark_type`. Discovery now reads `data.get("benchmark_type") or data.get("benchmark_id")`.
+- **[03-04] key_facts flattened at repository layer:** V2 key_facts are `list[dict]` with fact/source/tier. Extracted to `list[str]` in `_parse_v2_test_case` before passing to domain entity — scorers see no change.
 - **[03-03] 52 Keep (44%), 36 Revise (31%), 30 Discard (25%):** Distribution within spec target; B3 and B7 are zero-discard benchmarks with direct migration path
 - **[03-03] B14 (Remediation) full Discard:** 3/3 key_facts placeholders — critical benchmark requires complete regeneration from scratch
 - **[03-03] B5 all Revise (not Discard):** All 7 cases have valuable clause references; practitioner reframing preserves generation effort
@@ -203,5 +206,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-01
-Stopped at: Completed 03-03-PLAN.md — triage: classified all 118 v1 test cases (52 Keep, 36 Revise, 30 Discard) with v2 benchmark mapping
-Resume file: .planning/phases/03-ground-truth-v2-overhaul/03-04-PLAN.md
+Stopped at: Completed 03-04-PLAN.md — JSONL repository parser updated with v1/v2 auto-detection, 4 new v2 parsing tests, 99/99 tests passing
+Resume file: .planning/phases/03-ground-truth-v2-overhaul/03-05-PLAN.md
