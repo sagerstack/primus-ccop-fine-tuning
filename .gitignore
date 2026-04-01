@@ -235,6 +235,7 @@ research/temp/
 # Claude Code specific
 .claude/session_history/
 .claude/cache/
+.claude/worktrees/
 
 # Local development artifacts
 local_experiments/
