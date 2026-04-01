@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3 of 8 (Ground Truth V2 Overhaul)
-Plan: 1 of 11 — COMPLETE
+Plan: 2 of 11 — COMPLETE
 Status: In progress
-Last activity: 2026-04-01 — Completed 03-01-PLAN.md (archive v1, schema, validator)
+Last activity: 2026-04-01 — Completed 03-02-PLAN.md (benchmark registry: audited 21 v1 benchmarks, defined 18 v2 benchmarks)
 
-Progress: [█░░░░░░░░░] 9% (1/11 plans)
+Progress: [██░░░░░░░░] 18% (2/11 plans)
 
 ## Performance Metrics
 
@@ -172,6 +172,9 @@ Recent decisions affecting current work:
 - **[03-01] *.json gitignore exception for schema file:** ground-truth/schema/test-case-v2.schema.json requires `git add -f` (*.json is project-wide gitignored). Future plans must use force-add for *.json files in schema/
 - **[03-01] V2 schema version const "2.0":** JSON Schema `const` enforces exact version string on all test cases
 - **[03-01] Business rules complement JSON Schema:** JSON Schema validates structure, validate.py business rules check: test_id prefix match, reasoning_chain for LLM-judge benchmarks, >=2 critical key_facts, expected_label for rule-based benchmarks
+- **[03-02] 18 benchmark set finalized:** 21 v1 → 18 v2 via 3 merges (B8+B11, B14+B15, B9+B16), 3 absorptions (B17→B7, B19 removed, B20→B21), 3 new (B22 Waiver, B23 Multi-Regulator, B24 Incident Response)
+- **[03-02] Waiver Reasoning as separate benchmark:** Section 11(7) waiver process is a top CIIO pain point; no v1 coverage; distinct enough from B3 conditional compliance to warrant its own benchmark
+- **[03-02] Multi-Regulator Coordination new benchmark:** CCoP+MAS-TRM, CCoP+IM8 overlap is top-3 CIIO challenge; no existing benchmark captures regulatory navigation across frameworks
 
 ### Pending Todos
 
@@ -195,5 +198,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-01
-Stopped at: Completed 03-01-PLAN.md — archive v1 ground truth, v2 schema, validator, B3-001 sample
-Resume file: .planning/phases/03-ground-truth-v2-overhaul/03-02-PLAN.md
+Stopped at: Completed 03-02-PLAN.md — benchmark registry: audited 21 v1 benchmarks, defined final 18 v2 benchmarks
+Resume file: .planning/phases/03-ground-truth-v2-overhaul/03-03-PLAN.md
