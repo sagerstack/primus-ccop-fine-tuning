@@ -22,6 +22,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2.3: RAGAs Metric Split & Scoring Formula** (INSERTED) - Replace aggregated answer_correctness with separate FactualCorrectness (precision/recall), SemanticSimilarity (diagnostic), and multiplicative hallucination penalty formula
 - [x] **Phase 2.4: LLM Judge Redesign and Metric Simplification** (INSERTED) - Replace per-benchmark rubrics with universal reasoning depth + hallucination check dimensions, drop factual_precision from scoring
 - [ ] **Phase 3: Ground Truth V2 Overhaul** - Replace v1 ground truth with research-informed v2 (~435 cases, 18 benchmarks, unified schema, Risk Manager focus)
+- [ ] **Phase 3.1: Eval Run Traceability & I/O Capture** (INSERTED) - `run_id` format, full prompt/context capture, token/latency propagation in result JSON
+- [ ] **Phase 3.2: Ingestion Correctness & Clause Chunking Fix** (INSERTED) - Fix chunker regex gaps (sections 5.3/5.4 missing from index), add ingestion sanity tests, re-ingest corpus
+- [ ] **Phase 3.3: Ground Truth Clause Reference Audit** (INSERTED) - Audit v2 clause_reference fields against CCoP 2.0 PDF, fix hallucinated clause numbers
 - [ ] **Phase 4: Re-Baseline & Re-Evaluate** - Run both base model and RAG-augmented on expanded dataset for statistically valid comparison
 - [ ] **Phase 5: Fine-Tuning Pipeline** - QLoRA training on reasoning gaps identified by Phase 4
 - [ ] **Phase 6: Hybrid Integration** - Combine fine-tuned model + RAG with adaptive routing
@@ -256,6 +259,59 @@ Plans:
 **Research:** `artifacts/research/2026-04-01-llm-eval-ground-truth-quality-deep-dive.md`, `artifacts/research/2026-04-01-singapore-ciio-ccop-practices-deep-dive.md`
 **Reference Plan:** `docs/superpowers/plans/2026-04-01-ground-truth-v2.md`
 
+### Phase 3.1: Eval Run Traceability & I/O Capture (INSERTED)
+**Goal**: Make every evaluation run traceable and debuggable. Introduce deterministic `run_id` of format `eval-run-{mode}-{scope}-{yyyyMMdd}` as the primary run identifier, persist the full composed prompt and retrieved contexts per test case in result JSON, and propagate token counts and latency from the RAG graph end-to-end so per-case inference cost and performance are auditable without re-running inference. Blocks the main baseline eval — running baseline without this phase produces results that cannot be debugged post-hoc.
+**Depends on**: Phase 3
+**Requirements**: EVAL-02, EVAL-03
+**Success Criteria** (what must be TRUE):
+  1. Every eval invocation generates a `run_id` of format `eval-run-{mode}-{scope}-{yyyyMMdd}` where `mode` ∈ {hybrid, llm-only, rag-only} and `scope` ∈ {suite, benchmark-{name}, test-{id}, query}
+  2. Result JSON filename uses `run_id` as prefix (replaces current timestamp-based naming)
+  3. `metadata.run_id` field present in JSON schema (schema v6)
+  4. Each `test_results[]` entry persists: (a) full composed prompt (system + user with RAG context), (b) retrieved contexts array for hybrid/rag-only modes, (c) non-zero `tokens` count, (d) non-zero `latency_ms`
+  5. `GraphState` → `RagResponse` → `EvaluationResult` → DTO propagation of `llm_context`, `system_prompt`, `tokens`, `latency_ms` wired end-to-end
+  6. CLI `--verbose` displays captured prompt and retrieved contexts per test case
+  7. Aggregated `{model}_results.json` retains consumer compatibility
+  8. Existing tests updated; new tests verify schema captures all new fields
+  9. Addresses bugs #4 (tokens/latency always 0) and #5 (SC13c — full prompt not captured)
+**Plans**: 3 plans
+
+Plans:
+- [ ] 03.1-01-PLAN.md — Domain + RAG graph plumbing (RunId VO, GraphState/RagResponse/ModelResponse/EvaluationResult/DTO extensions, node + adapter + use case wiring)
+- [ ] 03.1-02-PLAN.md — Entry-point wiring + persistence (scope encoding, CLI run_id generation, monthly per-run JSON + sidecar writer, query persistence)
+- [ ] 03.1-03-PLAN.md — Report tooling + CLI verbose + tests (rglob report loader, --verbose-io sidecar display, schema v6 test coverage)
+
+### Phase 3.2: Ingestion Correctness & Clause Chunking Fix (INSERTED)
+**Goal**: Fix systemic data gaps in the `ccop_clauses_hybrid` Qdrant index where CCoP 2.0 sections 5.3 and 5.4 are entirely missing due to clause-aware chunker regex failures. Verify parser output, extend chunker to handle item-letter boundaries and stop merge-collapsing across clause numbers, add ingestion sanity tests that fail loudly on TOC-to-index mismatches, and drop + re-ingest the corpus. Blocks the main baseline eval — without this fix, every hybrid-mode retrieval metric (`context_recall`, `context_precision`, `context_faithfulness`) is measured against an incomplete corpus and baseline numbers are invalid.
+**Depends on**: Phase 3.1
+**Requirements**: RAG-03, RAG-04, RAG-05
+**Success Criteria** (what must be TRUE):
+  1. Docling parser output for `ccop-official/CCoP---Second-Edition_Revision-One.pdf` verified to contain sections 5.3 and 5.4 text (pre-chunker audit, pass/fail gate)
+  2. `CLAUSE_PATTERN` regex in `clause_aware_chunker.py` extended to capture item-letter boundaries (e.g., `5.3.1(c)`)
+  3. Chunker no longer merge-collapses across clause number boundaries (section headers emitted as discrete chunks, not absorbed into preceding section's tail)
+  4. Either leaf-per-chunk granularity OR section-chunks with `clauses: list[str]` metadata enabling sub-clause citation resolution at query time
+  5. Ingestion sanity test: asserts TOC-level section count equals indexed section count; fails loudly at ingestion time, not silently at eval
+  6. `ccop_clauses_hybrid` collection dropped and re-ingested with updated chunker
+  7. Post-ingest verification: sections 5.1 through 5.12 all present as discrete points in Qdrant (`document_source="CCoP 2.0"` scroll filter)
+  8. Full-text scan for "individual accountability" / "individual authentication" returns ≥1 hit
+  9. B3-001 hybrid re-evaluation produces `context_recall > 0`
+  10. Addresses bugs #9 (citation ID mismatch — chunks span multiple clauses) and #10 (RAGAs context_recall=0 — sections 5.3/5.4 missing)
+**Plans**: ~4 plans
+
+### Phase 3.3: Ground Truth Clause Reference Audit (INSERTED)
+**Goal**: Audit every `clause_reference` field and every clause citation inside `expected_response` text across v2 ground truth (~435 cases) against the actual CCoP 2.0 Second Edition Revision One PDF. Bug #8 documents widespread fabricated clause numbers (e.g., "5.1.5") across 16/18 benchmarks in v1 — verify whether v2 inherits the same defect and correct any hallucinated references. Blocks the main baseline eval — RAGAs `factual_recall` and `context_recall` decompose the reference into atomic claims and score retrieval against it; hallucinated reference citations produce meaningless metrics regardless of model or retrieval quality.
+**Depends on**: Phase 3.2
+**Requirements**: DATA-01, DATA-02
+**Success Criteria** (what must be TRUE):
+  1. Authoritative CCoP 2.0 clause inventory built from the PDF — definitive list of valid clause IDs (chapters, sections, subsections, items) with full text
+  2. Every `clause_reference` field in v2 ground truth validated against the inventory
+  3. Every clause citation inside `expected_response` text validated against the inventory (regex-based extraction + lookup)
+  4. Audit report enumerates every invalid reference with proposed correction (or flagged for human review if no clear mapping exists)
+  5. Corrections applied to all affected v2 test cases
+  6. Zero unverifiable clause numbers remain in v2 ground truth after the audit
+  7. Ground-truth JSONL validator extended to enforce `clause_reference` correctness at load time (fails loudly on invalid references, preventing future drift)
+  8. Addresses bug #8 (ground truth contains hallucinated clause references)
+**Plans**: ~3 plans
+
 ### Phase 4: Re-Baseline & Re-Evaluate
 **Goal**: Run both base model and RAG-augmented model on v2 ground truth (~435 cases, 18 benchmarks) for statistically valid comparison, replacing the 118-case results
 **Depends on**: Phase 3
@@ -352,6 +408,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 2.3. RAGAs Metric Split & Scoring Formula | 3/3 | Complete | 2026-03-21 |
 | 2.4. LLM Judge Redesign & Metric Simplification | 5/5 | Complete | 2026-03-22 |
 | 3. Ground Truth V2 Overhaul | 0/11 | Planning complete | - |
+| 3.1. Eval Run Traceability & I/O Capture | 0/3 | Planning complete | - |
 | 4. Re-Baseline & Re-Evaluate | 0/TBD | Not started | - |
 | 5. Fine-Tuning Pipeline | 0/TBD | Not started | - |
 | 6. Hybrid Integration | 0/TBD | Not started | - |
