@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — Not started. Merged phase combining former 3.2 (ingestion fix) and 3.3 (clause audit). Sub-goal A (corpus) executes before sub-goal B (ground truth).
+**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — In progress. Plan 01 complete (chunker fix). Sub-goal A (corpus) executing — Plans 02-05 remain.
 
 ## Current Position
 
-Phase: 3.1 of 8 (Eval Run Traceability & I/O Capture) — COMPLETE
-Plan: 3 of 3 — COMPLETE
-Status: Verified (9/9 success criteria PASS via gsd-verifier)
-Last activity: 2026-04-21 — Completed Phase 3.1 (all 3 plans): RunId domain plumbing, per-run monthly JSON + sidecar, report rglob + `--verbose-io` CLI, 88/88 schema-v6 tests passing.
+Phase: 3.2 of 8 (Corpus and Ground Truth Correctness) — In progress
+Plan: 1 of 7 — COMPLETE
+Status: Plan 01 complete (chunker fix verified, 16 regression tests passing)
+Last activity: 2026-04-21 — Completed 03.2-01: Docling audit + CLAUSE_PATTERN fix + regression tests
 
-Progress: [█████░░░░░] 42% (4/11 phase-3 plans + 3/3 phase-3.1 plans)
+Progress: [█████░░░░░] 42% (4/11 phase-3 plans + 3/3 phase-3.1 plans + 1/7 phase-3.2 plans)
 
 ## Performance Metrics
 
@@ -215,6 +215,10 @@ None yet.
 - **[03.1-03] --verbose-io lazy sidecar load:** CLI opens `{run_id}-contexts.json` only when flag set AND file exists; missing sidecar is silent no-op. Prompts truncated at 600/1200 chars, contexts show first ~200 chars + citation_id/section/clause/score
 - **[03.1-03] Schema v6 contract locked by 88 targeted tests:** `test_run_id.py` (27), `test_json_result_repository_v6.py` (19), `test_evaluate_model_metadata.py` v6 additions (4), `test_graph_state.py` I/O capture additions (13). Numeric sort test explicitly guards `B2<B3<B11` ordering in multi-benchmark scope
 - **[03.1-03] Legacy migration hint surfaces only on empty v6 result:** `GenerateReportUseCase.get_summary` inspects flat dir for `{model}_results.json` only when `load_by_model` returns empty, emits one-line INFO guidance pointing to re-run; zero cost on happy path
+  - **[03.2-01] CLAUSE_PATTERN extended with ## heading prefix:** Docling Classic pipeline emits 56 section/clause headings as `## X.Y heading` format; the original regex only matched bare-digit lines, causing 5.3/5.4/5.3.1/5.4.1 to be unrecognized as boundaries (bug #10 root cause)
+  - **[03.2-01] Optional item-letter group in CLAUSE_PATTERN:** `(?:\([a-z]\))?` suffix added per plan; harmless in practice because Docling renders sub-items as `- (a)` list syntax, not as standalone headings
+  - **[03.2-01] Merge rule removed unconditionally:** `<30-word merge_buffer` branch deleted entirely — short chunks acceptable with hybrid retrieval; any knob preserves bleed risk
+  - **[03.2-01] Loop index i=1 always:** Pre-existing inverted condition (`i = 1 if parts[0].strip() else 0`) masked by real documents always having preamble; fixed to unconditional `i = 1`
 
 ### Blockers/Concerns
 
@@ -223,5 +227,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-21
-Stopped at: Phase 3.1 COMPLETE + VERIFIED. All 3 plans executed + 9/9 success criteria PASS via gsd-verifier. Final commit chain: b7aef4c, 8cce1cf, 05e40a1, ba80b0a (Plan 03.1-03) on top of Plans 03.1-01/02.
-Resume file: Phase 3.2 (Corpus and Ground Truth Correctness) — merged phase, sub-goal A (corpus/ingestion fix) then sub-goal B (ground truth clause audit). No remaining work in 3.1. Next action: `/gsd:plan-phase 3.2`.
+Stopped at: Completed 03.2-01-PLAN.md — chunker fix (CLAUSE_PATTERN ## prefix + merge removal + inverted index fix) + 16 regression tests. Commits: 15539d6, 2eea110, a3fe151.
+Resume file: 03.2-02-PLAN.md — corpus re-ingestion with fixed chunker.
