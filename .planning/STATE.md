@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — In progress. Plans 01-02 complete (chunker fix + table chunks + TOC gate). Sub-goal A (corpus) executing — Plans 03-05 remain.
+**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — In progress. Plans 01-03 complete (chunker fix + table chunks + TOC gate + live re-ingestion). Sub-goal A (corpus) complete — sub-goal B (Plans 04-05) remaining.
 
 ## Current Position
 
 Phase: 3.2 of 8 (Corpus and Ground Truth Correctness) — In progress
-Plan: 2 of 7 — COMPLETE
-Status: Plan 02 complete (table chunks + TOC sanity gate, 31 tests passing)
-Last activity: 2026-04-21 — Completed 03.2-02: ChunkMetadata type/parent_clause + table detection + ingestion TOC gate
+Plan: 3 of 7 — COMPLETE
+Status: Plan 03 complete (ccop_clauses_hybrid re-ingested, 477 points, 12/12 sections verified, SC #8 N/A approved)
+Last activity: 2026-04-21 — Completed 03.2-03: drop + re-ingest + section/phrase verification, SC #8 marked N/A
 
-Progress: [█████░░░░░] 43% (4/11 phase-3 plans + 3/3 phase-3.1 plans + 2/7 phase-3.2 plans)
+Progress: [█████░░░░░] 45% (4/11 phase-3 plans + 3/3 phase-3.1 plans + 3/7 phase-3.2 plans)
 
 ## Performance Metrics
 
@@ -223,6 +223,9 @@ None yet.
   - **[03.2-02] Table detection: >=3 consecutive pipe-lines:** Heading row + separator + at least 1 data row threshold; 2-line pipe blocks excluded
   - **[03.2-02] EXPECTED_CCOP_2_SECTIONS as module constant:** CCoP 2.0 TOC is a structural contract of the PDF, not a runtime parameter; defined once at the top of run_ingestion.py citing source PDF
   - **[03.2-02] TOC gate filters on type='clause' only:** Table chunks and preamble excluded from section evidence; gate positioned at Step 2.5 (after chunking, before upload)
+  - **[03.2-03] SC #8 marked N/A (human-approved 2026-04-21):** 'individual accountability'/'individual authentication' phrases are absent from CCoP 2.0 source PDF (verified via 151,269-char Docling parse with 0 matches); their absence from the index is not a chunker defect. Real fix (sections 5.3/5.4 as discrete retrievable chunks) proven by SC #7 PASS
+  - **[03.2-03] N/A annotation preserved in plan document:** Phrases kept in `must_haves.truths` + `<success_criteria>` with inline `# N/A — phrase not in source PDF` comments rather than deleted — traceability over silent removal
+  - **[03.2-03] 490 chunks -> 477 Qdrant points (13 dedup):** Deterministic uuid5 over citation_id collapses preamble sub-chunks that share parent IDs; functional content preserved, all 12 expected sections retrievable
 
 ### Blockers/Concerns
 
@@ -231,5 +234,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-21
-Stopped at: Completed 03.2-02-PLAN.md — ChunkMetadata type/parent_clause extension + table chunk emission + ingestion TOC sanity gate. Commits: 4d44f50, 201cf99.
-Resume file: 03.2-03-PLAN.md — corpus re-ingestion with fixed chunker.
+Stopped at: Completed 03.2-03-PLAN.md — drop + re-ingest ccop_clauses_hybrid (490 chunks, 477 points), TOC sanity gate PASSED, SC #7 PASS (all 12 sections), SC #8 approved as N/A (phrases absent from source PDF). Commits: 9697d66, d401523.
+Resume file: 03.2-04-PLAN.md — clause inventory extraction (sub-goal B kickoff).
