@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 3 (Ground Truth V2 Overhaul) — In progress
+**Current focus:** Phase 3.1 (Eval Run Traceability & I/O Capture) — In progress
 
 ## Current Position
 
-Phase: 3 of 8 (Ground Truth V2 Overhaul)
-Plan: 4 of 11 — COMPLETE
+Phase: 3.1 of 8 (Eval Run Traceability & I/O Capture)
+Plan: 1 of 3 — COMPLETE
 Status: In progress
-Last activity: 2026-04-01 — Completed 03-04-PLAN.md (v2 JSONL parser with v1/v2 auto-detection, backward compat)
+Last activity: 2026-04-21 — Completed 03.1-01-PLAN.md (RunId VO, type shapes, graph/gateway/use-case wiring for I/O traceability)
 
-Progress: [████░░░░░░] 36% (4/11 plans)
+Progress: [████░░░░░░] 36% (4/11 phase-3 plans + 1/3 phase-3.1 plans)
 
 ## Performance Metrics
 
@@ -198,6 +198,11 @@ None yet.
 - Phase 2.3 inserted after Phase 2.2: RAGAs Metric Split & Scoring Formula (URGENT) — Replace aggregated answer_correctness (masks hallucination behind semantic similarity) with separate FactualCorrectness(precision/recall), drop redundant hallucination metric, add SemanticSimilarity as diagnostic, implement multiplicative penalty formula. Discovered during Phase 2.3 triple-score UAT: LLM-only (hallucinating) and hybrid (grounded) responses scored nearly identically (0.87 vs 0.85 RAGAs) because answer_correctness blends 75% factual overlap F1 + 25% semantic similarity.
 - Phase 2.4 inserted after Phase 2.3: LLM Judge Redesign and Metric Simplification (URGENT) — Replace per-benchmark rubric dimensions with two universal LLM Judge dimensions (reasoning depth + hallucination check against retrieved context), drop factual_precision from RAGAs scoring (penalizes valid reasoning). Discovered during Phase 2.3 UAT: factual_precision (0.27) penalizes model for introducing valid reasoning not in ground truth; LLM Judge and RAGAs metrics contradict each other; per-benchmark rubrics redundant with RAGAs factual_recall/relevancy/similarity.
 - Phase 3 replaced: "Ground Truth Dataset Expansion" (1000+ cases, 21 benchmarks) → "Ground Truth V2 Overhaul" (~435 cases, 18 restructured benchmarks, unified v2 schema, Risk Manager focus). Driven by research on LLM eval ground truth quality practices and Singapore CIIO/CCoP compliance landscape. Spec: docs/superpowers/specs/2026-04-01-ground-truth-v2-design.md
+- **[03.1-01] RunId as frozen dataclass:** Matches EvaluationMetric pattern; immutable VO with `value` property rendering canonical string
+- **[03.1-01] total_tokens auto-summed in ModelResponse:** Auto-sums prompt_tokens + completion_tokens when not explicitly provided; back-populates tokens_used for display back-compat
+- **[03.1-01] retrieved_contexts_detailed alongside retrieved_contexts in RagResponse:** Text-only list for RAGAs, detailed dict list for traceability — both coexist on RagResponse
+- **[03.1-01] perf_counter() wraps chain.invoke():** Captures wall-clock LLM latency accurately in generation/fallback nodes
+- **[03.1-01] response_metadata['prompt_eval_count'] with usage_metadata fallback:** Handles both ChatOllama response_metadata style and LangChain usage_metadata style
 
 ### Blockers/Concerns
 
@@ -205,6 +210,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01
-Stopped at: Completed 03-04-PLAN.md — JSONL repository parser updated with v1/v2 auto-detection, 4 new v2 parsing tests, 99/99 tests passing
-Resume file: .planning/phases/03-ground-truth-v2-overhaul/03-05-PLAN.md
+Last session: 2026-04-21
+Stopped at: Completed 03.1-01-PLAN.md — RunId VO, type shapes (GraphState/RagResponse/ModelResponse/EvaluationResult/DTO), generation/fallback/rag_response nodes wired, OllamaGateway wired, evaluate_model use case propagates traceability data end-to-end. 86/86 tests passing.
+Resume file: .planning/phases/03.1-eval-run-traceability/03.1-02-PLAN.md
