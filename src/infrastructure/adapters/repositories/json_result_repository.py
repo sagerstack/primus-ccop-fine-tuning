@@ -123,8 +123,118 @@ class JSONResultRepository(IResultRepository):
         return []
 
     async def load_by_model(self, model_name: str) -> List[EvaluationResult]:
-        """Load results by model (not implemented - stub)."""
-        return []
+        """
+        Load all v6 result files for a given model via glob across monthly subdirs.
+
+        Discovery pattern: self._results_dir.rglob(f"*-{model_name}.json")
+
+        Filtering:
+          - Skip sidecar files (name ends with "-contexts.json")
+          - Skip legacy files missing metadata.run_id or schema_version != 6 (warn)
+
+        Returns:
+            List of reconstructed EvaluationResult objects from v6 files.
+        """
+        results = []
+        pattern = f"*-{model_name}.json"
+
+        for path in sorted(self._results_dir.rglob(pattern)):
+            # Skip sidecar files
+            if path.name.endswith("-contexts.json"):
+                continue
+
+            try:
+                with open(path) as f:
+                    data = json.load(f)
+            except (json.JSONDecodeError, OSError) as exc:
+                self._logger.warning(f"Skipping unreadable result file {path}: {exc}")
+                continue
+
+            metadata = data.get("metadata", {})
+
+            # Skip legacy pre-v6 files
+            if not metadata.get("run_id") or metadata.get("schema_version") != 6:
+                self._logger.warning(f"Skipping legacy pre-v6 result file: {path}")
+                continue
+
+            for entry in data.get("test_results", []):
+                result = self._reconstruct_result(entry, metadata)
+                if result is not None:
+                    results.append(result)
+
+        return results
+
+    def _reconstruct_result(
+        self, entry: dict, metadata: dict
+    ) -> Optional["EvaluationResult"]:
+        """
+        Reconstruct a minimal EvaluationResult from a persisted test_results[] entry.
+
+        Only the fields needed by GenerateReportUseCase._calculate_summary are populated.
+        Missing fields are defaulted (None / 0 / empty) rather than raising.
+        """
+        try:
+            from datetime import datetime as _dt
+
+            from domain.entities.model_response import ModelResponse
+            from domain.entities.test_case import TestCase
+            from domain.value_objects.benchmark_type import BenchmarkType
+            from domain.value_objects.ccop_section import CCoPSection
+            from domain.value_objects.difficulty_level import DifficultyLevel
+
+            benchmark_str = entry.get("benchmark", "B1")
+            test_id = entry.get("test_id", "unknown")
+            model_name = entry.get("model", metadata.get("model_name", "unknown"))
+
+            benchmark_type = BenchmarkType(benchmark_str)
+            section = CCoPSection("N/A")
+            difficulty = DifficultyLevel.MEDIUM
+
+            test_case = TestCase(
+                test_id=test_id,
+                benchmark_type=benchmark_type,
+                section=section,
+                clause_reference="N/A",
+                difficulty=difficulty,
+                question=entry.get("question", ""),
+                expected_response="",
+                evaluation_criteria={},
+            )
+
+            model_response = ModelResponse(
+                content=entry.get("response", ""),
+                model_name=model_name,
+                tokens_used=entry.get("tokens", 0),
+                latency_ms=entry.get("latency_ms", 0),
+                prompt_tokens=entry.get("prompt_tokens", 0),
+                completion_tokens=entry.get("completion_tokens", 0),
+                total_tokens=entry.get("total_tokens", 0),
+            )
+
+            evaluated_at_str = entry.get("evaluated_at") or metadata.get("evaluated_at", "")
+            try:
+                evaluated_at = _dt.fromisoformat(
+                    evaluated_at_str.replace("Z", "+00:00")
+                ) if evaluated_at_str else _dt.utcnow()
+            except (ValueError, AttributeError):
+                evaluated_at = _dt.utcnow()
+
+            result = EvaluationResult(
+                test_case=test_case,
+                model_response=model_response,
+                overall_score=entry.get("score"),
+                passed=entry.get("passed"),
+                evaluated_at=evaluated_at,
+                evaluation_mode=entry.get("evaluation_mode"),
+                system_prompt=entry.get("system_prompt"),
+                user_prompt=entry.get("user_prompt"),
+            )
+
+            return result
+
+        except Exception as exc:  # noqa: BLE001
+            self._logger.warning(f"Skipping malformed test_results entry: {exc}")
+            return None
 
     async def load_all(self) -> List[EvaluationResult]:
         """Load all results (not implemented - stub)."""

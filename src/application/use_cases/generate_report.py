@@ -71,10 +71,20 @@ class GenerateReportUseCase(IGenerateReportUseCase):
 
     async def get_summary(self, model_name: str) -> EvaluationSummaryDTO:
         """Get evaluation summary for a model."""
-        # Load all results for the model
+        # Load all results for the model (v6 per-run files via glob)
         results = await self._result_repository.load_by_model(model_name)
 
         if not results:
+            # Check whether there are legacy flat-directory files that were skipped
+            results_path = Path(getattr(self._result_repository, "_results_dir", "."))
+            legacy_files = list(results_path.glob(f"{model_name}_results.json"))
+            if legacy_files:
+                self._logger.info(
+                    f"No v6 results found for model '{model_name}', but legacy pre-v6 file(s) exist: "
+                    f"{[str(p) for p in legacy_files]}. "
+                    "These files use the old flat-directory layout (schema_version < 6) and are not "
+                    "loaded automatically. Re-run evaluations to generate schema-v6 files."
+                )
             raise ValueError(f"No evaluation results found for model: {model_name}")
 
         # Calculate summary
@@ -151,8 +161,9 @@ class GenerateReportUseCase(IGenerateReportUseCase):
                 passed=r.passed,
                 threshold=r.test_case.get_passing_threshold(),
                 evaluator_notes=r.evaluator_notes,
-                tokens_used=r.model_response.tokens_used,
-                latency_ms=r.model_response.latency_ms,
+                # Defensive defaults: reconstructed results may have 0 for legacy fields
+                tokens_used=getattr(r.model_response, 'tokens_used', 0) or 0,
+                latency_ms=getattr(r.model_response, 'latency_ms', 0) or 0,
                 evaluated_at=r.evaluated_at,
                 metadata=r.metadata,
                 evaluation_mode=getattr(r, 'evaluation_mode', None),
