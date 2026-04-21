@@ -7,7 +7,7 @@ Saves evaluation results to JSON files.
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from application.ports.output.i_logger import ILogger
@@ -29,63 +29,89 @@ class JSONResultRepository(IResultRepository):
         await self.save_batch([result])
 
     async def save_batch(self, results: List[EvaluationResult]) -> None:
-        """Save multiple results."""
-        if not results:
-            return
+        """
+        Deprecated no-op in schema v6.
 
-        # Group by model name
-        by_model = {}
-        for result in results:
-            model = result.model_response.model_name
-            if model not in by_model:
-                by_model[model] = []
-            by_model[model].append(result)
-
-        # Save each model's results
-        for model_name, model_results in by_model.items():
-            filepath = self._results_dir / f"{model_name}_results.json"
-
-            # Load existing if any
-            existing = []
-            if filepath.exists():
-                with open(filepath, "r") as f:
-                    existing = json.load(f)
-
-            # Append new results
-            for result in model_results:
-                existing.append(self._serialize(result))
-
-            # Save
-            with open(filepath, "w") as f:
-                json.dump(existing, f, indent=2, default=str)
+        Per-run writes happen via save_evaluation_run. This method is retained
+        to avoid breaking any callers that still reference it, but produces no
+        file output.
+        """
+        self._logger.debug(
+            "save_batch is a no-op in schema v6; per-run writes happen via save_evaluation_run"
+        )
 
     async def save_evaluation_run(
         self,
         results: List[EvaluationResult],
-        metadata: Dict[str, any]
+        metadata: Dict[str, any],
+        contexts_by_test_id: Optional[Dict[str, List[Dict[str, any]]]] = None,
     ) -> str:
-        """Save evaluation run with metadata in separate file."""
+        """
+        Save evaluation run results as per-run file under monthly subdirectory.
+
+        Writes:
+          - {run_id}-{model}.json  — main result file
+          - {run_id}-contexts.json — sidecar (only when contexts_by_test_id is provided)
+
+        Both files land under src/results/evaluations/{yyyy-MM}/.
+        """
         if not results:
             return ""
 
-        # Generate filename from parameters
-        filename = self._generate_filename(metadata)
-        filepath = self._results_dir / filename
+        month_dir = self._monthly_dir(metadata.get("evaluated_at", ""))
+        filename = self._generate_filename_v6(metadata)
+        filepath = month_dir / filename
 
-        # Enrich metadata with quality_categories if present
         enriched_metadata = self._enrich_quality_categories_metadata(metadata)
-
-        # Build output structure with metadata first, then results
         output = {
             "metadata": enriched_metadata,
-            "test_results": [self._serialize_with_question(result) for result in results]
+            "test_results": [self._serialize_with_question(result) for result in results],
         }
 
-        # Save to file
         with open(filepath, "w") as f:
             json.dump(output, f, indent=2, default=str)
-
         self._logger.info(f"Saved evaluation run to: {filepath}")
+
+        if contexts_by_test_id:
+            run_id = metadata["run_id"]
+            sidecar_path = month_dir / f"{run_id}-contexts.json"
+            with open(sidecar_path, "w") as f:
+                json.dump(contexts_by_test_id, f, indent=2, default=str)
+            self._logger.info(f"Saved retrieved contexts sidecar to: {sidecar_path}")
+
+        return str(filepath)
+
+    async def save_query_run(
+        self,
+        metadata: Dict[str, any],
+        test_results: List[Dict[str, any]],
+        contexts_by_test_id: Optional[Dict[str, List[Dict[str, any]]]] = None,
+    ) -> str:
+        """
+        Save a single ad-hoc query result as a per-run JSON file.
+
+        Writes:
+          - {run_id}-{model}.json  — main result file
+          - {run_id}-contexts.json — sidecar (only when contexts_by_test_id is provided)
+
+        Both files land under src/results/evaluations/{yyyy-MM}/.
+        """
+        month_dir = self._monthly_dir(metadata.get("evaluated_at", ""))
+        filename = self._generate_filename_v6(metadata)
+        filepath = month_dir / filename
+        output = {"metadata": metadata, "test_results": test_results}
+
+        with open(filepath, "w") as f:
+            json.dump(output, f, indent=2, default=str)
+        self._logger.info(f"Saved query run to: {filepath}")
+
+        if contexts_by_test_id:
+            run_id = metadata["run_id"]
+            sidecar_path = month_dir / f"{run_id}-contexts.json"
+            with open(sidecar_path, "w") as f:
+                json.dump(contexts_by_test_id, f, indent=2, default=str)
+            self._logger.info(f"Saved query contexts sidecar to: {sidecar_path}")
+
         return str(filepath)
 
     async def load_by_id(self, result_id: UUID) -> Optional[EvaluationResult]:
@@ -111,6 +137,58 @@ class JSONResultRepository(IResultRepository):
     async def clear_all(self) -> int:
         """Clear all results (not implemented - stub)."""
         return 0
+
+    def _generate_filename_v6(self, metadata: Dict[str, any]) -> str:
+        """
+        Generate schema-v6 filename from run_id.
+
+        Format: {run_id}-{model_name}.json
+
+        Args:
+            metadata: Evaluation metadata containing run_id and model_name.
+
+        Returns:
+            Generated filename.
+
+        Raises:
+            ValueError: If metadata.run_id is missing (required for schema v6).
+        """
+        run_id = metadata.get("run_id")
+        model_name = metadata.get("model_name", "unknown")
+        if not run_id:
+            raise ValueError("metadata.run_id is required for schema v6")
+        return f"{run_id}-{model_name}.json"
+
+    def _generate_filename_legacy(self, metadata: Dict[str, any]) -> str:
+        """
+        Legacy filename generator (pre-v6). Retained for reference; not called on hot path.
+
+        Format: result-{model}-[phase-{phase}]-[mode-{mode}]-...-{timestamp}.json
+        """
+        return self._generate_filename(metadata)
+
+    def _monthly_dir(self, timestamp_iso: str) -> Path:
+        """
+        Return (and create) the monthly subdirectory for the given ISO timestamp.
+
+        Args:
+            timestamp_iso: ISO-formatted datetime string (e.g. "2026-04-21T14:30:00").
+                Falls back to utcnow() if empty or unparseable.
+
+        Returns:
+            Path to the yyyy-MM directory under self._results_dir.
+        """
+        try:
+            if timestamp_iso:
+                dt = datetime.fromisoformat(timestamp_iso.replace("Z", "+00:00"))
+            else:
+                dt = datetime.utcnow()
+        except (ValueError, AttributeError):
+            dt = datetime.utcnow()
+
+        month_dir = self._results_dir / dt.strftime("%Y-%m")
+        month_dir.mkdir(parents=True, exist_ok=True)
+        return month_dir
 
     def _serialize(self, result: EvaluationResult) -> dict:
         """Serialize result to dict."""
@@ -147,6 +225,13 @@ class JSONResultRepository(IResultRepository):
             else:
                 # Build grouped structure
                 serialized["ragas"] = self._build_grouped_ragas_structure(ragas_eval)
+
+        # I/O capture fields (schema v6 — traceability)
+        serialized["system_prompt"] = result.system_prompt
+        serialized["user_prompt"] = result.user_prompt
+        serialized["prompt_tokens"] = result.model_response.prompt_tokens
+        serialized["completion_tokens"] = result.model_response.completion_tokens
+        serialized["total_tokens"] = result.model_response.total_tokens
 
         # RAG evaluation metadata
         if result.evaluation_mode is not None:

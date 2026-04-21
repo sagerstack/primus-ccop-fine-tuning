@@ -30,7 +30,10 @@ class QueryComplianceUseCase:
             mode: Pipeline mode — "hybrid", "llm-only", "rag-only"
 
         Returns:
-            RagResponse with formatted answer and citations
+            RagResponse with formatted answer and citations. After Plan 03.1-01, RagResponse
+            carries full I/O traceability fields (system_prompt, user_prompt, token counts,
+            latency_ms, retrieved_contexts_detailed). RunId generation and result persistence
+            happen at the CLI layer (rag/presentation/cli/query.py), not here.
 
         Raises:
             ValueError: If question is empty

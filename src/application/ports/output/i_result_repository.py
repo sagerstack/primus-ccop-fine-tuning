@@ -5,7 +5,7 @@ Abstract interface for evaluation result persistence.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from domain.entities.evaluation_result import EvaluationResult
@@ -48,7 +48,8 @@ class IResultRepository(ABC):
     async def save_evaluation_run(
         self,
         results: List[EvaluationResult],
-        metadata: Dict[str, any]
+        metadata: Dict[str, Any],
+        contexts_by_test_id: Optional[Dict[str, List[Dict[str, Any]]]] = None,
     ) -> str:
         """
         Save evaluation results for a complete run with metadata.
@@ -56,9 +57,35 @@ class IResultRepository(ABC):
         Args:
             results: List of evaluation results
             metadata: Evaluation run metadata (model, phase, tier, benchmarks, scores, etc.)
+            contexts_by_test_id: Optional mapping of test_id to list of retrieved context dicts.
+                When provided, written as a sidecar {run_id}-contexts.json file.
 
         Returns:
             Filepath of saved results
+
+        Raises:
+            RepositoryError: If saving fails
+        """
+        pass
+
+    @abstractmethod
+    async def save_query_run(
+        self,
+        metadata: Dict[str, Any],
+        test_results: List[Dict[str, Any]],
+        contexts_by_test_id: Optional[Dict[str, List[Dict[str, Any]]]] = None,
+    ) -> str:
+        """
+        Save a single ad-hoc query result as a per-run JSON file.
+
+        Args:
+            metadata: Run metadata including run_id, model_name, evaluated_at, etc.
+            test_results: List of result dicts (typically a single entry for query runs).
+            contexts_by_test_id: Optional mapping of test_id to retrieved context dicts.
+                Written as sidecar {run_id}-contexts.json when provided.
+
+        Returns:
+            Filepath of saved result
 
         Raises:
             RepositoryError: If saving fails

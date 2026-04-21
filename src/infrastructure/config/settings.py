@@ -65,8 +65,8 @@ class Settings(BaseSettings):
 
     # Evaluation Configuration
     test_cases_dir: Path = Field(
-        default=Path("../ground-truth/phase-2/test-suite"),
-        description="Test cases directory (Phase 2 ground truth)"
+        default=Path("../ground-truth/test-suite"),
+        description="Test cases directory (v2 ground truth)"
     )
     results_dir: Path = Field(
         default=Path("results/evaluations"),

@@ -7,12 +7,14 @@ Command-line interface for querying CCoP compliance via RAG pipeline.
 import asyncio
 import logging
 import sys
+from datetime import datetime
 
 import typer
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 
+from domain.value_objects.run_id import RunId
 from infrastructure.config.container import get_container
 
 # Create Typer app
@@ -71,6 +73,7 @@ async def _execute_query(question: str, mode: str, verbose: bool, no_score: bool
             "rag-only": "Retrieving documents (no LLM)...",
         }
 
+        ts = datetime.utcnow()
         with console.status(f"[bold green]{spinner_label.get(mode, 'Querying...')}"):
             response = await use_case.execute(question, mode)
 
@@ -141,6 +144,52 @@ async def _execute_query(question: str, mode: str, verbose: bool, no_score: bool
                 if verbose:
                     console.print(f"\n[yellow]Quality scoring error: {e}[/yellow]")
                 logging.getLogger(__name__).warning(f"Quality scoring failed: {e}")
+
+        # Persist query as auditable artifact (scope=query, schema v6)
+        run_id = RunId(mode=mode, scope="query", timestamp=ts)
+        console.print(f"\n[dim]Run ID: {run_id.value}[/dim]")
+
+        try:
+            query_test_id = f"query-{run_id.value}"
+            test_results = [{
+                "test_id": query_test_id,
+                "question": question,
+                "response": response.response,
+                "raw_response": response.raw_response,
+                "is_rag_augmented": response.is_rag_augmented,
+                "citations": response.citations,
+                "system_prompt": response.system_prompt,
+                "user_prompt": response.user_prompt,
+                "prompt_tokens": response.prompt_tokens,
+                "completion_tokens": response.completion_tokens,
+                "total_tokens": response.total_tokens,
+                "latency_ms": response.latency_ms,
+                "evaluation_mode": mode,
+                "evaluated_at": ts.isoformat(),
+            }]
+            contexts_by_test_id = {}
+            if response.retrieved_contexts_detailed:
+                contexts_by_test_id[query_test_id] = response.retrieved_contexts_detailed
+
+            settings = container.config()
+            metadata = {
+                "run_id": run_id.value,
+                "schema_version": 6,
+                "model_name": settings.model_name,
+                "evaluation_mode": mode,
+                "evaluated_at": ts.isoformat(),
+                "question": question,
+                "is_rag_augmented": response.is_rag_augmented,
+            }
+
+            repo = container.result_repository()
+            await repo.save_query_run(
+                metadata=metadata,
+                test_results=test_results,
+                contexts_by_test_id=contexts_by_test_id or None,
+            )
+        except Exception as persist_err:
+            logging.getLogger(__name__).warning(f"Query persistence failed (non-fatal): {persist_err}")
 
         # Display metadata if verbose
         if verbose:
