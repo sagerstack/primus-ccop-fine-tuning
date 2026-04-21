@@ -13,8 +13,23 @@ from rag.ingestion.models import ChunkMetadata, CcopChunk
 
 logger = logging.getLogger(__name__)
 
-# Regex pattern for CCoP clause numbering (e.g., "5.2.1 The CIIO shall...")
-CLAUSE_PATTERN = re.compile(r"^(\d+(?:\.\d+)*)\s+(.+?)$", re.MULTILINE)
+# Regex pattern for CCoP clause numbering.
+#
+# Matches two heading formats produced by Docling's Classic pipeline:
+#   - Bare digit:  "5.2.2 The CIIO shall perform a review..."
+#   - ## prefix:   "## 5.3 Privileged Access Management"
+#                  "## 5.3.1 With respect to privileged accounts..."
+#
+# Also matches item-letter notation "5.3.1(c) Implement multi-factor..." when present,
+# though in practice Docling renders sub-items as "- (c) ..." list syntax inside the
+# parent clause body rather than as standalone headings. The optional \\([a-z]\\)
+# group is included per Phase 3.2 plan requirement and is harmless when absent.
+#
+# Chunks stop at the clause level (X.Y.Z or X.Y). Item-letter sub-items remain
+# embedded in parent clause text per the CONTEXT.md leaf-depth decision.
+CLAUSE_PATTERN = re.compile(
+    r"^(?:##\s+)?(\d+(?:\.\d+)*(?:\([a-z]\))?)\s+(.+?)$", re.MULTILINE
+)
 
 
 def chunk_by_clauses(
@@ -41,7 +56,6 @@ def chunk_by_clauses(
     filtered_text = _filter_boilerplate(markdown_text)
 
     chunks = []
-    merge_buffer = None
 
     # Split on clause boundaries
     parts = CLAUSE_PATTERN.split(filtered_text)
@@ -79,7 +93,9 @@ def chunk_by_clauses(
                     f"into {len(preamble_chunks)} sub-chunks"
                 )
 
-    # Process clause groups (groups of 3: clause_number, heading, content)
+    # Process clause groups (groups of 3: clause_number, heading, content).
+    # Every clause match emits its own chunk — merging disabled per Phase 3.2
+    # decision (bug #9 root cause: <30-word merge rule caused cross-clause bleed).
     i = 1 if parts[0].strip() else 0
     while i < len(parts) - 2:
         clause_number = parts[i].strip()
@@ -89,48 +105,10 @@ def chunk_by_clauses(
         # Build chunk text
         chunk_text = f"{clause_number} {clause_heading}\n\n{clause_content}".strip()
 
-        # Word count for size check
-        word_count = len(chunk_text.split())
-
-        # Check if this is a tiny chunk that should be merged
-        if word_count < 30:
-            # Merge with previous chunk or buffer for next
-            if merge_buffer is None:
-                merge_buffer = {
-                    "text": chunk_text,
-                    "clause_number": clause_number,
-                    "clause_heading": clause_heading,
-                }
-            else:
-                # Merge with buffer
-                merge_buffer["text"] += "\n\n" + chunk_text
-            i += 3
-            continue
-
-        # Flush merge buffer if exists
-        if merge_buffer:
-            merged_chunk = _create_clause_chunk(
-                merge_buffer["text"],
-                document_name,
-                merge_buffer["clause_number"],
-            )
-            chunks.append(merged_chunk)
-            merge_buffer = None
-
-        # Create chunk
         chunk = _create_clause_chunk(chunk_text, document_name, clause_number)
         chunks.append(chunk)
 
         i += 3
-
-    # Don't forget final merge buffer
-    if merge_buffer:
-        merged_chunk = _create_clause_chunk(
-            merge_buffer["text"],
-            document_name,
-            merge_buffer["clause_number"],
-        )
-        chunks.append(merged_chunk)
 
     logger.info(
         f"Produced {len(chunks)} clause-level chunks for {document_name} "
