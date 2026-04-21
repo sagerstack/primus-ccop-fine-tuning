@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — In progress. Plan 01 complete (chunker fix). Sub-goal A (corpus) executing — Plans 02-05 remain.
+**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — In progress. Plans 01-02 complete (chunker fix + table chunks + TOC gate). Sub-goal A (corpus) executing — Plans 03-05 remain.
 
 ## Current Position
 
 Phase: 3.2 of 8 (Corpus and Ground Truth Correctness) — In progress
-Plan: 1 of 7 — COMPLETE
-Status: Plan 01 complete (chunker fix verified, 16 regression tests passing)
-Last activity: 2026-04-21 — Completed 03.2-01: Docling audit + CLAUSE_PATTERN fix + regression tests
+Plan: 2 of 7 — COMPLETE
+Status: Plan 02 complete (table chunks + TOC sanity gate, 31 tests passing)
+Last activity: 2026-04-21 — Completed 03.2-02: ChunkMetadata type/parent_clause + table detection + ingestion TOC gate
 
-Progress: [█████░░░░░] 42% (4/11 phase-3 plans + 3/3 phase-3.1 plans + 1/7 phase-3.2 plans)
+Progress: [█████░░░░░] 43% (4/11 phase-3 plans + 3/3 phase-3.1 plans + 2/7 phase-3.2 plans)
 
 ## Performance Metrics
 
@@ -219,6 +219,10 @@ None yet.
   - **[03.2-01] Optional item-letter group in CLAUSE_PATTERN:** `(?:\([a-z]\))?` suffix added per plan; harmless in practice because Docling renders sub-items as `- (a)` list syntax, not as standalone headings
   - **[03.2-01] Merge rule removed unconditionally:** `<30-word merge_buffer` branch deleted entirely — short chunks acceptable with hybrid retrieval; any knob preserves bleed risk
   - **[03.2-01] Loop index i=1 always:** Pre-existing inverted condition (`i = 1 if parts[0].strip() else 0`) masked by real documents always having preamble; fixed to unconditional `i = 1`
+  - **[03.2-02] Table chunks are ADDITIVE:** Parent clause chunk keeps full text; table chunks layer on top for filtered retrieval. No replacement — both coexist in the index
+  - **[03.2-02] Table detection: >=3 consecutive pipe-lines:** Heading row + separator + at least 1 data row threshold; 2-line pipe blocks excluded
+  - **[03.2-02] EXPECTED_CCOP_2_SECTIONS as module constant:** CCoP 2.0 TOC is a structural contract of the PDF, not a runtime parameter; defined once at the top of run_ingestion.py citing source PDF
+  - **[03.2-02] TOC gate filters on type='clause' only:** Table chunks and preamble excluded from section evidence; gate positioned at Step 2.5 (after chunking, before upload)
 
 ### Blockers/Concerns
 
@@ -227,5 +231,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-21
-Stopped at: Completed 03.2-01-PLAN.md — chunker fix (CLAUSE_PATTERN ## prefix + merge removal + inverted index fix) + 16 regression tests. Commits: 15539d6, 2eea110, a3fe151.
-Resume file: 03.2-02-PLAN.md — corpus re-ingestion with fixed chunker.
+Stopped at: Completed 03.2-02-PLAN.md — ChunkMetadata type/parent_clause extension + table chunk emission + ingestion TOC sanity gate. Commits: 4d44f50, 201cf99.
+Resume file: 03.2-03-PLAN.md — corpus re-ingestion with fixed chunker.
