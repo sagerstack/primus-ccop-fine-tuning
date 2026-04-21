@@ -71,20 +71,68 @@ ITEM_LETTER_PATTERN = re.compile(
     re.MULTILINE,
 )
 
+# Cybersecurity Act 2018 — legal-numbering document name.
+# Only this document gets the legal-numbering extraction pass.
+CYBERSECURITY_ACT_DOC_NAME = "Cybersecurity Act 2018"
 
-def extract_clause_ids(markdown_text: str) -> list[str]:
+# Legal pass 1 — section headings in the Cybersecurity Act 2018.
+#
+# Docling renders section headings as bare-number lines, e.g.:
+#   "11. Powers of Commissioner..."
+#   "15A. ..." (section suffix letters preserved)
+#
+# NOTE: The document does NOT use "section N" as a heading keyword — the word
+# "section" appears only in cross-references within body text. We synthesize
+# clause_id="section <N>" from the bare-number heading to match ground-truth
+# citation convention (GT test cases cite as "section 11", not "11").
+#
+# Pattern structure:
+#   ^           — start of line
+#   (\d+[A-Z]?) — section number with optional suffix letter (e.g. 11, 15A)
+#   \.\s+       — period and whitespace (heading format)
+#   [A-Z]       — title starts with capital letter (filters out list items,
+#                 numbered lists in body text, and TOC page-number entries)
+LEGAL_SECTION_PATTERN = re.compile(
+    r"^(\d+[A-Z]?)\.\s+[A-Z]",
+    re.MULTILINE,
+)
+
+# Legal pass 2 — Part headings in the Cybersecurity Act 2018.
+#
+# Docling renders Part headings with optional ## prefix and Arabic numerals:
+#   "## Part 1 PRELIMINARY"
+#   "## Part 2 ADMINISTRATION"
+#   "## Part 3 CRITICAL INFORMATION INFRASTRUCTURE"
+#
+# Deviation from original spec: the original spec called for Roman numerals
+# ([IVX]+) but the actual PDF uses Arabic. Adapted to source format; emitted
+# clause_id preserved as "Part <N>" to match ground-truth citation convention.
+LEGAL_PART_PATTERN = re.compile(
+    r"^(?:##\s+)?Part\s+(\d+)",
+    re.MULTILINE,
+)
+
+
+def extract_clause_ids(markdown_text: str, source_doc: str = "") -> list[str]:
     """
     Extract all clause IDs from Docling-generated markdown.
 
-    Two-pass approach:
+    Primary CCoP-style extraction (applied to all documents):
     - Pass 1: Clause headings (e.g. "## 5.3.1 With respect to...")
     - Pass 2: Item-letter sub-items embedded in clause bodies
       (e.g. "- (c) Implement MFA...") synthesised as "5.3.1(c)"
+
+    Legal-numbering extraction (applied ONLY when source_doc matches
+    CYBERSECURITY_ACT_DOC_NAME — the Cybersecurity Act 2018 uses section/Part
+    numbering instead of CCoP-style X.Y.Z hierarchy):
+    - Legal pass 1: Bare-number section headings ("11. Powers...") → "section 11"
+    - Legal pass 2: Part headings ("## Part 3 ...") → "Part 3"
 
     Deduplicates within the document. Returns IDs in document order.
 
     Args:
         markdown_text: Markdown text from Docling parser
+        source_doc: Document name — used to gate the legal-numbering pass
 
     Returns:
         Ordered, deduplicated list of clause ID strings
@@ -123,6 +171,24 @@ def extract_clause_ids(markdown_text: str) -> list[str]:
                 seen.add(item_id)
                 ordered.append(item_id)
 
+    # Legal-numbering pass — scoped to Cybersecurity Act 2018 only.
+    # This document uses bare-number section headings and Arabic Part labels
+    # rather than CCoP's X.Y.Z hierarchy. Without this pass the document would
+    # contribute 0 entries to the inventory, blocking ground-truth validation
+    # of the 57 citations that reference "section N" or "Part N".
+    if source_doc == CYBERSECURITY_ACT_DOC_NAME:
+        for section_match in LEGAL_SECTION_PATTERN.finditer(markdown_text):
+            section_id = f"section {section_match.group(1)}"
+            if section_id not in seen:
+                seen.add(section_id)
+                ordered.append(section_id)
+
+        for part_match in LEGAL_PART_PATTERN.finditer(markdown_text):
+            part_id = f"Part {part_match.group(1)}"
+            if part_id not in seen:
+                seen.add(part_id)
+                ordered.append(part_id)
+
     return ordered
 
 
@@ -149,7 +215,7 @@ def build_inventory(ccop_dir: str) -> dict:
 
     for doc_name in source_docs:
         result = parsed_docs[doc_name]
-        clause_ids = extract_clause_ids(result.markdown)
+        clause_ids = extract_clause_ids(result.markdown, source_doc=doc_name)
         doc_entries = [
             {"clause_id": cid, "source_doc": doc_name} for cid in clause_ids
         ]
@@ -178,15 +244,40 @@ def _clause_sort_key(clause_id: str) -> tuple:
     """
     Build a sortable tuple from a clause ID string for stable ordering.
 
-    Uses a uniform (int, str) element structure so tuples of different lengths
-    compare without TypeError in Python's tuple comparison.
+    Handles three clause_id formats:
+      - CCoP hierarchical: "5", "5.3", "5.3.1", "5.3.1(c)"
+      - Legal section:     "section 11", "section 15A"
+      - Legal Part:         "Part 3"
+
+    Sort contract (groups first, then numerically within each group):
+      - Group 0: CCoP hierarchical (default — sorted by numeric parts + letter)
+      - Group 1: Legal Part
+      - Group 2: Legal section
 
     Examples:
-        "5"        -> ((5, ""), (0, ""), (0, ""), "")
-        "5.3"      -> ((5, ""), (3, ""), (0, ""), "")
-        "5.3.1"    -> ((5, ""), (3, ""), (1, ""), "")
-        "5.3.1(c)" -> ((5, ""), (3, ""), (1, ""), "c")
+        "5"          -> (0, 5, 0, 0, 0, "")
+        "5.3.1(c)"   -> (0, 5, 3, 1, 0, "c")
+        "Part 3"     -> (1, 3, 0, 0, 0, "")
+        "section 11" -> (2, 11, 0, 0, 0, "")
+        "section 15A"-> (2, 15, 0, 0, 0, "A")
     """
+    # Legal Part: "Part <N>"
+    if clause_id.startswith("Part "):
+        try:
+            num = int(clause_id[5:].strip())
+        except ValueError:
+            num = 0
+        return (1, num, 0, 0, 0, "")
+
+    # Legal section: "section <N>" — optional suffix letter (e.g. "15A")
+    if clause_id.startswith("section "):
+        body = clause_id[8:].strip()
+        m = re.match(r"^(\d+)([A-Z]?)$", body)
+        if m:
+            return (2, int(m.group(1)), 0, 0, 0, m.group(2))
+        return (2, 0, 0, 0, 0, "")
+
+    # CCoP hierarchical: "X.Y.Z" with optional "(letter)" suffix
     letter_suffix = ""
     if clause_id.endswith(")") and "(" in clause_id:
         base, letter_part = clause_id.rsplit("(", 1)
@@ -194,7 +285,6 @@ def _clause_sort_key(clause_id: str) -> tuple:
         clause_id = base
 
     raw_parts = clause_id.split(".")
-    # Pad to a fixed depth (4 levels covers all CCoP nesting) with zero ints
     try:
         numeric_parts = [int(p) for p in raw_parts]
     except ValueError:
@@ -203,7 +293,7 @@ def _clause_sort_key(clause_id: str) -> tuple:
     while len(numeric_parts) < 4:
         numeric_parts.append(0)
 
-    return tuple(numeric_parts[:4]) + (letter_suffix,)
+    return (0,) + tuple(numeric_parts[:4]) + (letter_suffix,)
 
 
 def write_inventory(inventory: dict, output_path: Path) -> None:

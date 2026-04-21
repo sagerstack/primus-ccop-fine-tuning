@@ -5,11 +5,12 @@ These tests load the pre-built clause_inventory.json fixture and assert
 structural and content invariants. No Docling re-parse is required —
 the fixture is committed and treated as ground truth.
 
-Four invariants:
+Five invariants:
   1. Known-real clause IDs are present (5.3.1, 5.3.1(c), 5.2.1 in CCoP 2.0)
   2. Known-hallucinated clause IDs are absent (5.1.5 — bug #8: section 5.1 ends at 5.1.4)
-  3. Inventory covers all 7 source documents (7 parsed; Cybersecurity Act 2018 yields 0 CCoP-style IDs)
-  4. Entry schema is minimal: exactly {clause_id, source_doc} — no drift
+  3. Inventory covers all 7 source documents (7 parsed)
+  4. Cybersecurity Act 2018 legal numbering (section N, Part N) is captured
+  5. Entry schema is minimal: exactly {clause_id, source_doc} — no drift
 """
 
 import json
@@ -85,9 +86,6 @@ class TestInventoryExcludesKnownHallucinatedClauses:
 class TestInventoryCoversAllDocuments:
     """Inventory must span all parsed source documents."""
 
-    # The extraction pipeline parses 7 documents. Cybersecurity Act 2018
-    # yields 0 CCoP-format clause IDs (different numbering scheme) but
-    # IS listed in source_docs. Total distinct source_docs >= 7.
     EXPECTED_MIN_DOCS = 7
     EXPECTED_CCOP_DOC = "CCoP 2.0"
 
@@ -106,8 +104,48 @@ class TestInventoryCoversAllDocuments:
     def test_entries_span_multiple_documents(self, inventory: dict) -> None:
         docs_in_entries = {e["source_doc"] for e in inventory["entries"]}
         assert len(docs_in_entries) >= 2, (
-            "Entries must span at least 2 source documents "
-            "(Cybersecurity Act 2018 has 0 entries but other docs should contribute)"
+            "Entries must span at least 2 source documents"
+        )
+
+
+class TestInventoryCoversCybersecurityActLegalNumbering:
+    """
+    Cybersecurity Act 2018 uses legal numbering (section N, Part N) instead of
+    CCoP-style X.Y.Z hierarchy. Without a dedicated extraction pass this document
+    contributes 0 entries to the inventory, blocking ground-truth validation of
+    GT citations that reference 'section N' or 'Part N'.
+
+    Deviation note: the original spec called for Roman numeral Part labels, but
+    the local PDF uses Arabic. Adapted regex to source format; emitted clause_id
+    strings preserved to match GT citation convention.
+    """
+
+    ACT_DOC = "Cybersecurity Act 2018"
+
+    def test_section_11_present(self, entry_set: set) -> None:
+        assert ("section 11", self.ACT_DOC) in entry_set, (
+            f"Clause 'section 11' missing from {self.ACT_DOC}. "
+            "The legal-numbering pass should emit 'section <N>' for each "
+            "bare-number section heading ('11. Powers of Commissioner')."
+        )
+
+    def test_at_least_one_part_entry(self, inventory: dict) -> None:
+        part_entries = [
+            e for e in inventory["entries"]
+            if e["source_doc"] == self.ACT_DOC and e["clause_id"].startswith("Part ")
+        ]
+        assert len(part_entries) >= 1, (
+            f"No 'Part <N>' entries found for {self.ACT_DOC}. "
+            "The legal-numbering pass should emit one entry per Part heading."
+        )
+
+    def test_cybersecurity_act_entry_count_positive(self, inventory: dict) -> None:
+        act_entries = [
+            e for e in inventory["entries"] if e["source_doc"] == self.ACT_DOC
+        ]
+        assert len(act_entries) > 0, (
+            f"{self.ACT_DOC} contributes 0 entries. "
+            "The legal-numbering pass should yield section + Part entries."
         )
 
 
