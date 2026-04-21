@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — In progress. Plans 01-03 complete (chunker fix + table chunks + TOC gate + live re-ingestion). Sub-goal A (corpus) complete — sub-goal B (Plans 04-05) remaining.
+**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — In progress. Sub-goal A CLOSED (Plans 01-04: chunker fix + table chunks + TOC gate + re-ingestion + retrievability proof). Sub-goal B (Plans 05-07) remaining.
 
 ## Current Position
 
 Phase: 3.2 of 8 (Corpus and Ground Truth Correctness) — In progress
-Plan: 3 of 7 — COMPLETE
-Status: Plan 03 complete (ccop_clauses_hybrid re-ingested, 477 points, 12/12 sections verified, SC #8 N/A approved)
-Last activity: 2026-04-21 — Completed 03.2-03: drop + re-ingest + section/phrase verification, SC #8 marked N/A
+Plan: 4 of 7 — COMPLETE (sub-goal A CLOSED)
+Status: Plan 04 complete (B3-001 hybrid re-eval confirms 5.3.1 retrievable at rank 5/20 post-rerank; SC #9 marked N/A per human approval — ranking gap belongs to Phase 4)
+Last activity: 2026-04-21 — Completed 03.2-04: B3-001 re-eval + retrieval funnel diagnostic + sub-goal A closure
 
-Progress: [█████░░░░░] 45% (4/11 phase-3 plans + 3/3 phase-3.1 plans + 3/7 phase-3.2 plans)
+Progress: [█████░░░░░] 47% (4/11 phase-3 plans + 3/3 phase-3.1 plans + 4/7 phase-3.2 plans)
 
 ## Performance Metrics
 
@@ -39,9 +39,10 @@ Progress: [█████░░░░░] 45% (4/11 phase-3 plans + 3/3 phase-3
 | 3.1. Eval Run Traceability & I/O Capture | 3/3 | ~90 min | ~30 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.1-01 (~25min domain plumbing), 03.1-02 (~30min per-run monthly layout), 03.1-03 (~35min report rewire + --verbose-io + 88 tests)
-- Trend: Phase 3.1 plans longer than phase-2 average — larger surface area (schema v6 migration touches domain, infra, CLI, reporting)
+- Last 5 plans: 03.1-03 (~35min report rewire + --verbose-io + 88 tests), 03.2-01 (chunker regex + merge-rule removal), 03.2-02 (table chunks + TOC gate), 03.2-03 (~15min re-ingest + section/phrase verification, SC #8 N/A), 03.2-04 (~33min B3-001 re-eval + funnel diagnostic + sub-goal A closure, SC #9 N/A)
+- Trend: Phase 3.2 plans average ~15-30 min; Plan 04 longer due to checkpoint pause for human diagnostic
 - Phase 3.1 VERIFIED COMPLETE: 9/9 success criteria PASS, 88/88 schema-v6 targeted tests passing, verifier report at `.planning/phases/03.1-eval-run-traceability/VERIFICATION.md`
+- Phase 3.2 sub-goal A COMPLETE (2026-04-21): bugs #9/#10 corpus-level fix shipped; B3-001 retrieval-ranking gap handed off to Phase 4
 
 *Updated after each plan completion*
 
@@ -226,13 +227,17 @@ None yet.
   - **[03.2-03] SC #8 marked N/A (human-approved 2026-04-21):** 'individual accountability'/'individual authentication' phrases are absent from CCoP 2.0 source PDF (verified via 151,269-char Docling parse with 0 matches); their absence from the index is not a chunker defect. Real fix (sections 5.3/5.4 as discrete retrievable chunks) proven by SC #7 PASS
   - **[03.2-03] N/A annotation preserved in plan document:** Phrases kept in `must_haves.truths` + `<success_criteria>` with inline `# N/A — phrase not in source PDF` comments rather than deleted — traceability over silent removal
   - **[03.2-03] 490 chunks -> 477 Qdrant points (13 dedup):** Deterministic uuid5 over citation_id collapses preamble sub-chunks that share parent IDs; functional content preserved, all 12 expected sections retrievable
+  - **[03.2-04] SC #9 marked N/A (human-approved 2026-04-21):** context_recall=0 on B3-001 is a retrieval-ranking problem, not a corpus gap; CCoP 2.0::5.3.1 is indexed and scoreable but lands at rank 5/20 post-cross-encoder (score -6.773), below the top-3 cutoff (-5.613). CONTEXT.md defers retriever/reranker tuning to Phase 4
+  - **[03.2-04] Sub-goal A CLOSED:** Plans 01-04 collectively deliver the corpus fix — chunker regex (01), table chunks + TOC gate (02), clean re-ingestion (03), retrievability proof (04). Bugs #9 and #10 addressed at the corpus level
+  - **[03.2-04] Retrieval funnel diagnostic as closure artifact:** Capturing rank at each stage (hybrid top_k -> cross-encoder rerank -> top-N cutoff) isolates corpus-vs-ranking failures; pattern reusable for any future retrieval metric regression
+  - **[03.2-04] Phase 4 candidate fixes pre-identified:** (1) bump rerank_top_n 3->5 (cheapest), (2) domain-tuned cross-encoder (highest signal), (3) query rewriting for privileged/admin synonymy. Documented in b3-001-rerun-evidence.md so Phase 4 planning starts with a named option space
 
 ### Blockers/Concerns
 
-None yet.
+- **Ground-truth test_id casing inconsistency (B04/B4, B05/B5, ...):** Pre-existing issue surfaced by the 03.2-04 re-eval logs. Ground-truth files use `B04-001` but benchmark codes are `B4`. Flagged for Plan 05 (ground truth audit) to address as part of sub-goal B cleanup.
 
 ## Session Continuity
 
 Last session: 2026-04-21
-Stopped at: Completed 03.2-03-PLAN.md — drop + re-ingest ccop_clauses_hybrid (490 chunks, 477 points), TOC sanity gate PASSED, SC #7 PASS (all 12 sections), SC #8 approved as N/A (phrases absent from source PDF). Commits: 9697d66, d401523.
-Resume file: 03.2-04-PLAN.md — clause inventory extraction (sub-goal B kickoff).
+Stopped at: Completed 03.2-04-PLAN.md — B3-001 hybrid re-eval confirmed 5.3.1 retrievable at rank 5/20 post-rerank; SC #9 marked N/A (retrieval ranking belongs to Phase 4); sub-goal A CLOSED. Commits: 19f5722, bbe0ccd.
+Resume file: 03.2-05-PLAN.md — clause inventory extraction (sub-goal B kickoff).
