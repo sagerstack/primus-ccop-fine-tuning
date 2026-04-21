@@ -48,6 +48,9 @@ class EvaluationResult:
         retrieved_chunk_ids: Optional[List[str]] = None,
         chunk_count: Optional[int] = None,
         evaluation_mode: Optional[str] = None,
+        system_prompt: Optional[str] = None,
+        user_prompt: Optional[str] = None,
+        retrieved_contexts_detailed: Optional[List[Dict[str, Any]]] = None,
     ) -> None:
         """
         Initialize EvaluationResult entity.
@@ -66,6 +69,9 @@ class EvaluationResult:
             retrieved_chunk_ids: IDs of chunks retrieved by RAG pipeline
             chunk_count: Number of RAG chunks retrieved
             evaluation_mode: Evaluation mode used (hybrid or llm-only)
+            system_prompt: Full system prompt as sent to the model (Phase 3.1)
+            user_prompt: User-turn content with RAG context interpolated (Phase 3.1)
+            retrieved_contexts_detailed: Full retrieved context payloads with metadata (Phase 3.1)
 
         Raises:
             EvaluationError: If validation fails
@@ -84,6 +90,9 @@ class EvaluationResult:
         self._retrieved_chunk_ids = retrieved_chunk_ids
         self._chunk_count = chunk_count
         self._evaluation_mode = evaluation_mode
+        self._system_prompt = system_prompt
+        self._user_prompt = user_prompt
+        self._retrieved_contexts_detailed = retrieved_contexts_detailed
 
         self._validate()
 
@@ -223,6 +232,9 @@ class EvaluationResult:
             "metrics": {m.name: m.value for m in self._metrics},
             "model": self._model_response.model_name,
             "tokens_used": self._model_response.tokens_used,
+            "prompt_tokens": self._model_response.prompt_tokens,
+            "completion_tokens": self._model_response.completion_tokens,
+            "total_tokens": self._model_response.total_tokens,
             "latency_ms": self._model_response.latency_ms,
         }
 
@@ -365,6 +377,21 @@ class EvaluationResult:
     def evaluation_mode(self) -> Optional[str]:
         """Evaluation mode used (hybrid or llm-only). None if not specified."""
         return self._evaluation_mode
+
+    @property
+    def system_prompt(self) -> Optional[str]:
+        """Full system prompt as sent to the model. None if not captured."""
+        return self._system_prompt
+
+    @property
+    def user_prompt(self) -> Optional[str]:
+        """User-turn content with RAG context already interpolated. None if not captured."""
+        return self._user_prompt
+
+    @property
+    def retrieved_contexts_detailed(self) -> Optional[List[Dict[str, Any]]]:
+        """Full retrieved context payloads with metadata. None in llm-only mode."""
+        return self._retrieved_contexts_detailed
 
     # Equality based on identity
 

@@ -34,6 +34,9 @@ class ModelResponse:
         temperature: float = 0.7,
         created_at: datetime | None = None,
         metadata: Dict[str, any] | None = None,
+        prompt_tokens: int = 0,
+        completion_tokens: int = 0,
+        total_tokens: int = 0,
     ) -> None:
         """
         Initialize ModelResponse entity.
@@ -42,11 +45,14 @@ class ModelResponse:
             response_id: Unique identifier (auto-generated if None)
             content: The actual response text from the model
             model_name: Name of the model that generated this response
-            tokens_used: Number of tokens in the response
+            tokens_used: Number of tokens in the response (legacy; use total_tokens for new code)
             latency_ms: Response generation time in milliseconds
             temperature: Temperature parameter used for generation
             created_at: Timestamp of response creation
             metadata: Additional response metadata
+            prompt_tokens: Prompt token count (prompt_eval_count from Ollama)
+            completion_tokens: Completion token count (eval_count from Ollama)
+            total_tokens: Sum of prompt_tokens + completion_tokens
 
         Raises:
             ValidationError: If validation fails
@@ -54,7 +60,12 @@ class ModelResponse:
         self._response_id = response_id or uuid4()
         self._content = content
         self._model_name = model_name
-        self._tokens_used = tokens_used
+        self._prompt_tokens = prompt_tokens
+        self._completion_tokens = completion_tokens
+        # Auto-compute total_tokens from prompt+completion when not explicitly provided
+        self._total_tokens = total_tokens if total_tokens > 0 else (prompt_tokens + completion_tokens)
+        # Back-compat: if total_tokens is populated and tokens_used is not, mirror it
+        self._tokens_used = tokens_used if tokens_used > 0 or self._total_tokens == 0 else self._total_tokens
         self._latency_ms = latency_ms
         self._temperature = temperature
         self._created_at = created_at or datetime.utcnow()
@@ -79,6 +90,24 @@ class ModelResponse:
             raise ValidationError(
                 "Tokens used must be non-negative",
                 field="tokens_used"
+            )
+
+        if self._prompt_tokens < 0:
+            raise ValidationError(
+                "Prompt tokens must be non-negative",
+                field="prompt_tokens"
+            )
+
+        if self._completion_tokens < 0:
+            raise ValidationError(
+                "Completion tokens must be non-negative",
+                field="completion_tokens"
+            )
+
+        if self._total_tokens < 0:
+            raise ValidationError(
+                "Total tokens must be non-negative",
+                field="total_tokens"
             )
 
         if self._latency_ms < 0:
@@ -201,8 +230,23 @@ class ModelResponse:
 
     @property
     def tokens_used(self) -> int:
-        """Number of tokens used."""
+        """Number of tokens used (legacy field; prefer total_tokens for new code)."""
         return self._tokens_used
+
+    @property
+    def prompt_tokens(self) -> int:
+        """Prompt token count (prompt_eval_count from Ollama)."""
+        return self._prompt_tokens
+
+    @property
+    def completion_tokens(self) -> int:
+        """Completion token count (eval_count from Ollama)."""
+        return self._completion_tokens
+
+    @property
+    def total_tokens(self) -> int:
+        """Total token count (prompt_tokens + completion_tokens)."""
+        return self._total_tokens
 
     @property
     def latency_ms(self) -> int:

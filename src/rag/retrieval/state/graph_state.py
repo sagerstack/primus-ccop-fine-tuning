@@ -5,7 +5,7 @@ Defines the TypedDict state schema for RAG graph.
 State persists across all graph nodes and edges.
 """
 
-from typing import List, TypedDict
+from typing import Dict, List, TypedDict
 
 from langchain_core.documents import Document
 
@@ -41,6 +41,15 @@ class GraphState(TypedDict):
     is_rag_augmented: bool
     citations: List[dict]
     llm_context: str
+
+    # I/O capture fields (Phase 3.1 — traceability)
+    system_prompt: str
+    user_prompt: str
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+    latency_ms: int
+    retrieved_contexts_detailed: List[Dict]  # One entry per filtered doc with full metadata
 
     # Error handling
     error: str

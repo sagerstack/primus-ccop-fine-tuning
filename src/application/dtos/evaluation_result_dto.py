@@ -87,6 +87,27 @@ class EvaluationResultDTO(BaseModel):
         None, description="Claim-level verification details (universal judge only)"
     )
 
+    # I/O capture fields (Phase 3.1 — traceability)
+    system_prompt: Optional[str] = Field(
+        None, description="Full system prompt as sent to the model"
+    )
+    user_prompt: Optional[str] = Field(
+        None, description="User-turn content with RAG context interpolated"
+    )
+    prompt_tokens: int = Field(
+        default=0, ge=0, description="Prompt tokens (prompt_eval_count from Ollama)"
+    )
+    completion_tokens: int = Field(
+        default=0, ge=0, description="Completion tokens (eval_count from Ollama)"
+    )
+    total_tokens: int = Field(
+        default=0, ge=0, description="Sum of prompt and completion tokens"
+    )
+    retrieved_contexts_detailed: Optional[List[Dict[str, Any]]] = Field(
+        None,
+        description="Retrieved contexts with full metadata per test case; None in llm-only mode"
+    )
+
     model_config = {
         "json_schema_extra": {
             "example": {
