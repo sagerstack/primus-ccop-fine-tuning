@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 3.2 (Ingestion Correctness & Clause Chunking Fix) — Not started
+**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — Not started. Merged phase combining former 3.2 (ingestion fix) and 3.3 (clause audit). Sub-goal A (corpus) executes before sub-goal B (ground truth).
 
 ## Current Position
 
@@ -199,6 +199,7 @@ None yet.
 - Phase 2.3 inserted after Phase 2.2: RAGAs Metric Split & Scoring Formula (URGENT) — Replace aggregated answer_correctness (masks hallucination behind semantic similarity) with separate FactualCorrectness(precision/recall), drop redundant hallucination metric, add SemanticSimilarity as diagnostic, implement multiplicative penalty formula. Discovered during Phase 2.3 triple-score UAT: LLM-only (hallucinating) and hybrid (grounded) responses scored nearly identically (0.87 vs 0.85 RAGAs) because answer_correctness blends 75% factual overlap F1 + 25% semantic similarity.
 - Phase 2.4 inserted after Phase 2.3: LLM Judge Redesign and Metric Simplification (URGENT) — Replace per-benchmark rubric dimensions with two universal LLM Judge dimensions (reasoning depth + hallucination check against retrieved context), drop factual_precision from RAGAs scoring (penalizes valid reasoning). Discovered during Phase 2.3 UAT: factual_precision (0.27) penalizes model for introducing valid reasoning not in ground truth; LLM Judge and RAGAs metrics contradict each other; per-benchmark rubrics redundant with RAGAs factual_recall/relevancy/similarity.
 - Phase 3 replaced: "Ground Truth Dataset Expansion" (1000+ cases, 21 benchmarks) → "Ground Truth V2 Overhaul" (~435 cases, 18 restructured benchmarks, unified v2 schema, Risk Manager focus). Driven by research on LLM eval ground truth quality practices and Singapore CIIO/CCoP compliance landscape. Spec: docs/superpowers/specs/2026-04-01-ground-truth-v2-design.md
+- Phases 3.2 and 3.3 merged into single Phase 3.2 "Corpus and Ground Truth Correctness" (2026-04-21): shared pre-baseline-data-integrity intent, shared dependency (Phase 3.1), shared downstream consumer (Phase 4 re-baseline). Merged to one phase with ~7 sequential plans — sub-goal A (corpus/ingestion fix: bugs #9, #10) before sub-goal B (ground truth clause audit: bug #8). Saves phase-level overhead (one CONTEXT.md, one verification pass, one closeout). All 18 success criteria preserved verbatim across both sub-goals.
 - **[03.1-01] RunId as frozen dataclass:** Matches EvaluationMetric pattern; immutable VO with `value` property rendering canonical string
 - **[03.1-01] total_tokens auto-summed in ModelResponse:** Auto-sums prompt_tokens + completion_tokens when not explicitly provided; back-populates tokens_used for display back-compat
 - **[03.1-01] retrieved_contexts_detailed alongside retrieved_contexts in RagResponse:** Text-only list for RAGAs, detailed dict list for traceability — both coexist on RagResponse
@@ -223,4 +224,4 @@ None yet.
 
 Last session: 2026-04-21
 Stopped at: Phase 3.1 COMPLETE + VERIFIED. All 3 plans executed + 9/9 success criteria PASS via gsd-verifier. Final commit chain: b7aef4c, 8cce1cf, 05e40a1, ba80b0a (Plan 03.1-03) on top of Plans 03.1-01/02.
-Resume file: Phase 3.2 (Ingestion Correctness & Clause Chunking Fix) — blocked only on start, no remaining work in 3.1.
+Resume file: Phase 3.2 (Corpus and Ground Truth Correctness) — merged phase, sub-goal A (corpus/ingestion fix) then sub-goal B (ground truth clause audit). No remaining work in 3.1. Next action: `/gsd:plan-phase 3.2`.

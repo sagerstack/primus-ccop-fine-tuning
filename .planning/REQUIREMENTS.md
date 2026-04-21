@@ -73,17 +73,17 @@ Research will determine optimal configuration. Requirements define outcomes.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 1 | Pending |
-| DATA-02 | Phase 1 | Pending |
+| DATA-01 | Phase 1, 3.2 | Pending — ground-truth clause-reference audit happens in Phase 3.2 sub-goal B |
+| DATA-02 | Phase 1, 3.2 | Pending — ground-truth clause-reference audit happens in Phase 3.2 sub-goal B |
 | DATA-03 | Phase 1 | Pending |
 | DATA-04 | Phase 1 | Pending |
 | DATA-05 | Phase 1 | Pending |
 | DATA-06 | Phase 1 | Pending |
 | RAG-01 | Phase 3 | Pending |
 | RAG-02 | Phase 3 | Pending |
-| RAG-03 | Phase 3 | Pending |
-| RAG-04 | Phase 3 | Pending |
-| RAG-05 | Phase 3 | Pending |
+| RAG-03 | Phase 3, 3.2 | Pending — corpus re-ingestion + chunker fix in Phase 3.2 sub-goal A |
+| RAG-04 | Phase 3, 3.2 | Pending — corpus re-ingestion + chunker fix in Phase 3.2 sub-goal A |
+| RAG-05 | Phase 3, 3.2 | Pending — corpus re-ingestion + chunker fix in Phase 3.2 sub-goal A |
 | RAG-06 | Phase 3 | Pending |
 | FT-01 | Phase 5 | Pending |
 | FT-02 | Phase 5 | Pending |
@@ -113,4 +113,4 @@ Research will determine optimal configuration. Requirements define outcomes.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-04-21 — EVAL-02/EVAL-03 phase mapping expanded with Phase 3.1 infrastructure status after Phase 3.1 verified complete (9/9 success criteria PASS)*
+*Last updated: 2026-04-21 — (1) EVAL-02/EVAL-03 phase mapping expanded with Phase 3.1 infrastructure status after Phase 3.1 verified complete (9/9 success criteria PASS); (2) former Phases 3.2 (ingestion correctness) and 3.3 (clause audit) merged into single Phase 3.2 "Corpus and Ground Truth Correctness" — DATA-01/-02 and RAG-03/-04/-05 mappings updated accordingly*
