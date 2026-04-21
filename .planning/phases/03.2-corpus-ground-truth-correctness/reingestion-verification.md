@@ -163,6 +163,20 @@ Related terms that ARE present:
 
 The real success criterion for the chunker fix is SC #7 (sections 5.3 and 5.4 present), which PASSES. The previously-missing content was the clause text for Privileged Access Management and Trust Relationship Management, now both indexed.
 
+### SC #8 Resolution (human-approved 2026-04-21)
+
+**Status: N/A — not a chunker bug.**
+
+The phrases `"individual accountability"` and `"individual authentication"` return 0 hits because they do not exist in the CCoP 2.0 source PDF, not because the chunker dropped them. Evidence:
+
+- Docling parse of `CCoP---Second-Edition_Revision-One.pdf` → 151,269 chars of markdown.
+- Raw `str.find()` over the full parsed markdown: 0 occurrences of either phrase.
+- Related terms (`accountability`, `authentication`) ARE present in the index and retrievable (see hit list above).
+
+The chunker fix (Plans 03.2-01 and 03.2-02) was never about recovering these specific phrases. It was about recovering the clause-level content of sections 5.3 (Privileged Access Management) and 5.4 (Trust Relationship Management), which SC #7 proves is now in the index.
+
+Human approval (2026-04-21): SC #8 marked **N/A**. SC #6 and SC #7 stand as the meaningful acceptance gates for this plan. Phrases preserved in plan document with `# N/A — phrase not in source PDF` annotation for traceability.
+
 ---
 
 ## Summary
@@ -171,6 +185,6 @@ The real success criterion for the chunker fix is SC #7 (sections 5.3 and 5.4 pr
 |---|---|---|
 | SC #6 | Collection dropped and re-ingested with fixed chunker | **PASS** |
 | SC #7 | Sections 5.1..5.12 all present as discrete points | **PASS** |
-| SC #8 | Phrase scan "individual accountability" / "individual authentication" | **CANNOT PASS** — phrases absent from source PDF |
+| SC #8 | Phrase scan "individual accountability" / "individual authentication" | **N/A** — phrases absent from source PDF (human-approved 2026-04-21) |
 
 **Critical fix confirmed:** Sections 5.3 and 5.4, which were previously absent from the index due to the `##`-prefix heading bug (Plan 03.2-01), are now correctly ingested as `CCoP 2.0::5.3.1` and `CCoP 2.0::5.4.1`.
