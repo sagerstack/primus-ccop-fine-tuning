@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — In progress. Sub-goal A CLOSED (Plans 01-04: chunker fix + table chunks + TOC gate + re-ingestion + retrievability proof). Sub-goal B (Plans 05-07) remaining.
+**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — In progress. Sub-goal A CLOSED (Plans 01-04). Sub-goal B: Plan 05 COMPLETE (clause inventory fixture landed); Plans 06-07 remaining (audit + validator enforcement).
 
 ## Current Position
 
 Phase: 3.2 of 8 (Corpus and Ground Truth Correctness) — In progress
-Plan: 4 of 7 — COMPLETE (sub-goal A CLOSED)
-Status: Plan 04 complete (B3-001 hybrid re-eval confirms 5.3.1 retrievable at rank 5/20 post-rerank; SC #9 marked N/A per human approval — ranking gap belongs to Phase 4)
-Last activity: 2026-04-21 — Completed 03.2-04: B3-001 re-eval + retrieval funnel diagnostic + sub-goal A closure
+Plan: 5 of 7 — COMPLETE (sub-goal B inventory fixture landed)
+Status: Plan 05 complete (673-entry clause_inventory.json committed; 7 source docs covered including Cybersecurity Act 2018 legal numbering via approved extension; 13 integrity tests passing; SC #11 satisfied)
+Last activity: 2026-04-21 — Completed 03.2-05: clause inventory extraction script + committed fixture + Cybersecurity Act legal-numbering extension
 
-Progress: [█████░░░░░] 47% (4/11 phase-3 plans + 3/3 phase-3.1 plans + 4/7 phase-3.2 plans)
+Progress: [██████░░░░] 53% (5/11 phase-3 plans + 3/3 phase-3.1 plans + 5/7 phase-3.2 plans)
 
 ## Performance Metrics
 
@@ -39,10 +39,11 @@ Progress: [█████░░░░░] 47% (4/11 phase-3 plans + 3/3 phase-3
 | 3.1. Eval Run Traceability & I/O Capture | 3/3 | ~90 min | ~30 min |
 
 **Recent Trend:**
-- Last 5 plans: 03.1-03 (~35min report rewire + --verbose-io + 88 tests), 03.2-01 (chunker regex + merge-rule removal), 03.2-02 (table chunks + TOC gate), 03.2-03 (~15min re-ingest + section/phrase verification, SC #8 N/A), 03.2-04 (~33min B3-001 re-eval + funnel diagnostic + sub-goal A closure, SC #9 N/A)
-- Trend: Phase 3.2 plans average ~15-30 min; Plan 04 longer due to checkpoint pause for human diagnostic
+- Last 5 plans: 03.2-01 (chunker regex + merge-rule removal), 03.2-02 (table chunks + TOC gate), 03.2-03 (~15min re-ingest + section/phrase verification, SC #8 N/A), 03.2-04 (~33min B3-001 re-eval + funnel diagnostic + sub-goal A closure, SC #9 N/A), 03.2-05 (~60min clause inventory extraction + committed fixture + Cybersecurity Act legal-numbering extension, SC #11 satisfied)
+- Trend: Phase 3.2 plans average ~15-60 min; Plans 04-05 longer due to human-verify checkpoint pauses
 - Phase 3.1 VERIFIED COMPLETE: 9/9 success criteria PASS, 88/88 schema-v6 targeted tests passing, verifier report at `.planning/phases/03.1-eval-run-traceability/VERIFICATION.md`
 - Phase 3.2 sub-goal A COMPLETE (2026-04-21): bugs #9/#10 corpus-level fix shipped; B3-001 retrieval-ranking gap handed off to Phase 4
+- Phase 3.2 sub-goal B: Plan 05 landed clause inventory (673 entries, 7 docs); Plans 06 (audit) and 07 (validator) remain
 
 *Updated after each plan completion*
 
