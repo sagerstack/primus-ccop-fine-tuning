@@ -518,6 +518,9 @@ class TestTripleOverallScores:
         model_response.model_name = "test-model"
         model_response.tokens_used = 100
         model_response.latency_ms = 500
+        model_response.prompt_tokens = 0
+        model_response.completion_tokens = 0
+        model_response.total_tokens = 0
 
         result = Mock(spec=EvaluationResult)
         result.test_case = test_case
@@ -533,6 +536,9 @@ class TestTripleOverallScores:
         result.evaluation_mode = "hybrid"
         result.retrieved_chunk_ids = None
         result.chunk_count = None
+        result.system_prompt = None
+        result.user_prompt = None
+        result.retrieved_contexts_detailed = None
 
         # Mock ragas_composite_score property
         if ragas_eval and not ragas_eval.evaluation_error:

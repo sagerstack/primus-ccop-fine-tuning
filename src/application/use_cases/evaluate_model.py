@@ -164,6 +164,9 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         retrieved_chunk_ids = None
         chunk_count = None
         retrieved_contexts = None
+        system_prompt_captured = ""
+        user_prompt_captured = ""
+        retrieved_contexts_detailed_captured = None
 
         if self._rag_pipeline is not None and request.evaluation_mode:
             # RAG pipeline path
@@ -184,15 +187,23 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
                 mode=mode,
             )
 
-            # Build ModelResponse from RagResponse
+            # Build ModelResponse from RagResponse with full token/latency tracking
             from domain.entities.model_response import ModelResponse
             model_response = ModelResponse(
                 content=rag_response.response,
                 model_name=request.model_name,
-                tokens_used=0,  # Not tracked from graph this phase
-                latency_ms=0,   # Not tracked from graph this phase
+                tokens_used=rag_response.total_tokens,  # back-compat display
+                prompt_tokens=rag_response.prompt_tokens,
+                completion_tokens=rag_response.completion_tokens,
+                total_tokens=rag_response.total_tokens,
+                latency_ms=rag_response.latency_ms,
                 temperature=request.temperature,
             )
+
+            # Capture full I/O for traceability
+            system_prompt_captured = rag_response.system_prompt
+            user_prompt_captured = rag_response.user_prompt
+            retrieved_contexts_detailed_captured = rag_response.retrieved_contexts_detailed or None
 
             # Extract retrieved chunk IDs from citations
             if rag_response.citations:
@@ -208,6 +219,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
 
         else:
             # Direct model gateway path (backward compatibility)
+            _direct_system_prompt = "You are a cybersecurity compliance expert specializing in Singapore's CCoP 2.0."
             model_response = await self._model_gateway.generate_response(
                 prompt=test_case.question,
                 model_name=request.model_name,
@@ -215,8 +227,13 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
                 max_tokens=max_tokens,
                 top_p=request.top_p,
                 top_k=request.top_k,
-                system_prompt="You are a cybersecurity compliance expert specializing in Singapore's CCoP 2.0.",
+                system_prompt=_direct_system_prompt,
             )
+
+            # Capture I/O for direct path
+            system_prompt_captured = _direct_system_prompt
+            user_prompt_captured = test_case.question
+            retrieved_contexts_detailed_captured = None
 
         # Shadow retrieval: retrieve contexts for universal judge (not passed to model)
         if (
@@ -282,6 +299,9 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             retrieved_chunk_ids=retrieved_chunk_ids,
             chunk_count=chunk_count,
             evaluation_mode=request.evaluation_mode if self._rag_pipeline else None,
+            system_prompt=system_prompt_captured,
+            user_prompt=user_prompt_captured,
+            retrieved_contexts_detailed=retrieved_contexts_detailed_captured,
         )
 
         # Finalize (calculate score and pass/fail with configurable threshold)
@@ -919,4 +939,11 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             contradicted_count=contradicted_count,
             reasoning_criteria_met=reasoning_criteria_met,
             claims=claims,
+            # I/O capture fields (Phase 3.1 — traceability)
+            system_prompt=result.system_prompt,
+            user_prompt=result.user_prompt,
+            prompt_tokens=result.model_response.prompt_tokens,
+            completion_tokens=result.model_response.completion_tokens,
+            total_tokens=result.model_response.total_tokens,
+            retrieved_contexts_detailed=result.retrieved_contexts_detailed,
         )
