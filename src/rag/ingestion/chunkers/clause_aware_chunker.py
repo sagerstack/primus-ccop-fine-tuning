@@ -96,7 +96,10 @@ def chunk_by_clauses(
     # Process clause groups (groups of 3: clause_number, heading, content).
     # Every clause match emits its own chunk — merging disabled per Phase 3.2
     # decision (bug #9 root cause: <30-word merge rule caused cross-clause bleed).
-    i = 1 if parts[0].strip() else 0
+    # Clause groups always start at index 1 (parts[0] is always the pre-match preamble
+    # text, even if empty). The previous `i = 1 if parts[0].strip() else 0` was
+    # inverted and only worked accidentally when real documents always have preamble.
+    i = 1
     while i < len(parts) - 2:
         clause_number = parts[i].strip()
         clause_heading = parts[i + 1].strip()
