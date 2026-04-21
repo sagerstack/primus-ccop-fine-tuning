@@ -7,6 +7,7 @@ Format: eval-run-{mode}-{scope}-{yyyyMMdd}-{HHmm}
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import List, Optional
 
 
 _VALID_MODES = {"hybrid", "llm-only", "rag-only"}
@@ -50,7 +51,62 @@ class RunId:
         return f"RunId(mode='{self.mode}', scope='{self.scope}', value='{self.value}')"
 
     @classmethod
-    def for_query(cls, mode: str = "hybrid", timestamp: datetime | None = None) -> "RunId":
+    def build_scope(
+        cls,
+        tier: Optional[int],
+        benchmarks: Optional[List[str]],
+        test_ids: Optional[List[str]],
+        total_benchmarks_available: int,
+    ) -> str:
+        """
+        Deterministically encode the evaluation scope as a string.
+
+        Precedence (highest to lowest):
+            test_ids  >  tier  >  benchmarks  >  suite
+
+        Benchmark sort uses numeric ordering (B1, B3, B7 — not lexicographic).
+
+        Args:
+            tier: Evaluation tier number (1, 2, or 3); takes precedence over benchmarks.
+            benchmarks: List of benchmark IDs (e.g. ["B1", "B3"]); used when tier is None.
+            test_ids: Specific test case IDs; takes highest precedence.
+            total_benchmarks_available: Total number of benchmarks in the suite.
+
+        Returns:
+            Scope string, one of:
+                "test-{id}"
+                "test-{id1}-{id2}-..."
+                "tier-{N}"
+                "benchmark-{B}"
+                "benchmarks-{B1}-{B2}-..."
+                "suite"
+        """
+        if test_ids:
+            sorted_ids = sorted(test_ids)
+            if len(sorted_ids) == 1:
+                return f"test-{sorted_ids[0]}"
+            return "test-" + "-".join(sorted_ids)
+
+        if tier is not None:
+            return f"tier-{tier}"
+
+        if benchmarks:
+
+            def _benchmark_sort_key(b: str) -> int:
+                if b.startswith("B") and b[1:].isdigit():
+                    return int(b[1:])
+                return 0
+
+            sorted_benchmarks = sorted(benchmarks, key=_benchmark_sort_key)
+            if len(benchmarks) < total_benchmarks_available:
+                if len(sorted_benchmarks) == 1:
+                    return f"benchmark-{sorted_benchmarks[0]}"
+                return "benchmarks-" + "-".join(sorted_benchmarks)
+
+        return "suite"
+
+    @classmethod
+    def for_query(cls, mode: str = "hybrid", timestamp: Optional[datetime] = None) -> "RunId":
         """
         Construct a RunId for an ad-hoc query invocation.
 

@@ -95,7 +95,14 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         # Save results if requested (with metadata)
         if request.save_results:
             metadata = self._build_evaluation_metadata(request, summary, start_time, end_time)
-            filepath = await self._result_repository.save_evaluation_run(results, metadata)
+            contexts_by_test_id = {
+                r.test_case.test_id: r.retrieved_contexts_detailed
+                for r in results
+                if r.retrieved_contexts_detailed
+            }
+            filepath = await self._result_repository.save_evaluation_run(
+                results, metadata, contexts_by_test_id=contexts_by_test_id or None
+            )
             self._logger.info(f"Saved {len(results)} results to {filepath}")
 
         self._logger.info(
@@ -713,6 +720,8 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             Metadata dictionary
         """
         metadata = {
+            "run_id": request.run_id,
+            "schema_version": 6,
             "model_name": request.model_name,
             "evaluation_phase": request.evaluation_phase,
             "evaluation_mode": request.evaluation_mode,

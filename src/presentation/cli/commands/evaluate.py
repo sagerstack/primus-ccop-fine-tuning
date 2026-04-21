@@ -5,6 +5,7 @@ CLI command for evaluating models.
 """
 
 import asyncio
+from datetime import datetime
 from typing import List, Optional
 
 import typer
@@ -16,6 +17,7 @@ from rich.text import Text
 from application.dtos.evaluation_request_dto import EvaluationRequestDTO
 from domain.value_objects.evaluation_tier import EvaluationTier
 from domain.value_objects.quality_group import QualityGroup
+from domain.value_objects.run_id import RunId
 
 evaluate_app = typer.Typer()
 console = Console()
@@ -125,6 +127,17 @@ def run(
         default_threshold = phase_thresholds.get(phase, 0.70)
         console.print(f"[bold]Pass Threshold:[/bold] {default_threshold:.0%} (phase default)")
 
+    # Generate RunId — encodes scope deterministically before executing
+    total_benchmarks_available = len(benchmarks)
+    scope = RunId.build_scope(
+        tier=tier,
+        benchmarks=benchmarks if tier is None else None,
+        test_ids=test_ids,
+        total_benchmarks_available=total_benchmarks_available,
+    )
+    run_id = RunId(mode=mode, scope=scope, timestamp=datetime.utcnow())
+    console.print(f"[bold]Run ID:[/bold] {run_id.value}")
+
     request = EvaluationRequestDTO(
         model_name=model,
         benchmark_types=benchmarks,
@@ -135,6 +148,7 @@ def run(
         pass_threshold=threshold,
         evaluation_mode=mode,
         judge_mode=judge_mode,
+        run_id=run_id.value,
     )
 
     try:

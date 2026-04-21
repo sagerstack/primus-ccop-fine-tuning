@@ -60,6 +60,10 @@ class EvaluationRequestDTO(BaseModel):
         default="rubric",
         description="Judge mode: rubric (per-benchmark rubrics) or universal (reasoning depth + hallucination)"
     )
+    run_id: Optional[str] = Field(
+        None,
+        description="Deterministic run identifier eval-run-{mode}-{scope}-{yyyyMMdd}-{HHmm}"
+    )
 
     model_config = {
         "json_schema_extra": {
