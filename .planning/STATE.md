@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 3.1 of 8 (Eval Run Traceability & I/O Capture)
-Plan: 1 of 3 — COMPLETE
+Plan: 2 of 3 — COMPLETE
 Status: In progress
-Last activity: 2026-04-21 — Completed 03.1-01-PLAN.md (RunId VO, type shapes, graph/gateway/use-case wiring for I/O traceability)
+Last activity: 2026-04-21 — Completed 03.1-02-PLAN.md (RunId.build_scope, per-run monthly JSON layout, sidecar contexts, query persistence, schema v6)
 
-Progress: [████░░░░░░] 36% (4/11 phase-3 plans + 1/3 phase-3.1 plans)
+Progress: [████░░░░░░] 38% (4/11 phase-3 plans + 2/3 phase-3.1 plans)
 
 ## Performance Metrics
 
@@ -203,6 +203,11 @@ None yet.
 - **[03.1-01] retrieved_contexts_detailed alongside retrieved_contexts in RagResponse:** Text-only list for RAGAs, detailed dict list for traceability — both coexist on RagResponse
 - **[03.1-01] perf_counter() wraps chain.invoke():** Captures wall-clock LLM latency accurately in generation/fallback nodes
 - **[03.1-01] response_metadata['prompt_eval_count'] with usage_metadata fallback:** Handles both ChatOllama response_metadata style and LangChain usage_metadata style
+- **[03.1-02] Per-run monthly directory layout:** src/results/evaluations/{yyyy-MM}/{run_id}-{model}.json — self-archives as runs accumulate, no explicit cleanup needed
+- **[03.1-02] Sidecar contexts file pattern:** {run_id}-contexts.json alongside result JSON — keeps main files small while preserving full retrieval debuggability
+- **[03.1-02] save_batch no-op in schema v6:** Retained as logged no-op rather than deleted to avoid breaking callers; per-run writes happen via save_evaluation_run
+- **[03.1-02] Non-fatal query persistence:** CLI query wraps save_query_run in try/except; failure logs warning but never blocks user from seeing their answer
+- **[03.1-02] container.config() for model_name in query CLI:** Settings singleton accessed via container provider; model_name is the configured Ollama model name
 
 ### Blockers/Concerns
 
@@ -211,5 +216,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-21
-Stopped at: Completed 03.1-01-PLAN.md — RunId VO, type shapes (GraphState/RagResponse/ModelResponse/EvaluationResult/DTO), generation/fallback/rag_response nodes wired, OllamaGateway wired, evaluate_model use case propagates traceability data end-to-end. 86/86 tests passing.
-Resume file: .planning/phases/03.1-eval-run-traceability/03.1-02-PLAN.md
+Stopped at: Completed 03.1-02-PLAN.md — RunId.build_scope + for_query, evaluate CLI generates RunId per invocation, JSONResultRepository rewritten (per-run monthly files + sidecar contexts + save_query_run), ccop-eval query ask persists per-run JSON. 111 tests passing (domain/application/infrastructure scope).
+Resume file: .planning/phases/03.1-eval-run-traceability/03.1-03-PLAN.md
