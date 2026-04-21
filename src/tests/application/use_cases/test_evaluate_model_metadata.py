@@ -760,5 +760,116 @@ class TestTripleOverallScores:
         assert "combined_overall_score" not in metadata
 
 
+class TestMetadataSchemaV6Fields:
+    """Test schema-v6 fields (run_id, schema_version) are present in metadata."""
+
+    def setup_method(self):
+        self.model_gateway = Mock()
+        self.test_case_repository = Mock()
+        self.result_repository = Mock()
+        self.logger = Mock()
+
+        self.use_case = EvaluateModelUseCase(
+            self.model_gateway,
+            self.test_case_repository,
+            self.result_repository,
+            self.logger
+        )
+
+    def test_metadata_includes_run_id(self):
+        """Metadata must include run_id (schema v6 marker)."""
+        request = EvaluationRequestDTO(
+            model_name="primus-reasoning",
+            benchmark_types=["B3"],
+            evaluation_phase="baseline",
+            run_id="eval-run-llm-only-benchmark-B3-20260421-1430",
+        )
+
+        summary = EvaluationSummaryDTO(
+            model_name="primus-reasoning",
+            total_tests=5,
+            passed_tests=4,
+            failed_tests=1,
+            overall_score=0.8,
+            by_benchmark={},
+            by_difficulty={},
+            evaluation_started_at=datetime.now(),
+            evaluation_completed_at=datetime.now(),
+            total_duration_seconds=30.0,
+            results=[],
+        )
+
+        metadata = self.use_case._build_evaluation_metadata(
+            request, summary, datetime.now(), datetime.now()
+        )
+
+        assert "run_id" in metadata
+        assert metadata["run_id"] == "eval-run-llm-only-benchmark-B3-20260421-1430"
+
+    def test_metadata_includes_schema_version_6(self):
+        """Metadata must include schema_version=6."""
+        request = EvaluationRequestDTO(
+            model_name="primus-reasoning",
+            benchmark_types=["B3"],
+            evaluation_phase="baseline",
+        )
+
+        summary = EvaluationSummaryDTO(
+            model_name="primus-reasoning",
+            total_tests=1,
+            passed_tests=1,
+            failed_tests=0,
+            overall_score=0.8,
+            by_benchmark={},
+            by_difficulty={},
+            evaluation_started_at=datetime.now(),
+            evaluation_completed_at=datetime.now(),
+            total_duration_seconds=10.0,
+            results=[],
+        )
+
+        metadata = self.use_case._build_evaluation_metadata(
+            request, summary, datetime.now(), datetime.now()
+        )
+
+        assert metadata.get("schema_version") == 6
+
+
+class TestSaveEvaluationRunSignature:
+    """Test the repository save_evaluation_run signature expectations."""
+
+    def setup_method(self):
+        self.model_gateway = Mock()
+        self.test_case_repository = Mock()
+        self.result_repository = Mock()
+        self.result_repository.save_evaluation_run = AsyncMock(return_value="/tmp/run.json")
+        self.logger = Mock()
+
+        self.use_case = EvaluateModelUseCase(
+            self.model_gateway,
+            self.test_case_repository,
+            self.result_repository,
+            self.logger
+        )
+
+    def test_save_evaluation_run_called_with_contexts_by_test_id_kwarg(self):
+        """save_evaluation_run must be called with contexts_by_test_id= keyword arg."""
+        import inspect
+        from application.ports.output.i_result_repository import IResultRepository
+
+        # Verify the abstract method signature includes contexts_by_test_id
+        sig = inspect.signature(IResultRepository.save_evaluation_run)
+        assert "contexts_by_test_id" in sig.parameters
+
+    def test_save_evaluation_run_contexts_kwarg_is_optional(self):
+        """contexts_by_test_id must be optional (has default None)."""
+        import inspect
+        from application.ports.output.i_result_repository import IResultRepository
+
+        sig = inspect.signature(IResultRepository.save_evaluation_run)
+        param = sig.parameters["contexts_by_test_id"]
+        assert param.default is None
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
