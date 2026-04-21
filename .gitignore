@@ -154,6 +154,8 @@ data/processed/
 data/cache/
 *.csv
 *.json
+# Committed fixture — clause inventory is a code artifact, not raw data
+!src/rag/ingestion/fixtures/clause_inventory.json
 *.parquet
 *.feather
 *.h5
