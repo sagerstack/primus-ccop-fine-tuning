@@ -165,6 +165,44 @@ accountability...
 
 ---
 
+## Retrieval Funnel Diagnostic (post-checkpoint, human-supplied 2026-04-21)
+
+Live funnel diagnostic confirms the corpus fix landed and isolates the remaining gap to retrieval ranking:
+
+**Funnel configuration:**
+- Hybrid retrieval returns `top_k = 20` candidates (dense BGE + sparse BM25)
+- Cross-encoder reranker selects `rerank_top_n = 3` from those 20
+
+**`CCoP 2.0::5.3.1` trajectory through the funnel:**
+
+| Stage | Rank | Notes |
+|---|---|---|
+| Hybrid retrieval (pre-rerank) | 11 / 20 | 5.3.1 IS in candidate set — corpus fix confirmed scoreable |
+| Cross-encoder rerank | **5 / 20** (score -6.773) | Promoted by reranker but still below top-3 cutoff |
+| Top-3 cutoff | rank 3 at score -5.613 | Misses by 2 positions |
+
+**Top-3 winners (what the LLM actually saw):**
+
+| Rank | Citation ID | Reranker Score |
+|---|---|---|
+| 1 | `CCoP 2.0::5.2.1` | -4.151 |
+| 2 | `CCoP Response to Feedback::11` | -5.043 |
+| 3 | `CCoP Response to Feedback::9` | -5.613 |
+| 5 | `CCoP 2.0::5.3.1` | -6.773 (just below cutoff) |
+
+**Root cause of the ranking gap:**
+The query uses "shared admin accounts" + "access control" — lexically overlapping with `5.2.1` ("shared user accounts are not created unless necessary") — but does NOT use the word "privileged", which is the entry point to `5.3.1` ("Privileged Access Management", "privileged accounts"). Without the trigger word, the hybrid retriever's lexical component under-weights `5.3.1`; the reranker partially corrects (11 → 5) but not enough to reach top-3.
+
+**Phase 4 candidate fixes:**
+1. **Bump `rerank_top_n` from 3 to 5** — cheapest fix; would immediately surface `5.3.1` at rank 5 into the top-N set consumed by RAGAs and the LLM.
+2. **Domain-tuned cross-encoder** — finetune on CCoP query/clause pairs so "shared admin accounts" → "privileged accounts" synonymy is learned.
+3. **Query rewriting** — lightweight pre-retrieval expansion that maps colloquial access-control language ("admin", "shared", "root") to CCoP's regulatory vocabulary ("privileged").
+
+**Why this matters for Phase 3.2 closeout:**
+The diagnostic proves `5.3.1` is retrievable, scoreable, and ranks reasonably well — it is the top-3 cutoff that excludes it, not the corpus. Sub-goal A's scope (Plans 01-03: chunker fix, table chunks, TOC gate, re-ingestion) is fully delivered. The `context_recall` metric is now gated on Phase 4 retrieval tuning, which CONTEXT.md explicitly defers out of Phase 3.2.
+
+---
+
 ## Implication for Sub-goal A
 
 Sub-goal A (corpus re-ingestion correctness, bugs #9/#10) is **complete**: the missing sections are now in the index. The observable defect described in bug #10 — `context_recall=0 because section 5.3 missing` — was accurately diagnosed as a *corpus* problem, and the corpus is now fixed.
