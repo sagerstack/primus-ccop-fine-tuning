@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2.3: RAGAs Metric Split & Scoring Formula** (INSERTED) - Replace aggregated answer_correctness with separate FactualCorrectness (precision/recall), SemanticSimilarity (diagnostic), and multiplicative hallucination penalty formula
 - [x] **Phase 2.4: LLM Judge Redesign and Metric Simplification** (INSERTED) - Replace per-benchmark rubrics with universal reasoning depth + hallucination check dimensions, drop factual_precision from scoring
 - [ ] **Phase 3: Ground Truth V2 Overhaul** - Replace v1 ground truth with research-informed v2 (~435 cases, 18 benchmarks, unified schema, Risk Manager focus)
-- [ ] **Phase 3.1: Eval Run Traceability & I/O Capture** (INSERTED) - `run_id` format, full prompt/context capture, token/latency propagation in result JSON
+- [x] **Phase 3.1: Eval Run Traceability & I/O Capture** (INSERTED) - `run_id` format, full prompt/context capture, token/latency propagation in result JSON
 - [ ] **Phase 3.2: Ingestion Correctness & Clause Chunking Fix** (INSERTED) - Fix chunker regex gaps (sections 5.3/5.4 missing from index), add ingestion sanity tests, re-ingest corpus
 - [ ] **Phase 3.3: Ground Truth Clause Reference Audit** (INSERTED) - Audit v2 clause_reference fields against CCoP 2.0 PDF, fix hallucinated clause numbers
 - [ ] **Phase 4: Re-Baseline & Re-Evaluate** - Run both base model and RAG-augmented on expanded dataset for statistically valid comparison
@@ -276,9 +276,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03.1-01-PLAN.md — Domain + RAG graph plumbing (RunId VO, GraphState/RagResponse/ModelResponse/EvaluationResult/DTO extensions, node + adapter + use case wiring)
-- [ ] 03.1-02-PLAN.md — Entry-point wiring + persistence (scope encoding, CLI run_id generation, monthly per-run JSON + sidecar writer, query persistence)
-- [ ] 03.1-03-PLAN.md — Report tooling + CLI verbose + tests (rglob report loader, --verbose-io sidecar display, schema v6 test coverage)
+- [x] 03.1-01-PLAN.md — Domain + RAG graph plumbing (RunId VO, GraphState/RagResponse/ModelResponse/EvaluationResult/DTO extensions, node + adapter + use case wiring)
+- [x] 03.1-02-PLAN.md — Entry-point wiring + persistence (scope encoding, CLI run_id generation, monthly per-run JSON + sidecar writer, query persistence)
+- [x] 03.1-03-PLAN.md — Report tooling + CLI verbose + tests (rglob report loader, --verbose-io sidecar display, schema v6 test coverage)
 
 ### Phase 3.2: Ingestion Correctness & Clause Chunking Fix (INSERTED)
 **Goal**: Fix systemic data gaps in the `ccop_clauses_hybrid` Qdrant index where CCoP 2.0 sections 5.3 and 5.4 are entirely missing due to clause-aware chunker regex failures. Verify parser output, extend chunker to handle item-letter boundaries and stop merge-collapsing across clause numbers, add ingestion sanity tests that fail loudly on TOC-to-index mismatches, and drop + re-ingest the corpus. Blocks the main baseline eval — without this fix, every hybrid-mode retrieval metric (`context_recall`, `context_precision`, `context_faithfulness`) is measured against an incomplete corpus and baseline numbers are invalid.
@@ -408,7 +408,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 2.3. RAGAs Metric Split & Scoring Formula | 3/3 | Complete | 2026-03-21 |
 | 2.4. LLM Judge Redesign & Metric Simplification | 5/5 | Complete | 2026-03-22 |
 | 3. Ground Truth V2 Overhaul | 0/11 | Planning complete | - |
-| 3.1. Eval Run Traceability & I/O Capture | 0/3 | Planning complete | - |
+| 3.1. Eval Run Traceability & I/O Capture | 3/3 | Complete | 2026-04-21 |
 | 4. Re-Baseline & Re-Evaluate | 0/TBD | Not started | - |
 | 5. Fine-Tuning Pipeline | 0/TBD | Not started | - |
 | 6. Hybrid Integration | 0/TBD | Not started | - |
@@ -417,4 +417,4 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 
 ---
 *Roadmap created: 2026-02-05*
-*Last updated: 2026-04-01*
+*Last updated: 2026-04-21 (Phase 3.1 Eval Run Traceability & I/O Capture complete — 9/9 success criteria verified)*

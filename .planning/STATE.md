@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 3.1 (Eval Run Traceability & I/O Capture) — In progress
+**Current focus:** Phase 3.2 (Ingestion Correctness & Clause Chunking Fix) — Not started
 
 ## Current Position
 
-Phase: 3.1 of 8 (Eval Run Traceability & I/O Capture)
-Plan: 2 of 3 — COMPLETE
-Status: In progress
-Last activity: 2026-04-21 — Completed 03.1-02-PLAN.md (RunId.build_scope, per-run monthly JSON layout, sidecar contexts, query persistence, schema v6)
+Phase: 3.1 of 8 (Eval Run Traceability & I/O Capture) — COMPLETE
+Plan: 3 of 3 — COMPLETE
+Status: Verified (9/9 success criteria PASS via gsd-verifier)
+Last activity: 2026-04-21 — Completed Phase 3.1 (all 3 plans): RunId domain plumbing, per-run monthly JSON + sidecar, report rglob + `--verbose-io` CLI, 88/88 schema-v6 tests passing.
 
-Progress: [████░░░░░░] 38% (4/11 phase-3 plans + 2/3 phase-3.1 plans)
+Progress: [█████░░░░░] 42% (4/11 phase-3 plans + 3/3 phase-3.1 plans)
 
 ## Performance Metrics
 
@@ -36,11 +36,12 @@ Progress: [████░░░░░░] 38% (4/11 phase-3 plans + 2/3 phase-3
 | 2.2. RAGAs Hallucination Metric & Renaming | 3/3 | ~17 min | ~6 min |
 | 2.3. RAGAs Metric Split & Scoring Formula | 3/3 | ~22 min | ~7 min |
 | 2.4. LLM Judge Redesign & Metric Simplification | 5/5 | ~20 min | ~4 min |
+| 3.1. Eval Run Traceability & I/O Capture | 3/3 | ~90 min | ~30 min |
 
 **Recent Trend:**
-- Last 5 plans: 02.4-01 (3min), 02.4-02 (skipped), 02.4-03 (4min), 02.4-04 (5min), 02.4-05 (8min)
-- Trend: Phase 2.4 complete - test coverage took longer (8min) due to complex entity mocking
-- Phase 2.4 VERIFIED COMPLETE: All 5 plans executed, 23/23 must-haves verified, 86/86 tests passing
+- Last 5 plans: 03.1-01 (~25min domain plumbing), 03.1-02 (~30min per-run monthly layout), 03.1-03 (~35min report rewire + --verbose-io + 88 tests)
+- Trend: Phase 3.1 plans longer than phase-2 average — larger surface area (schema v6 migration touches domain, infra, CLI, reporting)
+- Phase 3.1 VERIFIED COMPLETE: 9/9 success criteria PASS, 88/88 schema-v6 targeted tests passing, verifier report at `.planning/phases/03.1-eval-run-traceability/VERIFICATION.md`
 
 *Updated after each plan completion*
 
@@ -208,6 +209,11 @@ None yet.
 - **[03.1-02] save_batch no-op in schema v6:** Retained as logged no-op rather than deleted to avoid breaking callers; per-run writes happen via save_evaluation_run
 - **[03.1-02] Non-fatal query persistence:** CLI query wraps save_query_run in try/except; failure logs warning but never blocks user from seeing their answer
 - **[03.1-02] container.config() for model_name in query CLI:** Settings singleton accessed via container provider; model_name is the configured Ollama model name
+- **[03.1-03] rglob report discovery with name-first legacy filter:** `load_by_model` uses `rglob(f"*-{model_name}.json")` to discover per-run files across monthly subdirs, then filters `-contexts.json` sidecars by name *before* JSON parse so malformed sidecars never log spurious WARNINGs; pre-v6 files (missing `metadata.run_id` or `schema_version != 6`) logged + skipped
+- **[03.1-03] _reconstruct_result pads question to satisfy TestCase invariant:** Persisted test_results only carry truncated question text; reconstruction for report summary pads with trailing spaces to ≥50 chars and sets a placeholder `expected_response`. Padding is reporting-only — persisted JSON untouched, summary math unaffected
+- **[03.1-03] --verbose-io lazy sidecar load:** CLI opens `{run_id}-contexts.json` only when flag set AND file exists; missing sidecar is silent no-op. Prompts truncated at 600/1200 chars, contexts show first ~200 chars + citation_id/section/clause/score
+- **[03.1-03] Schema v6 contract locked by 88 targeted tests:** `test_run_id.py` (27), `test_json_result_repository_v6.py` (19), `test_evaluate_model_metadata.py` v6 additions (4), `test_graph_state.py` I/O capture additions (13). Numeric sort test explicitly guards `B2<B3<B11` ordering in multi-benchmark scope
+- **[03.1-03] Legacy migration hint surfaces only on empty v6 result:** `GenerateReportUseCase.get_summary` inspects flat dir for `{model}_results.json` only when `load_by_model` returns empty, emits one-line INFO guidance pointing to re-run; zero cost on happy path
 
 ### Blockers/Concerns
 
@@ -216,5 +222,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-21
-Stopped at: Completed 03.1-02-PLAN.md — RunId.build_scope + for_query, evaluate CLI generates RunId per invocation, JSONResultRepository rewritten (per-run monthly files + sidecar contexts + save_query_run), ccop-eval query ask persists per-run JSON. 111 tests passing (domain/application/infrastructure scope).
-Resume file: .planning/phases/03.1-eval-run-traceability/03.1-03-PLAN.md
+Stopped at: Phase 3.1 COMPLETE + VERIFIED. All 3 plans executed + 9/9 success criteria PASS via gsd-verifier. Final commit chain: b7aef4c, 8cce1cf, 05e40a1, ba80b0a (Plan 03.1-03) on top of Plans 03.1-01/02.
+Resume file: Phase 3.2 (Ingestion Correctness & Clause Chunking Fix) — blocked only on start, no remaining work in 3.1.

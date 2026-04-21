@@ -95,8 +95,8 @@ Research will determine optimal configuration. Requirements define outcomes.
 | HYB-03 | Phase 6 | Pending |
 | HYB-04 | Phase 6 | Pending |
 | EVAL-01 | Phase 2 | Pending |
-| EVAL-02 | Phase 4, 8 | Pending |
-| EVAL-03 | Phase 4, 8 | Pending |
+| EVAL-02 | Phase 3.1, 4, 8 | Infrastructure ready (Phase 3.1 complete 2026-04-21); evaluation still pending Phase 4 re-baseline |
+| EVAL-03 | Phase 3.1, 4, 8 | Infrastructure ready (Phase 3.1 complete 2026-04-21); evaluation still pending Phase 4 re-baseline |
 | EVAL-04 | Phase 4 | Pending |
 | EVAL-05 | Phase 7 | Pending |
 | EVAL-06 | Phase 2 | Pending |
@@ -109,8 +109,8 @@ Research will determine optimal configuration. Requirements define outcomes.
 - Mapped to phases: 30 (100% coverage)
 - Unmapped: 0
 
-**Note:** EVAL-02 and EVAL-03 appear in both Phase 4 (RAG evaluation) and Phase 8 (final comparison) as they represent iterative evaluation activities.
+**Note:** EVAL-02 and EVAL-03 appear in Phase 3.1 (traceability infrastructure), Phase 4 (RAG evaluation), and Phase 8 (final comparison). Phase 3.1 delivers the `run_id`, full prompt + retrieved contexts capture, and token/latency propagation that Phase 4 relies on; actual comparison evaluations happen in Phase 4 and Phase 8.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-05 after roadmap creation*
+*Last updated: 2026-04-21 — EVAL-02/EVAL-03 phase mapping expanded with Phase 3.1 infrastructure status after Phase 3.1 verified complete (9/9 success criteria PASS)*
