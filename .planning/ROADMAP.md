@@ -298,7 +298,7 @@ Plans:
   10. Addresses bugs #9 (citation ID mismatch — chunks span multiple clauses) and #10 (RAGAs context_recall=0 — sections 5.3/5.4 missing)
 
   *Sub-goal B — Ground Truth Clause Reference Audit:*
-  11. Authoritative CCoP 2.0 clause inventory built from the PDF — definitive list of valid clause IDs (chapters, sections, subsections, items) with full text
+  11. Authoritative CCoP 2.0 clause inventory built from the PDF — definitive list of valid clause IDs (chapters, sections, subsections, items)
   12. Every `clause_reference` field in v2 ground truth validated against the inventory
   13. Every clause citation inside `expected_response` text validated against the inventory (regex-based extraction + lookup)
   14. Audit report enumerates every invalid reference with proposed correction (or flagged for human review if no clear mapping exists)
