@@ -16,6 +16,7 @@ from rag.ingestion.chunkers.clause_aware_chunker import (
     CLAUSE_PATTERN,
     chunk_by_clauses,
 )
+from rag.ingestion.models import ChunkMetadata
 
 
 # ---------------------------------------------------------------------------
@@ -197,3 +198,71 @@ class TestSection53ProducesDiscreteChunks:
         chunk_522 = next(c for c in chunks if c.metadata.clause == "5.2.2")
         assert "Privileged Access Management" not in chunk_522.text
         assert "5.3.1" not in chunk_522.text
+
+
+class TestTableDetectedAndEmittedAsSeparateChunk:
+    """
+    Table chunks emitted as additive extras alongside their parent clause chunk.
+
+    Plan 03.2-02 requirement: tables inside CCoP markdown become their own
+    chunks with metadata.type='table' and a parent_clause reference (SC #10).
+    The parent clause chunk is NOT modified — tables remain embedded for context.
+    """
+
+    # A clause body containing a 4-row pipe table (heading + separator + 2 data rows)
+    MARKDOWN = (
+        "## 5.3.1 Enumeration Matrix\n\n"
+        "The following matrix lists privileged account types:\n\n"
+        "| Account Type | Scope | MFA Required |\n"
+        "| --- | --- | --- |\n"
+        "| Domain Admin | Enterprise | Yes |\n"
+        "| Service Account | Application | Yes |\n\n"
+        "Additional requirements apply at section 5.3.2."
+    )
+
+    def test_two_chunks_emitted_clause_plus_table(self):
+        """Clause chunk + table chunk both present (additive)."""
+        chunks = chunk_by_clauses(self.MARKDOWN, "TestDoc")
+        clause_chunks = [c for c in chunks if c.metadata.type == "clause"]
+        table_chunks = [c for c in chunks if c.metadata.type == "table"]
+        assert len(clause_chunks) >= 1, "No clause chunk emitted"
+        assert len(table_chunks) >= 1, "No table chunk emitted"
+
+    def test_table_chunk_type_is_table(self):
+        chunks = chunk_by_clauses(self.MARKDOWN, "TestDoc")
+        table_chunks = [c for c in chunks if c.metadata.type == "table"]
+        assert len(table_chunks) >= 1
+        assert all(c.metadata.type == "table" for c in table_chunks)
+
+    def test_table_chunk_parent_clause_is_enclosing_clause(self):
+        chunks = chunk_by_clauses(self.MARKDOWN, "TestDoc")
+        table_chunks = [c for c in chunks if c.metadata.type == "table"]
+        assert len(table_chunks) >= 1
+        assert table_chunks[0].metadata.parent_clause == "5.3.1"
+
+    def test_parent_clause_chunk_still_contains_table_text(self):
+        """Table text stays embedded in parent clause for retrieval context."""
+        chunks = chunk_by_clauses(self.MARKDOWN, "TestDoc")
+        clause_chunk = next(c for c in chunks if c.metadata.clause == "5.3.1" and c.metadata.type == "clause")
+        assert "Domain Admin" in clause_chunk.text, (
+            "Parent clause chunk should still contain table text for context"
+        )
+
+    def test_table_chunk_citation_id_format(self):
+        """Table chunk citation_id uses expected ::table::{index} suffix."""
+        chunks = chunk_by_clauses(self.MARKDOWN, "TestDoc")
+        table_chunks = [c for c in chunks if c.metadata.type == "table"]
+        assert len(table_chunks) >= 1
+        assert "::table::0" in table_chunks[0].metadata.citation_id
+
+    def test_short_pipe_block_below_threshold_not_emitted_as_table(self):
+        """Blocks with fewer than 3 pipe-lines are not table chunks."""
+        # Only 2 pipe lines (not enough for heading + separator + data)
+        markdown_two_lines = (
+            "## 5.2.1 Account Review\n\n"
+            "| Header |\n"
+            "| --- |\n"
+        )
+        chunks = chunk_by_clauses(markdown_two_lines, "TestDoc")
+        table_chunks = [c for c in chunks if c.metadata.type == "table"]
+        assert len(table_chunks) == 0, "2-line pipe block should not become a table chunk"

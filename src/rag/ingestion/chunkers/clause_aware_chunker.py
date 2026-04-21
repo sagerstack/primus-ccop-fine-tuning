@@ -111,6 +111,14 @@ def chunk_by_clauses(
         chunk = _create_clause_chunk(chunk_text, document_name, clause_number)
         chunks.append(chunk)
 
+        # Detect tables in the clause body and emit additive table chunks.
+        # Tables remain embedded in the parent clause text for context; table
+        # chunks are additive and enable filtered retrieval ("show me only tables").
+        table_chunks = _extract_table_chunks(
+            clause_content, document_name, clause_number
+        )
+        chunks.extend(table_chunks)
+
         i += 3
 
     logger.info(
@@ -299,6 +307,81 @@ def _build_parent_path(clause_number: str) -> str:
         # Multi-level clause
         section = ".".join(parts[:2])
         return f"Chapter {parts[0]} > Section {section} > {clause_number}"
+
+
+def _extract_table_chunks(
+    clause_content: str, document_name: str, clause_number: str
+) -> List[CcopChunk]:
+    """
+    Detect markdown tables in a clause body and emit additive table chunks.
+
+    Docling emits markdown tables as consecutive lines starting with '|'.
+    A block is classified as a table when ≥3 consecutive pipe-lines are present
+    (heading row + separator row + at least one data row).
+
+    Table chunks are ADDITIVE — the parent clause chunk keeps its full text
+    (tables remain embedded for context). Table chunks enable filtered retrieval
+    on "show me the enumeration matrix" style queries.
+
+    Tables outside clause bodies (preamble) are skipped per Phase 3.2 scope
+    decision (deferred).
+
+    Args:
+        clause_content: Content text of the enclosing clause
+        document_name: Source document name
+        clause_number: Enclosing clause number (e.g., "5.3.1")
+
+    Returns:
+        List of table CcopChunks (empty if no tables found in content)
+    """
+    lines = clause_content.split("\n")
+    table_chunks: List[CcopChunk] = []
+    table_index = 0
+    current_block: List[str] = []
+
+    def _flush_block(block: List[str], idx: int) -> None:
+        table_text = "\n".join(block).strip()
+        if not table_text:
+            return
+
+        section = _extract_section(clause_number)
+        parent_path = _build_parent_path(clause_number)
+        chapter = clause_number.split(".")[0]
+        citation_id = f"{document_name}::{clause_number}::table::{idx}"
+
+        metadata = ChunkMetadata(
+            document_source=document_name,
+            section=section,
+            clause=clause_number,
+            citation_id=citation_id,
+            parent_path=parent_path,
+            chapter=chapter,
+            type="table",
+            parent_clause=clause_number,
+        )
+        table_chunks.append(
+            CcopChunk(id=citation_id, text=table_text, metadata=metadata)
+        )
+
+    for line in lines:
+        if line.strip().startswith("|"):
+            current_block.append(line)
+        else:
+            if len(current_block) >= 3:
+                _flush_block(current_block, table_index)
+                table_index += 1
+            current_block = []
+
+    # Flush any trailing block
+    if len(current_block) >= 3:
+        _flush_block(current_block, table_index)
+
+    if table_chunks:
+        logger.debug(
+            f"  {clause_number}: {len(table_chunks)} table chunk(s) extracted"
+        )
+
+    return table_chunks
 
 
 def _create_clause_chunk(
