@@ -306,10 +306,16 @@ Plans:
   16. Zero unverifiable clause numbers remain in v2 ground truth after the audit
   17. Ground-truth JSONL validator extended to enforce `clause_reference` correctness at load time (fails loudly on invalid references, preventing future drift)
   18. Addresses bug #8 (ground truth contains hallucinated clause references)
-**Plans**: ~7 plans (sub-goal A: ~4 plans, sub-goal B: ~3 plans — executed sequentially, A before B)
+**Plans**: 7 plans (sub-goal A: 4 plans, sub-goal B: 3 plans — executed sequentially, A before B)
 
 Plans:
-- [ ] TBD during phase planning (`/gsd:plan-phase 3.2`)
+- [ ] 03.2-01-PLAN.md — Pre-chunker Docling audit + CLAUSE_PATTERN regex extension + remove <30-word merge rule + regression tests
+- [ ] 03.2-02-PLAN.md — Table chunks (metadata.type='table' + parent_clause) + ingestion TOC sanity gate
+- [ ] 03.2-03-PLAN.md — Drop + re-ingest ccop_clauses_hybrid + post-ingest section/phrase verification (human checkpoint)
+- [ ] 03.2-04-PLAN.md — B3-001 hybrid re-eval proves context_recall > 0 (sub-goal A closeout, human checkpoint)
+- [ ] 03.2-05-PLAN.md — Clause inventory extraction script + committed clause_inventory.json + integrity tests (human checkpoint)
+- [ ] 03.2-06-PLAN.md — Audit script (ID existence + in-text citation + semantic mismatch) + apply corrections / mark deprecated (human checkpoint)
+- [ ] 03.2-07-PLAN.md — Extend validator with hard-fail gates + `ccop-eval validate-ground-truth` CLI + eval-pipeline deprecated-case skip
 
 ### Phase 4: Re-Baseline & Re-Evaluate
 **Goal**: Run both base model and RAG-augmented model on v2 ground truth (~435 cases, 18 benchmarks) for statistically valid comparison, replacing the 118-case results
