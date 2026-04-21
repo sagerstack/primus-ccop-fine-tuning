@@ -7,6 +7,7 @@ Logs failure for Phase 2 gap analysis.
 
 import json
 import logging
+from time import perf_counter
 
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
@@ -79,6 +80,10 @@ Not all questions require all three elements — adapt your response to the ques
         base_url=settings.ollama_host,
     )
 
+    # Fallback path has no retrieval — no retrieved_contexts_detailed
+    state["retrieved_contexts_detailed"] = []
+
+    _start = perf_counter()
     try:
         # Log complete LLM input
         formatted_messages = fallback_prompt.format_messages(query=query)
@@ -89,9 +94,31 @@ Not all questions require all three elements — adapt your response to the ques
             logger.info(f"[{msg.type}]\n{msg.content}")
         logger.info("=" * 60)
 
+        # Capture system_prompt and user_prompt
+        _system_msg = next((m for m in formatted_messages if m.type == "system"), None)
+        _human_msg = next((m for m in formatted_messages if m.type == "human"), None)
+        state["system_prompt"] = _system_msg.content if _system_msg else ""
+        state["user_prompt"] = _human_msg.content if _human_msg else ""
+
         # Generate fallback response
         chain = fallback_prompt | llm
         response = chain.invoke({"query": query})
+
+        state["latency_ms"] = int((perf_counter() - _start) * 1000)
+
+        # Extract token counts from Ollama response metadata
+        response_metadata = getattr(response, "response_metadata", {}) or {}
+        usage_metadata = getattr(response, "usage_metadata", {}) or {}
+        prompt_tokens = response_metadata.get(
+            "prompt_eval_count", usage_metadata.get("input_tokens", 0)
+        )
+        completion_tokens = response_metadata.get(
+            "eval_count", usage_metadata.get("output_tokens", 0)
+        )
+        total_tokens = usage_metadata.get("total_tokens") or (prompt_tokens + completion_tokens)
+        state["prompt_tokens"] = prompt_tokens
+        state["completion_tokens"] = completion_tokens
+        state["total_tokens"] = total_tokens
 
         generation_text = (
             response.content if hasattr(response, "content") else str(response)
@@ -102,9 +129,16 @@ Not all questions require all three elements — adapt your response to the ques
         state["is_rag_augmented"] = False
         state["citations"] = []
 
-        logger.info(f"Fallback response generated: {len(generation_text)} chars")
+        logger.info(
+            f"Fallback response generated: {len(generation_text)} chars, "
+            f"tokens={total_tokens}, latency={state['latency_ms']}ms"
+        )
 
     except Exception as e:
+        state["latency_ms"] = int((perf_counter() - _start) * 1000)
+        state["prompt_tokens"] = 0
+        state["completion_tokens"] = 0
+        state["total_tokens"] = 0
         logger.error(f"Fallback generation failed: {e}")
         state["generation"] = (
             f"Unable to generate response. Error: {str(e)}. "

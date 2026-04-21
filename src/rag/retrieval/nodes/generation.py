@@ -7,6 +7,7 @@ Embeds citation anchors in response for later resolution.
 
 import logging
 import re
+from time import perf_counter
 
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
@@ -103,6 +104,21 @@ RULES:
         base_url=settings.ollama_host,
     )
 
+    # Build retrieved_contexts_detailed from filtered documents (before LLM call)
+    state["retrieved_contexts_detailed"] = [
+        {
+            "text": doc.page_content,
+            "citation_id": doc.metadata.get("citation_id"),
+            "section": doc.metadata.get("section"),
+            "clause": doc.metadata.get("clause"),
+            "document": doc.metadata.get("document_source"),
+            "score": doc.metadata.get("similarity_score"),
+            "metadata": dict(doc.metadata),
+        }
+        for doc in filtered_docs
+    ]
+
+    _start = perf_counter()
     try:
         # Log complete LLM input
         formatted_messages = generation_prompt.format_messages(context=context, query=query)
@@ -113,9 +129,31 @@ RULES:
             logger.info(f"[{msg.type}]\n{msg.content}")
         logger.info("=" * 60)
 
+        # Capture system_prompt and user_prompt before invoking the chain
+        _system_msg = next((m for m in formatted_messages if m.type == "system"), None)
+        _human_msg = next((m for m in formatted_messages if m.type == "human"), None)
+        state["system_prompt"] = _system_msg.content if _system_msg else ""
+        state["user_prompt"] = _human_msg.content if _human_msg else ""
+
         # Generate response
         chain = generation_prompt | llm
         response = chain.invoke({"context": context, "query": query})
+
+        state["latency_ms"] = int((perf_counter() - _start) * 1000)
+
+        # Extract token counts from Ollama response metadata
+        response_metadata = getattr(response, "response_metadata", {}) or {}
+        usage_metadata = getattr(response, "usage_metadata", {}) or {}
+        prompt_tokens = response_metadata.get(
+            "prompt_eval_count", usage_metadata.get("input_tokens", 0)
+        )
+        completion_tokens = response_metadata.get(
+            "eval_count", usage_metadata.get("output_tokens", 0)
+        )
+        total_tokens = usage_metadata.get("total_tokens") or (prompt_tokens + completion_tokens)
+        state["prompt_tokens"] = prompt_tokens
+        state["completion_tokens"] = completion_tokens
+        state["total_tokens"] = total_tokens
 
         raw_generation = (
             response.content if hasattr(response, "content") else str(response)
@@ -177,10 +215,15 @@ RULES:
 
         logger.info(
             f"Generated response: {len(formatted_generation)} chars, "
-            f"{len(resolved_citations)} citations resolved"
+            f"{len(resolved_citations)} citations resolved, "
+            f"tokens={total_tokens}, latency={state['latency_ms']}ms"
         )
 
     except Exception as e:
+        state["latency_ms"] = int((perf_counter() - _start) * 1000)
+        state["prompt_tokens"] = 0
+        state["completion_tokens"] = 0
+        state["total_tokens"] = 0
         logger.error(f"Generation failed: {e}")
         state["generation"] = (
             f"Error generating response: {str(e)}. Query: {query}"

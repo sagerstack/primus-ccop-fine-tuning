@@ -75,6 +75,14 @@ class LangGraphRagAdapter(IRagPipeline):
                 query=question,
                 error=final_state.get("error"),
                 retrieved_contexts=retrieved_contexts,
+                # I/O capture fields (Phase 3.1 — traceability)
+                system_prompt=final_state.get("system_prompt", ""),
+                user_prompt=final_state.get("user_prompt", ""),
+                prompt_tokens=final_state.get("prompt_tokens", 0),
+                completion_tokens=final_state.get("completion_tokens", 0),
+                total_tokens=final_state.get("total_tokens", 0),
+                latency_ms=final_state.get("latency_ms", 0),
+                retrieved_contexts_detailed=final_state.get("retrieved_contexts_detailed", []),
             )
 
             return response
