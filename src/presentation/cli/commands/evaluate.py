@@ -5,7 +5,9 @@ CLI command for evaluating models.
 """
 
 import asyncio
+import json
 from datetime import datetime
+from pathlib import Path
 from typing import List, Optional
 
 import typer
@@ -60,6 +62,11 @@ def run(
         "rubric",
         "--judge-mode",
         help="Judge mode: rubric (per-benchmark rubrics) or universal (reasoning depth + hallucination)"
+    ),
+    verbose_io: bool = typer.Option(
+        False,
+        "--verbose-io",
+        help="Show captured system/user prompts and retrieved contexts per test case"
     ),
 ) -> None:
     """Run model evaluation."""
@@ -155,6 +162,17 @@ def run(
         console.print("\n[yellow]Running evaluation...[/yellow]\n")
         summary = asyncio.run(use_case.execute(request))
 
+        # Load sidecar for verbose-io display
+        sidecar: dict = {}
+        if verbose_io:
+            from infrastructure.config.settings import get_settings
+            results_dir = Path(get_settings().results_dir)
+            month_dir = results_dir / datetime.utcnow().strftime("%Y-%m")
+            sidecar_path = month_dir / f"{run_id.value}-contexts.json"
+            if sidecar_path.exists():
+                with open(sidecar_path) as _f:
+                    sidecar = json.load(_f)
+
         # Per-test-case detail output
         console.print("\n[bold]Per-Test-Case Results[/bold]\n")
         for r in summary.results:
@@ -171,6 +189,51 @@ def run(
             # Question
             lines.append(f"[bold]Question:[/bold]\n  {r.question}")
 
+            # Verbose I/O: system_prompt, user_prompt, retrieved contexts from sidecar
+            if verbose_io:
+                system_prompt = getattr(r, "system_prompt", None)
+                user_prompt = getattr(r, "user_prompt", None)
+
+                if system_prompt is not None:
+                    truncated_sys = (system_prompt[:600] + " ...") if len(system_prompt) > 600 else system_prompt
+                    lines.append(f"\n[bold]System Prompt:[/bold]\n  {truncated_sys}")
+                else:
+                    lines.append("\n[bold]System Prompt:[/bold] (none)")
+
+                if user_prompt is not None:
+                    truncated_usr = (user_prompt[:1200] + " ...") if len(user_prompt) > 1200 else user_prompt
+                    lines.append(f"\n[bold]User Prompt (with RAG context):[/bold]\n  {truncated_usr}")
+                else:
+                    lines.append("\n[bold]User Prompt (with RAG context):[/bold] (none)")
+
+                # Retrieved contexts from sidecar (keyed by test_id)
+                test_sidecar = sidecar.get(r.test_id) or []
+                if test_sidecar:
+                    lines.append("\n[bold]Retrieved Contexts (detailed):[/bold]")
+                    for ctx in test_sidecar:
+                        citation_id = ctx.get("citation_id", "?")
+                        section = ctx.get("section", "")
+                        clause = ctx.get("clause", "")
+                        score = ctx.get("score", "")
+                        text_preview = str(ctx.get("text", ""))[:200]
+                        meta = f"{citation_id}"
+                        if section:
+                            meta += f" | {section}"
+                        if clause:
+                            meta += f" | clause: {clause}"
+                        if score:
+                            meta += f" | score: {score}"
+                        lines.append(f"  [{meta}]")
+                        lines.append(f"    {text_preview}...")
+
+                # Token counts
+                prompt_tokens = getattr(getattr(r, "_result", r), "prompt_tokens", None)
+                # Access via DTO fields
+                p_tok = getattr(r, "prompt_tokens", 0) or 0
+                c_tok = getattr(r, "completion_tokens", 0) or 0
+                t_tok = getattr(r, "total_tokens", 0) or 0
+                lines.append(f"\n[bold]Tokens:[/bold] prompt={p_tok} completion={c_tok} total={t_tok}")
+
             # Retrieved Citations (hybrid mode only, before Response)
             if r.evaluation_mode == "hybrid" and r.retrieved_chunk_ids:
                 lines.append("\n[bold]Retrieved Citations:[/bold]")
@@ -179,8 +242,15 @@ def run(
                 if len(r.retrieved_chunk_ids) > 5:
                     lines.append(f"  ... ({len(r.retrieved_chunk_ids)} total)")
 
-            # Response
-            lines.append(f"\n[bold]Response[/bold] ({r.tokens_used} tokens, {r.latency_ms}ms):\n  {r.response_content}")
+            # Response — show token breakdown from new fields when available
+            _p = getattr(r, "prompt_tokens", 0) or 0
+            _c = getattr(r, "completion_tokens", 0) or 0
+            _t = getattr(r, "total_tokens", 0) or 0
+            if _t > 0:
+                token_str = f"prompt={_p} completion={_c} total={_t}"
+            else:
+                token_str = f"{r.tokens_used} tokens"
+            lines.append(f"\n[bold]Response[/bold] ({token_str}, {r.latency_ms}ms):\n  {r.response_content}")
 
             # DIAGNOSTIC GROUPS IN INFORMATION FLOW ORDER
 
