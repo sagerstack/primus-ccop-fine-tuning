@@ -22,14 +22,25 @@ Outputs:
   - ground-truth-audit-diff.json  — machine-readable change proposals; reviewer
                                     and accepted fields left blank for human review
 
-The script is READ-ONLY with respect to JSONL files.
+The script is READ-ONLY with respect to input (Excel or JSONL).
 All correction proposals are flagged for human review.
 
-Usage:
+Input sources (mutually exclusive):
+  --excel PATH               Read from expert-review workbook (authoritative)
+  --test-suite-dir DIR       Read from JSONL files (legacy path)
+
+Usage (Excel — preferred):
     cd src && poetry run python -m rag.ingestion.scripts.audit_ground_truth_citations \\
         --inventory src/rag/ingestion/fixtures/clause_inventory.json \\
-        --test-suite-dir ground-truth/test-suite \\
-        --report-dir .planning/phases/03.2-corpus-ground-truth-correctness/ \\
+        --excel ../ground-truth/expert-validation/CCoP_V2_Test_Cases_Expert_Review.xlsx \\
+        --report-dir ../.planning/phases/03.2-corpus-ground-truth-correctness/ \\
+        --semantic-threshold 0.35
+
+Usage (JSONL — legacy):
+    cd src && poetry run python -m rag.ingestion.scripts.audit_ground_truth_citations \\
+        --inventory src/rag/ingestion/fixtures/clause_inventory.json \\
+        --test-suite-dir ../ground-truth/test-suite \\
+        --report-dir ../.planning/phases/03.2-corpus-ground-truth-correctness/ \\
         --semantic-threshold 0.35
 """
 
@@ -117,12 +128,26 @@ ACTION_SKIP = "SKIP"  # not in report — used internally for skipped entries
 
 @dataclass
 class ParsedClauseRef:
-    """Result of parsing one clause_reference string."""
-    raw: str               # original string as it appears in the JSONL
-    clause_id: str         # normalised clause ID (e.g. "5.3.1(c)", "section 11")
-    source_doc: str        # canonical source document name
-    skipped: bool = False  # True for refs we cannot validate (N/A, free-text, etc.)
-    skip_reason: str = ""  # human-readable explanation when skipped
+    """Result of parsing one clause_reference string.
+
+    For most refs the parser resolves exactly one (clause_id, source_doc)
+    candidate.  For genuinely ambiguous refs (bare "Section N" which could
+    mean either CCoP 2.0 chapter N or Cybersecurity Act 2018 section N),
+    the parser emits multiple candidates.  Pass 1 considers the ref valid
+    if ANY candidate is in the inventory; the reported source_doc is the
+    first candidate that matched.
+    """
+    raw: str                                             # original string
+    clause_id: str = ""                                  # primary clause ID
+    source_doc: str = ""                                 # primary source doc
+    candidates: list[tuple[str, str]] = field(default_factory=list)  # all (clause_id, source_doc) candidates
+    skipped: bool = False                                # True for refs we cannot validate
+    skip_reason: str = ""                                # human-readable explanation when skipped
+
+    def __post_init__(self) -> None:
+        # If no candidates supplied, derive one from clause_id/source_doc.
+        if not self.candidates and self.clause_id and self.source_doc:
+            self.candidates = [(self.clause_id, self.source_doc)]
 
 
 @dataclass
@@ -284,16 +309,22 @@ def parse_clause_reference(raw: str) -> ParsedClauseRef:
         )
 
     # ------------------------------------------------------------------
-    # Bare "Section N" / "Section N(7)" — assumed Cybersecurity Act
-    # "Section 11" → ("section 11", "Cybersecurity Act 2018")
-    # "Section 17" → same
+    # Bare "Section N" / "Section N(7)" — genuinely ambiguous between
+    # CCoP 2.0 chapter N (e.g. "Section 3" = CCoP 2.0 Risk Assessment)
+    # and Cybersecurity Act 2018 section N (e.g. "Section 7" = CA2018 s.7).
+    # Emit BOTH candidates and let Pass 1 accept whichever is in inventory.
     # ------------------------------------------------------------------
     bare_section_match = re.match(r"^[Ss]ection\s+(\d+[A-Z]?)(?:\(\d+\))?$", raw)
     if bare_section_match:
+        num = bare_section_match.group(1)
         return ParsedClauseRef(
             raw=raw,
-            clause_id=f"section {bare_section_match.group(1)}",
-            source_doc=SOURCE_CYBERSECURITY_ACT
+            clause_id=num,  # primary = CCoP chapter style
+            source_doc=SOURCE_CCOP,
+            candidates=[
+                (num, SOURCE_CCOP),
+                (f"section {num}", SOURCE_CYBERSECURITY_ACT),
+            ],
         )
 
     # ------------------------------------------------------------------
@@ -501,6 +532,116 @@ def load_test_suite(test_suite_dir: Path) -> list[dict]:
     return test_cases
 
 
+def split_clause_ref_cell(cell_value: Any) -> list[str]:
+    """
+    Split an Excel Clause Refs cell into a list of individual references.
+
+    Excel stores multi-source citations as a comma-separated string, e.g.:
+        "Section 11 Cybersecurity Act, RESPONSE-TO-FEEDBACK Q2.2-2.3"
+        "5.7.1, 5.7.2"
+        "CCoP 2.0 OT Addendum, CCoP 2.0 Scope section"
+
+    Comma-splitting is safe here because none of the known reference formats
+    contain commas within a single reference token.  Whitespace is stripped
+    from each part, and empty parts are filtered out.
+
+    Returns [] for empty / None / non-string values.
+    """
+    if cell_value is None:
+        return []
+    if not isinstance(cell_value, str):
+        cell_value = str(cell_value)
+    stripped = cell_value.strip()
+    if not stripped:
+        return []
+    parts = [p.strip() for p in stripped.split(",")]
+    return [p for p in parts if p]
+
+
+def load_test_suite_from_excel(xlsx_path: Path, sheet_name: str = "Test Cases Review") -> list[dict]:
+    """
+    Load test cases from the authoritative expert-review Excel workbook.
+
+    Column mapping (1-indexed per openpyxl, 0-indexed inside this function
+    via `row[i-1]` after iter_rows(values_only=True)):
+
+        col  1  Test ID            → test_id
+        col  2  Benchmark          → benchmark_id
+        col  8  Clause Refs        → metadata.clause_reference  (comma-split)
+        col  9  Question           → input.question
+        col 11  Expected Response  → ground_truth.expected_response
+
+    Rows with a null Test ID are skipped (Excel may contain blank rows
+    awaiting expert completion).  Deprecated rows are not currently
+    represented in the Excel — add a convention later if needed.
+
+    Each test case dict is shaped to match the JSONL schema so downstream
+    audit passes work without modification.
+    """
+    try:
+        from openpyxl import load_workbook
+    except ImportError as e:
+        raise RuntimeError(
+            "openpyxl is required to load Excel input — "
+            "install via `poetry add openpyxl --group dev`"
+        ) from e
+
+    if not xlsx_path.exists():
+        raise FileNotFoundError(f"Excel workbook not found: {xlsx_path}")
+
+    wb = load_workbook(xlsx_path, data_only=True, read_only=True)
+    if sheet_name not in wb.sheetnames:
+        raise RuntimeError(
+            f"Sheet {sheet_name!r} not found in {xlsx_path.name}. "
+            f"Available sheets: {wb.sheetnames}"
+        )
+    ws = wb[sheet_name]
+
+    # Column indices (1-indexed; we index into row tuple as col-1)
+    COL_TEST_ID = 1
+    COL_BENCHMARK = 2
+    COL_CLAUSE_REFS = 8
+    COL_QUESTION = 9
+    COL_EXPECTED_RESPONSE = 11
+
+    test_cases: list[dict] = []
+    skipped_blank = 0
+
+    for row_idx, row in enumerate(ws.iter_rows(values_only=True), start=1):
+        if row_idx == 1:
+            continue  # header row
+
+        test_id = row[COL_TEST_ID - 1]
+        if test_id is None or (isinstance(test_id, str) and not test_id.strip()):
+            skipped_blank += 1
+            continue
+
+        benchmark_id = row[COL_BENCHMARK - 1] or "?"
+        clause_refs_raw = row[COL_CLAUSE_REFS - 1]
+        question = row[COL_QUESTION - 1] or ""
+        expected_response = row[COL_EXPECTED_RESPONSE - 1] or ""
+
+        clause_refs = split_clause_ref_cell(clause_refs_raw)
+
+        test_cases.append({
+            "test_id": str(test_id).strip(),
+            "benchmark_id": str(benchmark_id).strip(),
+            "metadata": {"clause_reference": clause_refs},
+            "input": {"question": str(question)},
+            "ground_truth": {"expected_response": str(expected_response)},
+            "_source_file": xlsx_path.name,
+            "_excel_row": row_idx,
+        })
+
+    wb.close()
+
+    logger.info(
+        f"Loaded {len(test_cases)} test cases from Excel "
+        f"({skipped_blank} blank rows skipped) — sheet={sheet_name!r}"
+    )
+    return test_cases
+
+
 # ---------------------------------------------------------------------------
 # Core audit logic
 # ---------------------------------------------------------------------------
@@ -512,7 +653,12 @@ def run_pass1(
     """
     Pass 1: Check every metadata.clause_reference against the inventory.
 
-    Returns list of AuditFlags for any reference not found in the inventory.
+    A ref is VALID if any of its (clause_id, source_doc) candidates is
+    present in the inventory.  This handles ambiguous bare "Section N"
+    refs that may mean either a CCoP 2.0 chapter or a Cybersecurity Act
+    section.
+
+    Returns list of AuditFlags for refs where no candidate was found.
     """
     flags: list[AuditFlag] = []
 
@@ -531,21 +677,35 @@ def run_pass1(
                 )
                 continue
 
-            key = (parsed.clause_id, parsed.source_doc)
-            if key not in inventory:
-                flags.append(AuditFlag(
-                    test_id=test_id,
-                    benchmark_id=benchmark_id,
-                    pass_number=1,
-                    field_path=f"metadata.clause_reference[{idx}]",
-                    old_value=raw_ref,
-                    source_doc=parsed.source_doc,
-                    reason=(
-                        f"clause_id={parsed.clause_id!r} not found in inventory "
-                        f"for source_doc={parsed.source_doc!r}"
-                    ),
-                    action=ACTION_HUMAN_REVIEW,
-                ))
+            if not parsed.candidates:
+                # Defensive: parser returned no candidates and did not skip.
+                logger.warning(
+                    f"  Pass 1 [{test_id}] clause_reference[{idx}]={raw_ref!r}: "
+                    f"parser produced no candidates"
+                )
+                continue
+
+            # Valid if ANY candidate is in inventory
+            valid = any(cand in inventory for cand in parsed.candidates)
+            if valid:
+                continue
+
+            # All candidates failed — flag with all candidate detail in reason
+            cand_str = ", ".join(
+                f"({cid!r}, {src!r})" for cid, src in parsed.candidates
+            )
+            flags.append(AuditFlag(
+                test_id=test_id,
+                benchmark_id=benchmark_id,
+                pass_number=1,
+                field_path=f"metadata.clause_reference[{idx}]",
+                old_value=raw_ref,
+                source_doc=parsed.source_doc,
+                reason=(
+                    f"None of the candidates matched inventory: [{cand_str}]"
+                ),
+                action=ACTION_HUMAN_REVIEW,
+            ))
 
     logger.info(f"Pass 1 complete: {len(flags)} flags")
     return flags
@@ -656,19 +816,24 @@ def run_pass3(
             if parsed.skipped:
                 continue
 
-            key = (parsed.clause_id, parsed.source_doc)
-            if key not in inventory:
-                # Already flagged in Pass 1 — skip Pass 3
+            # Find the first candidate that is both in inventory AND in a
+            # Qdrant-indexed source doc.  This skips Pass 1-flagged refs
+            # (no candidates in inventory) and refs whose only valid candidate
+            # is in a non-Qdrant-indexed source (e.g. Cybersecurity Act).
+            valid_candidate: Optional[tuple[str, str]] = None
+            for cand in parsed.candidates:
+                if cand in inventory and cand[1] in qdrant_indexed_docs:
+                    valid_candidate = cand
+                    break
+
+            if valid_candidate is None:
                 continue
 
-            if parsed.source_doc not in qdrant_indexed_docs:
-                # Cannot perform semantic check — not indexed
-                continue
-
+            clause_id_check, source_doc_check = valid_candidate
             total_checked += 1
 
             # Fetch clause body from Qdrant
-            clause_text = fetch_clause_text(client, parsed.clause_id, parsed.source_doc)
+            clause_text = fetch_clause_text(client, clause_id_check, source_doc_check)
             if clause_text is None:
                 not_indexed += 1
                 flags.append(AuditFlag(
@@ -677,9 +842,9 @@ def run_pass3(
                     pass_number=3,
                     field_path=f"metadata.clause_reference[{idx}]",
                     old_value=raw_ref,
-                    source_doc=parsed.source_doc,
+                    source_doc=source_doc_check,
                     reason=(
-                        f"clause_id={parsed.clause_id!r} exists in inventory but "
+                        f"clause_id={clause_id_check!r} exists in inventory but "
                         f"NOT indexed in Qdrant — possible sub-goal A regression"
                     ),
                     action=ACTION_HUMAN_REVIEW,
@@ -701,7 +866,7 @@ def run_pass3(
             if sim < threshold:
                 # Nearest-neighbour suggestion
                 suggested_clause, suggested_score = nearest_ccop_clause(
-                    embedding_service, client, expected_response, parsed.source_doc
+                    embedding_service, client, expected_response, source_doc_check
                 )
 
                 flags.append(AuditFlag(
@@ -710,13 +875,13 @@ def run_pass3(
                     pass_number=3,
                     field_path=f"metadata.clause_reference[{idx}]",
                     old_value=raw_ref,
-                    source_doc=parsed.source_doc,
+                    source_doc=source_doc_check,
                     suggested_value=suggested_clause,
                     confidence=suggested_score,
                     similarity_score=sim,
                     reason=(
                         f"Semantic similarity={sim:.3f} (threshold={threshold}) — "
-                        f"expected_response may not be grounded in {parsed.clause_id!r}"
+                        f"expected_response may not be grounded in {clause_id_check!r}"
                     ),
                     action=ACTION_HUMAN_REVIEW,
                 ))
@@ -959,10 +1124,19 @@ def main() -> None:
         required=True,
         help="Path to clause_inventory.json",
     )
-    parser.add_argument(
+    source_group = parser.add_mutually_exclusive_group(required=True)
+    source_group.add_argument(
+        "--excel",
+        help="Path to expert-review Excel (.xlsx) — authoritative source",
+    )
+    source_group.add_argument(
         "--test-suite-dir",
-        required=True,
-        help="Directory containing *.jsonl ground truth files",
+        help="Directory containing *.jsonl ground truth files (legacy)",
+    )
+    parser.add_argument(
+        "--excel-sheet",
+        default="Test Cases Review",
+        help="Sheet name within the Excel workbook (default: 'Test Cases Review')",
     )
     parser.add_argument(
         "--report-dir",
@@ -999,11 +1173,13 @@ def main() -> None:
     )
 
     inventory_path = Path(args.inventory)
-    test_suite_dir = Path(args.test_suite_dir)
     report_dir = Path(args.report_dir)
     report_path = report_dir / "ground-truth-audit-report.md"
     diff_path = report_dir / "ground-truth-audit-diff.json"
     threshold = args.semantic_threshold
+
+    excel_path = Path(args.excel) if args.excel else None
+    test_suite_dir = Path(args.test_suite_dir) if args.test_suite_dir else None
 
     # ------------------------------------------------------------------
     # Validate inputs
@@ -1012,7 +1188,11 @@ def main() -> None:
         logger.error(f"Inventory file not found: {inventory_path}")
         sys.exit(1)
 
-    if not test_suite_dir.exists():
+    if excel_path and not excel_path.exists():
+        logger.error(f"Excel workbook not found: {excel_path}")
+        sys.exit(1)
+
+    if test_suite_dir and not test_suite_dir.exists():
         logger.error(f"Test suite directory not found: {test_suite_dir}")
         sys.exit(1)
 
@@ -1048,7 +1228,10 @@ def main() -> None:
     # Load inputs
     # ------------------------------------------------------------------
     inventory = load_inventory(inventory_path)
-    test_cases = load_test_suite(test_suite_dir)
+    if excel_path:
+        test_cases = load_test_suite_from_excel(excel_path, args.excel_sheet)
+    else:
+        test_cases = load_test_suite(test_suite_dir)
 
     test_cases_by_id: dict[str, dict] = {
         tc.get("test_id", ""): tc for tc in test_cases
@@ -1098,9 +1281,13 @@ def main() -> None:
         for tc in test_cases:
             for raw_ref in tc.get("metadata", {}).get("clause_reference", []):
                 parsed = parse_clause_reference(raw_ref)
-                if not parsed.skipped and (parsed.clause_id, parsed.source_doc) in inventory:
-                    if parsed.source_doc in qdrant_docs:
-                        pass3_checked += 1
+                if parsed.skipped:
+                    continue
+                if any(
+                    cand in inventory and cand[1] in qdrant_docs
+                    for cand in parsed.candidates
+                ):
+                    pass3_checked += 1
 
         pass3_flags = run_pass3(
             test_cases, inventory, client, embedding_service, threshold
