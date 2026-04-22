@@ -99,16 +99,97 @@ def _b03_117_rule(_test_id: str) -> tuple[str, str, tuple[str, str] | None]:
 
 def _b02_564_rule(_test_id: str) -> tuple[str, str, tuple[str, str] | None]:
     # Topic is patch management, not Network Security. §5.10.1(e) is the
-    # "timely manner" patch clause. NOTE: the test cases embed specific
-    # 14-day/30-day timelines that are NOT in CCoP 2.0 or any supporting
-    # document — flagged in audit-remap-proposal.md for user decision.
-    # This rule corrects the clause citation only; the ER timeline claims
-    # remain unverified.
+    # "timely manner" patch clause. Per user decision (Phase B, Option 3),
+    # the ER text is also rewritten to replace fabricated 14-day/30-day
+    # timelines with CCoP's actual "timely manner" + risk-based prioritisation
+    # language — handled by _B02_ER_REWRITE below via the full-ER mechanism.
+    # This rule corrects the section/clause; the full ER replacement is
+    # applied as a second pass.
     return (
         "5",
         "5.10.1(e)",
         ("5.6.4", "5.10.1(e)"),
     )
+
+
+# Full-ER rewrites for B02_564 cluster. Replaces col 11 entirely for the
+# four flagged rows so the expected response cites only CCoP 2.0 language
+# that is verifiable against the source document. No fabricated timelines.
+_B02_ER_REWRITE: dict[str, str] = {
+    "B2-003": (
+        "This configuration is compliant with CCoP 2.0 Clause 5.10.1(e), which "
+        "requires security patches to be applied in a timely manner to reduce "
+        "cybersecurity vulnerabilities, and Clause 5.10.1(d), which requires "
+        "prioritising patch application based on the level of risk posed to the "
+        "operations of the CII. A prompt deployment (within roughly two weeks) "
+        "of a critical patch addressing a vulnerability with active exploitation "
+        "or publicly available exploit code — including a short testing phase — "
+        "reflects appropriate risk-based prioritisation and timely application. "
+        "Clause 5.10.1(c) expects patches to be tested in an environment similar "
+        "to the CII production environment before deployment; the testing "
+        "period described does not compromise compliance. In the OT context, "
+        "testing patches in an isolated lab before deploying to production SCADA "
+        "is good practice. CCoP 2.0 does not prescribe a fixed number of days — "
+        "'timely' is a risk-based determination — and the documented process "
+        "meets that standard."
+    ),
+    "B2-010": (
+        "This configuration is compliant with CCoP 2.0 Clause 5.10.1. Clause "
+        "5.10.1(e) requires security patches to be applied in a timely manner; "
+        "Clause 5.10.1(d) requires prioritisation based on the level of risk "
+        "posed to operations. Applying critical patches (active exploitation or "
+        "public exploit code) within about two weeks and non-critical patches "
+        "within about three to four weeks is consistent with the timely, "
+        "risk-prioritised application the clause expects. CCoP 2.0 does not "
+        "prescribe a fixed number of days — timeliness is a risk-based "
+        "determination. The two-track automated deployment process described "
+        "also aligns with Clause 5.10.1(a) monitoring of patch releases, "
+        "5.10.1(b) integrity verification, 5.10.1(c) testing prior to "
+        "deployment, and 5.10.1(f) monitoring and tracking of patching progress."
+    ),
+    "B2-014": (
+        "This is a partially compliant situation that likely requires a waiver. "
+        "CCoP 2.0 Clause 5.10.1 requires security patches to be applied in a "
+        "timely manner with prioritisation based on risk. When a vendor no "
+        "longer supports equipment and issues no patches, there is no patch to "
+        "apply — creating a genuine technical infeasibility. Clause 5.10.1(g) "
+        "expects compensating controls to mitigate and reduce cybersecurity "
+        "risks in cases where a security patch cannot be applied: network "
+        "isolation, enhanced monitoring, and annual manual security review are "
+        "appropriate responses to unpatched legacy OT equipment. However, "
+        "operating end-of-life equipment with known unresolved vulnerabilities "
+        "on CII is a compliance risk that the CIIO should address through the "
+        "waiver process (Clause 1.6), which aligns with Section 11(7) of the "
+        "Cybersecurity Act. The waiver application should document the genuine "
+        "impossibility of patching, the 5.10.1(g) compensating controls in "
+        "place, a timeline for equipment replacement or upgrade, and ongoing "
+        "monitoring commitments. Compensating controls alone do not achieve "
+        "full compliance with Clause 5.10 — a waiver formalises and legitimises "
+        "the compensating control approach."
+    ),
+    "B2-024": (
+        "This situation is non-compliant with CCoP 2.0 Clause 5.10.1(e) and "
+        "Clause 5.10.1(d) for the specific critical patch. Clause 5.10.1(d) "
+        "requires prioritising patch application based on the level of risk "
+        "posed to operations; Clause 5.10.1(e) requires applying security "
+        "patches in a timely manner to reduce cybersecurity vulnerabilities. "
+        "Waiting for a fixed quarterly maintenance window before applying a "
+        "critical patch for a vulnerability with active exploitation or a "
+        "publicly available exploit does not reflect risk-based prioritisation "
+        "or timeliness. A rigid quarterly maintenance schedule cannot override "
+        "the Clause 5.10.1(d)/(e) obligation for critical patches. The "
+        "organisation must either: (1) adjust the maintenance window schedule "
+        "to allow out-of-cycle emergency patching for critical patches; (2) "
+        "where that is genuinely infeasible, implement Clause 5.10.1(g) "
+        "compensating controls (increased monitoring, network isolation) while "
+        "pursuing emergency patching approval; or (3) if the patch cannot be "
+        "applied in the near term, submit a waiver request under Clause 1.6, "
+        "aligned with Section 11(7) of the Cybersecurity Act. Quarterly patch "
+        "cycles may be acceptable for lower-risk non-critical patches when "
+        "documented under Clause 5.10.1(d) risk-based prioritisation, but not "
+        "for critical patches."
+    ),
+}
 
 
 def _b05_523_rule(_test_id: str) -> tuple[str, str, tuple[str, str] | None]:
@@ -141,9 +222,35 @@ _B24_ROW_MAP: dict[str, str] = {
     "B24-019": "7.1.1(d), 7.1.1(f)",
     "B24-020": "7.1.1(g) [support: 8.1.1, 8.1.2]",
     "B24-021": "7.1.1(g), 7.1.4 [support: 7.2.2]",
+    # B24-022: BONUS finding — not in Pass-1 (existing 8.1, 8.2 refs resolve
+    # in CCoP, but semantics are wrong: pre-incident threat-intel response).
+    # User decision (Phase B, #4): include in Phase C with proper IR + threat
+    # intelligence anchors.
+    "B24-022": "6.4.1, 6.4.3, 7.1.1(a), 7.1.1(d) [support: 7.3.3(a)]",
     "B24-023": "7.1.1(g)",
     "B24-024": "7.1.1(c), 7.1.1(d), 7.1.1(g) [support: 8.2.1]",
     "B24-025": "7.1.1(b), 7.1.1(h), 7.1.1(i), 7.1.4",
+}
+
+
+# Per-row ER substitutions for selected B24 rows (multi-patch). Applied as
+# a side-effect pass after the main B24 cluster so clause/section are
+# already aligned. Each entry is a list of (old, new) substring pairs.
+_B24_ER_PATCHES: dict[str, list[tuple[str, str]]] = {
+    "B24-022": [
+        (
+            "Section 8.1 requires incident management policy include threat intelligence consumption",
+            "Section 7.1 requires incident management to include threat-intelligence consumption (see Section 6.4)",
+        ),
+        (
+            "Pre-incident preparation is Section 8.2 (IR plan)",
+            "Pre-incident preparation is Section 7.1 (IR plan)",
+        ),
+        (
+            "Section 5.1 (threat intelligence)",
+            "Section 6.4 (threat intelligence)",
+        ),
+    ],
 }
 
 
@@ -165,29 +272,147 @@ _SINGLETON_ROW_MAP: dict[str, tuple[str, str, tuple[str, str] | None]] = {
     ),
     "B1-017": ("5", "5.1.2, 5.3.1, 5.7.2", ("Section 5.1.5", "Section 5.7.2")),
     "B2-001": ("5", "5.1.2, 5.7.2", ("Clause 5.1.5", "Clause 5.7.2(b)")),
-    "B3-005": (
-        "1",
-        "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
+    # ---- B3 full scope (27 rows, CCoP 2.0 verified; B3-004 & B3-011 handled
+    # ---- by B03_117 cluster). Previously 5 entries (B3-005/006/019/021/024)
+    # ---- were wrongly mapped to waiver — corrected below per actual ER topic.
+    "B3-001": (
+        "5",
+        "5.2.1, 5.3.1(c)",
         None,
+    ),
+    "B3-002": (
+        "5",
+        "5.5.1, 5.5.2, 10.2.1",
+        ("Section 5.4.1 explicitly requires", "Section 5.5 explicitly requires"),
+    ),
+    "B3-003": (
+        "5",
+        "5.2.1, 5.3.1(c)",
+        ("CCoP 5.3.1 requires", "CCoP 5.2.1 / 5.3.1(c) requires"),
+    ),
+    "B3-005": (
+        "5",
+        "5.1.4",
+        ("CCoP 5.3.2 requires", "CCoP 5.1.4 requires"),
     ),
     "B3-006": (
-        "1",
-        "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
+        "5",
+        "5.10.1, 5.10.2",
+        ("CCoP 4.2 requires systems be kept up to date", "CCoP 5.10 requires systems be kept up to date"),
+    ),
+    "B3-007": (
+        "3",
+        "3.8.1, 3.8.3, 3.8.4",
+        ("additional obligations under CCoP Section 7", "additional obligations under CCoP Section 3.8"),
+    ),
+    "B3-008": (
+        "3",
+        "3.7.1, 3.7.3",
+        ("CCoP Section 5 applies regardless of hosting model", "CCoP Section 3.7 applies regardless of hosting model"),
+    ),
+    "B3-009": (
+        "3",
+        "3.2.1, 3.2.5",
+        ("CCoP Section 2 requires annual risk assessment", "CCoP Section 3.2 requires annual risk assessment"),
+    ),
+    "B3-010": (
+        "3",
+        "3.8.1, 3.8.2, 3.8.3",
+        ("Outsourced monitoring can satisfy Section 5.2", "Outsourced monitoring can satisfy Section 3.8"),
+    ),
+    "B3-012": (
+        "3",
+        "3.1.1, 3.8.1",
         None,
     ),
+    "B3-013": (
+        "5",
+        "5.3.1(c)",
+        None,
+    ),
+    "B3-014": (
+        "5",
+        "5.3.1(a), 5.3.1(c)",
+        None,
+    ),
+    "B3-015": (
+        "3",
+        "3.1.1, 3.3.1",
+        None,
+    ),
+    "B3-016": (
+        "5",
+        "3.8.1, 5.7.1, 5.7.2",
+        ("requires enhanced monitoring per CCoP Section 7", "requires enhanced monitoring per CCoP Sections 3.8 and 5.7"),
+    ),
+    "B3-017": (
+        "6",
+        "6.1.4",
+        ("CCoP Section 5.2 requires log retention", "CCoP Section 6.1.4(c) requires log retention"),
+    ),
+    "B3-018": (
+        "9",
+        "9.2.1, 9.2.2",
+        ("CCoP Section 6 requires role-specific training", "CCoP Section 9.2 requires role-specific training"),
+    ),
     "B3-019": (
-        "1",
-        "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
+        "7",
+        "7.3.1, 7.3.2",
+        ("CCoP Section 8.5 requires incident response plans be tested", "CCoP Section 7.3 requires incident response plans be tested"),
+    ),
+    "B3-020": (
+        "10",
+        "10.2.1, 10.2.3",
         None,
     ),
     "B3-021": (
-        "1",
-        "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
+        "5",
+        "5.10.1(d), 5.10.1(e), 5.10.1(g)",
+        ("CCoP 4.2 requires systems be kept secure", "CCoP 5.10.1(g) allows compensating controls where a patch cannot be applied"),
+    ),
+    "B3-022": (
+        "6",
+        "6.4.1, 6.4.3",
+        ("CCoP Section 5.1 requires risk-based security", "CCoP Section 6.4 requires threat-intelligence-driven security"),
+    ),
+    "B3-023": (
+        "5",
+        "5.3.1(c) [support: Cybersecurity Act 2018 §11(7)]",
         None,
     ),
     "B3-024": (
+        "8",
+        "8.1.4",
+        ("CCoP Section 9.4 requires backup systems be tested", "CCoP Section 8.1.4 requires backup systems be tested"),
+    ),
+    "B3-025": (
+        "5",
+        "5.15.1, 5.15.3",
+        ("does not fully satisfy CCoP 5.5", "does not fully satisfy CCoP 5.15"),
+    ),
+    "B3-026": (
+        "4",
+        "4.1.1, 4.1.2",
+        ("CCoP Section 3 requires current asset inventory", "CCoP Section 4.1 requires current asset inventory"),
+    ),
+    "B3-027": (
+        "3",
+        "3.3.1, 3.3.3",
+        ("CCoP Section 1 requires documented policies", "CCoP Section 3.3 requires documented policies"),
+    ),
+    "B3-028": (
+        "3",
+        "3.2.5 [support: 2.1.1]",
+        None,
+    ),
+    "B3-029": (
         "1",
-        "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
+        "1.4.1, 5.1.2",
+        None,
+    ),
+    "B3-030": (
+        "1",
+        "1.4.1, 1.4.5, 1.5.1",
         None,
     ),
     "B05-013": (
@@ -324,7 +549,7 @@ CLUSTERS: dict[str, tuple[ClusterMatcher, RuleFn, str]] = {
     "SINGLETONS": (
         lambda tid, _cell: tid in _SINGLETON_ROW_MAP,
         _singleton_rule,
-        "Verified singletons (29 rows) — per-row mapping from proposal",
+        "Verified singletons (52 rows incl. 28 B3 full-scope) — per-row mapping from proposal",
     ),
 }
 
@@ -415,6 +640,72 @@ def _apply_cluster(
                 expected_cell.value = str(expected_cell.value).replace(old_sub, new_sub)
         modified += 1
 
+    print(f"  total: matched={matched}, modified={modified}")
+    return matched, modified
+
+
+def _apply_b24_er_patches(ws: Worksheet, dry_run: bool) -> tuple[int, int]:
+    """Apply multi-substring ER patches for selected B24 rows (e.g. B24-022).
+
+    Runs after _apply_cluster("B24") has aligned section/clause. Each row
+    in _B24_ER_PATCHES gets its list of (old, new) substring replacements
+    applied sequentially. Idempotent: a patch whose `old` substring is not
+    present is silently skipped.
+    """
+    matched = 0
+    modified = 0
+    print("\n-- B24 Expected-Response patches --")
+    for row in ws.iter_rows(min_row=2, values_only=False):
+        test_id = row[COL_TEST_ID - 1].value
+        if not test_id or str(test_id) not in _B24_ER_PATCHES:
+            continue
+        matched += 1
+        expected_cell = row[COL_EXPECTED_RESP - 1]
+        current = str(expected_cell.value or "")
+        updated = current
+        applied: list[str] = []
+        for old_sub, new_sub in _B24_ER_PATCHES[str(test_id)]:
+            if old_sub in updated:
+                updated = updated.replace(old_sub, new_sub)
+                applied.append(old_sub[:40] + "...")
+        if updated == current:
+            print(f"  [noop] {test_id}: no ER substrings matched")
+            continue
+        print(f"  [edit] {test_id}: col11 patched ({len(applied)} substitutions)")
+        if not dry_run:
+            expected_cell.value = updated
+        modified += 1
+    print(f"  total: matched={matched}, modified={modified}")
+    return matched, modified
+
+
+def _apply_b02_er_rewrite(ws: Worksheet, dry_run: bool) -> tuple[int, int]:
+    """Replace col 11 (Expected Response) wholesale for B02_564 cluster rows.
+
+    Runs after _apply_cluster("B02_564") so section/clause/in-text patches
+    are already applied. This step overwrites the full ER text to remove
+    fabricated 14/30-day timelines and align with CCoP §5.10 "timely manner"
+    language. Idempotent: skips rows whose current ER already matches the
+    target text.
+    """
+    matched = 0
+    modified = 0
+    print("\n-- B02_564 Expected-Response rewrite (timely-manner language) --")
+    for row in ws.iter_rows(min_row=2, values_only=False):
+        test_id = row[COL_TEST_ID - 1].value
+        if not test_id or str(test_id) not in _B02_ER_REWRITE:
+            continue
+        matched += 1
+        expected_cell = row[COL_EXPECTED_RESP - 1]
+        target = _B02_ER_REWRITE[str(test_id)]
+        current = str(expected_cell.value or "")
+        if current.strip() == target.strip():
+            print(f"  [noop] {test_id}: ER already rewritten")
+            continue
+        print(f"  [edit] {test_id}: col11 full rewrite ({len(target)} chars)")
+        if not dry_run:
+            expected_cell.value = target
+        modified += 1
     print(f"  total: matched={matched}, modified={modified}")
     return matched, modified
 
@@ -534,6 +825,16 @@ def main() -> int:
             m, n = _apply_cluster(ws, key, args.dry_run)
         totals["matched"] += m
         totals["modified"] += n
+        # B02_564 has an ER-rewrite side-effect that runs after the cluster.
+        if key == "B02_564":
+            m2, n2 = _apply_b02_er_rewrite(ws, args.dry_run)
+            totals["matched"] += m2
+            totals["modified"] += n2
+        # B24 has per-row ER patches (e.g. B24-022 BONUS finding).
+        if key == "B24":
+            m2, n2 = _apply_b24_er_patches(ws, args.dry_run)
+            totals["matched"] += m2
+            totals["modified"] += n2
 
     print("\n" + "=" * 60)
     print(f"CLUSTERS APPLIED: {clusters_to_apply}")

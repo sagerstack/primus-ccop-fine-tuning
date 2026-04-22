@@ -1,7 +1,13 @@
 # Phase 3.2 Plan 06 — Pipeline Preflight Verification
 
-**Date:** 2026-04-22
+**Date:** 2026-04-22 (updated after user decisions)
 **Purpose:** Demonstrate the `patcher → regen` pipeline is ready to run before the user approves Phase C application.
+
+## User decisions applied (Phase B, pre-execution)
+
+1. **B02 cluster** (Option 3): ER text rewritten for all 4 rows (B2-003, B2-010, B2-014, B2-024) — fabricated 14/30-day timelines removed, replaced with CCoP §5.10 "timely manner" + risk-based prioritisation language verbatim from the source.
+2. **B3 cluster** (full scope): All 27 non-waiver B3 rows mapped per-row (B3-004 and B3-011 continue to be handled by B03_117). Five previously wrong singleton entries (B3-005/006/019/021/024 → waiver) corrected against actual ER topics (§5.1.4, §5.10, §7.3, §5.10.1(g), §8.1.4).
+3. **B24-022 BONUS** finding: added to per-row map as `6.4.1, 6.4.3, 7.1.1(a), 7.1.1(d) [support: 7.3.3(a)]` with 3 in-text ER substitutions fixing wrong Section 8.1 / 8.2 / 5.1 references.
 
 ---
 
@@ -29,12 +35,14 @@ poetry run python scripts/patch_ground_truth_excel.py \
 | B07_422 | 4 | 4 |
 | B03_117 | 2 | 2 |
 | B05_523 (MFA bundle) | 2 | 2 |
-| SINGLETONS (29 rows) | 29 | 29 |
+| SINGLETONS (52 rows incl. 28 B3 full scope) | 52 | 52 |
 | B21_EXEMPT | 11 | 11 |
-| B24 (per-row) | 24 | 24 |
+| B24 (per-row, incl. B24-022) | 25 | 25 |
+| B24 ER patches (B24-022 multi-sub) | 1 | 1 |
 | B02_564 (→ §5.10.1(e)) | 4 | 4 |
+| B02_564 ER full rewrite (timely-manner) | 4 | 4 |
 | DEPRECATE (B05-018) | 1 | 1 |
-| **TOTAL** | **147** | **147** |
+| **TOTAL** | **176** | **176** |
 
 ### Step 2 — Idempotency
 
@@ -88,13 +96,13 @@ Direct unit-level inspection confirms all new JSONL fields populate correctly:
 
 ---
 
-## Known concerns (flagged for user decision)
+## Known concerns — status after user decisions
 
-1. **B02 `5.6.4` cluster — fabricated timelines in ER** (Cluster 6 CONCERN in `audit-remap-proposal.md`). Citation corrected to §5.10.1(e), but the ER text embeds 14/30-day patch timelines that are NOT in CCoP 2.0 or any supporting doc. User picks Option 1 (accept) / 2 (deprecate) / 3 (rewrite ER to "timely manner").
+1. **B02 `5.6.4` cluster — fabricated timelines in ER** — **RESOLVED (user chose Option 3)**. ER text rewritten for all 4 rows using CCoP §5.10 "timely manner" + risk-based prioritisation language only; no fabricated day counts remain.
 
-2. **B03 templating issue** — 22 remaining B3 rows (beyond the 7 flagged) have `["Section 2"]` placeholder in JSONL `metadata.clause_reference`. Scope expansion option deferred to user.
+2. **B03 templating issue — 29-row scope** — **RESOLVED (user chose expand to all 29)**. All B3 rows have CCoP-verified per-row mappings. Five previously wrong singleton entries corrected. B3-004 and B3-011 continue via B03_117 cluster.
 
-3. **B24-022 BONUS finding** — not flagged by Pass-1 (clauses `8.1, 8.2` exist in CCoP) but semantically wrong (topic is threat intel pre-incident). Proposed remap documented; not in patcher pending user approval.
+3. **B24-022 BONUS finding** — **RESOLVED (user chose fix now)**. Added to per-row map with `6.4.1, 6.4.3, 7.1.1(a), 7.1.1(d) [support: 7.3.3(a)]` and 3 in-text ER substitutions.
 
 4. **B24 col 7 format inconsistency** — the patcher sets chapter numbers as digits (`"7"`, `"5"`) where existing rows used labels like `"CCoP 2.0 Section 8"`. The regen script normalises these into strings for `metadata.section`. No action required — cosmetic only.
 
