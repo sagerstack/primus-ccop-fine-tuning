@@ -37,18 +37,31 @@ _DEFAULT_OUTPUT = Path(__file__).parent.parent / "fixtures" / "clause_inventory.
 #   - Bare:      "5.2.1 The CIIO shall perform..."
 #   - ## prefix: "## 5.3 Privileged Access Management"
 #
-# The optional ## prefix is derived from CLAUSE_PATTERN in clause_aware_chunker.py
-# (established in Phase 3.2 Plan 01).
-#
 # Pattern structure:
 #   ^(?:##\s+)?      — optional Docling heading prefix
-#   (\d+(?:\.\d+)*) — chapter or multi-level clause number (e.g. 5, 5.3, 5.3.1)
+#   (\d+(?:\.\d+)*)  — chapter or multi-level clause number (e.g. 5, 5.3, 5.3.1)
 #   \s+              — whitespace separator (clause number must be followed by text)
 #
 # Must be followed by at least one non-whitespace character to avoid matching
 # bare digits (page numbers, list items) or empty headings.
 CLAUSE_ID_PATTERN = re.compile(
     r"^(?:##\s+)?(\d+(?:\.\d+)*)\s+\S",
+    re.MULTILINE,
+)
+
+# Pass 1b — Hierarchical clause IDs rendered as list items.
+#
+# Docling assimilates numbered clauses into surrounding markdown lists when
+# the clause introduces a "- (a) ... - (b) ..." sub-list. Known cases in
+# CCoP 2.0: 6.1.1 and 8.2.5. Without this pass, those clauses are silently
+# dropped from the inventory, producing false-positive Pass 1 audit flags.
+#
+# Restricted to clause IDs with at least one dot (\d+(?:\.\d+)+) to avoid
+# collecting plain numbered list items like "- 1 Something" in legal documents
+# (the Cybersecurity Act 2018 body contains many such items that are not
+# canonical section IDs — the dedicated legal pass extracts those).
+CLAUSE_ID_LIST_ITEM_PATTERN = re.compile(
+    r"^-\s+(\d+(?:\.\d+)+)\s+\S",
     re.MULTILINE,
 )
 
@@ -140,7 +153,9 @@ def extract_clause_ids(markdown_text: str, source_doc: str = "") -> list[str]:
     seen: set[str] = set()
     ordered: list[str] = []
 
-    # Build a position-indexed list of clause matches for pass 2 context
+    # Build a position-indexed list of clause matches for pass 2 context.
+    # Pass 1 and Pass 1b both contribute; they are merged and sorted by position
+    # so Pass 2's sub-item attribution walks them in document order.
     clause_matches: list[tuple[int, int, str]] = []  # (start, end, clause_id)
 
     for match in CLAUSE_ID_PATTERN.finditer(markdown_text):
@@ -148,7 +163,16 @@ def extract_clause_ids(markdown_text: str, source_doc: str = "") -> list[str]:
         if clause_id not in seen:
             seen.add(clause_id)
             ordered.append(clause_id)
-        clause_matches.append((match.start(), match.end(), match.group(1)))
+        clause_matches.append((match.start(), match.end(), clause_id))
+
+    for match in CLAUSE_ID_LIST_ITEM_PATTERN.finditer(markdown_text):
+        clause_id = match.group(1)
+        if clause_id not in seen:
+            seen.add(clause_id)
+            ordered.append(clause_id)
+        clause_matches.append((match.start(), match.end(), clause_id))
+
+    clause_matches.sort(key=lambda m: m[0])
 
     # Pass 2: find item-letter list items and attribute them to the enclosing clause
     # The enclosing clause is the last clause heading that appears BEFORE this position.
