@@ -236,6 +236,33 @@ _B24_ROW_MAP: dict[str, str] = {
 # Per-row ER substitutions for selected B24 rows (multi-patch). Applied as
 # a side-effect pass after the main B24 cluster so clause/section are
 # already aligned. Each entry is a list of (old, new) substring pairs.
+# Footer-citation hallucinations flagged by the Pass-2 validator after Plan 06:
+# the stale "Reference: CCoP 2.0, X.Y" trailers cite clauses that do not
+# exist in CCoP (e.g. 4.3, 9.3.1, 5.2.3 — see audit-remap-proposal.md). The
+# clause_reference column is already correct; the footer text is the last
+# stale surface. Each entry replaces the wrong footer with a canonical
+# "§<clause>" form anchored on the primary clause_reference for that row.
+_ER_FOOTER_PATCHES: dict[str, tuple[str, str]] = {
+    "B05-002": ("Reference: CCoP 2.0, 5.2.3", "Reference: CCoP 2.0 §5.3.1"),
+    "B05-013": ("Reference: CCoP 2.0, 4.3",   "Reference: CCoP 2.0 §1.6"),
+    "B05-015": ("Reference: CCoP 2.0, 9.3.1", "Reference: CCoP 2.0 §3.8"),
+    "B05-016": ("Reference: CCoP 2.0, 5.3.4", "Reference: CCoP 2.0 §5.11"),
+    "B05-019": ("Reference: CCoP 2.0, 5.2.3", "Reference: CCoP 2.0 §5.3.1"),
+    "B06-002": ("Reference: CCoP 2.0, 5.2.3", "Reference: CCoP 2.0 §5.3.1"),
+    "B06-013": ("Reference: CCoP 2.0, 5.2.5", "Reference: CCoP 2.0 §5.2.1"),
+    "B06-018": ("Reference: CCoP 2.0, 7.4.1", "Reference: CCoP 2.0 §8.2"),
+    "B06-019": ("Reference: CCoP 2.0, 4.2.1", "Reference: CCoP 2.0 §3.2"),
+    "B07-006": ("Reference: CCoP 2.0, 5.2.4", "Reference: CCoP 2.0 §5.3.1"),
+    "B07-007": ("Reference: CCoP 2.0, 5.2.5", "Reference: CCoP 2.0 §5.3.1"),
+    "B07-008": ("Reference: CCoP 2.0, 5.2.4", "Reference: CCoP 2.0 §5.3.1"),
+    "B07-010": ("Reference: CCoP 2.0, 5.2.6", "Reference: CCoP 2.0 §5.3.1"),
+    "B07-015": ("Reference: CCoP 2.0, 6.3.4", "Reference: CCoP 2.0 §6.2"),
+    "B07-017": ("Reference: CCoP 2.0, 5.4.2", "Reference: CCoP 2.0 §5.5"),
+    "B07-018": ("Reference: CCoP 2.0, 5.4.4", "Reference: CCoP 2.0 §5.7"),
+    "B07-027": ("Reference: CCoP 2.0, 5.2.3", "Reference: CCoP 2.0 §5.3.1"),
+}
+
+
 _B24_ER_PATCHES: dict[str, list[tuple[str, str]]] = {
     "B24-022": [
         (
@@ -710,6 +737,34 @@ def _apply_b02_er_rewrite(ws: Worksheet, dry_run: bool) -> tuple[int, int]:
     return matched, modified
 
 
+def _apply_er_footer_patches(ws: Worksheet, dry_run: bool) -> tuple[int, int]:
+    """Replace stale 'Reference: CCoP 2.0, X.Y' footer citations for the rows
+    in _ER_FOOTER_PATCHES. Idempotent: skips rows whose footer was already
+    corrected, or whose ER does not contain the stale substring.
+    """
+    matched = 0
+    modified = 0
+    print("\n-- ER footer-citation patches --")
+    for row in ws.iter_rows(min_row=2, values_only=False):
+        test_id = row[COL_TEST_ID - 1].value
+        if not test_id or str(test_id) not in _ER_FOOTER_PATCHES:
+            continue
+        matched += 1
+        expected_cell = row[COL_EXPECTED_RESP - 1]
+        current = str(expected_cell.value or "")
+        old_sub, new_sub = _ER_FOOTER_PATCHES[str(test_id)]
+        if old_sub not in current:
+            print(f"  [noop] {test_id}: footer already patched or substring absent")
+            continue
+        updated = current.replace(old_sub, new_sub)
+        print(f"  [edit] {test_id}: {old_sub!r} → {new_sub!r}")
+        if not dry_run:
+            expected_cell.value = updated
+        modified += 1
+    print(f"  total: matched={matched}, modified={modified}")
+    return matched, modified
+
+
 def _apply_deprecate(ws: Worksheet, dry_run: bool) -> tuple[int, int]:
     matched = 0
     modified = 0
@@ -766,13 +821,14 @@ def main() -> int:
     parser.add_argument(
         "--cluster",
         action="append",
-        choices=list(CLUSTERS.keys()) + ["B21_EXEMPT", "DEPRECATE"],
-        help="Cluster(s) to apply. Repeatable. DEPRECATE opts-in to B05-018 deprecation.",
+        choices=list(CLUSTERS.keys()) + ["B21_EXEMPT", "DEPRECATE", "ER_FOOTER"],
+        help="Cluster(s) to apply. Repeatable. DEPRECATE opts-in to B05-018 deprecation. "
+        "ER_FOOTER rewrites stale 'Reference: CCoP 2.0, X.Y' citations for 17 B05/B06/B07 rows.",
     )
     parser.add_argument(
         "--all",
         action="store_true",
-        help=f"Apply every REMAP-ALL cluster: {REMAP_ALL_CLUSTERS} + SINGLETONS + B21_EXEMPT. "
+        help=f"Apply every REMAP-ALL cluster: {REMAP_ALL_CLUSTERS} + SINGLETONS + B21_EXEMPT + ER_FOOTER. "
         "Does NOT apply B24 (per-row), B02/B05 provisional clusters, or DEPRECATE — use --cluster for those.",
     )
     parser.add_argument(
@@ -796,6 +852,7 @@ def main() -> int:
         clusters_to_apply.extend(REMAP_ALL_CLUSTERS)
         clusters_to_apply.append("SINGLETONS")
         clusters_to_apply.append("B21_EXEMPT")
+        clusters_to_apply.append("ER_FOOTER")
     if args.cluster:
         for c in args.cluster:
             if c not in clusters_to_apply:
@@ -821,6 +878,8 @@ def main() -> int:
             m, n = _apply_b21_exempt(ws, args.dry_run)
         elif key == "DEPRECATE":
             m, n = _apply_deprecate(ws, args.dry_run)
+        elif key == "ER_FOOTER":
+            m, n = _apply_er_footer_patches(ws, args.dry_run)
         else:
             m, n = _apply_cluster(ws, key, args.dry_run)
         totals["matched"] += m
