@@ -7,8 +7,8 @@
 
 ### Ground Truth Dataset
 
-- [ ] **DATA-01**: Synthetic QA generation from CCoP document corpus using LLM
-- [ ] **DATA-02**: Scenario-based questions covering real-world CII compliance situations
+- [x] **DATA-01**: Synthetic QA generation from CCoP document corpus using LLM
+- [x] **DATA-02**: Scenario-based questions covering real-world CII compliance situations
 - [ ] **DATA-03**: Gap analysis questions testing identification of compliance gaps
 - [ ] **DATA-04**: Diversity enforcement across all CCoP sections and supplementary docs
 - [ ] **DATA-05**: Minimum 50 test cases per benchmark (21 benchmarks)
@@ -20,9 +20,9 @@ Research will determine specific implementation approach. Requirements define ou
 
 - [ ] **RAG-01**: Ingest 8 CCoP PDF documents with structure-aware parsing
 - [ ] **RAG-02**: Vector storage with metadata (section, clause, document source)
-- [ ] **RAG-03**: Retrieval that returns relevant CCoP clauses for compliance queries
-- [ ] **RAG-04**: Re-ranking to prioritize most relevant results
-- [ ] **RAG-05**: Citation extraction linking retrieved chunks to source document/clause
+- [x] **RAG-03**: Retrieval that returns relevant CCoP clauses for compliance queries
+- [x] **RAG-04**: Re-ranking to prioritize most relevant results
+- [x] **RAG-05**: Citation extraction linking retrieved chunks to source document/clause
 - [ ] **RAG-06**: Integration with existing Clean Architecture (port/adapter pattern)
 
 ### Fine-Tuning
@@ -73,17 +73,17 @@ Research will determine optimal configuration. Requirements define outcomes.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 1, 3.2 | Pending — ground-truth clause-reference audit happens in Phase 3.2 sub-goal B |
-| DATA-02 | Phase 1, 3.2 | Pending — ground-truth clause-reference audit happens in Phase 3.2 sub-goal B |
+| DATA-01 | Phase 1, 3.2 | Complete — ground-truth clause-reference audit delivered by Phase 3.2 sub-goal B (verifier passed 18/18 on 2026-04-22) |
+| DATA-02 | Phase 1, 3.2 | Complete — ground-truth clause-reference audit delivered by Phase 3.2 sub-goal B (verifier passed 18/18 on 2026-04-22) |
 | DATA-03 | Phase 1 | Pending |
 | DATA-04 | Phase 1 | Pending |
 | DATA-05 | Phase 1 | Pending |
 | DATA-06 | Phase 1 | Pending |
 | RAG-01 | Phase 3 | Pending |
 | RAG-02 | Phase 3 | Pending |
-| RAG-03 | Phase 3, 3.2 | Pending — corpus re-ingestion + chunker fix in Phase 3.2 sub-goal A |
-| RAG-04 | Phase 3, 3.2 | Pending — corpus re-ingestion + chunker fix in Phase 3.2 sub-goal A |
-| RAG-05 | Phase 3, 3.2 | Pending — corpus re-ingestion + chunker fix in Phase 3.2 sub-goal A |
+| RAG-03 | Phase 3, 3.2 | Complete — corpus re-ingestion + chunker fix delivered by Phase 3.2 sub-goal A (verifier passed 18/18 on 2026-04-22) |
+| RAG-04 | Phase 3, 3.2 | Complete — corpus re-ingestion + chunker fix delivered by Phase 3.2 sub-goal A (verifier passed 18/18 on 2026-04-22) |
+| RAG-05 | Phase 3, 3.2 | Complete — corpus re-ingestion + chunker fix delivered by Phase 3.2 sub-goal A (verifier passed 18/18 on 2026-04-22) |
 | RAG-06 | Phase 3 | Pending |
 | FT-01 | Phase 5 | Pending |
 | FT-02 | Phase 5 | Pending |
@@ -113,4 +113,4 @@ Research will determine optimal configuration. Requirements define outcomes.
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-04-21 — (1) EVAL-02/EVAL-03 phase mapping expanded with Phase 3.1 infrastructure status after Phase 3.1 verified complete (9/9 success criteria PASS); (2) former Phases 3.2 (ingestion correctness) and 3.3 (clause audit) merged into single Phase 3.2 "Corpus and Ground Truth Correctness" — DATA-01/-02 and RAG-03/-04/-05 mappings updated accordingly*
+*Last updated: 2026-04-22 — Phase 3.2 (Corpus and Ground Truth Correctness) verified complete (18/18 success criteria PASS). DATA-01, DATA-02, RAG-03, RAG-04, RAG-05 marked Complete; corpus re-ingested with all CCoP 2.0 sections 5.1-5.12 present, 691-entry clause inventory built, ground truth audited and corrected, validator hard-fail + CLI wired.*

@@ -23,7 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2.4: LLM Judge Redesign and Metric Simplification** (INSERTED) - Replace per-benchmark rubrics with universal reasoning depth + hallucination check dimensions, drop factual_precision from scoring
 - [ ] **Phase 3: Ground Truth V2 Overhaul** - Replace v1 ground truth with research-informed v2 (~435 cases, 18 benchmarks, unified schema, Risk Manager focus)
 - [x] **Phase 3.1: Eval Run Traceability & I/O Capture** (INSERTED) - `run_id` format, full prompt/context capture, token/latency propagation in result JSON
-- [ ] **Phase 3.2: Corpus and Ground Truth Correctness** (INSERTED) - Merged phase: fix clause chunker regex gaps (sections 5.3/5.4 missing from index), re-ingest corpus, then audit v2 `clause_reference` fields against CCoP 2.0 PDF and fix hallucinated clause numbers
+- [x] **Phase 3.2: Corpus and Ground Truth Correctness** (INSERTED) - Merged phase: fix clause chunker regex gaps (sections 5.3/5.4 missing from index), re-ingest corpus, then audit v2 `clause_reference` fields against CCoP 2.0 PDF and fix hallucinated clause numbers
 - [ ] **Phase 4: Re-Baseline & Re-Evaluate** - Run both base model and RAG-augmented on expanded dataset for statistically valid comparison
 - [ ] **Phase 5: Fine-Tuning Pipeline** - QLoRA training on reasoning gaps identified by Phase 4
 - [ ] **Phase 6: Hybrid Integration** - Combine fine-tuned model + RAG with adaptive routing
@@ -309,13 +309,13 @@ Plans:
 **Plans**: 7 plans (sub-goal A: 4 plans, sub-goal B: 3 plans — executed sequentially, A before B)
 
 Plans:
-- [ ] 03.2-01-PLAN.md — Pre-chunker Docling audit + CLAUSE_PATTERN regex extension + remove <30-word merge rule + regression tests
-- [ ] 03.2-02-PLAN.md — Table chunks (metadata.type='table' + parent_clause) + ingestion TOC sanity gate
-- [ ] 03.2-03-PLAN.md — Drop + re-ingest ccop_clauses_hybrid + post-ingest section/phrase verification (human checkpoint)
-- [ ] 03.2-04-PLAN.md — B3-001 hybrid re-eval proves context_recall > 0 (sub-goal A closeout, human checkpoint)
-- [ ] 03.2-05-PLAN.md — Clause inventory extraction script + committed clause_inventory.json + integrity tests (human checkpoint)
-- [ ] 03.2-06-PLAN.md — Audit script (ID existence + in-text citation + semantic mismatch) + apply corrections / mark deprecated (human checkpoint)
-- [ ] 03.2-07-PLAN.md — Extend validator with hard-fail gates + `ccop-eval validate-ground-truth` CLI + eval-pipeline deprecated-case skip
+- [x] 03.2-01-PLAN.md — Pre-chunker Docling audit + CLAUSE_PATTERN regex extension + remove <30-word merge rule + regression tests
+- [x] 03.2-02-PLAN.md — Table chunks (metadata.type='table' + parent_clause) + ingestion TOC sanity gate
+- [x] 03.2-03-PLAN.md — Drop + re-ingest ccop_clauses_hybrid + post-ingest section/phrase verification (human checkpoint)
+- [x] 03.2-04-PLAN.md — B3-001 hybrid re-eval proves context_recall > 0 (sub-goal A closeout, human checkpoint)
+- [x] 03.2-05-PLAN.md — Clause inventory extraction script + committed clause_inventory.json + integrity tests (human checkpoint)
+- [x] 03.2-06-PLAN.md — Audit script (ID existence + in-text citation + semantic mismatch) + apply corrections / mark deprecated (human checkpoint)
+- [x] 03.2-07-PLAN.md — Extend validator with hard-fail gates + `ccop-eval validate-ground-truth` CLI + eval-pipeline deprecated-case skip
 
 ### Phase 4: Re-Baseline & Re-Evaluate
 **Goal**: Run both base model and RAG-augmented model on v2 ground truth (~435 cases, 18 benchmarks) for statistically valid comparison, replacing the 118-case results
