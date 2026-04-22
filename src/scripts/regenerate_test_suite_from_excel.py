@@ -52,8 +52,10 @@ COL_EXPECTED_RESP = 11
 COL_REMARKS = 19
 
 B21_EXEMPT_TOKEN = "[AUDIT_EXEMPT:"
+DEPRECATE_TOKEN = "[DEPRECATED:"
 
 _SUPPORT_RE = re.compile(r"\[support:\s*([^\]]+)\]", re.IGNORECASE)
+_DEPRECATE_RE = re.compile(r"\[DEPRECATED:\s*([^\]]+)\]")
 
 
 def _parse_clause_refs(cell_value: str) -> tuple[list[str], list[str]]:
@@ -109,13 +111,22 @@ def _load_excel_map(
         primary, support = _parse_clause_refs(
             clause_cell if isinstance(clause_cell, str) else str(clause_cell or "")
         )
-        audit_exempt = B21_EXEMPT_TOKEN in str(remarks or "")
+        remarks_str = str(remarks or "")
+        audit_exempt = B21_EXEMPT_TOKEN in remarks_str
+        deprecated = False
+        deprecated_reason = ""
+        depr_match = _DEPRECATE_RE.search(remarks_str)
+        if depr_match:
+            deprecated = True
+            deprecated_reason = depr_match.group(1).strip()
         result[str(test_id)] = {
             "section": str(section) if section is not None else "",
             "clause_reference": primary,
             "support_citations": support,
             "expected_response": str(expected_resp) if expected_resp is not None else "",
             "audit_exempt": audit_exempt,
+            "deprecated": deprecated,
+            "deprecated_reason": deprecated_reason,
         }
     return result
 
@@ -154,6 +165,16 @@ def _sync_line(
     if excel_entry["audit_exempt"] and not meta.get("audit_exempt"):
         changes.append("audit_exempt: False → True")
         meta["audit_exempt"] = True
+
+    # Deprecation — write to top-level per CONTEXT.md locked decision.
+    if excel_entry.get("deprecated"):
+        if line_obj.get("status") != "deprecated":
+            changes.append("status: → 'deprecated'")
+            line_obj["status"] = "deprecated"
+        reason = excel_entry.get("deprecated_reason") or ""
+        if reason and line_obj.get("deprecated_reason") != reason:
+            changes.append(f"deprecated_reason: → '{reason}'")
+            line_obj["deprecated_reason"] = reason
 
     new_resp = excel_entry["expected_response"]
     gt = line_obj.setdefault("ground_truth", {})

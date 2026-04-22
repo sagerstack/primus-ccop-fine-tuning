@@ -144,6 +144,105 @@ def _b24_rule(test_id: str) -> tuple[str, str, tuple[str, str] | None] | None:
     return ("7", clause, None)
 
 
+# ---- Singletons per-row table (from proposal "Singletons" section) ----------
+# Each entry: (section, clause_refs, optional (old, new) in-text patch).
+
+_SINGLETON_ROW_MAP: dict[str, tuple[str, str, tuple[str, str] | None]] = {
+    "B1-001": (
+        "1",
+        "1.2.1, 1.4.1 [support: Cybersecurity Act 2018 §7, RESPONSE-TO-FEEDBACK Q2.2-2.3]",
+        None,
+    ),
+    "B1-017": ("5", "5.1.2, 5.3.1, 5.7.2", ("Section 5.1.5", "Section 5.7.2")),
+    "B2-001": ("5", "5.1.2, 5.7.2", ("Clause 5.1.5", "Clause 5.7.2(b)")),
+    "B3-005": (
+        "1",
+        "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
+        None,
+    ),
+    "B3-019": (
+        "1",
+        "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
+        None,
+    ),
+    "B3-024": (
+        "1",
+        "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
+        None,
+    ),
+    "B05-013": (
+        "1",
+        "1.6.1, 1.6.2, 1.6.3, 3.2.1 [support: Cybersecurity Act 2018 §11(7)]",
+        ("Section 4.3", "Section 1.6 (Waiver)"),
+    ),
+    "B05-015": ("3", "3.8.1, 3.8.2, 3.8.3", ("Section 9.3.1", "Section 3.8")),
+    "B05-016": (
+        "5",
+        "5.11.1, 5.11.2, 5.11.3, 5.11.4",
+        ("Section 5.3.4", "Section 5.11"),
+    ),
+    # B05-018 handled by DEPRECATE cluster below, not here.
+    "B06-002": ("5", "5.1.2, 5.3.1, 5.7.2", ("Section 5.2.3", "Section 5.3.1(c)")),
+    "B06-013": ("5", "5.2.1, 5.2.2", ("Section 5.2.5", "Section 5.2.2")),
+    "B06-018": ("8", "8.2.1, 8.2.2", ("Section 7.4.1", "Section 8.2")),
+    "B06-019": (
+        "3",
+        "3.2.1, 3.2.2 [support: Risk Assessment Guide §3]",
+        ("Section 4.2.1", "Section 3.2"),
+    ),
+    "B07-007": ("5", "5.2.2, 5.3.1", ("Section 5.2.5", "Section 5.2.2")),
+    "B07-010": ("5", "5.3.1", ("Section 5.2.6", "Section 5.3.1")),
+    "B07-015": ("6", "6.2.1, 6.2.2, 6.2.3", ("Section 6.3.4", "Section 6.2")),
+    "B07-017": ("5", "5.5.1, 5.5.2, 10.2.1", ("Section 5.4.2", "Section 5.5")),
+    "B07-018": ("5", "5.7.1, 5.7.2, 10.2.3", ("Section 5.4.4", "Section 5.7")),
+    "B07-027": ("5", "5.1.2, 5.7.2", ("Section 5.2.3", "Section 5.7.2")),
+    "B12-001": (
+        "5",
+        "5.1.2, 5.3.1, 5.7.2 [support: Auditing Guidelines for CII]",
+        ("CCoP 2.0 5.2.3", "CCoP 2.0 §5.3.1(c)"),
+    ),
+    "B12-005": (
+        "4",
+        "4.1.1, 4.1.2 [support: Auditing Guidelines for CII]",
+        ("CCoP 2.0 4.2.2", "CCoP 2.0 §4.1"),
+    ),
+    "B12-008": (
+        "8",
+        "8.2.1, 8.2.2, 8.2.3, 8.2.4 [support: Auditing Guidelines for CII]",
+        ("CCoP 2.0 7.4.1", "CCoP 2.0 §8.2"),
+    ),
+    "B12-014": (
+        "5",
+        "5.2.1, 5.2.2 [support: Auditing Guidelines for CII]",
+        ("CCoP 2.0 5.2.5", "CCoP 2.0 §5.2.2"),
+    ),
+    "B12-016": (
+        "3",
+        "3.8.1, 3.8.2, 3.8.3, 3.8.4, 3.8.5 [support: Auditing Guidelines for CII]",
+        ("CCoP 2.0 9.3.1", "CCoP 2.0 §3.8"),
+    ),
+    "B12-020": (
+        "3",
+        "3.2.1, 3.2.2 [support: Auditing Guidelines for CII, Risk Assessment Guide §3]",
+        ("CCoP 2.0 4.2.1", "CCoP 2.0 §3.2"),
+    ),
+}
+
+
+def _singleton_rule(
+    test_id: str,
+) -> tuple[str, str, tuple[str, str] | None] | None:
+    return _SINGLETON_ROW_MAP.get(test_id)
+
+
+# ---- DEPRECATE cluster (B05-018: cross-border data out of CCoP scope) -------
+
+_DEPRECATE_MAP: dict[str, str] = {
+    "B05-018": "Cross-border data transfer scoped to PDPA, not CCoP 2.0",
+}
+DEPRECATE_MARKER_PREFIX = "[DEPRECATED: "
+
+
 # ---- Cluster → (matcher, rule_fn, label) ------------------------------------
 
 ClusterMatcher = Callable[[str, str], bool]  # (test_id, current_clause_cell) -> bool
@@ -199,6 +298,11 @@ CLUSTERS: dict[str, tuple[ClusterMatcher, RuleFn, str]] = {
         _bench_and_clause("B05-", "5.2.3"),
         _b05_523_rule,
         "B05 5.2.3 → 5.2.1",
+    ),
+    "SINGLETONS": (
+        lambda tid, _cell: tid in _SINGLETON_ROW_MAP,
+        _singleton_rule,
+        "Verified singletons (26 rows) — per-row mapping from proposal",
     ),
 }
 
@@ -293,6 +397,31 @@ def _apply_cluster(
     return matched, modified
 
 
+def _apply_deprecate(ws: Worksheet, dry_run: bool) -> tuple[int, int]:
+    matched = 0
+    modified = 0
+    print("\n-- DEPRECATE marker --")
+    for row in ws.iter_rows(min_row=2, values_only=False):
+        test_id = row[COL_TEST_ID - 1].value
+        if not test_id or str(test_id) not in _DEPRECATE_MAP:
+            continue
+        matched += 1
+        remarks_cell = row[COL_REMARKS - 1]
+        current = str(remarks_cell.value or "")
+        reason = _DEPRECATE_MAP[str(test_id)]
+        marker = f"{DEPRECATE_MARKER_PREFIX}{reason}]"
+        if DEPRECATE_MARKER_PREFIX in current:
+            print(f"  [noop] {test_id}: already marked deprecated")
+            continue
+        new_value = (current + " " + marker).strip()
+        print(f"  [edit] {test_id}: col19 += '{marker}'")
+        if not dry_run:
+            remarks_cell.value = new_value
+        modified += 1
+    print(f"  total: matched={matched}, modified={modified}")
+    return matched, modified
+
+
 def _apply_b21_exempt(ws: Worksheet, dry_run: bool) -> tuple[int, int]:
     matched = 0
     modified = 0
@@ -324,14 +453,14 @@ def main() -> int:
     parser.add_argument(
         "--cluster",
         action="append",
-        choices=list(CLUSTERS.keys()) + ["B21_EXEMPT"],
-        help="Cluster(s) to apply. Repeatable.",
+        choices=list(CLUSTERS.keys()) + ["B21_EXEMPT", "DEPRECATE"],
+        help="Cluster(s) to apply. Repeatable. DEPRECATE opts-in to B05-018 deprecation.",
     )
     parser.add_argument(
         "--all",
         action="store_true",
-        help=f"Apply every REMAP-ALL cluster: {REMAP_ALL_CLUSTERS} + B21_EXEMPT. "
-        "Does NOT apply B24 (per-row) or B02/B05 (provisional) — use --cluster for those.",
+        help=f"Apply every REMAP-ALL cluster: {REMAP_ALL_CLUSTERS} + SINGLETONS + B21_EXEMPT. "
+        "Does NOT apply B24 (per-row), B02/B05 provisional clusters, or DEPRECATE — use --cluster for those.",
     )
     parser.add_argument(
         "--dry-run",
@@ -352,6 +481,7 @@ def main() -> int:
     clusters_to_apply: list[str] = []
     if args.all:
         clusters_to_apply.extend(REMAP_ALL_CLUSTERS)
+        clusters_to_apply.append("SINGLETONS")
         clusters_to_apply.append("B21_EXEMPT")
     if args.cluster:
         for c in args.cluster:
@@ -376,6 +506,8 @@ def main() -> int:
     for key in clusters_to_apply:
         if key == "B21_EXEMPT":
             m, n = _apply_b21_exempt(ws, args.dry_run)
+        elif key == "DEPRECATE":
+            m, n = _apply_deprecate(ws, args.dry_run)
         else:
             m, n = _apply_cluster(ws, key, args.dry_run)
         totals["matched"] += m
