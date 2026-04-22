@@ -512,7 +512,9 @@ def load_test_suite(test_suite_dir: Path) -> list[dict]:
     Load every JSONL file under test_suite_dir.
 
     Returns a flat list of test case dicts with a "_source_file" key injected.
-    Skips deprecated test cases (status == "deprecated").
+    Skips deprecated test cases (status == "deprecated") and cases marked
+    `metadata.audit_exempt=true` (e.g. B21 hallucination fixtures whose
+    clause references are intentionally fabricated).
     """
     test_cases: list[dict] = []
     jsonl_files = sorted(test_suite_dir.glob("*.jsonl"))
@@ -535,6 +537,12 @@ def load_test_suite(test_suite_dir: Path) -> list[dict]:
                 if tc.get("status") == "deprecated":
                     logger.debug(
                         f"Skipping deprecated case {tc.get('test_id', '?')} in {path.name}"
+                    )
+                    continue
+
+                if tc.get("metadata", {}).get("audit_exempt"):
+                    logger.debug(
+                        f"Skipping audit_exempt case {tc.get('test_id', '?')} in {path.name}"
                     )
                     continue
 
