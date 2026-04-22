@@ -239,20 +239,83 @@ Not incident response but BCP/DRP recovery-related (NN suggests `8.2.1`). If que
 
 ---
 
-## Singletons (39 rows) — Per-Row Handling
+## Singletons (26 non-B21 rows) — Verified Per-Row Remap Table
 
-The singleton table in `audit-review-worksheet.md` lines 286–326 lists each case with its current citation, NN suggestion, and confidence. Each requires row-by-row verification:
+**Verification method:** For each row, read the question + expected_response from the source JSONL, cross-reference against CCoP 2.0 PDF chapter/clause boundaries (see §5.1.1-4, §5.2.1-2, §5.3.1, §5.4.1, §5.5.1-2, §5.7.1-2, §8.2.1-4, §10.2.1-7 — `/tmp/ccop-markdown/ccop-2.0.md`). Key facts verified from the regulation text:
+- **§5.1** has only 5.1.1–5.1.4 (no 5.1.5, no standalone MFA clause at §5.1)
+- **§5.2** has only 5.2.1, 5.2.2 (account mgmt + review)
+- **§5.3** has only 5.3.1 (privileged access; sub-item (c) is MFA for privileged accounts)
+- **§5.4** has only 5.4.1 (domain controller)
+- **§5.7** has 5.7.1 and 5.7.2 — **§5.7.2(b) explicitly mandates MFA for remote connections**
+- **§8** has only 8.1 and 8.2 (no 8.5)
+- **§9** has only 9.1 and 9.2 (no 9.3, 9.4, 9.5)
+- **§10.2** is OT-specific (segmentation, authentication, fail-safe)
 
-- **B21 rows (13)** → **audit-exempt**; do NOT correct (hallucination benchmark, by design).
-- **B1-001** `2.3` → likely `1.2.1` (scope clause); verify.
-- **B1-017** `5.1.5` → clause exists in CCoP 2.0 (§5.1 Identity & Access Mgmt); likely false-positive. Verify.
-- **B2-001** `5.1.5` → same as above.
-- **B3-019** `8.5` → does not exist; remap to `8.2.x` or `7.1.x` depending on question.
-- **B3-024** `9.4` → does not exist in CCoP 2.0; remap based on question.
-- **B05-013** `4.3` → does not exist; remap to `3.2.x` if risk-related.
-- **B05/B06/B07/B12 chapter-5/7/9 citations** → verify each; most are likely valid or near-valid.
-- **B24-020** `9.4` → remap to `8.1.x` (backup failure).
-- **B24-023** `8.5` → remap to `7.1.1(g)`.
+### Per-Row Proposals
+
+| Test ID | Current clause | Proposed primary | Supporting | Rationale (from ER/question) |
+|---------|---------------|------------------|------------|------------------------------|
+| B1-001 | Section 11 Cybersecurity Act, RESPONSE-TO-FEEDBACK Q2.2-2.3 | `1.2.1, 1.4.1` | keep `Cybersecurity Act 2018 §7`, keep `RESPONSE-TO-FEEDBACK Q2.2-2.3` | CII digital-boundary scope — §1.2 defines CII; §1.4 legal effect/application |
+| B1-017 | `5.1.5, 5.3` | `5.1.2, 5.3.1, 5.7.2` | — | CCoP 1→2 access control gaps: auth controls + PAM + remote MFA |
+| B2-001 | `5.1.5` | `5.1.2, 5.7.2` | — | VPN SMS-OTP compliance — **§5.7.2(b) explicitly requires MFA for remote connection**. In-text `5.1.5` in ER also replaced → `5.7.2`. |
+| B3-005 | `Section 2` | `1.6.1, 1.6.2, 1.6.3` | `Cybersecurity Act 2018 §11(7)` | ER explicitly mentions "Section 11(7) waiver may be applicable" |
+| B3-019 | `Section 2` | `1.6.1, 1.6.2, 1.6.3` | `Cybersecurity Act 2018 §11(7)` | Same template as B3-005 |
+| B3-024 | `Section 2` | `1.6.1, 1.6.2, 1.6.3` | `Cybersecurity Act 2018 §11(7)` | Same template as B3-005 |
+| B05-013 | `4.3` | `1.6.1, 1.6.2, 1.6.3, 3.2.1` | `Cybersecurity Act 2018 §11(7)` | Legacy system exemption — waiver mechanism + risk mgmt framework for compensating controls |
+| B05-015 | `9.3.1` | `3.8.1, 3.8.2, 3.8.3` | — | Hardware/software supply chain → §3.8 Outsourcing & Vendor Mgmt |
+| B05-016 | `5.3.4` | `5.11.1, 5.11.2, 5.11.3, 5.11.4` | — | BYOD/mobile devices → §5.11 Portable Computing Devices |
+| B05-018 | `5.5.5` | **DEPRECATE** | — | Cross-border data transfer — not an explicit CCoP 2.0 requirement (handled by PDPA, not CSA). ER admits "CSA notification may be required" → out of scope. |
+| B06-002 | `5.2.3` | `5.1.2, 5.3.1, 5.7.2` | — | MFA objective — generic auth + PAM (5.3.1(c)) + remote (5.7.2(b)) |
+| B06-013 | `5.2.5` | `5.2.1, 5.2.2` | — | Periodic access review/privilege creep — §5.2.1(d)(e) monitoring/deletion, §5.2.2 mandatory 12-month review |
+| B06-018 | `7.4.1` | `8.2.1, 8.2.2` | — | BCP/cyber resilience → §8.2 BCP/DRP |
+| B06-019 | `4.2.1` | `3.2.1, 3.2.2` | `Risk Assessment Guide §3` | Risk assessment purpose → §3.2 Risk Management framework |
+| B07-007 | `5.2.5` | `5.2.2, 5.3.1` | — | 3-year review lapse on admin accounts → §5.2.2 (≥12-month review) + §5.3.1 (privileged accounts) |
+| B07-010 | `5.2.6` | `5.3.1` | — | Break-glass/emergency access → §5.3.1 PAM scope |
+| B07-015 | `6.3.4` | `6.2.1, 6.2.2, 6.2.3` | — | Alert threshold tuning/monitoring → §6.2 Monitoring & Detection |
+| B07-017 | `5.4.2` | `5.5.1, 5.5.2, 10.2.1` | — | OT flat network — §5.5 segmentation + §10.2.1 OT CII separation |
+| B07-018 | `5.4.4` | `5.7.1, 5.7.2, 10.2.3` | — | Vendor direct OT connections → §5.7 remote access + §10.2.3 OT-vs-enterprise auth separation |
+| B07-027 | `5.2.3` | `5.1.2, 5.7.2` | — | MFA exemption policy — generic auth + remote (5.7.2(b)) |
+| B12-001 | `5.2.3` | `5.1.2, 5.3.1, 5.7.2` | `Auditing Guidelines for CII` | MFA audit perspective — triple-clause coverage |
+| B12-005 | `4.2.2` | `4.1.1, 4.1.2` | `Auditing Guidelines for CII` | CII asset inventory → §4.1 Asset Management |
+| B12-008 | `7.4.1` | `8.2.1, 8.2.2, 8.2.3, 8.2.4` | `Auditing Guidelines for CII` | BCP audit → §8.2 |
+| B12-014 | `5.2.5` | `5.2.1, 5.2.2` | `Auditing Guidelines for CII` | Access control review audit |
+| B12-016 | `9.3.1` | `3.8.1, 3.8.2, 3.8.3, 3.8.4, 3.8.5` | `Auditing Guidelines for CII` | Supply chain audit → §3.8 Outsourcing & Vendor Mgmt |
+| B12-020 | `4.2.1` | `3.2.1, 3.2.2` | `Auditing Guidelines for CII`, `Risk Assessment Guide §3` | Risk-based methodology audit → §3.2 |
+
+### Section (col 7) Corrections
+
+The `CCoP Section` column (col 7) for all singleton rows above shall be updated to match the chapter of the first listed primary clause (e.g. B05-013 → `1`; B05-015 → `3`; B05-016 → `5`; B07-015 → `6`; etc.).
+
+### Deprecation (1 row)
+
+- **B05-018** — cross-border data transfer is not a CCoP 2.0 requirement. Mark `status: "deprecated"`, `deprecated_reason: "Cross-border data transfer scoped to PDPA, not CCoP 2.0"`. Retained per CONTEXT.md locked decision (no deletion).
+
+### In-Text Citation Patches (Pass 2 fix-ups)
+
+Several singletons have the old invalid citation embedded in `expected_response` text, not just in `metadata.clause_reference`. The patcher must also perform a textual substitution:
+
+| Test ID | Old substring in ER | New substring |
+|---------|--------------------|--------------|
+| B2-001 | `Clause 5.1.5` / `Section 5.1.5` | `Clause 5.7.2(b)` / `Section 5.7.2` |
+| B05-013 | `Section 4.3` | `Section 1.6 (Waiver)` |
+| B05-015 | `Section 9.3.1` | `Section 3.8` |
+| B05-016 | `Section 5.3.4` | `Section 5.11` |
+| B06-002 | `Section 5.2.3` | `Section 5.3.1(c)` |
+| B06-013 | `Section 5.2.5` | `Section 5.2.2` |
+| B06-018 | `Section 7.4.1` | `Section 8.2` |
+| B06-019 | `Section 4.2.1` | `Section 3.2` |
+| B07-007 | `Section 5.2.5` | `Section 5.2.2` |
+| B07-010 | `Section 5.2.6` | `Section 5.3.1` |
+| B07-015 | `Section 6.3.4` | `Section 6.2` |
+| B07-017 | `Section 5.4.2` | `Section 5.5` |
+| B07-018 | `Section 5.4.4` | `Section 5.7` |
+| B07-027 | `Section 5.2.3` | `Section 5.7.2` |
+| B12-001 | `CCoP 2.0 5.2.3` | `CCoP 2.0 §5.3.1(c)` |
+| B12-005 | `CCoP 2.0 4.2.2` | `CCoP 2.0 §4.1` |
+| B12-008 | `CCoP 2.0 7.4.1` | `CCoP 2.0 §8.2` |
+| B12-014 | `CCoP 2.0 5.2.5` | `CCoP 2.0 §5.2.2` |
+| B12-016 | `CCoP 2.0 9.3.1` | `CCoP 2.0 §3.8` |
+| B12-020 | `CCoP 2.0 4.2.1` | `CCoP 2.0 §3.2` |
 
 ---
 
@@ -274,11 +337,16 @@ Action independent of remapping: add a column (e.g., `audit_exempt: true`) or sh
 | B24 | 24 | REMAP-PER-CASE → 7.1.x variants (table above) | B24-001..B24-025 (exc. B24-022) |
 | B07 `4.2.2` | 4 | REMAP-ALL → `3.2.2` | B07-001..005 |
 | B03 `11.7` | 2 | REMAP-ALL → `1.6.x` | B3-004, B3-011 |
-| Medium+singletons | ~40 | REMAP-PER-CASE (verify first) | various |
+| B02 `5.6.4` | 4 | REMAP-PER-CASE → `{5.6.1, 5.6.2, 5.6.3}` | B2-003, B2-010, B2-014, B2-024 |
+| B05 `5.2.3` | 2 | REMAP-ALL → `5.2.1` (provisional) | B05-002, B05-019 |
+| B24 `9.5` | 2 | REMAP-PER-CASE → `7.1.1(i), 7.1.4` | B24-011, B24-013 |
+| B03 `4.2` | 2 | REMAP-PER-CASE → `3.2.2` (provisional) | B3-006, B3-021 |
+| Singletons verified | 26 | REMAP-PER-CASE (table above) | B1, B2, B3, B05, B06, B07, B12 singletons |
+| Singleton deprecations | 1 | DEPRECATE | B05-018 |
 | B21 (all) | 13 | AUDIT-EXEMPT, no correction | B21-001..B21-021 (subset) |
 
-**Net structural remaps:** ~100 rows (B08+B09+B22+B24+B07/B03 clusters)
-**Per-case verification queue:** ~40 rows (singletons + small clusters)
+**Net structural remaps:** 126 rows (~100 from major clusters + 26 verified singletons)
+**Deprecations:** 1 row (B05-018)
 **No-op (B21 exempt):** 13 rows
 
 ---
