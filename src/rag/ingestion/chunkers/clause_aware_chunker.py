@@ -15,10 +15,22 @@ logger = logging.getLogger(__name__)
 
 # Regex pattern for CCoP clause numbering.
 #
-# Matches two heading formats produced by Docling's Classic pipeline:
+# Matches three heading formats produced by Docling's Classic pipeline:
 #   - Bare digit:  "5.2.2 The CIIO shall perform a review..."
 #   - ## prefix:   "## 5.3 Privileged Access Management"
 #                  "## 5.3.1 With respect to privileged accounts..."
+#   - list-item:   "- 6.1.1 The CIIO shall generate, collect and store logs..."
+#
+# The list-item form occurs when a numbered clause immediately introduces a
+# markdown sub-list (Docling assimilates the clause into the surrounding
+# "- (a) ... - (b) ..." structure). Known cases in CCoP 2.0: 6.1.1, 8.2.5.
+# Without this branch, those clauses are silently absorbed into the parent
+# chunk (6.1, 8.2) and become unsearchable as discrete clauses — causing
+# inventory/Qdrant asymmetry that the ground-truth audit flags as Pass 3 hits.
+#
+# The list-item branch is restricted to hierarchical IDs (\d+(?:\.\d+)+ — at
+# least one dot) to avoid matching plain numbered list items like "- 1 Foo"
+# that appear in body prose of legal documents (e.g. Cybersecurity Act 2018).
 #
 # Also matches item-letter notation "5.3.1(c) Implement multi-factor..." when present,
 # though in practice Docling renders sub-items as "- (c) ..." list syntax inside the
@@ -28,7 +40,8 @@ logger = logging.getLogger(__name__)
 # Chunks stop at the clause level (X.Y.Z or X.Y). Item-letter sub-items remain
 # embedded in parent clause text per the CONTEXT.md leaf-depth decision.
 CLAUSE_PATTERN = re.compile(
-    r"^(?:##\s+)?(\d+(?:\.\d+)*(?:\([a-z]\))?)\s+(.+?)$", re.MULTILINE
+    r"^(?:##\s+|-\s+(?=\d+\.))?(\d+(?:\.\d+)*(?:\([a-z]\))?)\s+(.+?)$",
+    re.MULTILINE,
 )
 
 
