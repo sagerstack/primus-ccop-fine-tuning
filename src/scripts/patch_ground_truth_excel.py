@@ -210,7 +210,9 @@ _SINGLETON_ROW_MAP: dict[str, tuple[str, str, tuple[str, str] | None]] = {
         "3.2.1, 3.2.2 [support: Risk Assessment Guide §3]",
         ("Section 4.2.1", "Section 3.2"),
     ),
+    "B07-006": ("5", "5.2.1, 5.3.1", ("Section 5.2.4", "Section 5.2.1(c)")),
     "B07-007": ("5", "5.2.2, 5.3.1", ("Section 5.2.5", "Section 5.2.2")),
+    "B07-008": ("5", "5.2.1, 5.3.1", ("Section 5.2.4", "Section 5.2.1(a)")),
     "B07-010": ("5", "5.3.1", ("Section 5.2.6", "Section 5.3.1")),
     "B07-015": ("6", "6.2.1, 6.2.2, 6.2.3", ("Section 6.3.4", "Section 6.2")),
     "B07-017": ("5", "5.5.1, 5.5.2, 10.2.1", ("Section 5.4.2", "Section 5.5")),
@@ -322,7 +324,7 @@ CLUSTERS: dict[str, tuple[ClusterMatcher, RuleFn, str]] = {
     "SINGLETONS": (
         lambda tid, _cell: tid in _SINGLETON_ROW_MAP,
         _singleton_rule,
-        "Verified singletons (27 rows) — per-row mapping from proposal",
+        "Verified singletons (29 rows) — per-row mapping from proposal",
     ),
 }
 

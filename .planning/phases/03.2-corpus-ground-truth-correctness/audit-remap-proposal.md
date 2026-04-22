@@ -171,6 +171,28 @@ The question topics vary, so mapping is per-row. Proposed primary clauses are th
 
 **Note:** Wherever `col 7 = "CCoP 2.0 Section 8"` appears for a B24 row, update to `"CCoP 2.0 Section 7"`.
 
+### BONUS finding — B24-022 (unflagged by Pass-1, semantically wrong)
+
+**Not currently in patcher.** Pass-1 regex gate accepted col 8 = `8.1,8.2` because both clauses exist in CCoP. But Pass-2 semantic inspection reveals the topic is **threat intelligence pre-incident**, which §8.1 (Backup and Restoration) and §8.2 (BCP/DRP) do not cover.
+
+**ER text (current):**
+> Section 8.1 requires incident management policy include threat intelligence consumption … Pre-incident preparation is Section 8.2 (IR plan) and Section 5.1 (threat intelligence).
+
+**All three citations are wrong:**
+- §8.1 is Backup/Restoration, not IR policy
+- §8.2 is BCP/DRP, not IR plan — §7.1.1 is the IR plan clause
+- §5.1 is Security Policies / authentication, not threat intelligence — §6.4 is threat intel
+
+**Proposed (if user approves scope expansion):**
+- col 7: `CCoP 2.0 Section 8` → `7`
+- col 8: `8.1,8.2` → `6.4.1, 6.4.3, 7.1.1(a), 7.1.1(d) [support: 7.3.3(a)]`
+- col 11 in-text patches:
+  - `Section 8.1 requires incident management policy` → `Section 6.4 requires the CIIO to establish mechanisms to obtain and act on threat intelligence; Section 7.1.1(a) establishes the IR plan`
+  - `Section 8.2 (IR plan)` → `Section 7.1.1 (IR plan)`
+  - `Section 5.1 (threat intelligence)` → `Section 6.4 (Cyber Threat Intelligence)`
+
+**Defer to user:** This is an unflagged finding (outside the Pass-1 audit scope that drives this proposal). Option to either: (A) include in Phase C patcher, (B) leave for a future Pass-2 semantic audit phase, or (C) mark as separate follow-up issue.
+
 ---
 
 ## Cluster 5 — B07_GAP_IDENTIFICATION_QUALITY — `4.2.2` × 4
@@ -283,7 +305,7 @@ Not incident response but BCP/DRP recovery-related (NN suggests `8.2.1`). If que
 
 ---
 
-## Singletons (27 non-B21 rows) — Verified Per-Row Remap Table
+## Singletons (29 non-B21 rows) — Verified Per-Row Remap Table
 
 **Verification method:** For each row, read the question + expected_response from the source JSONL, cross-reference against CCoP 2.0 PDF chapter/clause boundaries (see §5.1.1-4, §5.2.1-2, §5.3.1, §5.4.1, §5.5.1-2, §5.7.1-2, §8.2.1-4, §10.2.1-7 — `/tmp/ccop-markdown/ccop-2.0.md`). Key facts verified from the regulation text:
 - **§5.1** has only 5.1.1–5.1.4 (no 5.1.5, no standalone MFA clause at §5.1)
@@ -315,7 +337,9 @@ Not incident response but BCP/DRP recovery-related (NN suggests `8.2.1`). If que
 | B06-013 | `5.2.5` | `5.2.1, 5.2.2` | — | Periodic access review/privilege creep — §5.2.1(d)(e) monitoring/deletion, §5.2.2 mandatory 12-month review |
 | B06-018 | `7.4.1` | `8.2.1, 8.2.2` | — | BCP/cyber resilience → §8.2 BCP/DRP |
 | B06-019 | `4.2.1` | `3.2.1, 3.2.2` | `Risk Assessment Guide §3` | Risk assessment purpose → §3.2 Risk Management framework |
+| B07-006 | `5.2.4` | `5.2.1, 5.3.1` | — | Shared admin accounts → §5.2.1(c) *"Ensure that shared user accounts are not created unless necessary"* + §5.3.1 (PAM) |
 | B07-007 | `5.2.5` | `5.2.2, 5.3.1` | — | 3-year review lapse on admin accounts → §5.2.2 (≥12-month review) + §5.3.1 (privileged accounts) |
+| B07-008 | `5.2.4` | `5.2.1, 5.3.1` | — | Service accounts with excessive permissions → §5.2.1(a) *"Grant to each account only the minimum privileges necessary"* + §5.3.1 (PAM) |
 | B07-010 | `5.2.6` | `5.3.1` | — | Break-glass/emergency access → §5.3.1 PAM scope |
 | B07-015 | `6.3.4` | `6.2.1, 6.2.2, 6.2.3` | — | Alert threshold tuning/monitoring → §6.2 Monitoring & Detection |
 | B07-017 | `5.4.2` | `5.5.1, 5.5.2, 10.2.1` | — | OT flat network — §5.5 segmentation + §10.2.1 OT CII separation |
@@ -350,7 +374,9 @@ Several singletons have the old invalid citation embedded in `expected_response`
 | B06-013 | `Section 5.2.5` | `Section 5.2.2` |
 | B06-018 | `Section 7.4.1` | `Section 8.2` |
 | B06-019 | `Section 4.2.1` | `Section 3.2` |
+| B07-006 | `Section 5.2.4` | `Section 5.2.1(c)` |
 | B07-007 | `Section 5.2.5` | `Section 5.2.2` |
+| B07-008 | `Section 5.2.4` | `Section 5.2.1(a)` |
 | B07-010 | `Section 5.2.6` | `Section 5.3.1` |
 | B07-015 | `Section 6.3.4` | `Section 6.2` |
 | B07-017 | `Section 5.4.2` | `Section 5.5` |
@@ -387,11 +413,12 @@ Action independent of remapping: add a column (e.g., `audit_exempt: true`) or sh
 | B05 `5.2.3` | 2 | REMAP-ALL → MFA bundle `5.1.2, 5.3.1, 5.7.2` | B05-002, B05-019 |
 | B24 `9.5` | 2 | REMAP-PER-CASE → `7.1.1(i), 7.1.4` | B24-011, B24-013 |
 | B03 `4.2` | 2 | REMAP-ALL → Waiver `1.6.1, 1.6.2, 1.6.3` (in SINGLETONS) | B3-006, B3-021 |
-| Singletons verified | 27 | REMAP-PER-CASE (table above) | B1, B2, B3, B05, B06, B07, B12 singletons |
+| Singletons verified | 29 | REMAP-PER-CASE (table above) | B1, B2, B3, B05, B06, B07, B12 singletons |
 | Singleton deprecations | 1 | DEPRECATE | B05-018 |
 | B21 (all) | 13 | AUDIT-EXEMPT, no correction | B21-001..B21-021 (subset) |
 
-**Net structural remaps:** 127 rows (~100 from major clusters + 27 verified singletons)
+**Net structural remaps:** 129 rows (~100 from major clusters + 29 verified singletons)
+**Pass-1 audit flag coverage:** 100% — all 71 non-B08/B09/B22 Pass-1 flagged test IDs now have an encoded rule in the patcher (B24 per-row, B21 exempt, cluster rules, singletons, deprecate).
 **Deprecations:** 1 row (B05-018)
 **No-op (B21 exempt):** 13 rows
 **Flagged for user decision (Cluster 6 CONCERN):** B02 `5.6.4` cluster — citation corrected to §5.10.1(e), but ER timeline claims (`14 days`, `30 days`) are fabricated and remain in the data pending user choice of Options 1/2/3.
