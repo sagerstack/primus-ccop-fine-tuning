@@ -77,12 +77,9 @@ SPARSE_MODEL = "Qdrant/bm25"
 # Regex patterns for Pass 2 in-text citation extraction
 # ---------------------------------------------------------------------------
 
-# CCoP-style dotted clause: "5.3.1(c)", "5.3.1", "10.2", "2.1.1"
-# Must be followed by a non-dot character (or end) to exclude "section 5.3"
-# being captured by the bare-digit branch when the following char is a digit.
-_DOTTED_CLAUSE_RE = re.compile(
-    r"\b(\d+(?:\.\d+)+(?:\([a-z]\))?)\b"
-)
+# CCoP dotted clause shape used inside context-anchored patterns:
+# "5.3.1(c)", "5.3.1", "10.2", "2.1.1"
+_CCOP_CLAUSE_SHAPE = r"\d+(?:\.\d+)+(?:\([a-z]\))?"
 
 # Matches version-number-like patterns to exclude from Pass 2 extraction.
 # "CCoP 2.0", "version 1.0", "MAS TRM 2.0" — two-segment X.0 forms are
@@ -91,7 +88,14 @@ _VERSION_NUMBER_RE = re.compile(r"^\d+\.0$")
 
 # Phrase-form dotted clause: "Clause 5.3.1(c)", "clause 5.3.1"
 _CLAUSE_PHRASE_RE = re.compile(
-    r"[Cc]lause\s+(\d+(?:\.\d+)+(?:\([a-z]\))?)"
+    rf"[Cc]lause\s+({_CCOP_CLAUSE_SHAPE})"
+)
+
+# Explicit CCoP attribution — "CCoP 2.0 Section 5.3.1", "CCoP 2.0, 5.3.1",
+# "CCoP 2.0 §5.3.1", "CCoP 2.0 clause 5.3.1". Must say CCoP 2.0 (or CCoP
+# without version) followed by a citation separator then the clause shape.
+_CCOP_ATTRIBUTED_RE = re.compile(
+    rf"\bCCoP(?:\s+2\.0)?\s*(?:[Ss]ection|§|[Cc]lause|,)\s*({_CCOP_CLAUSE_SHAPE})"
 )
 
 # "section N" / "Section N" — matches integer optionally followed by an
@@ -100,6 +104,7 @@ _CLAUSE_PHRASE_RE = re.compile(
 _SECTION_RE = re.compile(
     r"\b[Ss]ection\s+(\d+[A-Z]?)(?!\.)"
 )
+
 
 # ---------------------------------------------------------------------------
 # Canonical source-doc names (must match clause_inventory.json exactly)
@@ -354,9 +359,18 @@ def extract_intext_citations(expected_response: str) -> list[tuple[str, str]]:
     """
     Extract clause numbers cited inline in expected_response text.
 
-    Returns a deduplicated list of (clause_id, source_doc) pairs.
-    The CCoP dotted form goes to SOURCE_CCOP.
-    The "section N" form goes to SOURCE_CYBERSECURITY_ACT.
+    Returns a deduplicated list of (clause_id, source_doc) pairs — but only
+    for citations UNAMBIGUOUSLY attributed to a known source document. Bare
+    dotted numbers with no source context are NOT flagged (too many false
+    positives from supplementary-doc citations like "Risk Assessment Guide
+    §4.2" or "RESPONSE-TO-FEEDBACK Q2.2").
+
+    Attribution rules:
+      - "Clause X.Y" phrase form                      → SOURCE_CCOP
+      - "CCoP 2.0 Section/§/, X.Y" attributed form    → SOURCE_CCOP
+      - "Section N" (bare integer, no dot)            → SOURCE_CYBERSECURITY_ACT
+      - Anything else (bare dotted numbers, dotted    → skipped
+        numbers inside a supplementary-doc window)
 
     Deduplication is over the (clause_id, source_doc) pair.
     """
@@ -364,24 +378,23 @@ def extract_intext_citations(expected_response: str) -> list[tuple[str, str]]:
     results: list[tuple[str, str]] = []
 
     def _add(clause_id: str, source_doc: str) -> None:
+        if _VERSION_NUMBER_RE.match(clause_id):
+            return
         key = (clause_id, source_doc)
         if key not in seen:
             seen.add(key)
             results.append(key)
 
-    # Phrase-form first (higher specificity) to avoid double-counting
+    # Phrase-form: "Clause 5.3.1" → always CCoP (the word "Clause" is CCoP-exclusive
+    # in this corpus; supplementary docs use "§" or "Section N").
     for m in _CLAUSE_PHRASE_RE.finditer(expected_response):
         _add(m.group(1), SOURCE_CCOP)
 
-    # Bare dotted — skip if already captured via phrase form.
-    # Filter out version-number-like patterns (e.g. "2.0" from "CCoP 2.0").
-    for m in _DOTTED_CLAUSE_RE.finditer(expected_response):
-        token = m.group(1)
-        if _VERSION_NUMBER_RE.match(token):
-            continue
-        _add(token, SOURCE_CCOP)
+    # Explicit CCoP-attributed dotted clauses: "CCoP 2.0, 5.3.1", "CCoP 2.0 Section 5.3.1".
+    for m in _CCOP_ATTRIBUTED_RE.finditer(expected_response):
+        _add(m.group(1), SOURCE_CCOP)
 
-    # "section N" — Cybersecurity Act citations
+    # "section N" → Cybersecurity Act (bare integer with no dot separator).
     for m in _SECTION_RE.finditer(expected_response):
         _add(f"section {m.group(1)}", SOURCE_CYBERSECURITY_ACT)
 
