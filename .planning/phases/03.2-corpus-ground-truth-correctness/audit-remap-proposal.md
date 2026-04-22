@@ -190,9 +190,22 @@ The question topics vary, so mapping is per-row. Proposed primary clauses are th
 
 ## Cluster 6 — B02_COMPLIANCE_CLASSIFICATION — `5.6.4` × 4
 
-**Current citation:** `5.6.4` — **confirmed non-existent**. CCoP 2.0 §5.6 Network Security contains only `5.6.1`, `5.6.2`, `5.6.3`. NN suggests `5.6.1`. Depending on the exact question focus, remap to one of the three existing clauses.
+**Current citation:** `5.6.4` — **confirmed non-existent**. CCoP 2.0 §5.6 Network Security contains only `5.6.1`, `5.6.2`, `5.6.3`.
 
-### Proposal: **REMAP-PER-CASE** — walk through B2-003, B2-010, B2-014, B2-024 and pick from `{5.6.1, 5.6.2, 5.6.3}` per question content.
+**Topic correction after inspecting ER text:** All four cases (B2-003, B2-010, B2-014, B2-024) are about **patch management**, not Network Security. NN's `5.6.1` suggestion is wrong-chapter. The correct clause is **§5.10.1(e)** — *"Applying security patches in a timely manner"* under the Patch Management process.
+
+### ⚠ CONCERN — fabricated timelines in ER text
+
+The expected_response strings in these four B2 rows embed specific timelines (`"within 14 days"`, `"within 30 days"`) that are **NOT present in CCoP 2.0 §5.10.1 or any supporting document**. §5.10.1(e) says only *"timely manner"* with no day-count. The 14/30-day figures appear to be fabricated or imported from a different standard (possibly NIST SP 800-40 or a generic industry norm) and then attributed to CCoP.
+
+**Options for user decision:**
+1. **Accept §5.10.1(e) citation, leave ER timelines as-is** — citation is now correct, but ER claims "CCoP requires X within 14/30 days" which is not actually what the Code says. Downstream evaluation will continue scoring against the fabricated claim.
+2. **Deprecate all 4 cases** — mark as out-of-scope (CCoP does not mandate specific patch timelines).
+3. **Rewrite ER to match actual text** — replace day-counts with "timely manner" language per §5.10.1(e), preserving the test case but grounding it in actual CCoP text.
+
+**Recommendation:** Option 3 preserves test coverage while restoring correctness. Option 1 is the minimum structural fix (citation only) and is what the current patcher encodes (`_b02_564_rule` → §5.10.1(e)). Option 3 requires manual ER edits not yet in the patcher.
+
+### Proposal: **REMAP-ALL to §5.10.1(e)** (citation only — ER timeline resolution pending user decision on Options 1/2/3)
 
 ---
 
@@ -213,15 +226,46 @@ Same root cause as Cluster 3 (B22). The term "11.7" is an erroneous rendering of
 
 ## Cluster 8 — B03 `4.2` × 2
 
-**Rows:** B3-006, B3-021 — topic likely risk-related; REMAP per-case after reading each question text (provisionally `3.2.2`).
+**Rows:** B3-006, B3-021.
+
+**Topic correction after inspecting ER text:** Both cases are **templated Section 11(7) waiver** cases — their expected_response strings are identical to B3-005/019/024 ("A Section 11(7) waiver may be applicable if genuine technical constraints exist"). The `4.2` citation in col 8 is simply a different symptom of the same B03 template bug.
+
+### Proposal: **REMAP-ALL → same target as Cluster 7 / B22**
+
+| Field | Current | Proposed |
+|-------|---------|----------|
+| col 7 | `4` | `1` |
+| col 8 | `4.2` | `1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]` |
+
+**Apply to:** B3-006, B3-021 (encoded in SINGLETONS cluster — matches B3-005/019/024 pattern).
+
+### Latent broader issue — B03 templating
+
+Inspection of `b03_conditional_compliance_reasoning.jsonl` shows **28 of 29 B3 cases** have `clause_reference: ["Section 2"]` in their JSONL `metadata` (only B3-001 differs). The audit flagged only 7 B3 rows because the rest have a numeric `col 8` (e.g., `5.3.2`, `8.5`, `9.4`) that happens to pass the regex gate even though they're all variants of the same template. The `["Section 2"]` placeholder in the JSONL is itself invalid (CCoP §2 = "Audit", not general compliance).
+
+**Scope question for user:**
+- **A (current plan):** Fix only the 7 rows flagged by audit (B3-004, B3-005, B3-006, B3-011, B3-019, B3-021, B3-024).
+- **B (scope expansion):** Fix all 29 B3 cases by retiring the `["Section 2"]` placeholder and mapping each to its actual topical clause.
+
+Option B requires 22 additional row-level remaps (one per remaining B3 case). Defer to user — not included in current patcher.
 
 ---
 
 ## Cluster 9 — B05_CONTROL_COMPREHENSION — `5.2.3` × 2
 
-**Rows:** B05-002, B05-019. **Confirmed non-existent**: CCoP §5.2 Account Management contains only `5.2.1`, `5.2.2`. Remap to `5.2.1` (the primary account-management clause covering access / identity / MFA / privileged-access scope) or per-row, depending on question.
+**Rows:** B05-002, B05-019. **Confirmed non-existent**: CCoP §5.2 Account Management contains only `5.2.1`, `5.2.2`.
 
-### Proposal: **REMAP-ALL → `5.2.1`** (provisional — adjust per question if needed)
+**Topic correction after inspecting ER text:** Both cases are about **MFA** (Multi-Factor Authentication), not generic Account Management. §5.2 has no MFA clause — MFA is defined in:
+- `§5.3.1(c)` — MFA for privileged accounts (PAM)
+- `§5.7.2(b)` — MFA for remote connections
+- `§5.1.2` — generic authentication requirement that implicitly covers MFA
+
+### Proposal: **REMAP-ALL → `5.1.2, 5.3.1, 5.7.2`** (matches MFA singleton bundle used elsewhere, e.g. B1-017, B2-001, B06-002, B07-027, B12-001)
+
+| Field | Current | Proposed |
+|-------|---------|----------|
+| col 8 | `5.2.3` | `5.1.2, 5.3.1, 5.7.2` |
+| col 11 | "Section 5.2.3" | "Section 5.3.1(c)" |
 
 ---
 
@@ -239,7 +283,7 @@ Not incident response but BCP/DRP recovery-related (NN suggests `8.2.1`). If que
 
 ---
 
-## Singletons (26 non-B21 rows) — Verified Per-Row Remap Table
+## Singletons (27 non-B21 rows) — Verified Per-Row Remap Table
 
 **Verification method:** For each row, read the question + expected_response from the source JSONL, cross-reference against CCoP 2.0 PDF chapter/clause boundaries (see §5.1.1-4, §5.2.1-2, §5.3.1, §5.4.1, §5.5.1-2, §5.7.1-2, §8.2.1-4, §10.2.1-7 — `/tmp/ccop-markdown/ccop-2.0.md`). Key facts verified from the regulation text:
 - **§5.1** has only 5.1.1–5.1.4 (no 5.1.5, no standalone MFA clause at §5.1)
@@ -258,9 +302,11 @@ Not incident response but BCP/DRP recovery-related (NN suggests `8.2.1`). If que
 | B1-001 | Section 11 Cybersecurity Act, RESPONSE-TO-FEEDBACK Q2.2-2.3 | `1.2.1, 1.4.1` | keep `Cybersecurity Act 2018 §7`, keep `RESPONSE-TO-FEEDBACK Q2.2-2.3` | CII digital-boundary scope — §1.2 defines CII; §1.4 legal effect/application |
 | B1-017 | `5.1.5, 5.3` | `5.1.2, 5.3.1, 5.7.2` | — | CCoP 1→2 access control gaps: auth controls + PAM + remote MFA |
 | B2-001 | `5.1.5` | `5.1.2, 5.7.2` | — | VPN SMS-OTP compliance — **§5.7.2(b) explicitly requires MFA for remote connection**. In-text `5.1.5` in ER also replaced → `5.7.2`. |
-| B3-005 | `Section 2` | `1.6.1, 1.6.2, 1.6.3` | `Cybersecurity Act 2018 §11(7)` | ER explicitly mentions "Section 11(7) waiver may be applicable" |
-| B3-019 | `Section 2` | `1.6.1, 1.6.2, 1.6.3` | `Cybersecurity Act 2018 §11(7)` | Same template as B3-005 |
-| B3-024 | `Section 2` | `1.6.1, 1.6.2, 1.6.3` | `Cybersecurity Act 2018 §11(7)` | Same template as B3-005 |
+| B3-005 | `Section 2` (JSONL) / `5.3.2` (Excel) | `1.6.1, 1.6.2, 1.6.3` | `Cybersecurity Act 2018 §11(7)` | ER explicitly mentions "Section 11(7) waiver may be applicable" |
+| B3-006 | `Section 2` (JSONL) / `4.2` (Excel) | `1.6.1, 1.6.2, 1.6.3` | `Cybersecurity Act 2018 §11(7)` | Templated waiver case — identical ER to B3-005 (see Cluster 8) |
+| B3-019 | `Section 2` (JSONL) / `8.5` (Excel) | `1.6.1, 1.6.2, 1.6.3` | `Cybersecurity Act 2018 §11(7)` | Same template as B3-005 |
+| B3-021 | `Section 2` (JSONL) / `4.2` (Excel) | `1.6.1, 1.6.2, 1.6.3` | `Cybersecurity Act 2018 §11(7)` | Templated waiver case — identical ER to B3-005 (see Cluster 8) |
+| B3-024 | `Section 2` (JSONL) / `9.4` (Excel) | `1.6.1, 1.6.2, 1.6.3` | `Cybersecurity Act 2018 §11(7)` | Same template as B3-005 |
 | B05-013 | `4.3` | `1.6.1, 1.6.2, 1.6.3, 3.2.1` | `Cybersecurity Act 2018 §11(7)` | Legacy system exemption — waiver mechanism + risk mgmt framework for compensating controls |
 | B05-015 | `9.3.1` | `3.8.1, 3.8.2, 3.8.3` | — | Hardware/software supply chain → §3.8 Outsourcing & Vendor Mgmt |
 | B05-016 | `5.3.4` | `5.11.1, 5.11.2, 5.11.3, 5.11.4` | — | BYOD/mobile devices → §5.11 Portable Computing Devices |
@@ -337,17 +383,18 @@ Action independent of remapping: add a column (e.g., `audit_exempt: true`) or sh
 | B24 | 24 | REMAP-PER-CASE → 7.1.x variants (table above) | B24-001..B24-025 (exc. B24-022) |
 | B07 `4.2.2` | 4 | REMAP-ALL → `3.2.2` | B07-001..005 |
 | B03 `11.7` | 2 | REMAP-ALL → `1.6.x` | B3-004, B3-011 |
-| B02 `5.6.4` | 4 | REMAP-PER-CASE → `{5.6.1, 5.6.2, 5.6.3}` | B2-003, B2-010, B2-014, B2-024 |
-| B05 `5.2.3` | 2 | REMAP-ALL → `5.2.1` (provisional) | B05-002, B05-019 |
+| B02 `5.6.4` | 4 | REMAP-ALL → `5.10.1(e)` (citation only; ER timeline claims flagged — see Cluster 6 CONCERN) | B2-003, B2-010, B2-014, B2-024 |
+| B05 `5.2.3` | 2 | REMAP-ALL → MFA bundle `5.1.2, 5.3.1, 5.7.2` | B05-002, B05-019 |
 | B24 `9.5` | 2 | REMAP-PER-CASE → `7.1.1(i), 7.1.4` | B24-011, B24-013 |
-| B03 `4.2` | 2 | REMAP-PER-CASE → `3.2.2` (provisional) | B3-006, B3-021 |
-| Singletons verified | 26 | REMAP-PER-CASE (table above) | B1, B2, B3, B05, B06, B07, B12 singletons |
+| B03 `4.2` | 2 | REMAP-ALL → Waiver `1.6.1, 1.6.2, 1.6.3` (in SINGLETONS) | B3-006, B3-021 |
+| Singletons verified | 27 | REMAP-PER-CASE (table above) | B1, B2, B3, B05, B06, B07, B12 singletons |
 | Singleton deprecations | 1 | DEPRECATE | B05-018 |
 | B21 (all) | 13 | AUDIT-EXEMPT, no correction | B21-001..B21-021 (subset) |
 
-**Net structural remaps:** 126 rows (~100 from major clusters + 26 verified singletons)
+**Net structural remaps:** 127 rows (~100 from major clusters + 27 verified singletons)
 **Deprecations:** 1 row (B05-018)
 **No-op (B21 exempt):** 13 rows
+**Flagged for user decision (Cluster 6 CONCERN):** B02 `5.6.4` cluster — citation corrected to §5.10.1(e), but ER timeline claims (`14 days`, `30 days`) are fabricated and remain in the data pending user choice of Options 1/2/3.
 
 ---
 

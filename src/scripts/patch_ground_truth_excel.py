@@ -98,13 +98,23 @@ def _b03_117_rule(_test_id: str) -> tuple[str, str, tuple[str, str] | None]:
 
 
 def _b02_564_rule(_test_id: str) -> tuple[str, str, tuple[str, str] | None]:
-    # REMAP-PER-CASE in proposal — provisional default to 5.6.1 (primary
-    # Network Security clause); user can override per-case via separate pass.
-    return ("5", "5.6.1", ("5.6.4", "5.6.1"))
+    # Topic is patch management, not Network Security. §5.10.1(e) is the
+    # "timely manner" patch clause. NOTE: the test cases embed specific
+    # 14-day/30-day timelines that are NOT in CCoP 2.0 or any supporting
+    # document — flagged in audit-remap-proposal.md for user decision.
+    # This rule corrects the clause citation only; the ER timeline claims
+    # remain unverified.
+    return (
+        "5",
+        "5.10.1(e)",
+        ("5.6.4", "5.10.1(e)"),
+    )
 
 
 def _b05_523_rule(_test_id: str) -> tuple[str, str, tuple[str, str] | None]:
-    return ("5", "5.2.1", ("5.2.3", "5.2.1"))
+    # Topic is MFA (both B05-002 and B05-019). Matches the MFA singleton
+    # bundle: §5.1.2 (generic auth), §5.3.1(c) (PAM MFA), §5.7.2(b) (remote MFA).
+    return ("5", "5.1.2, 5.3.1, 5.7.2", ("Section 5.2.3", "Section 5.3.1(c)"))
 
 
 # ---- B24 per-row table (primary citations from proposal §Cluster 4) --------
@@ -160,7 +170,17 @@ _SINGLETON_ROW_MAP: dict[str, tuple[str, str, tuple[str, str] | None]] = {
         "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
         None,
     ),
+    "B3-006": (
+        "1",
+        "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
+        None,
+    ),
     "B3-019": (
+        "1",
+        "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
+        None,
+    ),
+    "B3-021": (
         "1",
         "1.6.1, 1.6.2, 1.6.3 [support: Cybersecurity Act 2018 §11(7)]",
         None,
@@ -292,17 +312,17 @@ CLUSTERS: dict[str, tuple[ClusterMatcher, RuleFn, str]] = {
     "B02_564": (
         _bench_and_clause("B2-", "5.6.4"),
         _b02_564_rule,
-        "B02 5.6.4 → 5.6.1 (REMAP-PER-CASE provisional)",
+        "B02 5.6.4 → 5.10.1(e) (patch management; ER timeline claims unverified)",
     ),
     "B05_523": (
         _bench_and_clause("B05-", "5.2.3"),
         _b05_523_rule,
-        "B05 5.2.3 → 5.2.1",
+        "B05 5.2.3 → MFA bundle (5.1.2, 5.3.1, 5.7.2)",
     ),
     "SINGLETONS": (
         lambda tid, _cell: tid in _SINGLETON_ROW_MAP,
         _singleton_rule,
-        "Verified singletons (26 rows) — per-row mapping from proposal",
+        "Verified singletons (27 rows) — per-row mapping from proposal",
     ),
 }
 
