@@ -100,35 +100,109 @@ Does the response translate its analysis into concrete, feasible next steps the 
 ```
 You are an expert compliance auditor evaluating a model's response to a compliance scenario. Score the response on 5 dimensions using an anchored 0-3 scale for each. The `factual_grounding` dimension carries weight 1.0; all other dimensions carry weight 0.5 — giving factual_grounding effectively 2× the influence of any other dimension (deliberate hallucination penalty).
 
+**CRITICAL — SCORE STRICTLY FROM GROUND TRUTH**:
+Score only based on what is documented in the ground-truth sections below (Expected Response, Key Facts, Clause Reference, Citation Verifications, Forbidden Claims, Hallucination Patterns). Do NOT use your own parametric memory of the regulation to fill in gaps or give the benefit of the doubt. If a claim in the response is not verifiable against the provided ground truth AND cannot be traced to a clause whose actual text is shown below, treat it as ungrounded. Leniency not based on ground truth is a scoring error.
+
 **Question**:
 {question}
 
 **Model Response**:
 {response}
 
-**Expected Response** (provided for factual context only — evaluate the response's correctness, not its phrasing similarity to this reference):
+**Expected Response** (reference for factual context — evaluate correctness, not phrasing similarity):
 {expected_response}
 
-**Key Facts** (tier-critical facts that should be present):
+**Key Facts** (tier-critical facts the response should be consistent with):
 {key_facts}
+
+**Clause Reference** (the clause IDs the expected answer cites):
+{clause_reference}
+
+**Citation Verifications** (programmatically extracted from the response and verified against the CCoP 2.0 clause inventory; use this as ground truth for D3):
+{citation_verifications}
+
+**Forbidden Claims** (the response MUST NOT assert any of these):
+{forbidden_claims}
+
+**Hallucination Patterns** (regex patterns indicating fabrication — check the response against each):
+{hallucination_patterns}
 
 **Evaluation Instructions**:
 
 Score each dimension independently on the 0-3 anchored scale. A response can score high on some dimensions and low on others — each dimension measures a different aspect of quality.
 
-**D1 — verdict_accuracy**: Does the final verdict match the expected answer, including qualifications and secondary conclusions? Score 0 if contradicts; 1 if directionally right but incomplete; 2 if correct on main point; 3 if fully matches including secondary aspects.
+---
 
-**D2 — justification_quality**: Is the reasoning logically sound and internally consistent? Does each inference follow from stated premises? Flag internal contradictions. Score 0 for no reasoning or self-contradictory; 1 for drifting reasoning; 2 for sound with minor gaps; 3 for tight logical chain.
+**D1 — verdict_accuracy**: Does the final verdict match the Expected Response, including qualifications and secondary conclusions?
 
-**D3 — factual_grounding** (weight 1.0 vs. 0.5 for others): For every factual claim, classify as:
-- Regulatory assertion (attributed to a regulation or clause) → must be traceable to corpus, key_facts, or clause_reference
-- Derived inference (conclusion drawn from cited clauses or general principles) → must be logically sound; need not appear in ground truth verbatim
+Score 0 if the verdict contradicts the expected answer; 1 if directionally right but misses key qualifications, conditions, or secondary conclusions present in the Expected Response; 2 if correct on the main verdict but misses one or more secondary aspects; 3 if fully matches including all qualifications and secondary conclusions.
 
-Score 0 if any fabricated citation detected (cites clauses/sections that don't exist) or no citations present; 1 for significant misattribution (real clause, wrong description); 2 for real citations with minor imprecision; 3 for clean grounding throughout.
+---
 
-**D4 — scope_appropriateness**: Does the response stay within what was asked? Does it respect the scenario's stated constraints (e.g., if the scenario states a technical constraint, don't recommend actions that assume the constraint doesn't exist)? Score 0 for substantially off-topic or constraint-violating; 1 for verbose with tangents; 2 for mostly on-topic; 3 for focused and direct.
+**D2 — justification_quality**: Is the reasoning logically sound and internally consistent? Does each inference follow from its stated premises? Flag internal contradictions.
 
-**D5 — actionable_way_forward**: Does the response translate analysis into concrete, feasible next steps? Vague advice scores low; specific mechanisms with feasibility awareness score high. Score 0 if no next steps or steps contradict constraints; 1 for vague direction only; 2 for specific mechanism lacking detail; 3 for specific + correct + feasibility-aware.
+Score 0 for absent or self-contradictory reasoning; 1 for reasoning that drifts from the actual question; 2 for sound reasoning with minor gaps; 3 for a tight logical chain where every inference is traceable.
+
+---
+
+**D3 — factual_grounding** (weight 1.0 vs. 0.5 for others):
+
+**Use the `Citation Verifications` block above as ground truth. Do not re-verify from your own knowledge.**
+
+Procedure (perform each step explicitly and record the result in your justification):
+
+Step 1 — Classify each citation listed in Citation Verifications:
+  - Status `FABRICATED` → the response cites something that does not exist in CCoP 2.0. This is an automatic D3 = 0 for the entire dimension. Stop and score 0.
+  - Status `EXISTS` + actual clause text shown → proceed to Step 2 for that citation.
+
+Step 2 — For each EXISTS citation, compare the response's description of the clause against the "Actual clause text" shown. Classify as one of:
+  - `CORRECT`: the response accurately describes what the clause says.
+  - `MISATTRIBUTED`: the response cites the clause for a claim the clause does not actually support (e.g., cites a clause about MFA as if it mandates individual accountability).
+  - `IMPRECISE`: loosely defensible attribution with minor drift.
+
+Step 3 — Score based on the worst finding across all citations:
+  - Any FABRICATED → 0
+  - Any MISATTRIBUTED without offsetting correct grounding → 1
+  - All CORRECT or a mix of CORRECT + at most one IMPRECISE → 2
+  - All CORRECT, every claim traceable to cited source or sound derivation from them → 3
+
+Step 4 — Also check the response for any Forbidden Claims or matches against Hallucination Patterns. Each such match reduces D3 by one score level (with floor 0).
+
+In your justification, list each citation with its classification and outcome.
+
+---
+
+**D4 — scope_appropriateness**:
+
+Procedure (perform each step explicitly):
+
+Step 1 — Extract any stated constraints from the Question. Constraints include technical limitations (e.g., "legacy systems don't support X"), jurisdictional limits, scope restrictions, and explicit scenario premises. List each constraint found.
+
+Step 2 — For each constraint, check whether the Response proposes actions that contradict it. A recommendation to "upgrade the legacy system" when the Question states the legacy system cannot be changed is a constraint violation. Recommending something the scenario has already ruled out is also a violation.
+
+Step 3 — Score:
+  - Any constraint violation → 0 (the response misdirects by proposing infeasible actions)
+  - Verbose with multiple tangential sections; core answer buried → 1
+  - Mostly on-topic with minor drift; longer than needed but no constraint violations and doesn't mislead → 2
+  - Focused, direct, no drift, no constraint violations → 3
+
+In your justification, list any constraint violations found.
+
+---
+
+**D5 — actionable_way_forward**:
+
+Distinguish two distinct failure modes; both score 0 but represent different problems:
+- (a) The response provides no next steps at all — it ends at the verdict without telling the client what to do.
+- (b) The response names next steps that contradict stated scenario constraints — the guidance is infeasible or misdirects.
+
+Score:
+  - 0 — either (a) no next steps, OR (b) proposed steps contradict constraints. Note which in your justification.
+  - 1 — vague direction only (e.g., "review your controls", "consult compliance") with no specific mechanism, instrument, or action named.
+  - 2 — specific action or mechanism named but lacks detail, or specificity without feasibility awareness given constraints.
+  - 3 — specific action + correct mechanism/instrument + feasibility-aware given the scenario's stated constraints.
+
+---
 
 **Output Format** (JSON only, no other text):
 
@@ -140,7 +214,7 @@ Score 0 if any fabricated citation detected (cites clauses/sections that don't e
     {"dimension": "scope_appropriateness",  "score": <0-3>, "weight": 0.5},
     {"dimension": "actionable_way_forward", "score": <0-3>, "weight": 0.5}
   ],
-  "justification": "<2-3 sentences per dimension, citing specific evidence from the response>",
+  "justification": "<2-3 sentences per dimension. For D3: list each citation with its classification (CORRECT/MISATTRIBUTED/IMPRECISE/FABRICATED) and outcome. For D4: list any constraint violations found. For D5: note whether score 0 is (a) no steps or (b) infeasible steps.>",
   "confidence": <0.0-1.0>
 }
 ```

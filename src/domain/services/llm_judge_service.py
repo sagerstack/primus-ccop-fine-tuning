@@ -298,6 +298,132 @@ Return ONLY valid JSON (no markdown):
         )
         self._rubrics: Dict[str, str] = self._load_rubrics()
 
+        # Ground-truth verification infrastructure for D3 factual_grounding.
+        # Loads clause inventory (deterministic existence check) and caches
+        # actual clause text from Qdrant (for misattribution detection).
+        self._inventory_ids: set[str] = self._load_inventory_ids()
+        self._clause_text_cache: Dict[str, str] = self._load_clause_text_cache()
+
+    def _load_inventory_ids(self) -> set[str]:
+        """Load the set of valid CCoP 2.0 clause IDs from the inventory fixture."""
+        inventory_path = _PROJECT_ROOT / "src" / "rag" / "ingestion" / "fixtures" / "clause_inventory.json"
+        if not inventory_path.exists():
+            logger.warning(
+                "Clause inventory not found at %s. Citation verification disabled.",
+                inventory_path,
+            )
+            return set()
+        try:
+            data = json.loads(inventory_path.read_text(encoding="utf-8"))
+            ids = {
+                e["clause_id"] for e in data.get("entries", [])
+                if e.get("source_doc") == "CCoP 2.0" and "clause_id" in e
+            }
+            logger.info("Loaded %d CCoP 2.0 clause IDs for citation verification", len(ids))
+            return ids
+        except Exception as e:
+            logger.warning("Failed to load clause inventory: %s", e)
+            return set()
+
+    def _load_clause_text_cache(self) -> Dict[str, str]:
+        """
+        Pre-load all CCoP 2.0 clause texts from Qdrant for misattribution detection.
+        Non-fatal: if Qdrant is unreachable, judge falls back to inventory-only
+        (existence check still works; misattribution detection is limited).
+        """
+        cache: Dict[str, str] = {}
+        try:
+            from infrastructure.config.settings import get_settings
+            from qdrant_client import QdrantClient
+        except ImportError:
+            logger.warning("qdrant_client not installed. Clause text verification disabled.")
+            return cache
+
+        try:
+            settings = get_settings()
+            client = QdrantClient(url=settings.qdrant_url)
+            next_offset = None
+            while True:
+                batch, next_offset = client.scroll(
+                    collection_name=settings.qdrant_collection_name,
+                    limit=500,
+                    offset=next_offset,
+                    with_payload=["text", "citation_id", "document_source"],
+                )
+                if not batch:
+                    break
+                for hit in batch:
+                    payload = hit.payload or {}
+                    if payload.get("document_source") == "CCoP 2.0":
+                        cid = payload.get("citation_id")
+                        if cid and cid not in cache:
+                            cache[cid] = (payload.get("text") or "")[:500]
+                if next_offset is None:
+                    break
+            logger.info(
+                "Cached %d CCoP 2.0 clause texts from Qdrant for misattribution detection",
+                len(cache),
+            )
+        except Exception as e:
+            logger.warning(
+                "Could not build clause text cache from Qdrant: %s. "
+                "Misattribution detection will use existence check only.",
+                e,
+            )
+        return cache
+
+    # Two patterns combined to avoid false positives on version numbers
+    # ("CCoP 2.0"):
+    # 1. Citations with a lead-in word (clause/section/§) — 1-3 part numbers
+    # 2. Bare 3-part citations (e.g., "5.3.1", "5.3.1(c)") — the 3-part form
+    #    is unambiguous enough to not require a lead-in.
+    # The negative lookbehind on the bare pattern prevents matching inside
+    # version strings or larger numbers.
+    _CITATION_LEADIN_PATTERN = re.compile(
+        r"(?:clause|section|§)\s+(\d{1,2}(?:\.\d{1,2}){0,2}(?:\([a-z]\))?)",
+        re.IGNORECASE,
+    )
+    _CITATION_BARE_PATTERN = re.compile(
+        r"(?<![\d.\w])(\d{1,2}\.\d{1,2}\.\d{1,2}(?:\([a-z]\))?)(?![\d.])",
+    )
+
+    def _extract_citations(self, text: str) -> list[str]:
+        """Extract unique clause-like citations from response text.
+
+        Matches:
+          - Lead-in citations: "Clause 5.2.1", "Section 3.4", "§5.3.1(c)"
+          - Bare 3-part citations: "5.3.1", "5.3.1(c)"
+        Does not match:
+          - Bare 2-part numbers like "2.0" (version strings)
+          - Numbers embedded inside larger identifiers
+        """
+        matches: set[str] = set()
+        matches.update(self._CITATION_LEADIN_PATTERN.findall(text))
+        matches.update(self._CITATION_BARE_PATTERN.findall(text))
+        return sorted(matches)
+
+    def _build_citation_verification_block(self, response_text: str) -> str:
+        """
+        Extract citations from the response, verify each against the clause
+        inventory, and format as a pre-verified ground-truth block for the judge.
+        """
+        cited = self._extract_citations(response_text)
+        if not cited:
+            return "  (no clause citations detected in response)"
+
+        lines = []
+        for cid in cited:
+            if cid in self._inventory_ids:
+                actual = self._clause_text_cache.get(cid, "")
+                if actual:
+                    snippet = actual.replace("\n", " ").strip()[:280]
+                    lines.append(f'  - "{cid}": EXISTS in CCoP 2.0. Actual clause text: "{snippet}..."')
+                else:
+                    lines.append(f'  - "{cid}": EXISTS in CCoP 2.0 (clause text not cached — limited verification)')
+            else:
+                lines.append(f'  - "{cid}": FABRICATED — not found in CCoP 2.0 clause inventory')
+        return "\n".join(lines)
+
     def _load_rubrics(self) -> Dict[str, str]:
         """
         Load the benchmark-agnostic universal rubric from evaluation-rubrics.md.
@@ -506,11 +632,32 @@ Return ONLY valid JSON (no markdown):
 
         key_facts_str = ", ".join(test_case.key_facts) if test_case.key_facts else "N/A"
 
+        # Pre-verify citations in the response against the CCoP 2.0 clause
+        # inventory and fetch actual clause text from Qdrant. Injected into
+        # the prompt so the judge scores D3 from verified ground truth rather
+        # than its own parametric knowledge.
+        citation_verifications = self._build_citation_verification_block(response.content)
+
+        forbidden = (
+            "\n".join(f"  - {c}" for c in test_case.forbidden_claims)
+            if test_case.forbidden_claims
+            else "  (none specified)"
+        )
+        hallucination_patterns_list = test_case.metadata.get("hallucination_patterns", [])
+        hallucination_patterns_str = (
+            "\n".join(f"  - {p}" for p in hallucination_patterns_list)
+            if hallucination_patterns_list
+            else "  (none specified)"
+        )
+
         prompt = template.replace("{question}", test_case.question)
         prompt = prompt.replace("{response}", response.content)
         prompt = prompt.replace("{expected_response}", test_case.expected_response)
         prompt = prompt.replace("{key_facts}", key_facts_str)
         prompt = prompt.replace("{clause_reference}", test_case.clause_reference)
+        prompt = prompt.replace("{citation_verifications}", citation_verifications)
+        prompt = prompt.replace("{forbidden_claims}", forbidden)
+        prompt = prompt.replace("{hallucination_patterns}", hallucination_patterns_str)
 
         # B19 has an optional {related_scenarios} placeholder
         related_scenarios = test_case.metadata.get("related_scenarios", "N/A")
