@@ -300,14 +300,17 @@ Return ONLY valid JSON (no markdown):
 
     def _load_rubrics(self) -> Dict[str, str]:
         """
-        Load and parse rubric templates from evaluation-rubrics.md.
+        Load the benchmark-agnostic universal rubric from evaluation-rubrics.md.
 
-        Parses the markdown file into a dictionary mapping benchmark ID
-        (e.g., "B8") to complete judge prompt template string.
+        Parses the markdown file for the single `## UNIVERSAL RUBRIC` section
+        and maps every known benchmark ID to that same rubric. Benchmark-specific
+        signal comes from each test case's ground truth (key_facts,
+        clause_reference, expected_response), not from the rubric itself.
 
         Returns:
-            Dictionary mapping benchmark short name to rubric prompt template.
-            Empty dict if file not found.
+            Dictionary mapping benchmark short names (B1..B24) to the universal
+            rubric prompt template. Empty dict if file not found or universal
+            section missing.
         """
         if not self._rubric_path.exists():
             logger.warning(
@@ -317,42 +320,45 @@ Return ONLY valid JSON (no markdown):
             return {}
 
         content = self._rubric_path.read_text(encoding="utf-8")
-        rubrics: Dict[str, str] = {}
 
-        # Split on benchmark headers: ## B3: ..., ## B7: ..., etc.
-        # Each section contains a ```...``` code block with the prompt template
-        sections = re.split(r"(?=^## B\d+:)", content, flags=re.MULTILINE)
-
-        for section in sections:
-            header_match = re.match(r"^## (B\d+):", section)
-            if not header_match:
-                continue
-
-            benchmark_id = header_match.group(1)
-
-            # Extract the Judge Prompt Template code block
-            # Look for the ### Judge Prompt Template heading, then the ``` block
-            template_section = section.split("### Judge Prompt Template")
-            if len(template_section) < 2:
-                logger.warning(
-                    "No Judge Prompt Template found for %s", benchmark_id
-                )
-                continue
-
-            # Extract content between first ``` pair after the heading
-            code_blocks = re.findall(
-                r"```\n(.*?)```", template_section[1], re.DOTALL
+        universal_match = re.search(
+            r"^## UNIVERSAL RUBRIC\b.*?(?=^## |\Z)",
+            content,
+            flags=re.MULTILINE | re.DOTALL,
+        )
+        if not universal_match:
+            logger.warning(
+                "No '## UNIVERSAL RUBRIC' section found in %s", self._rubric_path
             )
-            if not code_blocks:
-                logger.warning(
-                    "No code block found in Judge Prompt Template for %s",
-                    benchmark_id,
-                )
-                continue
+            return {}
 
-            rubrics[benchmark_id] = code_blocks[0].strip()
+        universal_section = universal_match.group(0)
 
-        logger.info("Loaded %d rubric templates: %s", len(rubrics), sorted(rubrics.keys()))
+        template_split = universal_section.split("### Judge Prompt Template")
+        if len(template_split) < 2:
+            logger.warning(
+                "No '### Judge Prompt Template' heading in UNIVERSAL RUBRIC"
+            )
+            return {}
+
+        code_blocks = re.findall(
+            r"```\n(.*?)```", template_split[1], re.DOTALL
+        )
+        if not code_blocks:
+            logger.warning(
+                "No code block found in UNIVERSAL RUBRIC judge prompt template"
+            )
+            return {}
+
+        universal_rubric = code_blocks[0].strip()
+
+        known_benchmarks = [f"B{i}" for i in range(1, 25)]
+        rubrics = {bid: universal_rubric for bid in known_benchmarks}
+
+        logger.info(
+            "Loaded universal rubric; applied to %d benchmark IDs",
+            len(rubrics),
+        )
         return rubrics
 
     def evaluate_response(

@@ -27,6 +27,126 @@
 
 ---
 
+## UNIVERSAL RUBRIC
+
+**Purpose**: A single benchmark-agnostic rubric applied to every LLM-judged benchmark. Benchmark-specific signal comes from each test case's ground truth (`key_facts`, `clause_reference`, `expected_response`), not from the rubric itself.
+
+**Dimensions**: Five generic dimensions, each scored on the anchored 0-3 scale. `factual_grounding` carries the full weight 1.0; all other dimensions carry half weight 0.5 — giving factual_grounding effectively 2× the influence of any other single dimension on the composite (a deliberate hallucination penalty). Composite score = weighted sum / (3.0 × total weight); maximum composite = 1.0.
+
+### Dimension Definitions and Anchors
+
+#### D1: Verdict Accuracy (weight 0.5)
+
+Does the response's final verdict or conclusion match the expected answer, including any qualifications and secondary conclusions?
+
+| Score | Anchor |
+|-------|--------|
+| 0 | Final verdict contradicts the expected answer |
+| 1 | Directionally right but misses key qualifications, conditions, or secondary conclusions |
+| 2 | Correct main verdict; misses one or more secondary aspects |
+| 3 | Fully matches expected answer including all qualifications and secondary conclusions |
+
+#### D2: Justification Quality (weight 0.5)
+
+Is the reasoning logically sound, internally consistent, and does it follow from stated premises?
+
+| Score | Anchor |
+|-------|--------|
+| 0 | No justification offered OR reasoning is internally contradictory |
+| 1 | Justification present but drifts from the actual question; reasoning partially off-target |
+| 2 | Sound reasoning chain addressing the core issue; minor gaps in inferential links |
+| 3 | Tight logical chain directly addressing the question; every inference traceable to premises |
+
+#### D3: Factual Grounding (weight 1.0)
+
+Are all factual claims — regulatory citations, procedural assertions, quoted requirements — either verifiable against the provided ground truth or correctly attributed to cited sources?
+
+Distinguish two claim types when evaluating:
+
+- **Regulatory assertions** (response claims the regulation specifies X): require traceability to the corpus, `key_facts`, or `clause_reference`.
+- **Derived inferences** (response draws conclusions from cited clauses or general security principles): require logical soundness; the inference itself need not appear verbatim in ground truth.
+
+| Score | Anchor |
+|-------|--------|
+| 0 | Fabricated citations (cites clauses/sections that don't exist) OR no citations anywhere |
+| 1 | Real citations present but significant misattribution — cited source doesn't support the claim made |
+| 2 | Real citations, mostly correct interpretation; one loose attribution or one imprecise claim |
+| 3 | All citations real, correctly interpreted; every claim traceable to cited source or sound derivation |
+
+#### D4: Scope Appropriateness (weight 0.5)
+
+Does the response stay within what was asked, without drifting, over-specifying, or contradicting stated scenario constraints?
+
+| Score | Anchor |
+|-------|--------|
+| 0 | Substantially off-topic OR proposes actions that contradict stated scenario constraints |
+| 1 | Verbose with multiple tangential sections; core answer diluted or buried |
+| 2 | Mostly on-topic with minor drift; longer than needed but doesn't mislead |
+| 3 | Focused response that directly addresses what was asked; no drift, no bloat |
+
+#### D5: Actionable Way Forward (weight 0.5)
+
+Does the response translate its analysis into concrete, feasible next steps the reader can act on, accounting for any constraints stated in the scenario?
+
+| Score | Anchor |
+|-------|--------|
+| 0 | No next steps given OR suggested steps contradict the scenario's stated constraints |
+| 1 | Vague direction only; no specific mechanism, instrument, or action named |
+| 2 | Names a specific action or mechanism but lacks detail, specificity, or feasibility awareness |
+| 3 | Specific action + correct mechanism/instrument + feasibility-aware given stated constraints |
+
+### Judge Prompt Template
+
+```
+You are an expert compliance auditor evaluating a model's response to a compliance scenario. Score the response on 5 dimensions using an anchored 0-3 scale for each. The `factual_grounding` dimension carries weight 1.0; all other dimensions carry weight 0.5 — giving factual_grounding effectively 2× the influence of any other dimension (deliberate hallucination penalty).
+
+**Question**:
+{question}
+
+**Model Response**:
+{response}
+
+**Expected Response** (provided for factual context only — evaluate the response's correctness, not its phrasing similarity to this reference):
+{expected_response}
+
+**Key Facts** (tier-critical facts that should be present):
+{key_facts}
+
+**Evaluation Instructions**:
+
+Score each dimension independently on the 0-3 anchored scale. A response can score high on some dimensions and low on others — each dimension measures a different aspect of quality.
+
+**D1 — verdict_accuracy**: Does the final verdict match the expected answer, including qualifications and secondary conclusions? Score 0 if contradicts; 1 if directionally right but incomplete; 2 if correct on main point; 3 if fully matches including secondary aspects.
+
+**D2 — justification_quality**: Is the reasoning logically sound and internally consistent? Does each inference follow from stated premises? Flag internal contradictions. Score 0 for no reasoning or self-contradictory; 1 for drifting reasoning; 2 for sound with minor gaps; 3 for tight logical chain.
+
+**D3 — factual_grounding** (weight 1.0 vs. 0.5 for others): For every factual claim, classify as:
+- Regulatory assertion (attributed to a regulation or clause) → must be traceable to corpus, key_facts, or clause_reference
+- Derived inference (conclusion drawn from cited clauses or general principles) → must be logically sound; need not appear in ground truth verbatim
+
+Score 0 if any fabricated citation detected (cites clauses/sections that don't exist) or no citations present; 1 for significant misattribution (real clause, wrong description); 2 for real citations with minor imprecision; 3 for clean grounding throughout.
+
+**D4 — scope_appropriateness**: Does the response stay within what was asked? Does it respect the scenario's stated constraints (e.g., if the scenario states a technical constraint, don't recommend actions that assume the constraint doesn't exist)? Score 0 for substantially off-topic or constraint-violating; 1 for verbose with tangents; 2 for mostly on-topic; 3 for focused and direct.
+
+**D5 — actionable_way_forward**: Does the response translate analysis into concrete, feasible next steps? Vague advice scores low; specific mechanisms with feasibility awareness score high. Score 0 if no next steps or steps contradict constraints; 1 for vague direction only; 2 for specific mechanism lacking detail; 3 for specific + correct + feasibility-aware.
+
+**Output Format** (JSON only, no other text):
+
+{
+  "dimensions": [
+    {"dimension": "verdict_accuracy",       "score": <0-3>, "weight": 0.5},
+    {"dimension": "justification_quality",  "score": <0-3>, "weight": 0.5},
+    {"dimension": "factual_grounding",      "score": <0-3>, "weight": 1.0},
+    {"dimension": "scope_appropriateness",  "score": <0-3>, "weight": 0.5},
+    {"dimension": "actionable_way_forward", "score": <0-3>, "weight": 0.5}
+  ],
+  "justification": "<2-3 sentences per dimension, citing specific evidence from the response>",
+  "confidence": <0.0-1.0>
+}
+```
+
+---
+
 ## B3: Conditional Logic
 
 **Dimension**: conditional_logic
