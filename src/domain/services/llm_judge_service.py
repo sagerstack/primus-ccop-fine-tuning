@@ -348,16 +348,34 @@ Return ONLY valid JSON (no markdown):
                     collection_name=settings.qdrant_collection_name,
                     limit=500,
                     offset=next_offset,
-                    with_payload=["text", "citation_id", "document_source"],
+                    with_payload=["text", "citation_id", "clause", "document_source"],
                 )
                 if not batch:
                     break
                 for hit in batch:
                     payload = hit.payload or {}
-                    if payload.get("document_source") == "CCoP 2.0":
-                        cid = payload.get("citation_id")
-                        if cid and cid not in cache:
-                            cache[cid] = (payload.get("text") or "")[:500]
+                    if payload.get("document_source") != "CCoP 2.0":
+                        continue
+                    # Prefer the `clause` field (bare clause id like "5.3.1");
+                    # fall back to stripping the "CCoP 2.0::" prefix from
+                    # citation_id. Skip table/preamble sub-chunks whose
+                    # citation_id contains extra "::" segments beyond the prefix.
+                    clause_id = payload.get("clause") or ""
+                    if not clause_id:
+                        cid = payload.get("citation_id") or ""
+                        if "::" in cid:
+                            parts = cid.split("::")
+                            # Only accept "DOC::CLAUSE" — skip "DOC::CLAUSE::table::N" etc.
+                            if len(parts) == 2:
+                                clause_id = parts[1]
+                    if not clause_id:
+                        continue
+                    text = (payload.get("text") or "").strip()
+                    if not text:
+                        continue
+                    # Keep the primary (longest) chunk if multiple exist
+                    if clause_id not in cache or len(text) > len(cache[clause_id]):
+                        cache[clause_id] = text[:500]
                 if next_offset is None:
                     break
             logger.info(
@@ -402,6 +420,27 @@ Return ONLY valid JSON (no markdown):
         matches.update(self._CITATION_BARE_PATTERN.findall(text))
         return sorted(matches)
 
+    def _resolve_clause_text(self, clause_id: str) -> tuple[str, str]:
+        """
+        Return (text, lookup_source) for a clause ID. Falls back to the parent
+        clause if a sub-letter citation (e.g., 5.3.1(c)) isn't chunked
+        separately in Qdrant — the parent clause chunk contains all sub-letters.
+
+        Returns:
+            (text, source) where source is "exact", "parent", or "missing".
+        """
+        text = self._clause_text_cache.get(clause_id, "")
+        if text:
+            return text, "exact"
+        # Sub-letter fallback: 5.3.1(c) -> 5.3.1
+        parent_match = re.match(r"^(\d{1,2}(?:\.\d{1,2}){1,2})\([a-z]\)$", clause_id)
+        if parent_match:
+            parent_id = parent_match.group(1)
+            parent_text = self._clause_text_cache.get(parent_id, "")
+            if parent_text:
+                return parent_text, "parent"
+        return "", "missing"
+
     def _build_citation_verification_block(self, response_text: str) -> str:
         """
         Extract citations from the response, verify each against the clause
@@ -414,15 +453,77 @@ Return ONLY valid JSON (no markdown):
         lines = []
         for cid in cited:
             if cid in self._inventory_ids:
-                actual = self._clause_text_cache.get(cid, "")
-                if actual:
-                    snippet = actual.replace("\n", " ").strip()[:280]
+                text, source = self._resolve_clause_text(cid)
+                if source == "exact":
+                    snippet = text.replace("\n", " ").strip()[:280]
                     lines.append(f'  - "{cid}": EXISTS in CCoP 2.0. Actual clause text: "{snippet}..."')
+                elif source == "parent":
+                    snippet = text.replace("\n", " ").strip()[:280]
+                    lines.append(f'  - "{cid}": EXISTS in CCoP 2.0. Parent clause text (sub-letter not chunked separately): "{snippet}..."')
                 else:
                     lines.append(f'  - "{cid}": EXISTS in CCoP 2.0 (clause text not cached — limited verification)')
             else:
                 lines.append(f'  - "{cid}": FABRICATED — not found in CCoP 2.0 clause inventory')
         return "\n".join(lines)
+
+    def _build_expected_citations_block(self, clause_reference: str) -> str:
+        """
+        For each clause in the test case's clause_reference list, fetch its
+        actual text from the Qdrant cache and format as a ground-truth block.
+        Gives the judge access to what the expected answer's cited clauses
+        actually say, not just their IDs.
+        """
+        if not clause_reference:
+            return "  (no expected citations specified in ground truth)"
+
+        expected_ids = [cid.strip() for cid in clause_reference.split(",") if cid.strip()]
+        if not expected_ids:
+            return "  (no expected citations specified in ground truth)"
+
+        lines = []
+        for cid in expected_ids:
+            text, source = self._resolve_clause_text(cid)
+            if source == "exact":
+                snippet = text.replace("\n", " ").strip()[:280]
+                lines.append(f'  - "{cid}": "{snippet}..."')
+            elif source == "parent":
+                snippet = text.replace("\n", " ").strip()[:280]
+                lines.append(f'  - "{cid}": (parent clause text, sub-letter not chunked separately) "{snippet}..."')
+            elif cid in self._inventory_ids:
+                lines.append(f'  - "{cid}": (exists in CCoP 2.0 inventory, text not cached)')
+            else:
+                lines.append(f'  - "{cid}": (not found in CCoP 2.0 corpus — possible ground-truth issue)')
+        return "\n".join(lines)
+
+    def _build_key_facts_block(self, test_case: TestCase) -> str:
+        """
+        Format key_facts as a tier-grouped block preserving the structured
+        tier (critical/important) and source info from ground truth.
+        Falls back to a flat list if structured key_facts aren't available.
+        """
+        structured = test_case.metadata.get("key_facts_structured", [])
+
+        if not structured:
+            if test_case.key_facts:
+                return "\n".join(f"  - {f}" for f in test_case.key_facts)
+            return "  (none specified)"
+
+        critical = [f for f in structured if isinstance(f, dict) and f.get("tier") == "critical"]
+        important = [f for f in structured if isinstance(f, dict) and f.get("tier") != "critical"]
+
+        lines = []
+        if critical:
+            lines.append("  CRITICAL (must be present in response):")
+            for f in critical:
+                src = f.get("source", "?")
+                lines.append(f'    - {f.get("fact", "")}  [source: {src}]')
+        if important:
+            lines.append("  IMPORTANT (should be present):")
+            for f in important:
+                src = f.get("source", "?")
+                lines.append(f'    - {f.get("fact", "")}  [source: {src}]')
+
+        return "\n".join(lines) if lines else "  (none specified)"
 
     def _load_rubrics(self) -> Dict[str, str]:
         """
@@ -630,13 +731,22 @@ Return ONLY valid JSON (no markdown):
 
         template = self._rubrics[benchmark_id]
 
-        key_facts_str = ", ".join(test_case.key_facts) if test_case.key_facts else "N/A"
+        # Tiered key_facts preserving structured tier (critical/important)
+        # and source metadata from ground truth.
+        key_facts_block = self._build_key_facts_block(test_case)
 
         # Pre-verify citations in the response against the CCoP 2.0 clause
         # inventory and fetch actual clause text from Qdrant. Injected into
         # the prompt so the judge scores D3 from verified ground truth rather
         # than its own parametric knowledge.
         citation_verifications = self._build_citation_verification_block(response.content)
+
+        # Expected citations from ground truth clause_reference, with actual
+        # clause text so the judge can compare response claims against what
+        # the expected-to-cite clauses actually say.
+        expected_citations_block = self._build_expected_citations_block(
+            test_case.clause_reference or ""
+        )
 
         forbidden = (
             "\n".join(f"  - {c}" for c in test_case.forbidden_claims)
@@ -653,8 +763,9 @@ Return ONLY valid JSON (no markdown):
         prompt = template.replace("{question}", test_case.question)
         prompt = prompt.replace("{response}", response.content)
         prompt = prompt.replace("{expected_response}", test_case.expected_response)
-        prompt = prompt.replace("{key_facts}", key_facts_str)
+        prompt = prompt.replace("{key_facts}", key_facts_block)
         prompt = prompt.replace("{clause_reference}", test_case.clause_reference)
+        prompt = prompt.replace("{expected_citations_text}", expected_citations_block)
         prompt = prompt.replace("{citation_verifications}", citation_verifications)
         prompt = prompt.replace("{forbidden_claims}", forbidden)
         prompt = prompt.replace("{hallucination_patterns}", hallucination_patterns_str)

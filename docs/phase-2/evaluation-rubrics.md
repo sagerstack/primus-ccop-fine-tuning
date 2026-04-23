@@ -112,11 +112,14 @@ Score only based on what is documented in the ground-truth sections below (Expec
 **Expected Response** (reference for factual context — evaluate correctness, not phrasing similarity):
 {expected_response}
 
-**Key Facts** (tier-critical facts the response should be consistent with):
+**Key Facts** (grouped by tier; CRITICAL facts are load-bearing for the correct answer — a response missing a CRITICAL fact should score lower on D1 and D2 than one missing only IMPORTANT facts):
 {key_facts}
 
 **Clause Reference** (the clause IDs the expected answer cites):
 {clause_reference}
+
+**Expected Citations** (the actual text of each clause the expected answer cites — use this to evaluate whether the response addresses the substance the expected answer draws on):
+{expected_citations_text}
 
 **Citation Verifications** (programmatically extracted from the response and verified against the CCoP 2.0 clause inventory; use this as ground truth for D3):
 {citation_verifications}
