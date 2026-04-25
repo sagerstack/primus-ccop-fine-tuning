@@ -60,46 +60,15 @@ class ScoringService:
                 test_case, response, retrieved_contexts
             )
 
-        # Rubric-based routing (default): existing benchmark scorers
-        benchmark_scorers = {
-            # Rule-based benchmarks (6 total)
-            "B1": ScoringService._score_b1_interpretation,
-            "B2": ScoringService._score_b2_citation,
-            "B4": ScoringService._score_b4_terminology,
-            "B5": ScoringService._score_b5_classification,
-            "B6": ScoringService._score_b6_violation_detection,
-            "B21": ScoringService._score_b3_hallucination,
-
-            # LLM-as-Judge benchmarks (15 total)
-            "B3": ScoringService._score_llm_judge,
-            "B7": ScoringService._score_llm_judge,
-            "B8": ScoringService._score_llm_judge,
-            "B9": ScoringService._score_llm_judge,
-            "B10": ScoringService._score_llm_judge,
-            "B11": ScoringService._score_llm_judge,
-            "B12": ScoringService._score_llm_judge,
-            "B13": ScoringService._score_llm_judge,
-            "B14": ScoringService._score_llm_judge,
-            "B15": ScoringService._score_llm_judge,
-            "B16": ScoringService._score_llm_judge,
-            "B17": ScoringService._score_llm_judge,
-            "B18": ScoringService._score_llm_judge,
-            "B19": ScoringService._score_llm_judge,
-            "B20": ScoringService._score_llm_judge,
-            "B22": ScoringService._score_llm_judge,
-            "B23": ScoringService._score_llm_judge,
-            "B24": ScoringService._score_llm_judge,
-        }
-
-        # Find scorer by checking if benchmark type matches each key
-        for benchmark_key, scorer in benchmark_scorers.items():
-            if test_case.benchmark_type == benchmark_key:
-                return scorer(test_case, response)
-
-        raise ValueError(
-            f"Unknown benchmark: {test_case.benchmark_type.value}. "
-            f"Mapped benchmarks: B1-B24 (excluding any deprecated)."
-        )
+        # Rubric-based routing (default): EVERY benchmark scored by the LLM judge
+        # universal 5-dim rubric. Rule-based scorers (_score_b1_interpretation,
+        # _score_b3_hallucination, etc.) are retained as historical reference but
+        # no longer dispatched to. Per-benchmark signal flows through the test
+        # case's structured ground truth (key_facts, clause_reference, fail_conditions),
+        # not through scorer-method dispatch — this keeps composite scores
+        # comparable across benchmarks and produces a uniform 5-dimension result
+        # schema for kappa validation.
+        return ScoringService._score_llm_judge(test_case, response)
 
     @staticmethod
     def _score_b1_interpretation(
