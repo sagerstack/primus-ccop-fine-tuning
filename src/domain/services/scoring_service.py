@@ -86,6 +86,9 @@ class ScoringService:
             "B18": ScoringService._score_llm_judge,
             "B19": ScoringService._score_llm_judge,
             "B20": ScoringService._score_llm_judge,
+            "B22": ScoringService._score_llm_judge,
+            "B23": ScoringService._score_llm_judge,
+            "B24": ScoringService._score_llm_judge,
         }
 
         # Find scorer by checking if benchmark type matches each key
@@ -95,7 +98,7 @@ class ScoringService:
 
         raise ValueError(
             f"Unknown benchmark: {test_case.benchmark_type.value}. "
-            f"All 21 benchmarks (B1-B21) should be mapped."
+            f"Mapped benchmarks: B1-B24 (excluding any deprecated)."
         )
 
     @staticmethod

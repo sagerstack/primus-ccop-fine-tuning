@@ -117,8 +117,8 @@ def run(
                         benchmark_numbers.add(parts[0])
             benchmarks = sorted(list(benchmark_numbers), key=lambda x: int(x[1:]))
         else:
-            # Fallback: use B1-B21 as default
-            benchmarks = [f"B{i}" for i in range(1, 22)]
+            # Fallback: use B1-B24 as default (excluding any deprecated)
+            benchmarks = [f"B{i}" for i in range(1, 25)]
 
     console.print(f"[bold]Evaluating model:[/bold] {model}")
     console.print(f"[bold]Benchmarks:[/bold] {', '.join(benchmarks)}")
