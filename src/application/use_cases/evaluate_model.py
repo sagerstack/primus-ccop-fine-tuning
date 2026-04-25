@@ -74,14 +74,51 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         if not is_available:
             raise ValueError(f"Model '{request.model_name}' is not available")
 
-        # Evaluate each test case
+        # Build a partial-write metadata prelude. Used to (a) match prior
+        # partial files on resume, (b) write the header line on first append.
+        # Final consolidated metadata is built later from summary stats.
+        partial_metadata = self._build_partial_metadata(request, start_time)
+
+        # On resume: load completed cases from prior partial file and skip them.
         results: List[EvaluationResult] = []
+        completed_test_ids: set = set()
+        if request.resume and request.save_results:
+            try:
+                partial = await self._result_repository.load_partial(partial_metadata)
+            except ValueError as exc:
+                # Config drift detected — surface to caller; user must explicitly
+                # opt out of resume or fix the invocation.
+                raise ValueError(f"Resume aborted: {exc}") from exc
+            if partial is not None:
+                completed_test_ids = partial["completed_test_ids"]
+                results.extend(partial["completed_results"])
+                self._logger.info(
+                    f"Resuming run: skipping {len(completed_test_ids)} completed cases"
+                )
+
+        # Evaluate remaining test cases
         for i, test_case in enumerate(test_cases, 1):
+            if test_case.test_id in completed_test_ids:
+                self._logger.info(
+                    f"Skipping already-completed test case {i}/{len(test_cases)}: "
+                    f"{test_case.test_id}"
+                )
+                continue
             self._logger.info(
                 f"Evaluating test case {i}/{len(test_cases)}: {test_case.test_id}"
             )
             result = await self._evaluate_test_case(test_case, request)
             results.append(result)
+
+            # Per-case incremental write: a hard kill loses at most this single case.
+            if request.save_results:
+                try:
+                    await self._result_repository.append_partial(result, partial_metadata)
+                except Exception as exc:  # noqa: BLE001
+                    self._logger.warning(
+                        f"Failed to append partial result for {test_case.test_id}: {exc}. "
+                        f"Continuing without checkpoint for this case."
+                    )
 
         # Generate summary
         end_time = datetime.utcnow()
@@ -112,6 +149,44 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         )
 
         return summary
+
+    def _build_partial_metadata(
+        self,
+        request: EvaluationRequestDTO,
+        start_time: datetime,
+    ) -> Dict[str, any]:
+        """
+        Build the minimal metadata prelude written to the partial JSONL header.
+
+        Mirrors the keys from `_build_evaluation_metadata` that are needed for
+        (a) computing the partial filename, (b) verifying config compatibility
+        on resume. Summary stats are filled in later by the consolidated
+        metadata builder.
+        """
+        # Derive scope by re-running build_scope on current invocation flags.
+        from domain.value_objects.run_id import RunId
+
+        scope = RunId.build_scope(
+            tier=None,  # Tier is encoded into benchmarks list at this point
+            benchmarks=request.benchmark_types,
+            test_ids=request.test_case_ids,
+            total_benchmarks_available=24,
+        )
+
+        judge_config = {
+            "judge_mode": request.judge_mode,
+            "evaluation_mode": request.evaluation_mode,
+        }
+
+        return {
+            "run_id": request.run_id,
+            "schema_version": 6,
+            "model_name": request.model_name,
+            "evaluation_mode": request.evaluation_mode,
+            "scope": scope,
+            "judge_config": judge_config,
+            "evaluated_at": start_time.isoformat(),
+        }
 
     async def _load_test_cases(
         self,

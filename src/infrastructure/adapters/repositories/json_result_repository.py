@@ -81,6 +81,159 @@ class JSONResultRepository(IResultRepository):
 
         return str(filepath)
 
+    async def append_partial(
+        self,
+        result: EvaluationResult,
+        run_metadata: Dict[str, Any],
+    ) -> str:
+        """
+        Append one completed test-case result to the run's partial JSONL file.
+
+        The first call writes a header line containing run-level metadata so a
+        later resume can verify config compatibility. Each subsequent call
+        writes one JSON-encoded result per line. Each line is flushed and
+        fsynced before returning so a hard kill loses at most the in-flight
+        case.
+        """
+        run_id = run_metadata.get("run_id")
+        model_name = run_metadata.get("model_name", "unknown")
+        if not run_id:
+            raise ValueError("run_metadata.run_id is required for append_partial")
+
+        month_dir = self._monthly_dir(run_metadata.get("evaluated_at", ""))
+        partial_path = month_dir / f"{run_id}-{model_name}.partial.jsonl"
+
+        is_new = not partial_path.exists()
+        with open(partial_path, "a", encoding="utf-8") as f:
+            if is_new:
+                header = {
+                    "_partial_header": True,
+                    "run_id": run_id,
+                    "model_name": model_name,
+                    "evaluation_mode": run_metadata.get("evaluation_mode"),
+                    "judge_config": run_metadata.get("judge_config"),
+                    "started_at": run_metadata.get("evaluated_at"),
+                    "scope": run_metadata.get("scope"),
+                    "schema_version": 6,
+                }
+                f.write(json.dumps(header, default=str) + "\n")
+            entry = self._serialize_with_question(result)
+            f.write(json.dumps(entry, default=str) + "\n")
+            f.flush()
+            try:
+                import os as _os
+                _os.fsync(f.fileno())
+            except OSError:
+                # Best-effort fsync; not all filesystems support it
+                pass
+
+        return str(partial_path)
+
+    async def load_partial(
+        self,
+        run_metadata: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Locate and load the most recent partial file matching this invocation.
+
+        Match criteria: same (mode, scope, model_name) — timestamp is
+        wildcarded so any prior crashed run with the same logical scope can
+        be resumed. When multiple partial files match, the most-recently
+        modified is selected and the others are logged.
+
+        Returns None when no partial file exists. Raises ValueError when a
+        partial file exists but its header is incompatible with the current
+        invocation (e.g., judge_config drifted).
+        """
+        mode = run_metadata.get("evaluation_mode")
+        scope = run_metadata.get("scope")
+        model_name = run_metadata.get("model_name", "unknown")
+        if not (mode and scope):
+            raise ValueError(
+                "run_metadata must include evaluation_mode and scope for load_partial"
+            )
+
+        pattern = f"eval-run-{mode}-{scope}-*-{model_name}.partial.jsonl"
+        candidates = sorted(
+            self._results_dir.rglob(pattern),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        if not candidates:
+            return None
+
+        if len(candidates) > 1:
+            self._logger.warning(
+                f"Multiple partial files match scope={scope} mode={mode}; "
+                f"using most recent ({candidates[0].name}). Others ignored: "
+                f"{[p.name for p in candidates[1:]]}"
+            )
+
+        partial_path = candidates[0]
+        header: Optional[Dict[str, Any]] = None
+        completed_results: List[EvaluationResult] = []
+        completed_test_ids: set[str] = set()
+
+        with open(partial_path, "r", encoding="utf-8") as f:
+            for line_no, line in enumerate(f, 1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    self._logger.warning(
+                        f"Skipping corrupt JSONL line {line_no} in {partial_path.name}: {exc}"
+                    )
+                    continue
+
+                if entry.get("_partial_header"):
+                    header = entry
+                    continue
+
+                test_id = entry.get("test_id")
+                if test_id and test_id not in completed_test_ids:
+                    completed_test_ids.add(test_id)
+                    reconstructed = self._reconstruct_result(entry, header or {})
+                    if reconstructed is not None:
+                        completed_results.append(reconstructed)
+
+        if header is None:
+            raise ValueError(
+                f"Partial file {partial_path.name} is missing the header line. "
+                f"Cannot validate config compatibility — refusing to resume."
+            )
+
+        # Validate config compatibility — bail out on drift to prevent
+        # mixing results from different judge / model configurations.
+        current_judge_config = run_metadata.get("judge_config")
+        partial_judge_config = header.get("judge_config")
+        if current_judge_config and partial_judge_config:
+            if current_judge_config != partial_judge_config:
+                raise ValueError(
+                    f"Resume aborted: partial file {partial_path.name} has "
+                    f"judge_config={partial_judge_config} but current invocation "
+                    f"is judge_config={current_judge_config}. Configs must match."
+                )
+
+        if header.get("model_name") != model_name:
+            raise ValueError(
+                f"Resume aborted: partial file model={header.get('model_name')} "
+                f"but current invocation model={model_name}."
+            )
+
+        self._logger.info(
+            f"Loaded partial run from {partial_path.name}: "
+            f"{len(completed_test_ids)} completed cases."
+        )
+
+        return {
+            "partial_path": str(partial_path),
+            "header": header,
+            "completed_test_ids": completed_test_ids,
+            "completed_results": completed_results,
+        }
+
     async def save_query_run(
         self,
         metadata: Dict[str, any],

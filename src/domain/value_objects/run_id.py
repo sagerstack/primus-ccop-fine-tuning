@@ -61,6 +61,27 @@ class RunId:
     def __repr__(self) -> str:
         return f"RunId(mode='{self.mode}', scope='{self.scope}', value='{self.value}')"
 
+    def partial_filename(self, model_name: str) -> str:
+        """Filename for the per-case incremental JSONL written during a run.
+
+        The partial file lives alongside the eventual consolidated .json output
+        and shares the same run-id prefix. Format:
+            {value}-{model_name}.partial.jsonl
+
+        On crash the partial file preserves all completed cases and supports
+        resume via a fresh `--resume` invocation matching the same scope+mode.
+        """
+        return f"{self.value}-{model_name}.partial.jsonl"
+
+    @staticmethod
+    def partial_glob_pattern(mode: str, scope: str, model_name: str) -> str:
+        """Glob pattern matching all partial files for a given (mode, scope, model).
+
+        Timestamp is wildcarded so a single resume can find the latest partial
+        file from any prior crashed run with matching invocation flags.
+        """
+        return f"eval-run-{mode}-{scope}-*-{model_name}.partial.jsonl"
+
     @classmethod
     def build_scope(
         cls,

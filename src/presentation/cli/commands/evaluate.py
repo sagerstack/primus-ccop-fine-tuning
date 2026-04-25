@@ -68,6 +68,15 @@ def run(
         "--verbose-io",
         help="Show captured system/user prompts and retrieved contexts per test case"
     ),
+    resume: bool = typer.Option(
+        False,
+        "--resume",
+        help=(
+            "Resume from a prior partial run with the same (mode, scope, model). "
+            "Skips already-completed test cases. Bails out if judge_config or "
+            "model has drifted vs the partial file."
+        ),
+    ),
 ) -> None:
     """Run model evaluation."""
     from infrastructure.config.settings import get_settings
@@ -156,6 +165,7 @@ def run(
         evaluation_mode=mode,
         judge_mode=judge_mode,
         run_id=run_id.value,
+        resume=resume,
     )
 
     try:

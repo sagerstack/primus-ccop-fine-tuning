@@ -69,6 +69,67 @@ class IResultRepository(ABC):
         pass
 
     @abstractmethod
+    async def append_partial(
+        self,
+        result: EvaluationResult,
+        run_metadata: Dict[str, Any],
+    ) -> str:
+        """
+        Append a single completed test-case result to the per-run partial JSONL.
+
+        Called once per test case as it completes, so that a crash mid-run
+        preserves all completed results. The first call writes a header line
+        with run-level metadata; subsequent calls append one JSON-encoded
+        result per line. Each line is flushed and fsynced before returning.
+
+        Args:
+            result: Completed evaluation result for one test case.
+            run_metadata: Run-level metadata used to derive the partial-file
+                path AND to record the invocation's intent in the header.
+                Required keys: run_id, model_name, evaluation_mode, judge_config.
+
+        Returns:
+            Path to the partial file the line was written to.
+
+        Raises:
+            RepositoryError: If write fails.
+        """
+        pass
+
+    @abstractmethod
+    async def load_partial(
+        self,
+        run_metadata: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Load completed test-case results from a prior run's partial JSONL.
+
+        Used on `--resume` to skip already-completed cases. Matches by glob
+        pattern on (mode, scope, model_name); when multiple partial files
+        match, picks the most-recent by mtime. Validates the header's
+        judge_config matches `run_metadata["judge_config"]`; bails out
+        otherwise to prevent mixed-config result sets.
+
+        Args:
+            run_metadata: Current invocation's metadata. Must include the
+                same keys as `append_partial`.
+
+        Returns:
+            None when no matching partial file exists. Otherwise a dict:
+                {
+                    "partial_path": str,
+                    "header": {...original run metadata...},
+                    "completed_test_ids": set[str],
+                    "completed_results": list[EvaluationResult],
+                }
+
+        Raises:
+            ValueError: If the partial file's header is incompatible with
+                the current invocation (e.g., judge_config drift).
+        """
+        pass
+
+    @abstractmethod
     async def save_query_run(
         self,
         metadata: Dict[str, Any],
