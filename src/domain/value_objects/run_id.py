@@ -5,9 +5,20 @@ Immutable identifier for an evaluation run.
 Format: eval-run-{mode}-{scope}-{yyyyMMdd}-{HHmm}
 """
 
+import hashlib
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
+
+
+# Filename-safety: most filesystems cap individual path components at 255 bytes.
+# When many test_ids would be concatenated into a scope string, we collapse the
+# full list into a count + content hash to keep run-id-derived filenames under
+# the limit. Threshold chosen so the longest suffix used for filenames
+# (-yyyyMMdd-HHmm-...-mode-name.json, ~50 chars) plus the eval-run-mode-test-
+# prefix and 5 dash-separated test IDs (e.g., 5 * 8 + 4 dashes = 44 chars) fits
+# well under 255.
+_MAX_INLINE_TEST_IDS = 5
 
 
 _VALID_MODES = {"hybrid", "llm-only", "rag-only"}
@@ -85,7 +96,13 @@ class RunId:
             sorted_ids = sorted(test_ids)
             if len(sorted_ids) == 1:
                 return f"test-{sorted_ids[0]}"
-            return "test-" + "-".join(sorted_ids)
+            if len(sorted_ids) <= _MAX_INLINE_TEST_IDS:
+                return "test-" + "-".join(sorted_ids)
+            # Collapse large lists to count + deterministic hash to keep the
+            # filename within OS limits (255-byte component cap on most FSes).
+            joined = "|".join(sorted_ids)
+            digest = hashlib.sha1(joined.encode("utf-8")).hexdigest()[:8]
+            return f"tests-{len(sorted_ids)}-{digest}"
 
         if tier is not None:
             return f"tier-{tier}"

@@ -191,6 +191,56 @@ class TestBuildScopeTestIds:
         )
         assert scope == "test-B3-001"
 
+    def test_five_test_ids_inlined(self):
+        """Up to 5 test ids stay in the filename for legibility."""
+        scope = RunId.build_scope(
+            tier=None,
+            benchmarks=None,
+            test_ids=["B01-007", "B01-009", "B02-012", "B02-014", "B03-002"],
+            total_benchmarks_available=24,
+        )
+        assert scope == "test-B01-007-B01-009-B02-012-B02-014-B03-002"
+
+    def test_six_test_ids_collapsed_to_count_and_hash(self):
+        """Beyond 5 test ids, filename collapses to count + content hash."""
+        scope = RunId.build_scope(
+            tier=None,
+            benchmarks=None,
+            test_ids=["B01-007", "B01-009", "B02-012", "B02-014", "B03-002", "B03-030"],
+            total_benchmarks_available=24,
+        )
+        assert scope.startswith("tests-6-")
+        assert len(scope) == len("tests-6-") + 8  # 8-char sha1 prefix
+
+    def test_thirty_test_ids_keeps_filename_short(self):
+        """The B1 stratified-sample case: 30 test_ids must not blow OS filename limit."""
+        ids = [f"B0{i}-{j:03d}" for i in range(1, 4) for j in range(1, 11)]
+        scope = RunId.build_scope(
+            tier=None,
+            benchmarks=None,
+            test_ids=ids,
+            total_benchmarks_available=24,
+        )
+        assert scope.startswith("tests-30-")
+        # Full filename including run-id prefix and result suffix must stay
+        # well under the 255-byte filesystem limit.
+        full_filename = (
+            f"eval-run-llm-only-{scope}-20260425-1100-primus-reasoning.json"
+        )
+        assert len(full_filename) < 255
+
+    def test_collapse_is_deterministic_under_reordering(self):
+        """Hash uses sorted ids, so input order must not matter."""
+        ids_a = ["B01-007", "B01-009", "B02-012", "B02-014", "B03-002", "B03-030"]
+        ids_b = list(reversed(ids_a))
+        scope_a = RunId.build_scope(
+            tier=None, benchmarks=None, test_ids=ids_a, total_benchmarks_available=24
+        )
+        scope_b = RunId.build_scope(
+            tier=None, benchmarks=None, test_ids=ids_b, total_benchmarks_available=24
+        )
+        assert scope_a == scope_b
+
 
 class TestForQuery:
     def test_for_query_produces_scope_query(self):
