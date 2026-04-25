@@ -377,9 +377,29 @@ class JSONResultRepository(IResultRepository):
             except (ValueError, AttributeError):
                 evaluated_at = _dt.utcnow()
 
+            # Restore per-dimension metrics so resume → consolidate preserves
+            # the full scoring detail. Without this, the consolidated output
+            # has overall_score set but metrics list empty.
+            from domain.value_objects.evaluation_metric import EvaluationMetric
+            metrics = []
+            for m in entry.get("metrics", []) or []:
+                try:
+                    metrics.append(
+                        EvaluationMetric(
+                            name=m["name"],
+                            value=float(m["value"]),
+                            weight=float(m.get("weight", 1.0)),
+                        )
+                    )
+                except (KeyError, TypeError, ValueError) as exc:
+                    self._logger.warning(
+                        f"Skipping malformed metric entry in {test_id}: {exc}"
+                    )
+
             result = EvaluationResult(
                 test_case=test_case,
                 model_response=model_response,
+                metrics=metrics,
                 overall_score=entry.get("score"),
                 passed=entry.get("passed"),
                 evaluated_at=evaluated_at,
