@@ -38,11 +38,41 @@ class Settings(BaseSettings):
     # LLM Judge Configuration
     llm_judge_model: str = Field(
         default="sonnet",
-        description="Model for LLM-as-Judge benchmark scoring (via Claude CLI)"
+        description="DEPRECATED: legacy Claude CLI judge model (superseded by openrouter_* fields below)"
     )
     judge_mode: str = Field(
         default="rubric",
         description="Judge mode: rubric (per-benchmark rubrics) or universal (reasoning depth + hallucination)"
+    )
+
+    # OpenRouter Judge Configuration (Path B 2-judge methodology)
+    openrouter_api_key: Optional[str] = Field(
+        default=None,
+        description="OpenRouter API key (required for judge calls; set in .env.local)"
+    )
+    openrouter_base_url: str = Field(
+        default="https://openrouter.ai/api/v1",
+        description="OpenRouter OpenAI-compatible API base URL"
+    )
+    judge_primary_model: str = Field(
+        default="qwen/qwen3-235b-a22b-07-25",
+        description="Primary judge model ID on OpenRouter (runs on every eval)"
+    )
+    judge_secondary_model: str = Field(
+        default="openai/gpt-4o-mini-2024-07-18",
+        description="Secondary judge model ID on OpenRouter (runs only for inter-judge kappa measurement snapshots)"
+    )
+    judge_temperature: float = Field(
+        default=0.2,
+        description="Judge sampling temperature (0.0-1.0); 0.2 is the variance-reduction sweet spot"
+    )
+    judge_max_retries: int = Field(
+        default=3,
+        description="Max retries on OpenRouter API failure before raising JudgeAPIError"
+    )
+    judge_timeout: int = Field(
+        default=60,
+        description="Per-call timeout in seconds for OpenRouter judge calls"
     )
 
     # Model Configuration
