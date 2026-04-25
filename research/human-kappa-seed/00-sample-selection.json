@@ -1,0 +1,411 @@
+[
+  {
+    "test_id": "B01-007",
+    "benchmark_id": "B01",
+    "source_file": "b01_ccop_applicability_scope.jsonl",
+    "clause_reference": [
+      "CCoP 2.0 supply chain clauses",
+      "CCoP Section 5.5",
+      "Section 11 Cybersecurity Act",
+      "Section 14 Cybersecurity Act"
+    ],
+    "difficulty": "medium",
+    "domain": "OT",
+    "scenario_type": "outsourced_cii_accountability",
+    "section": "CCoP 2.0 Scope, Supply Chain"
+  },
+  {
+    "test_id": "B02-014",
+    "benchmark_id": "B02",
+    "source_file": "b02_compliance_classification.jsonl",
+    "clause_reference": [
+      "5.10.1(e)",
+      "Section 10 OT Addendum",
+      "Section 11(7) Cybersecurity Act"
+    ],
+    "difficulty": "high",
+    "domain": "OT",
+    "scenario_type": "legacy_ot_patching_waiver",
+    "section": "5"
+  },
+  {
+    "test_id": "B03-002",
+    "benchmark_id": "B03",
+    "source_file": "b03_conditional_compliance_reasoning.jsonl",
+    "clause_reference": [
+      "10.2.1",
+      "5.5.1",
+      "5.5.2"
+    ],
+    "difficulty": "medium",
+    "domain": "OT",
+    "scenario_type": "conditional_compliance",
+    "section": "5"
+  },
+  {
+    "test_id": "B04-005",
+    "benchmark_id": "B04",
+    "source_file": "b04_it_ot_classification_boundary.jsonl",
+    "clause_reference": [
+      "10.1",
+      "10.2.3",
+      "10.3.2",
+      "5.4.1"
+    ],
+    "difficulty": "medium",
+    "domain": "IT/OT",
+    "scenario_type": "industrial_control_classification",
+    "section": "Section 10: Operational Technology Security"
+  },
+  {
+    "test_id": "B05-013",
+    "benchmark_id": "B05",
+    "source_file": "b05_control_comprehension.jsonl",
+    "clause_reference": [
+      "1.6.1",
+      "1.6.2",
+      "1.6.3",
+      "3.2.1"
+    ],
+    "difficulty": "medium",
+    "domain": "IT",
+    "scenario_type": "edge_case",
+    "section": "1"
+  },
+  {
+    "test_id": "B06-002",
+    "benchmark_id": "B06",
+    "source_file": "b06_intent_understanding.jsonl",
+    "clause_reference": [
+      "5.1.2",
+      "5.3.1",
+      "5.7.2"
+    ],
+    "difficulty": "medium",
+    "domain": "IT",
+    "scenario_type": "intent_analysis",
+    "section": "5"
+  },
+  {
+    "test_id": "B07-015",
+    "benchmark_id": "B07",
+    "source_file": "b07_gap_identification_quality.jsonl",
+    "clause_reference": [
+      "6.2.1",
+      "6.2.2",
+      "6.2.3"
+    ],
+    "difficulty": "medium",
+    "domain": "IT",
+    "scenario_type": "inadequate_implementation",
+    "section": "6"
+  },
+  {
+    "test_id": "B08-018",
+    "benchmark_id": "B08",
+    "source_file": "b08_risk_based_prioritization.jsonl",
+    "clause_reference": [
+      "3.2.2(b)",
+      "3.2.2(c)"
+    ],
+    "difficulty": "high",
+    "domain": "IT",
+    "scenario_type": "prioritization",
+    "section": "3"
+  },
+  {
+    "test_id": "B09-019",
+    "benchmark_id": "B09",
+    "source_file": "b09_risk_identification_residual_risk.jsonl",
+    "clause_reference": [
+      "3.2.2(a)",
+      "3.2.4",
+      "3.2.5"
+    ],
+    "difficulty": "high",
+    "domain": "IT",
+    "scenario_type": "residual_risk",
+    "section": "3"
+  },
+  {
+    "test_id": "B10-015",
+    "benchmark_id": "B10",
+    "source_file": "b10_risk_justification_coherence.jsonl",
+    "clause_reference": [
+      "8.1"
+    ],
+    "difficulty": "high",
+    "domain": "IT",
+    "scenario_type": "risk_articulation",
+    "section": "8"
+  },
+  {
+    "test_id": "B12-016",
+    "benchmark_id": "B12",
+    "source_file": "b12_audit_perspective_alignment.jsonl",
+    "clause_reference": [
+      "3.8.1",
+      "3.8.2",
+      "3.8.3",
+      "3.8.4",
+      "3.8.5"
+    ],
+    "difficulty": "high",
+    "domain": "IT",
+    "scenario_type": "audit_preparation",
+    "section": "3"
+  },
+  {
+    "test_id": "B13-003",
+    "benchmark_id": "B13",
+    "source_file": "b13_evidence_expectation_awareness.jsonl",
+    "clause_reference": [
+      "4.1"
+    ],
+    "difficulty": "high",
+    "domain": "IT",
+    "scenario_type": "evidence_preparation",
+    "section": "4"
+  },
+  {
+    "test_id": "B14-001",
+    "benchmark_id": "B14",
+    "source_file": "b14_remediation_quality_feasibility.jsonl",
+    "clause_reference": [
+      "6.1.1"
+    ],
+    "difficulty": "medium",
+    "domain": "IT",
+    "scenario_type": "remediation_scenario",
+    "section": "6"
+  },
+  {
+    "test_id": "B18-001",
+    "benchmark_id": "B18",
+    "source_file": "b18_responsibility_attribution_sg.jsonl",
+    "clause_reference": [
+      "8.1.1"
+    ],
+    "difficulty": "medium",
+    "domain": "IT",
+    "scenario_type": "responsibility_attribution",
+    "section": "8"
+  },
+  {
+    "test_id": "B21-022",
+    "benchmark_id": "B21",
+    "source_file": "b21_hallucination_over_specification.jsonl",
+    "clause_reference": [
+      "Cybersecurity Act Section 11",
+      "Section 2"
+    ],
+    "difficulty": "high",
+    "domain": "IT",
+    "scenario_type": "non_existent_designation_period",
+    "section": "CCoP 2.0 Scope"
+  },
+  {
+    "test_id": "B22-015",
+    "benchmark_id": "B22",
+    "source_file": "b22_waiver_exception_reasoning.jsonl",
+    "clause_reference": [
+      "1.6.1",
+      "1.6.2",
+      "1.6.3"
+    ],
+    "difficulty": "high",
+    "domain": "IT",
+    "scenario_type": "waiver_reasoning",
+    "section": "1"
+  },
+  {
+    "test_id": "B23-001",
+    "benchmark_id": "B23",
+    "source_file": "b23_multi_regulator_coordination.jsonl",
+    "clause_reference": [
+      "11.1"
+    ],
+    "difficulty": "medium",
+    "domain": "IT",
+    "scenario_type": "regulatory_coordination",
+    "section": "11"
+  },
+  {
+    "test_id": "B24-003",
+    "benchmark_id": "B24",
+    "source_file": "b24_incident_response_guidance.jsonl",
+    "clause_reference": [
+      "7.1.1(b)",
+      "7.1.1(g)",
+      "7.1.1(i)",
+      "7.1.4"
+    ],
+    "difficulty": "medium",
+    "domain": "IT",
+    "scenario_type": "incident_guidance",
+    "section": "7"
+  },
+  {
+    "test_id": "B05-016",
+    "benchmark_id": "B05",
+    "source_file": "b05_control_comprehension.jsonl",
+    "clause_reference": [
+      "5.11.1",
+      "5.11.2",
+      "5.11.3",
+      "5.11.4"
+    ],
+    "difficulty": "medium",
+    "domain": "IT",
+    "scenario_type": "edge_case",
+    "section": "5"
+  },
+  {
+    "test_id": "B12-008",
+    "benchmark_id": "B12",
+    "source_file": "b12_audit_perspective_alignment.jsonl",
+    "clause_reference": [
+      "8.2.1",
+      "8.2.2",
+      "8.2.3",
+      "8.2.4"
+    ],
+    "difficulty": "medium",
+    "domain": "IT",
+    "scenario_type": "audit_preparation",
+    "section": "8"
+  },
+  {
+    "test_id": "B24-022",
+    "benchmark_id": "B24",
+    "source_file": "b24_incident_response_guidance.jsonl",
+    "clause_reference": [
+      "6.4.1",
+      "6.4.3",
+      "7.1.1(a)",
+      "7.1.1(d)"
+    ],
+    "difficulty": "medium",
+    "domain": "IT",
+    "scenario_type": "incident_guidance",
+    "section": "7"
+  },
+  {
+    "test_id": "B01-009",
+    "benchmark_id": "B01",
+    "source_file": "b01_ccop_applicability_scope.jsonl",
+    "clause_reference": [
+      "CCoP 2.0 OT Addendum",
+      "CCoP 2.0 Scope section",
+      "Section 10 OT Security"
+    ],
+    "difficulty": "high",
+    "domain": "IT/OT",
+    "scenario_type": "ot_addendum_scope",
+    "section": "CCoP 2.0 OT Addendum"
+  },
+  {
+    "test_id": "B02-012",
+    "benchmark_id": "B02",
+    "source_file": "b02_compliance_classification.jsonl",
+    "clause_reference": [
+      "6.1",
+      "6.1.3",
+      "6.2"
+    ],
+    "difficulty": "medium",
+    "domain": "OT",
+    "scenario_type": "log_integrity_compliance",
+    "section": "Section 6: Detection"
+  },
+  {
+    "test_id": "B03-030",
+    "benchmark_id": "B03",
+    "source_file": "b03_conditional_compliance_reasoning.jsonl",
+    "clause_reference": [
+      "1.4.1",
+      "1.4.5",
+      "1.5.1"
+    ],
+    "difficulty": "medium",
+    "domain": "OT",
+    "scenario_type": "conditional_compliance",
+    "section": "1"
+  },
+  {
+    "test_id": "B06-013",
+    "benchmark_id": "B06",
+    "source_file": "b06_intent_understanding.jsonl",
+    "clause_reference": [
+      "5.2.1",
+      "5.2.2"
+    ],
+    "difficulty": "medium",
+    "domain": "IT",
+    "scenario_type": "intent_analysis",
+    "section": "5"
+  },
+  {
+    "test_id": "B04-001",
+    "benchmark_id": "B04",
+    "source_file": "b04_it_ot_classification_boundary.jsonl",
+    "clause_reference": [
+      "10.1",
+      "10.1.1",
+      "5.1"
+    ],
+    "difficulty": "medium",
+    "domain": "IT/OT",
+    "scenario_type": "multi_system_classification",
+    "section": "Section 10: Operational Technology Security"
+  },
+  {
+    "test_id": "B07-022",
+    "benchmark_id": "B07",
+    "source_file": "b07_gap_identification_quality.jsonl",
+    "clause_reference": [
+      "7.2.3"
+    ],
+    "difficulty": "high",
+    "domain": "IT",
+    "scenario_type": "inadequate_implementation",
+    "section": "7"
+  },
+  {
+    "test_id": "B13-009",
+    "benchmark_id": "B13",
+    "source_file": "b13_evidence_expectation_awareness.jsonl",
+    "clause_reference": [
+      "7.1"
+    ],
+    "difficulty": "high",
+    "domain": "IT",
+    "scenario_type": "evidence_preparation",
+    "section": "7"
+  },
+  {
+    "test_id": "B21-001",
+    "benchmark_id": "B21",
+    "source_file": "b21_hallucination_over_specification.jsonl",
+    "clause_reference": [
+      "N/A"
+    ],
+    "difficulty": "high",
+    "domain": "IT",
+    "scenario_type": "non_existent_clause",
+    "section": "Non-existent Clause"
+  },
+  {
+    "test_id": "B08-001",
+    "benchmark_id": "B08",
+    "source_file": "b08_risk_based_prioritization.jsonl",
+    "clause_reference": [
+      "3.2.2(b)",
+      "3.2.2(c)"
+    ],
+    "difficulty": "low",
+    "domain": "IT",
+    "scenario_type": "prioritization",
+    "section": "3"
+  }
+]
