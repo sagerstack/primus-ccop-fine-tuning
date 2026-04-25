@@ -1,22 +1,34 @@
 """
-LLM-as-Judge evaluation service using Claude Agent SDK.
+LLM-as-Judge evaluation service using OpenRouter.
 
 Loads benchmark-specific rubric prompts from evaluation-rubrics.md.
 Uses 0-3 anchored scale with Chain-of-Thought instruction.
 Skip-and-flag error handling (no fallback scores).
+
+Judge calls route through OpenRouter (OpenAI-compatible API) supporting:
+  - Primary judge (runs on every eval): Qwen3-235B-A22B by default
+  - Secondary judge (runs only on measurement snapshots): GPT-4o-mini by default
+
+Path B 2-judge methodology — see:
+  research/llm-judge-cybersec/followup-openrouter-judge/30-recommendation.md
 """
 
 import json
 import logging
 import re
-import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
 from domain.entities.model_response import ModelResponse
 from domain.entities.test_case import TestCase
 from domain.services.response_extractor import extract_final_answer
+
+if TYPE_CHECKING:
+    # Lazy-imported at runtime inside __init__ to avoid the
+    # domain -> infrastructure -> application -> domain cycle through
+    # infrastructure/__init__.py. See note in __init__.
+    from infrastructure.external.openrouter_client import OpenRouterClient
 
 logger = logging.getLogger(__name__)
 
@@ -273,6 +285,10 @@ Return ONLY valid JSON (no markdown):
         self,
         model_name: Optional[str] = None,
         rubric_path: Optional[str] = None,
+        *,
+        openrouter_client: "Optional[OpenRouterClient]" = None,
+        secondary_model: Optional[str] = None,
+        temperature: Optional[float] = None,
     ) -> None:
         """
         Initialize LLM judge service.
@@ -280,19 +296,46 @@ Return ONLY valid JSON (no markdown):
         Loads and caches rubric templates from evaluation-rubrics.md.
 
         Args:
-            model_name: Claude model to use for judging. If None, reads from
-                CCOP_LLM_JUDGE_MODEL setting (defaults to "sonnet").
+            model_name: Primary judge model ID (OpenRouter slug, e.g.,
+                "qwen/qwen3-235b-a22b-07-25"). If None, reads from
+                CCOP_JUDGE_PRIMARY_MODEL setting.
             rubric_path: Path to evaluation-rubrics.md. Defaults to
                 docs/phase-2/evaluation-rubrics.md relative to project root.
+            openrouter_client: Optional OpenRouterClient instance. If None,
+                constructs one from settings. Allows DI for testing.
+            secondary_model: Secondary judge model ID for dual-judge runs
+                (measurement snapshots). If None, reads from
+                CCOP_JUDGE_SECONDARY_MODEL setting.
+            temperature: Judge sampling temperature. If None, reads from
+                CCOP_JUDGE_TEMPERATURE setting (default 0.2).
         """
-        if model_name is None:
-            from infrastructure.config.settings import get_settings
-            settings = get_settings()
-            model_name = settings.llm_judge_model
-            self._timeout = settings.claude_cli_timeout
+        # Lazy imports to avoid circular-import cycle at module load:
+        # domain -> infrastructure -> application -> domain via infrastructure/__init__.py.
+        from infrastructure.config.settings import get_settings
+        from infrastructure.external.openrouter_client import OpenRouterClient as _OpenRouterClient
+        settings = get_settings()
+
+        self._model = model_name or settings.judge_primary_model
+        self._secondary_model = secondary_model or settings.judge_secondary_model
+        self._temperature = (
+            temperature if temperature is not None else settings.judge_temperature
+        )
+
+        if openrouter_client is not None:
+            self._judge_client = openrouter_client
         else:
-            self._timeout = 120
-        self._model = model_name
+            if not settings.openrouter_api_key:
+                raise ValueError(
+                    "OpenRouter API key missing. Set CCOP_OPENROUTER_API_KEY in "
+                    "src/config/.env.local. Get a key at https://openrouter.ai."
+                )
+            self._judge_client = _OpenRouterClient(
+                api_key=settings.openrouter_api_key,
+                base_url=settings.openrouter_base_url,
+                timeout=settings.judge_timeout,
+                max_retries=settings.judge_max_retries,
+            )
+
         self._rubric_path = Path(rubric_path) if rubric_path else (
             _PROJECT_ROOT / "docs" / "phase-2" / "evaluation-rubrics.md"
         )
@@ -610,7 +653,7 @@ Return ONLY valid JSON (no markdown):
             judge_prompt = self._build_judge_prompt(test_case, response, benchmark_id)
             if isinstance(judge_prompt, JudgeEvaluation):
                 return judge_prompt  # Error from missing rubric
-            judge_response = self._call_claude_agent(judge_prompt)
+            judge_response = self._call_judge(judge_prompt)
             evaluation = self._parse_judge_response(judge_response)
             return evaluation
         except Exception as e:
@@ -663,7 +706,7 @@ Return ONLY valid JSON (no markdown):
             )
 
             # Call Claude judge
-            judge_response = self._call_claude_agent(judge_prompt)
+            judge_response = self._call_judge(judge_prompt)
 
             # Parse universal judge response
             evaluation = self._parse_universal_judge_response(judge_response)
@@ -676,32 +719,67 @@ Return ONLY valid JSON (no markdown):
                 raw_response="",
             )
 
-    def _call_claude_agent(self, prompt: str) -> str:
+    def _call_judge(
+        self,
+        prompt: str,
+        *,
+        role: str = "primary",
+        seed: Optional[int] = None,
+    ) -> str:
         """
-        Call Claude Agent SDK via subprocess.
+        Call a judge model via OpenRouter.
 
         Args:
-            prompt: Evaluation prompt
+            prompt: Evaluation prompt (full rubric + ground-truth injection).
+            role: "primary" (default) or "secondary" — selects which model ID.
+            seed: Optional seed for byte-level reproducibility on supporting models.
 
         Returns:
-            Claude's response
+            Judge's text response.
 
         Raises:
-            subprocess.CalledProcessError: If Claude call fails
-            subprocess.TimeoutExpired: If call times out
+            JudgeAPIError: If the call fails after all retries.
+            ValueError: If role is not "primary" or "secondary".
         """
-        result = subprocess.run(
-            ["claude", "chat", "--model", self._model],
-            input=prompt,
-            capture_output=True,
-            text=True,
-            timeout=self._timeout,
+        if role == "primary":
+            model_id = self._model
+        elif role == "secondary":
+            model_id = self._secondary_model
+        else:
+            raise ValueError(f"Unknown judge role: {role!r}. Use 'primary' or 'secondary'.")
+
+        return self._judge_client.call(
+            prompt,
+            model=model_id,
+            temperature=self._temperature,
+            seed=seed,
         )
 
-        if result.returncode != 0:
-            raise RuntimeError(f"Claude Agent SDK error: {result.stderr}")
+    def _call_both_judges(
+        self,
+        prompt: str,
+        *,
+        seed: Optional[int] = None,
+    ) -> Tuple[str, str]:
+        """
+        Call both primary and secondary judges with the same prompt.
 
-        return result.stdout
+        Used for measurement snapshots where inter-judge agreement is computed.
+        Not called from normal evaluation paths — those call only the primary.
+
+        Args:
+            prompt: Evaluation prompt.
+            seed: Optional seed forwarded to both models.
+
+        Returns:
+            Tuple (primary_response, secondary_response).
+
+        Raises:
+            JudgeAPIError: If either call fails after retries.
+        """
+        primary = self._call_judge(prompt, role="primary", seed=seed)
+        secondary = self._call_judge(prompt, role="secondary", seed=seed)
+        return primary, secondary
 
     def _build_judge_prompt(
         self,
