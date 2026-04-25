@@ -549,3 +549,79 @@ def run(
         if ctx.obj.get("debug"):
             raise
         raise typer.Exit(1)
+
+
+@evaluate_app.command()
+def rescore(
+    ctx: typer.Context,
+    source_run_id: str = typer.Option(
+        ...,
+        "--source-run-id",
+        help=(
+            "Run ID of the source evaluation to rescore (format: "
+            "eval-run-{mode}-{scope}-{yyyyMMdd}-{HHmm}, no model suffix). "
+            "Loads frozen Primus responses + retrieved contexts and re-runs "
+            "the LLM judge without re-running model inference."
+        ),
+    ),
+    judge_mode: str = typer.Option(
+        "rubric",
+        "--judge-mode",
+        help="Judge mode: rubric (universal 5-dim) or universal (hallucination + reasoning)",
+    ),
+    save: bool = typer.Option(True, "--save/--no-save", help="Save rescored results"),
+    resume: bool = typer.Option(
+        False,
+        "--resume",
+        help="Resume from a prior partial rescore run with the same source",
+    ),
+) -> None:
+    """Re-run the LLM judge on a prior run's frozen responses (no Primus inference)."""
+    from infrastructure.config.settings import get_settings
+    from application.use_cases.rescore_evaluation import RescoreEvaluationUseCase
+
+    if judge_mode not in ["rubric", "universal"]:
+        console.print(
+            f"[red]Invalid judge_mode: {judge_mode}. Must be 'rubric' or 'universal'.[/red]"
+        )
+        raise typer.Exit(1)
+
+    container = ctx.obj["container"]
+    settings = get_settings()
+
+    use_case = RescoreEvaluationUseCase(
+        test_case_repository=container.test_case_repository(),
+        result_repository=container.result_repository(),
+        results_dir=Path(settings.results_dir),
+        logger=container.logger(),
+    )
+
+    console.print(f"[bold]Source run:[/bold] {source_run_id}")
+    console.print(f"[bold]Judge mode:[/bold] {judge_mode}")
+    console.print(f"[bold]Resume:[/bold] {resume}")
+
+    try:
+        console.print("\n[yellow]Rescoring frozen responses...[/yellow]\n")
+        summary = asyncio.run(
+            use_case.execute(
+                source_run_id=source_run_id,
+                judge_mode=judge_mode,
+                save_results=save,
+                resume=resume,
+            )
+        )
+
+        console.print("\n[green]Rescore complete[/green]")
+        console.print(f"  Total cases: {summary.total_tests}")
+        console.print(f"  Passed:      {summary.passed_tests}")
+        console.print(f"  Failed:      {summary.failed_tests}")
+        console.print(f"  Overall:     {summary.overall_score:.2%}")
+
+    except FileNotFoundError as e:
+        console.print(f"[red]{e}[/red]")
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"[red]Rescore failed: {e}[/red]")
+        if ctx.obj.get("debug"):
+            raise
+        raise typer.Exit(1)
