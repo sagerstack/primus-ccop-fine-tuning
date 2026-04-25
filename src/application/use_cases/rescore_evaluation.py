@@ -190,6 +190,11 @@ class RescoreEvaluationUseCase:
                 system_prompt=entry.get("system_prompt", ""),
                 user_prompt=entry.get("user_prompt", ""),
             )
+            # Compute composite score + pass/fail using the source run's
+            # phase-specific threshold (preserves the same pass-bar as the
+            # original run for comparability).
+            threshold = self._derive_threshold(source_metadata)
+            result.finalize(threshold=threshold)
             results.append(result)
 
             if save_results:
@@ -222,6 +227,21 @@ class RescoreEvaluationUseCase:
             self._logger.info(f"Saved rescored run to {filepath}")
 
         return summary
+
+    def _derive_threshold(self, source_metadata: Dict[str, Any]) -> Optional[float]:
+        """Pull the source run's pass threshold so rescored pass/fail uses the same bar.
+
+        Falls back to phase-specific default when the source has no explicit
+        threshold; falls back to baseline (0.15) when phase is also missing.
+        """
+        explicit = source_metadata.get("pass_threshold")
+        if explicit is not None:
+            try:
+                return float(explicit)
+            except (TypeError, ValueError):
+                pass
+        phase = source_metadata.get("evaluation_phase", "baseline")
+        return {"baseline": 0.15, "finetuned": 0.50, "deployment": 0.85}.get(phase, 0.15)
 
     def _find_source_file(self, source_run_id: str) -> Path:
         """Glob across monthly subdirs for the source run's consolidated JSON."""
