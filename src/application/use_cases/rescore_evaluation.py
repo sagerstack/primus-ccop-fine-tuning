@@ -370,18 +370,39 @@ class RescoreEvaluationUseCase:
             by_benchmark={},
             by_difficulty={},
             quality_categories=None,
+            evaluation_started_at=start_time,
+            evaluation_completed_at=end_time,
             total_duration_seconds=duration,
         )
 
     def _result_to_dto(self, result: EvaluationResult) -> Any:
         """Lightweight result-to-DTO conversion (mirrors EvaluateModelUseCase)."""
-        from application.dtos.evaluation_result_dto import EvaluationResultDTO
+        from application.dtos.evaluation_result_dto import (
+            EvaluationResultDTO,
+            MetricDTO,
+        )
         return EvaluationResultDTO(
+            result_id=result.result_id,
             test_id=result.test_case.test_id,
-            benchmark=result.test_case.benchmark_type.value,
-            score=result.overall_score or 0.0,
-            passed=result.passed if result.passed is not None else False,
-            metrics={m.name: m.value for m in result.metrics},
+            benchmark_type=result.test_case.benchmark_type.value,
+            question=result.test_case.question,
+            model_name=result.model_response.model_name,
+            response_content=result.model_response.content,
+            metrics=[
+                MetricDTO(
+                    name=m.name,
+                    value=m.value,
+                    weight=m.weight,
+                )
+                for m in result.metrics
+            ],
+            overall_score=result.overall_score,
+            passed=result.passed,
+            threshold=0.15,  # Baseline phase default; rescore preserves source threshold via finalize()
+            tokens_used=result.model_response.tokens_used,
+            latency_ms=result.model_response.latency_ms,
+            evaluated_at=result.evaluated_at,
+            evaluation_mode=result.evaluation_mode,
         )
 
     def _build_consolidated_metadata(
