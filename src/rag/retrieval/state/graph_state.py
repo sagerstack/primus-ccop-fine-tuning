@@ -36,6 +36,12 @@ class GraphState(TypedDict):
     # Reranker fields (Phase 1.3)
     reranker_scores: List[float]  # Cross-encoder scores for all retrieved docs (before top-N selection)
 
+    # Lab Exp #41 production-promoted fields:
+    hyde_query: str  # gpt-4o-mini-generated hypothetical clause (used for retrieval embedding)
+    dense_ranks: List[int]  # Original dense-retrieval rank for each retrieved doc
+    rrf_scores: List[float]  # Reciprocal Rank Fusion combined score
+    merged_groups: List[Dict]  # Parent-child merged sibling groups, if any
+
     # Generation fields
     generation: str
     is_rag_augmented: bool

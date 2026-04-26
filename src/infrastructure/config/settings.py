@@ -280,14 +280,60 @@ class Settings(BaseSettings):
 
     # Retrieval Funnel Configuration (Phase 1.3)
     rerank_top_n: int = Field(
-        default=3,
+        default=8,  # Bumped from 3 per Exp #41 finding (recall@8 ≈ 0.65)
         ge=1,
         le=20,
         description="Number of documents to keep after cross-encoder reranking"
     )
     cross_encoder_model: str = Field(
-        default="cross-encoder/ms-marco-MiniLM-L12-v2",
+        default="BAAI/bge-reranker-large",  # Per Exp #7
         description="Cross-encoder model for reranking (HuggingFace model ID)"
+    )
+
+    # Production retrieval architecture (per lab research, Exp #41)
+    rag_retrieval_mode: str = Field(
+        default="dense",  # vs "hybrid"; per Exp #11 — dense-only beats hybrid+RRF
+        description="Retrieval mode: 'dense' (pure cosine), 'hybrid' (RRF dense+sparse), or 'sparse'"
+    )
+    rag_contextualization_enabled: bool = Field(
+        default=True,
+        description="Whether to augment chunks with breadcrumb + LLM-generated context at indexing time (Exp #14, #41)"
+    )
+    rag_contextualization_model: str = Field(
+        default="openai/gpt-4o-mini",
+        description="OpenRouter model for context generation (acronyms-only prompt per Exp #41)"
+    )
+    rag_hyde_enabled: bool = Field(
+        default=True,
+        description="Whether to apply HyDE query rewriting before retrieval (Exp #17)"
+    )
+    rag_hyde_model: str = Field(
+        default="openai/gpt-4o-mini",
+        description="OpenRouter model for HyDE hypothetical-clause generation"
+    )
+    rag_rrf_dense_weight: float = Field(
+        default=1.0,
+        description="RRF weight on dense rank (Exp #28 found CE-favored 1:1.5 best)"
+    )
+    rag_rrf_ce_weight: float = Field(
+        default=1.5,
+        description="RRF weight on cross-encoder rank (Exp #28)"
+    )
+    rag_merge_parent_enabled: bool = Field(
+        default=True,
+        description="Whether to merge sibling chunks into parent groups after reranking (Exp #16)"
+    )
+    rag_merge_window: int = Field(
+        default=40,
+        description="Top-K reranked window size for parent-child sibling detection (Exp #33)"
+    )
+    rag_merge_min_siblings: int = Field(
+        default=2,
+        description="Minimum sibling clauses required to trigger parent merge"
+    )
+    rag_collection_name_contextual: str = Field(
+        default="ccop_clauses_contextual_v3",
+        description="Production Qdrant collection with contextual augmentation (Exp #41)"
     )
 
     # RAGAs Configuration
