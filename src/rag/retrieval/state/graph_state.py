@@ -43,7 +43,8 @@ class GraphState(TypedDict):
     merged_groups: List[Dict]  # Parent-child merged sibling groups, if any
 
     # Generation fields
-    generation: str
+    generation: str          # post-processor output (citation block parsed, References footer appended if applicable)
+    raw_generation: str      # pre-processor model output (still contains the literal <Sources> block, no formatter changes)
     is_rag_augmented: bool
     citations: List[dict]
     llm_context: str

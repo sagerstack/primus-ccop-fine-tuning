@@ -6,6 +6,8 @@ CLI command for evaluating models.
 
 import asyncio
 import json
+import logging
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
@@ -20,6 +22,7 @@ from application.dtos.evaluation_request_dto import EvaluationRequestDTO
 from domain.value_objects.evaluation_tier import EvaluationTier
 from domain.value_objects.quality_group import QualityGroup
 from domain.value_objects.run_id import RunId
+from presentation.cli.formatters import build_per_result_panel
 
 evaluate_app = typer.Typer()
 console = Console()
@@ -68,6 +71,12 @@ def run(
         "--verbose-io",
         help="Show captured system/user prompts and retrieved contexts per test case"
     ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Raise pipeline log level to INFO (surfaces TOC filter, RRF ensemble, parent-merge diagnostics from rag.retrieval.* loggers). Same semantics as `query ask --verbose`."
+    ),
     resume: bool = typer.Option(
         False,
         "--resume",
@@ -80,6 +89,19 @@ def run(
 ) -> None:
     """Run model evaluation."""
     from infrastructure.config.settings import get_settings
+
+    # Verbose log routing — match `query ask --verbose` behaviour so rag.retrieval.*
+    # diagnostics (TOC filter, RRF ensemble, parent-merge) surface in eval runs too.
+    if verbose:
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(name)s | %(message)s",
+            stream=sys.stderr,
+            force=True,
+        )
+        # Suppress noisy third-party loggers
+        for noisy in ("httpx", "httpcore", "urllib3", "databricks", "mlflow"):
+            logging.getLogger(noisy).setLevel(logging.WARNING)
 
     container = ctx.obj["container"]
     use_case = container.evaluate_model_use_case()
@@ -183,197 +205,90 @@ def run(
                 with open(sidecar_path) as _f:
                     sidecar = json.load(_f)
 
-        # Per-test-case detail output
+        # Per-test-case detail output — uses shared renderer (presentation.cli.formatters)
+        # so that `query ask` produces an equivalent panel for ad-hoc queries.
         console.print("\n[bold]Per-Test-Case Results[/bold]\n")
         for r in summary.results:
-            status_label = "[bold green]PASS[/bold green]" if r.passed else "[bold red]FAIL[/bold red]"
             score_str = f"{r.overall_score:.2f}" if r.overall_score is not None else "N/A"
-            border_style = "green" if r.passed else "red"
-
             ragas_str = f"{r.ragas_score:.2f}" if r.ragas_score is not None else "N/A"
             mode_suffix = f" | {r.evaluation_mode}" if r.evaluation_mode else ""
-            title = f"{r.test_id} | {r.benchmark_type} | {'PASS' if r.passed else 'FAIL'} | Bench: {score_str} | RAGAs: {ragas_str}{mode_suffix}"
+            title = (
+                f"{r.test_id} | {r.benchmark_type} | "
+                f"{'PASS' if r.passed else 'FAIL'} | Bench: {score_str} | RAGAs: {ragas_str}"
+                f"{mode_suffix}"
+            )
+            border_style = "green" if r.passed else "red"
 
-            lines = []
+            # Extract metrics from DTO into the formatter's named inputs
+            ragas_by_name = {rm.name: rm for rm in (r.ragas_metrics or []) if rm.applicable}
 
-            # Question
-            lines.append(f"[bold]Question:[/bold]\n  {r.question}")
+            def _ragas(name):
+                rm = ragas_by_name.get(name)
+                return rm.score if rm is not None else None
 
-            # Verbose I/O: system_prompt, user_prompt, retrieved contexts from sidecar
-            if verbose_io:
-                system_prompt = getattr(r, "system_prompt", None)
-                user_prompt = getattr(r, "user_prompt", None)
+            # Judge dimensions (rubric mode): exclude judge_error, universal_judge,
+            # and any sentinel metrics (names starting with "_" are metadata, not
+            # score dimensions — e.g. _judge_raw which carries the raw judge JSON).
+            judge_dims = [
+                {"name": m.name, "value": m.value, "weight": m.weight}
+                for m in r.metrics
+                if m.name not in ("judge_error", "universal_judge")
+                and not m.name.startswith("_")
+            ]
+            has_judge_error = any(m.name == "judge_error" for m in r.metrics)
+            has_universal_judge = any(m.name == "universal_judge" for m in r.metrics)
 
-                if system_prompt is not None:
-                    truncated_sys = (system_prompt[:600] + " ...") if len(system_prompt) > 600 else system_prompt
-                    lines.append(f"\n[bold]System Prompt:[/bold]\n  {truncated_sys}")
-                else:
-                    lines.append("\n[bold]System Prompt:[/bold] (none)")
+            # Universal-judge specific fields (Path B)
+            universal_overall = (
+                r.overall_score if (has_universal_judge and r.judge_mode == "universal") else None
+            )
+            claims_count = len(r.claims) if getattr(r, "claims", None) else 0
 
-                if user_prompt is not None:
-                    truncated_usr = (user_prompt[:1200] + " ...") if len(user_prompt) > 1200 else user_prompt
-                    lines.append(f"\n[bold]User Prompt (with RAG context):[/bold]\n  {truncated_usr}")
-                else:
-                    lines.append("\n[bold]User Prompt (with RAG context):[/bold] (none)")
+            # Verbose I/O: pull retrieved-contexts from sidecar (loaded above)
+            test_sidecar_ctx = sidecar.get(r.test_id) if verbose_io else None
 
-                # Retrieved contexts from sidecar (keyed by test_id)
-                test_sidecar = sidecar.get(r.test_id) or []
-                if test_sidecar:
-                    lines.append("\n[bold]Retrieved Contexts (detailed):[/bold]")
-                    for ctx in test_sidecar:
-                        citation_id = ctx.get("citation_id", "?")
-                        section = ctx.get("section", "")
-                        clause = ctx.get("clause", "")
-                        score = ctx.get("score", "")
-                        text_preview = str(ctx.get("text", ""))[:200]
-                        meta = f"{citation_id}"
-                        if section:
-                            meta += f" | {section}"
-                        if clause:
-                            meta += f" | clause: {clause}"
-                        if score:
-                            meta += f" | score: {score}"
-                        lines.append(f"  [{meta}]")
-                        lines.append(f"    {text_preview}...")
-
-                # Token counts
-                prompt_tokens = getattr(getattr(r, "_result", r), "prompt_tokens", None)
-                # Access via DTO fields
-                p_tok = getattr(r, "prompt_tokens", 0) or 0
-                c_tok = getattr(r, "completion_tokens", 0) or 0
-                t_tok = getattr(r, "total_tokens", 0) or 0
-                lines.append(f"\n[bold]Tokens:[/bold] prompt={p_tok} completion={c_tok} total={t_tok}")
-
-            # Retrieved Citations (hybrid mode only, before Response)
-            if r.evaluation_mode == "hybrid" and r.retrieved_chunk_ids:
-                lines.append("\n[bold]Retrieved Citations:[/bold]")
-                for i, chunk_id in enumerate(r.retrieved_chunk_ids[:5], 1):
-                    lines.append(f"  [{i}] {chunk_id}")
-                if len(r.retrieved_chunk_ids) > 5:
-                    lines.append(f"  ... ({len(r.retrieved_chunk_ids)} total)")
-
-            # Response — show token breakdown from new fields when available
-            _p = getattr(r, "prompt_tokens", 0) or 0
-            _c = getattr(r, "completion_tokens", 0) or 0
-            _t = getattr(r, "total_tokens", 0) or 0
-            if _t > 0:
-                token_str = f"prompt={_p} completion={_c} total={_t}"
-            else:
-                token_str = f"{r.tokens_used} tokens"
-            lines.append(f"\n[bold]Response[/bold] ({token_str}, {r.latency_ms}ms):\n  {r.response_content}")
-
-            # DIAGNOSTIC GROUPS IN INFORMATION FLOW ORDER
-
-            # Group 1: Retrieval Quality (context metrics)
-            lines.append("\n[bold yellow]─── Retrieval Quality ───[/bold yellow]")
-
-            if r.evaluation_mode == "llm-only":
-                lines.append("[dim]N/A (llm-only mode)[/dim]")
-            elif r.ragas_metrics:
-                context_metrics = [rm for rm in r.ragas_metrics if rm.name in ["context_recall", "context_precision"]]
-                if context_metrics:
-                    for rm in context_metrics:
-                        metric_display = QualityGroup.get_display_name(rm.name)
-                        if rm.applicable:
-                            lines.append(f"[bold]{metric_display}:[/bold] {rm.score:.2f}")
-                        else:
-                            lines.append(f"[bold]{metric_display}:[/bold] N/A (not applicable)")
-                else:
-                    lines.append("[dim]No context metrics available[/dim]")
-            elif r.ragas_error:
-                lines.append(f"[bold]RAGAs context metrics:[/bold] [yellow]⚠ {r.ragas_error}[/yellow]")
-            else:
-                lines.append("[dim]No RAGAs metrics available[/dim]")
-
-            # Group 2: Model-RAG Grounding (context_faithfulness)
-            lines.append("\n[bold magenta]─── Model-RAG Grounding ───[/bold magenta]")
-
-            if r.evaluation_mode == "llm-only":
-                lines.append("[dim]N/A (llm-only mode)[/dim]")
-            elif r.ragas_metrics:
-                faithfulness_metrics = [rm for rm in r.ragas_metrics if rm.name == "context_faithfulness"]
-                if faithfulness_metrics:
-                    for rm in faithfulness_metrics:
-                        metric_display = QualityGroup.get_display_name(rm.name)
-                        if rm.applicable:
-                            lines.append(f"[bold]{metric_display}:[/bold] {rm.score:.2f}")
-                        else:
-                            lines.append(f"[bold]{metric_display}:[/bold] N/A (not applicable)")
-                else:
-                    lines.append("[dim]No context_faithfulness metric available[/dim]")
-            elif r.ragas_error:
-                lines.append(f"[bold]RAGAs context_faithfulness:[/bold] [yellow]⚠ {r.ragas_error}[/yellow]")
-            else:
-                lines.append("[dim]No RAGAs metrics available[/dim]")
-
-            # Group 3: Model Response Quality (LLM Judge + answer metrics)
-            lines.append("\n[bold cyan]─── Model Response Quality ───[/bold cyan]")
-
-            # LLM Judge Dimensions / Judge Criteria Transparency
-            judge_metrics = [m for m in r.metrics if m.name not in ["judge_error", "universal_judge"]]
-            judge_errors = [m for m in r.metrics if m.name == "judge_error"]
-            universal_judge_metrics = [m for m in r.metrics if m.name == "universal_judge"]
-
-            if universal_judge_metrics and r.judge_mode == "universal":
-                # Universal judge mode: show criteria transparency
-                lines.append("[bold]LLM Judge (Universal):[/bold]")
-                lines.append(f"  Overall Score: {r.overall_score:.2f}")
-
-                if r.reasoning_criteria_met:
-                    lines.append("\n  [bold]Reasoning Criteria:[/bold]")
-                    for criterion, met in r.reasoning_criteria_met.items():
-                        if met is None:
-                            status = "[dim]N/A[/dim]"
-                        elif met:
-                            status = "[green]YES[/green]"
-                        else:
-                            status = "[red]NO[/red]"
-                        lines.append(f"    {criterion.replace('_', ' ').title()}: {status}")
-
-                if r.hallucination_detected is not None:
-                    halluc_status = "[red]YES[/red]" if r.hallucination_detected else "[green]NO[/green]"
-                    claim_info = ""
-                    if r.unsupported_count is not None and r.contradicted_count is not None:
-                        total_claims = len(r.claims) if r.claims else 0
-                        claim_info = f" ({total_claims} claims: {r.unsupported_count} unsupported, {r.contradicted_count} contradicted)"
-                    lines.append(f"  [bold]Hallucination:[/bold] {halluc_status}{claim_info}")
-            elif judge_metrics:
-                # Rubric mode: show dimension scores
-                lines.append("[bold]LLM Judge:[/bold]")
-                for m in judge_metrics:
-                    raw_score = round(m.value * 3)
-                    lines.append(f"  {m.name:<30s} {raw_score}/3  (weight: {m.weight:.2f})")
-            if judge_errors:
-                lines.append("[bold]LLM Judge:[/bold] [yellow]⚠ Judge Error[/yellow]")
-
-            # RAGAs answer metrics (factual_recall, answer_relevancy, semantic_similarity)
-            if r.ragas_metrics:
-                answer_metrics = [rm for rm in r.ragas_metrics if rm.name in ["factual_recall", "answer_relevancy", "semantic_similarity"]]
-                for rm in answer_metrics:
-                    metric_display = QualityGroup.get_display_name(rm.name)
-                    if rm.applicable:
-                        lines.append(f"[bold]{metric_display}:[/bold] {rm.score:.2f}")
-                    else:
-                        lines.append(f"[bold]{metric_display}:[/bold] N/A (not applicable)")
-            elif r.ragas_error:
-                lines.append(f"[bold]RAGAs answer metrics:[/bold] [yellow]⚠ {r.ragas_error}[/yellow]")
-
-            # RAG response detection note
-            if r.ragas_is_rag_response:
-                lines.append("\n[dim]RAG response detected — context metrics evaluated[/dim]")
-
-            # RAG Context info (hybrid mode)
-            if r.evaluation_mode and r.chunk_count is not None:
-                if r.chunk_count > 0 and r.retrieved_chunk_ids:
-                    chunk_display = ", ".join(r.retrieved_chunk_ids[:5])
-                    if len(r.retrieved_chunk_ids) > 5:
-                        chunk_display += f", ... ({len(r.retrieved_chunk_ids)} total)"
-                    lines.append(f"\n[bold]RAG Context:[/bold] {r.chunk_count} chunks ({chunk_display})")
-                elif r.evaluation_mode == "hybrid":
-                    lines.append(f"\n[bold]RAG Context:[/bold] No chunks retrieved")
-
-            panel_content = "\n".join(lines)
-            console.print(Panel(panel_content, title=title, border_style=border_style))
+            panel = build_per_result_panel(
+                title=title,
+                border_style=border_style,
+                question=r.question,
+                response=r.response_content,
+                evaluation_mode=r.evaluation_mode,
+                chunk_count=r.chunk_count,
+                retrieved_citations=r.retrieved_chunk_ids,
+                # Verbose I/O
+                system_prompt=getattr(r, "system_prompt", None),
+                user_prompt=getattr(r, "user_prompt", None),
+                retrieved_contexts_detailed=test_sidecar_ctx,
+                prompt_tokens=getattr(r, "prompt_tokens", 0) or 0,
+                completion_tokens=getattr(r, "completion_tokens", 0) or 0,
+                total_tokens=getattr(r, "total_tokens", 0) or 0,
+                tokens_used_legacy=r.tokens_used,
+                latency_ms=r.latency_ms,
+                # RAGAs metrics (None if not applicable / not present)
+                ragas_context_recall=_ragas("context_recall"),
+                ragas_context_precision=_ragas("context_precision"),
+                ragas_context_faithfulness=_ragas("context_faithfulness"),
+                ragas_factual_recall=_ragas("factual_recall"),
+                ragas_answer_relevancy=_ragas("answer_relevancy"),
+                ragas_semantic_similarity=_ragas("semantic_similarity"),
+                ragas_error=r.ragas_error,
+                ragas_is_rag_response=r.ragas_is_rag_response,
+                # Judge — rubric or universal
+                judge_dimensions=judge_dims if not has_universal_judge else None,
+                judge_overall=r.overall_score,
+                judge_error=has_judge_error,
+                universal_judge_overall=universal_overall,
+                reasoning_criteria_met=r.reasoning_criteria_met,
+                hallucination_detected=r.hallucination_detected,
+                unsupported_count=r.unsupported_count,
+                contradicted_count=r.contradicted_count,
+                claims_count=claims_count,
+                # Mode flags — eval has GT, so show everything
+                show_judge=True,
+                show_gt_comparisons=True,
+                verbose_io=verbose_io,
+            )
+            console.print(panel)
 
         # Display results
         console.print("\n[bold green]Evaluation Complete![/bold green]\n")

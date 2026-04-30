@@ -493,7 +493,16 @@ class JSONResultRepository(IResultRepository):
             "ragas_score": ragas_score,
             "passed": result.passed,
             "metrics": [
-                {"name": m.name, "value": m.value, "weight": m.weight}
+                # `description` carries judge metadata (raw_response, justification,
+                # universal-judge claim verifications) for sentinel/metadata metrics
+                # like `_judge_raw` and `universal_judge`. Persist when populated so
+                # the artifact can be audited later.
+                {
+                    "name": m.name,
+                    "value": m.value,
+                    "weight": m.weight,
+                    **({"description": m.description} if m.description else {}),
+                }
                 for m in result.metrics
             ],
             "tokens": result.model_response.tokens_used,

@@ -100,9 +100,17 @@ class TestCase:
                 field="test_id"
             )
 
-        # Rule 2: test_id matches benchmark
-        expected_prefix = f"{self._benchmark_type.short_name}-"
-        if not self._test_id.startswith(expected_prefix):
+        # Rule 2: test_id matches benchmark (padding-agnostic: B01-001 and B1-001
+        # both match benchmark_type B01 or B1 — we compare normalized short_name).
+        test_id_prefix = self._test_id.split("-", 1)[0]
+        try:
+            test_id_benchmark = BenchmarkType(test_id_prefix)
+        except ValueError:
+            test_id_benchmark = None
+        if (
+            test_id_benchmark is None
+            or test_id_benchmark.short_name != self._benchmark_type.short_name
+        ):
             raise ValidationError(
                 f"test_id '{self._test_id}' does not match benchmark type "
                 f"'{self._benchmark_type.short_name}'",

@@ -285,6 +285,24 @@ class ScoringService:
                 )
             )
 
+        # Persist judge raw_response + justification as a sentinel metric.
+        # weight=0 → ignored by overall_score aggregation. Carried through
+        # the existing pipeline into the saved JSON artifact for audit/debug.
+        judge_artifact = json.dumps({
+            "raw_response": evaluation.raw_response or "",
+            "justification": evaluation.justification or "",
+            "confidence": evaluation.confidence,
+            "judge_mode": "rubric",
+        })
+        metrics.append(
+            EvaluationMetric(
+                name="_judge_raw",
+                value=0.0,
+                weight=0.0,
+                description=judge_artifact,
+            )
+        )
+
         return metrics
 
     @staticmethod
@@ -332,13 +350,29 @@ class ScoringService:
             "justification": evaluation.justification,
         })
 
+        # Sentinel metric carrying judge raw_response. weight=0 → ignored by
+        # overall_score aggregation. Carried through the existing pipeline
+        # into the saved JSON artifact for audit/debug.
+        judge_artifact = json.dumps({
+            "raw_response": evaluation.raw_response or "",
+            "justification": evaluation.justification or "",
+            "confidence": evaluation.confidence,
+            "judge_mode": "universal",
+        })
+
         return [
             EvaluationMetric(
                 name="universal_judge",
                 value=evaluation.overall_score,
                 weight=1.0,
                 description=judge_metadata,
-            )
+            ),
+            EvaluationMetric(
+                name="_judge_raw",
+                value=0.0,
+                weight=0.0,
+                description=judge_artifact,
+            ),
         ]
 
     @staticmethod

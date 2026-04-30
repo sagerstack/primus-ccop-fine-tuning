@@ -287,11 +287,24 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             user_prompt_captured = rag_response.user_prompt
             retrieved_contexts_detailed_captured = rag_response.retrieved_contexts_detailed or None
 
-            # Extract retrieved chunk IDs from citations
-            if rag_response.citations:
+            # Build retrieved_chunk_ids from the RAG retrieval output (top-N
+            # chunks fed to the model). This is intentionally separate from
+            # rag_response.citations — under the <Sources>-based design, that
+            # field reflects what the MODEL declared it relied on, which is a
+            # possibly-different list. retrieved_chunk_ids should always
+            # represent what the retrieval pipeline produced.
+            if rag_response.retrieved_contexts_detailed:
                 retrieved_chunk_ids = []
-                for citation in rag_response.citations:
-                    chunk_id = f"{citation.get('document', 'Unknown')}::{citation.get('clause', citation.get('section', 'N/A'))}"
+                for ctx in rag_response.retrieved_contexts_detailed:
+                    cid = ctx.get("citation_id") or ""
+                    if cid:
+                        chunk_id = cid
+                    else:
+                        doc = ctx.get("document", "Unknown") or "Unknown"
+                        clause_or_section = (
+                            ctx.get("clause") or ctx.get("section") or "N/A"
+                        )
+                        chunk_id = f"{doc}::{clause_or_section}"
                     retrieved_chunk_ids.append(chunk_id)
                 chunk_count = len(retrieved_chunk_ids)
 
@@ -878,11 +891,18 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         self,
         results: List[EvaluationResult]
     ) -> Dict[str, Dict[str, any]]:
-        """Group results by benchmark type."""
+        """Group results by benchmark type.
+
+        Keyed on the canonical short_name form (e.g., "B5", not "B05") to match
+        `_aggregate_quality_categories` and EvaluationCategory.benchmarks lists.
+        Using benchmark_type.value here previously caused zero-padded keys
+        ("B05") to mismatch the short-form keys ("B5") used everywhere else,
+        making the Quality Breakdown by Benchmark table render all-N/A.
+        """
         grouped: Dict[str, List[EvaluationResult]] = {}
 
         for result in results:
-            benchmark = result.test_case.benchmark_type.value
+            benchmark = result.test_case.benchmark_type.short_name
             if benchmark not in grouped:
                 grouped[benchmark] = []
             grouped[benchmark].append(result)

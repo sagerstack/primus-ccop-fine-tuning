@@ -6,12 +6,31 @@ Retrieves relevant CCoP clauses with metadata and similarity scores.
 """
 
 import logging
+import re
 
 from infrastructure.config.container import get_container
 from infrastructure.config.settings import get_settings
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
+
+# TOC/index detection — chunks whose original_text has ≥3 lines containing
+# 5+ consecutive dots ("dot leaders" used in printed table-of-contents pages).
+# Identified 7 such chunks across the corpus during 2026-04-27 diagnostic:
+# CCoP 2.0 preambles (1, 2), CCoP RTF preambles (1, 2), Security By Design preamble,
+# Auditing Guidelines, and a mis-labelled "Risk Assessment Guide::FEBRUARY 2021".
+# These chunks regularly polluted top-K results and added 6-15K chars of noise.
+_TOC_DOT_LEADER = re.compile(r"\.{5,}")
+_TOC_MIN_DOT_LINES = 3
+
+
+def _is_toc_chunk(doc) -> bool:
+    """Heuristic: detect printed table-of-contents/index chunks by dot-leader density."""
+    text = (doc.metadata.get("original_text") or doc.page_content or "")
+    if not text:
+        return False
+    n = sum(1 for line in text.splitlines() if _TOC_DOT_LEADER.search(line))
+    return n >= _TOC_MIN_DOT_LINES
 
 
 def retrieve_documents(state: GraphState) -> GraphState:
@@ -82,10 +101,24 @@ def retrieve_documents(state: GraphState) -> GraphState:
             # Hybrid (RRF) — uses adapter
             results = vector_store.similarity_search_with_scores(query=query, k=top_k)
 
+        # Filter out TOC/index chunks (printed dot-leader pages) before ranking
+        n_toc_dropped = 0
+        filtered_results = []
+        for doc, score in results:
+            if _is_toc_chunk(doc):
+                n_toc_dropped += 1
+                logger.info(
+                    f"  [TOC-filter] dropped citation_id={doc.metadata.get('citation_id', '?')}"
+                )
+                continue
+            filtered_results.append((doc, score))
+        if n_toc_dropped:
+            logger.info(f"TOC filter dropped {n_toc_dropped} chunks; {len(filtered_results)} remain")
+
         # Attach similarity score AND dense rank to each document's metadata
         documents = []
         dense_ranks = []
-        for rank, (doc, score) in enumerate(results, 1):
+        for rank, (doc, score) in enumerate(filtered_results, 1):
             doc.metadata["similarity_score"] = score
             doc.metadata["dense_rank"] = rank
             documents.append(doc)

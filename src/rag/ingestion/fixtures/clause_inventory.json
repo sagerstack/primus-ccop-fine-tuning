@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-22T03:41:37.759199+00:00",
+  "generated_at": "2026-04-30T02:17:34.670975Z",
   "source_docs": [
     "Auditing Guidelines",
     "CCoP 2.0",
@@ -212,6 +212,166 @@
     },
     {
       "clause_id": "1.7.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.1.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.1.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.2.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.2.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.2.3",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.2.4",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.2.5",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.2.5(a)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.2.5(b)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.2.5(c)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.2.6",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.2.7",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.3",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.3.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.3.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.3.3",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.3.4",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.3.5",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.3.6",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.3.7",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.4",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.4.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.4.1(a)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.4.1(b)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.4.1(c)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.4.1(d)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.4.1(e)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.4.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.4.3",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.4.4",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "10.4.5",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "11",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "11.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "11.1.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "11.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "11.2.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "11.2.2",
       "source_doc": "CCoP 2.0"
     },
     {
@@ -611,258 +771,6 @@
       "source_doc": "CCoP 2.0"
     },
     {
-      "clause_id": "5.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.2.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.2.1(a)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.2.1(b)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.2.1(c)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.2.1(d)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.2.1(e)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.2.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.3",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.3.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.3.1(a)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.3.1(b)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.3.1(c)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.3.1(d)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.4",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.4.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.4.1(a)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.4.1(b)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.5",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.5.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.5.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.5.3",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.5.3(a)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.5.3(b)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.6",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.6.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.6.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.6.2(a)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.6.2(b)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.6.3",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.7",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.7.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.7.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.7.2(a)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.7.2(b)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.7.2(c)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.7.2(d)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.7.2(e)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.7.2(f)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.8",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.8.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.8.1(a)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.8.1(b)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.8.1(c)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.1(a)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.1(b)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.1(c)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.1(d)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.1(e)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.1(f)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.1(g)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.2(a)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.2(b)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.2(c)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.2(d)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.2(e)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.2(f)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.2(g)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.3",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "5.9.4",
-      "source_doc": "CCoP 2.0"
-    },
-    {
       "clause_id": "5.10",
       "source_doc": "CCoP 2.0"
     },
@@ -1116,6 +1024,258 @@
     },
     {
       "clause_id": "5.17.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.2.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.2.1(a)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.2.1(b)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.2.1(c)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.2.1(d)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.2.1(e)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.2.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.3",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.3.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.3.1(a)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.3.1(b)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.3.1(c)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.3.1(d)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.4",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.4.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.4.1(a)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.4.1(b)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.5",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.5.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.5.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.5.3",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.5.3(a)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.5.3(b)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.6",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.6.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.6.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.6.2(a)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.6.2(b)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.6.3",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.7",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.7.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.7.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.7.2(a)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.7.2(b)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.7.2(c)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.7.2(d)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.7.2(e)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.7.2(f)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.8",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.8.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.8.1(a)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.8.1(b)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.8.1(c)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.1",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.1(a)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.1(b)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.1(c)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.1(d)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.1(e)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.1(f)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.1(g)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.2",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.2(a)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.2(b)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.2(c)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.2(d)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.2(e)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.2(f)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.2(g)",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.3",
+      "source_doc": "CCoP 2.0"
+    },
+    {
+      "clause_id": "5.9.4",
       "source_doc": "CCoP 2.0"
     },
     {
@@ -1591,166 +1751,6 @@
       "source_doc": "CCoP 2.0"
     },
     {
-      "clause_id": "10",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.1.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.1.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.2.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.2.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.2.3",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.2.4",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.2.5",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.2.5(a)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.2.5(b)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.2.5(c)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.2.6",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.2.7",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.3",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.3.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.3.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.3.3",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.3.4",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.3.5",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.3.6",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.3.7",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.4",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.4.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.4.1(a)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.4.1(b)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.4.1(c)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.4.1(d)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.4.1(e)",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.4.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.4.3",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.4.4",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "10.4.5",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "11",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "11.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "11.1.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "11.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "11.2.1",
-      "source_doc": "CCoP 2.0"
-    },
-    {
-      "clause_id": "11.2.2",
-      "source_doc": "CCoP 2.0"
-    },
-    {
       "clause_id": "1",
       "source_doc": "CCoP Response to Feedback"
     },
@@ -1765,6 +1765,706 @@
     {
       "clause_id": "1(c)",
       "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "10",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "10(a)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "10(b)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "10.4"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "10.5"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "10.6"
+    },
+    {
+      "clause_id": "11",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "11(a)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "11(b)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "11(c)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "11(d)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "11(e)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "11(f)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.10"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.11"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.12"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.13"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.14"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.15"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.16"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.17"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.18"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.19"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.20"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.21"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.22"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.23"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.24"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.25"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.26"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.27"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.28"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.29"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.30"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.31"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.32"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.33"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.34"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.35"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.36"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.37"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.38"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.39"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.40"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.41"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.42"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.43"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.46"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.47"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.48"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.49"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.5"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.50"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.51"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.52"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.53"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.54"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.55"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.57"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.59"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.6"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.7"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.8"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "11.9"
+    },
+    {
+      "clause_id": "12",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "12(a)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "12(b)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "12(c)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "12(d)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.10"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.11"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.12"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.13"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.14"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.15"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.16"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.17"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.18"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.19"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.20"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.21"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.22"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.23"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.3"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.4"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.5"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "12.6"
+    },
+    {
+      "clause_id": "13",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "13(a)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "13(b)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "13(c)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "13(d)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "13(e)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.10"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.11"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.12"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.13"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.14"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.15"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.16"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.17"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.18"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.19"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.20"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.21"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.22"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.23"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.24"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.25"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.26"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.27"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.28"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.29"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.30"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.31"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.32"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.4"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.5"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.6"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.7"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.8"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "13.9"
+    },
+    {
+      "clause_id": "14",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "14(a)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "14(b)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "14.1"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "14.10"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "14.11"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "14.2"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "14.4"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "14.5"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "14.6"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "14.7"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "14.8"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "14.9"
+    },
+    {
+      "clause_id": "15",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "15(a)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "15(b)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "clause_id": "15(c)",
+      "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.10"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.11"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.12"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.13"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.14"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.15"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.16"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.17"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.18"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.19"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.20"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.21"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.22"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.23"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.24"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.25"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.26"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.27"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.28"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.29"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.3"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.30"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.31"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.32"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.33"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.34"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.35"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.36"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.37"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.38"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.39"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.4"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.40"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.5"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.7"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "15.8"
     },
     {
       "clause_id": "2",
@@ -1799,6 +2499,14 @@
       "source_doc": "CCoP Response to Feedback"
     },
     {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "4.5"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "4.6"
+    },
+    {
       "clause_id": "5",
       "source_doc": "CCoP Response to Feedback"
     },
@@ -1819,12 +2527,108 @@
       "source_doc": "CCoP Response to Feedback"
     },
     {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "5.1"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "5.10"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "5.11"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "5.12"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "5.13"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "5.2"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "5.3"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "5.4"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "5.9"
+    },
+    {
       "clause_id": "6",
       "source_doc": "CCoP Response to Feedback"
     },
     {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "6.1"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "6.2"
+    },
+    {
       "clause_id": "7",
       "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.10"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.11"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.12"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.13"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.14"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.15"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.16"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.4"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.5"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.6"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.7"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.8"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "7.9"
     },
     {
       "clause_id": "8",
@@ -1837,6 +2641,66 @@
     {
       "clause_id": "8(b)",
       "source_doc": "CCoP Response to Feedback"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.1"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.10"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.11"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.12"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.13"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.14"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.15"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.2"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.3"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.4"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.5"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.6"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.7"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.8"
+    },
+    {
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "8.9"
     },
     {
       "clause_id": "9",
@@ -1859,116 +2723,20 @@
       "source_doc": "CCoP Response to Feedback"
     },
     {
-      "clause_id": "10",
-      "source_doc": "CCoP Response to Feedback"
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "9.1"
     },
     {
-      "clause_id": "10(a)",
-      "source_doc": "CCoP Response to Feedback"
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "9.6"
     },
     {
-      "clause_id": "10(b)",
-      "source_doc": "CCoP Response to Feedback"
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "9.7"
     },
     {
-      "clause_id": "11",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "11(a)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "11(b)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "11(c)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "11(d)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "11(e)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "11(f)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "12",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "12(a)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "12(b)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "12(c)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "12(d)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "13",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "13(a)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "13(b)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "13(c)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "13(d)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "13(e)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "14",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "14(a)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "14(b)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "15",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "15(a)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "15(b)",
-      "source_doc": "CCoP Response to Feedback"
-    },
-    {
-      "clause_id": "15(c)",
-      "source_doc": "CCoP Response to Feedback"
+      "source_doc": "CCoP Response to Feedback",
+      "clause_id": "9.8"
     },
     {
       "clause_id": "Part 1",
@@ -1996,38 +2764,6 @@
     },
     {
       "clause_id": "section 1",
-      "source_doc": "Cybersecurity Act 2018"
-    },
-    {
-      "clause_id": "section 2",
-      "source_doc": "Cybersecurity Act 2018"
-    },
-    {
-      "clause_id": "section 3",
-      "source_doc": "Cybersecurity Act 2018"
-    },
-    {
-      "clause_id": "section 4",
-      "source_doc": "Cybersecurity Act 2018"
-    },
-    {
-      "clause_id": "section 5",
-      "source_doc": "Cybersecurity Act 2018"
-    },
-    {
-      "clause_id": "section 6",
-      "source_doc": "Cybersecurity Act 2018"
-    },
-    {
-      "clause_id": "section 7",
-      "source_doc": "Cybersecurity Act 2018"
-    },
-    {
-      "clause_id": "section 8",
-      "source_doc": "Cybersecurity Act 2018"
-    },
-    {
-      "clause_id": "section 9",
       "source_doc": "Cybersecurity Act 2018"
     },
     {
@@ -2071,6 +2807,10 @@
       "source_doc": "Cybersecurity Act 2018"
     },
     {
+      "clause_id": "section 2",
+      "source_doc": "Cybersecurity Act 2018"
+    },
+    {
       "clause_id": "section 20",
       "source_doc": "Cybersecurity Act 2018"
     },
@@ -2108,6 +2848,10 @@
     },
     {
       "clause_id": "section 29",
+      "source_doc": "Cybersecurity Act 2018"
+    },
+    {
+      "clause_id": "section 3",
       "source_doc": "Cybersecurity Act 2018"
     },
     {
@@ -2151,6 +2895,10 @@
       "source_doc": "Cybersecurity Act 2018"
     },
     {
+      "clause_id": "section 4",
+      "source_doc": "Cybersecurity Act 2018"
+    },
+    {
       "clause_id": "section 40",
       "source_doc": "Cybersecurity Act 2018"
     },
@@ -2183,6 +2931,26 @@
       "source_doc": "Cybersecurity Act 2018"
     },
     {
+      "clause_id": "section 5",
+      "source_doc": "Cybersecurity Act 2018"
+    },
+    {
+      "clause_id": "section 6",
+      "source_doc": "Cybersecurity Act 2018"
+    },
+    {
+      "clause_id": "section 7",
+      "source_doc": "Cybersecurity Act 2018"
+    },
+    {
+      "clause_id": "section 8",
+      "source_doc": "Cybersecurity Act 2018"
+    },
+    {
+      "clause_id": "section 9",
+      "source_doc": "Cybersecurity Act 2018"
+    },
+    {
       "clause_id": "1",
       "source_doc": "Risk Assessment Guide"
     },
@@ -2192,6 +2960,22 @@
     },
     {
       "clause_id": "1.2",
+      "source_doc": "Risk Assessment Guide"
+    },
+    {
+      "clause_id": "10",
+      "source_doc": "Risk Assessment Guide"
+    },
+    {
+      "clause_id": "11",
+      "source_doc": "Risk Assessment Guide"
+    },
+    {
+      "clause_id": "12",
+      "source_doc": "Risk Assessment Guide"
+    },
+    {
+      "clause_id": "13",
       "source_doc": "Risk Assessment Guide"
     },
     {
@@ -2260,22 +3044,6 @@
     },
     {
       "clause_id": "7",
-      "source_doc": "Risk Assessment Guide"
-    },
-    {
-      "clause_id": "10",
-      "source_doc": "Risk Assessment Guide"
-    },
-    {
-      "clause_id": "11",
-      "source_doc": "Risk Assessment Guide"
-    },
-    {
-      "clause_id": "12",
-      "source_doc": "Risk Assessment Guide"
-    },
-    {
-      "clause_id": "13",
       "source_doc": "Risk Assessment Guide"
     },
     {
@@ -2707,6 +3475,14 @@
       "source_doc": "Threat Modelling Guide"
     },
     {
+      "clause_id": "11",
+      "source_doc": "Threat Modelling Guide"
+    },
+    {
+      "clause_id": "15",
+      "source_doc": "Threat Modelling Guide"
+    },
+    {
       "clause_id": "2",
       "source_doc": "Threat Modelling Guide"
     },
@@ -2764,14 +3540,6 @@
     },
     {
       "clause_id": "7",
-      "source_doc": "Threat Modelling Guide"
-    },
-    {
-      "clause_id": "11",
-      "source_doc": "Threat Modelling Guide"
-    },
-    {
-      "clause_id": "15",
       "source_doc": "Threat Modelling Guide"
     }
   ]

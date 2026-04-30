@@ -70,6 +70,15 @@ class Settings(BaseSettings):
         default=3,
         description="Max retries on OpenRouter API failure before raising JudgeAPIError"
     )
+    judge_json_retry_attempts: int = Field(
+        default=3,
+        description=(
+            "Max attempts for the rubric/universal judge to return parseable JSON. "
+            "Separate from judge_max_retries: this catches successful API responses "
+            "that contain malformed JSON (e.g., Qwen truncating mid-thought). Each "
+            "attempt re-calls the judge for a fresh response."
+        )
+    )
     judge_timeout: int = Field(
         default=60,
         description="Per-call timeout in seconds for OpenRouter judge calls"
@@ -280,7 +289,7 @@ class Settings(BaseSettings):
 
     # Retrieval Funnel Configuration (Phase 1.3)
     rerank_top_n: int = Field(
-        default=8,  # Bumped from 3 per Exp #41 finding (recall@8 ≈ 0.65)
+        default=3,  # 8→3 (2026-04-27): too much context confused the model (44K-char prompts); short queries had reranker scores clustered at logits 0.000–0.080 with no clear winner, so 8 chunks brought verbosity without precision gain. Lab Exp #41 retrieval recall metric was at top_n=C cardinality not top_n=8.
         ge=1,
         le=20,
         description="Number of documents to keep after cross-encoder reranking"
@@ -330,6 +339,28 @@ class Settings(BaseSettings):
     rag_merge_min_siblings: int = Field(
         default=2,
         description="Minimum sibling clauses required to trigger parent merge"
+    )
+    rag_merge_min_score_ratio: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description=(
+            "Relevance gate for parent-child merge: only include sibling members "
+            "whose cross-encoder score is at least this fraction of the anchor's score. "
+            "Prevents weak siblings (e.g., adjacent clauses on different sub-topics) "
+            "from being bundled into a slot just because they share a parent. "
+            "Set to 0.0 to disable the gate (legacy behaviour: all in-window siblings merge)."
+        ),
+    )
+    rag_merge_max_members: int = Field(
+        default=4,
+        ge=2,
+        le=10,
+        description=(
+            "Hard cap on members in a single merged group, taken from the highest-scoring "
+            "siblings. Prevents one slot from dominating the LLM context budget when a "
+            "section has many siblings (e.g., chapter 11 with 50+ sub-clauses)."
+        ),
     )
     rag_collection_name_contextual: str = Field(
         default="ccop_clauses_contextual_v3",
