@@ -156,6 +156,9 @@ data/cache/
 *.json
 # Committed fixture — clause inventory is a code artifact, not raw data
 !src/rag/ingestion/fixtures/clause_inventory.json
+# Committed audit ledger — verifier decisions + defect inventory referenced by report
+!ground-truth/gt-audit-20260430/audit_defects.json
+!ground-truth/gt-audit-20260430/verifier/audit_verifier_decisions.json
 *.parquet
 *.feather
 *.h5
