@@ -60,6 +60,19 @@ class EvaluationRequestDTO(BaseModel):
         default="rubric",
         description="Judge mode: rubric (per-benchmark rubrics) or universal (reasoning depth + hallucination)"
     )
+    run_id: Optional[str] = Field(
+        None,
+        description="Deterministic run identifier eval-run-{mode}-{scope}-{yyyyMMdd}-{HHmm}"
+    )
+    resume: bool = Field(
+        default=False,
+        description=(
+            "Resume from a prior partial run matching the same (mode, scope, model). "
+            "When True, the use case loads completed test_ids from the latest matching "
+            ".partial.jsonl, skips them in the eval loop, and appends new results to the "
+            "same partial file. Bails out if judge_config or model has drifted."
+        ),
+    )
 
     model_config = {
         "json_schema_extra": {

@@ -40,6 +40,7 @@ class Container(containers.DeclarativeContainer):
         OllamaClient,
         host=config.provided.ollama_host,
         timeout=config.provided.ollama_timeout,
+        num_ctx=config.provided.context_length,
     )
 
     huggingface_client = providers.Singleton(

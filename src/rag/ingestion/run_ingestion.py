@@ -30,6 +30,26 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+# CCoP 2.0 section-level TOC (5.1 through 5.12).
+#
+# Source: CCoP---Second-Edition_Revision-One.pdf, Table of Contents (page 4).
+# Each entry is the X.Y prefix that must have at least one clause chunk in the index.
+# Adjust this list if a future revision of the PDF adds or removes sections.
+EXPECTED_CCOP_2_SECTIONS = [
+    "5.1",
+    "5.2",
+    "5.3",
+    "5.4",
+    "5.5",
+    "5.6",
+    "5.7",
+    "5.8",
+    "5.9",
+    "5.10",
+    "5.11",
+    "5.12",
+]
+
 
 def _create_indexer(settings: Settings):
     """
@@ -187,6 +207,50 @@ def _chunk_documents(
     return all_chunks
 
 
+def _verify_toc_coverage(chunks: List[CcopChunk]) -> None:
+    """
+    Assert that every expected CCoP 2.0 TOC section has at least one clause chunk.
+
+    Fails loudly (RuntimeError) before the upload step so missing sections are
+    caught at ingestion time, not silently at evaluation time (SC #5 requirement,
+    bug #10 regression gate).
+
+    Only applied to CCoP 2.0 document chunks. Other documents are not checked.
+    Table chunks (type='table') are excluded from the observed section set because
+    they inherit their enclosing clause's section — we want clause-level evidence.
+
+    Args:
+        chunks: All chunks produced by the chunking step
+
+    Raises:
+        RuntimeError: If any EXPECTED_CCOP_2_SECTIONS entry is absent from the index
+    """
+    from rag.ingestion.models import ChunkMetadata  # already imported at top, but guard
+
+    observed_sections: set = {
+        c.metadata.section
+        for c in chunks
+        if c.metadata.document_source == "CCoP 2.0"
+        and c.metadata.type == "clause"
+        and c.metadata.section not in ("preamble", "")
+    }
+
+    expected_set = set(EXPECTED_CCOP_2_SECTIONS)
+    missing = expected_set - observed_sections
+
+    logger.info(f"TOC sanity gate — observed sections: {sorted(observed_sections)}")
+
+    if missing:
+        logger.error(
+            f"TOC sanity gate FAILED. Missing sections: {sorted(missing)}"
+        )
+        raise RuntimeError(
+            f"TOC sanity gate failed: expected sections missing from index: {sorted(missing)}"
+        )
+
+    logger.info("TOC sanity gate PASSED — all 12 expected sections present")
+
+
 def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> Dict:
     """
     Run end-to-end CCoP document ingestion pipeline.
@@ -241,6 +305,13 @@ def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> D
 
     chunk_count = len(chunks)
     logger.info(f"Chunking complete: {chunk_count} chunks from {document_count} documents")
+
+    # Step 2.5: TOC sanity gate — fail loudly before upload if sections are missing
+    logger.info("\n[Step 2.5/5] TOC sanity gate...")
+    try:
+        _verify_toc_coverage(chunks)
+    except RuntimeError:
+        raise
 
     # Step 3: Log chunk statistics
     logger.info("\n[Step 3/5] Chunk statistics:")

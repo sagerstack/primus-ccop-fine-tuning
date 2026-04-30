@@ -27,6 +27,230 @@
 
 ---
 
+## UNIVERSAL RUBRIC
+
+**Purpose**: A single benchmark-agnostic rubric applied to every LLM-judged benchmark. Benchmark-specific signal comes from each test case's ground truth (`key_facts`, `clause_reference`, `expected_response`), not from the rubric itself.
+
+**Dimensions**: Six generic dimensions, each scored on the anchored 0-3 scale, all carrying equal weight 0.5. `factual_grounding` measures whether the response's claims are supported by available material (claim-level grounding); `citation_correctness` measures whether cited clause IDs are real and accurately described — these are independent signals. Composite score = weighted sum / (3.0 × total weight); maximum composite = 1.0.
+
+### Dimension Definitions and Anchors
+
+#### D1: Verdict Accuracy (weight 0.5)
+
+Does the response's final verdict or conclusion match the expected answer, including any qualifications and secondary conclusions?
+
+| Score | Anchor |
+|-------|--------|
+| 0 | Final verdict contradicts the expected answer |
+| 1 | Directionally right but misses key qualifications, conditions, or secondary conclusions |
+| 2 | Correct main verdict; misses one or more secondary aspects |
+| 3 | Fully matches expected answer including all qualifications and secondary conclusions |
+
+#### D2: Justification Quality (weight 0.5)
+
+Is the reasoning logically sound, internally consistent, and does it follow from stated premises?
+
+| Score | Anchor |
+|-------|--------|
+| 0 | No justification offered OR reasoning is internally contradictory |
+| 1 | Justification present but drifts from the actual question; reasoning partially off-target |
+| 2 | Sound reasoning chain addressing the core issue; minor gaps in inferential links |
+| 3 | Tight logical chain directly addressing the question; every inference traceable to premises |
+
+#### D3: Factual Grounding (weight 0.5)
+
+Are the response's atomic factual claims supported by the available material — retrieved contexts, ground-truth `key_facts`, and the actual text of cited clauses (in `Citation Verifications`)?
+
+This dimension is **claim-level**, not citation-level. A response can score well here even with imprecise citation IDs, as long as its actual factual statements are traceable to material we have. Conversely, a response with perfectly-cited clause IDs scores poorly here if the substantive claims it makes don't follow from those clauses.
+
+| Score | Anchor |
+|-------|--------|
+| 0 | Most claims are CONTRADICTED or UNSUPPORTED (claim-grounding ratio < 0.34) |
+| 1 | Partial grounding — some claims supported, many unsupported (0.34 ≤ ratio < 0.67) |
+| 2 | Most claims supported by available material; minor unsupported claims (0.67 ≤ ratio < 1.0) |
+| 3 | Every factual claim is supported by retrieved contexts, key_facts, or cited clause text (ratio = 1.0) |
+
+#### D4: Scope Appropriateness (weight 0.5)
+
+Does the response stay within what was asked, without drifting, over-specifying, or contradicting stated scenario constraints?
+
+| Score | Anchor |
+|-------|--------|
+| 0 | Substantially off-topic OR proposes actions that contradict stated scenario constraints |
+| 1 | Verbose with multiple tangential sections; core answer diluted or buried |
+| 2 | Mostly on-topic with minor drift; longer than needed but doesn't mislead |
+| 3 | Focused response that directly addresses what was asked; no drift, no bloat |
+
+#### D5: Actionable Way Forward (weight 0.5)
+
+Does the response translate its analysis into concrete, feasible next steps the reader can act on, accounting for any constraints stated in the scenario?
+
+| Score | Anchor |
+|-------|--------|
+| 0 | No next steps given OR suggested steps contradict the scenario's stated constraints |
+| 1 | Vague direction only; no specific mechanism, instrument, or action named |
+| 2 | Names a specific action or mechanism but lacks detail, specificity, or feasibility awareness |
+| 3 | Specific action + correct mechanism/instrument + feasibility-aware given stated constraints |
+
+#### D6: Citation Correctness (weight 0.5)
+
+Are the cited clause IDs real (existing in the corpus inventory) and accurately described against the actual clause text? This is a **citation-level** check, distinct from D3's claim-level check. A response can score well here while making poor substantive claims (correct IDs, wrong descriptions), or vice versa.
+
+Sub-letter precision matters: `5.3.1(c)` is FABRICATED if only `5.3.1(a)` and `5.3.1(b)` exist in the corpus, even though the parent clause `5.3.1` is real.
+
+| Score | Anchor |
+|-------|--------|
+| 0 | Most cited clause IDs are FABRICATED or MISATTRIBUTED (citation ratio < 0.34) |
+| 1 | Partial citation accuracy — some real, many fabricated/misattributed (0.34 ≤ ratio < 0.67) |
+| 2 | Mostly real and correctly described; one or two imprecise (0.67 ≤ ratio < 1.0) |
+| 3 | All citations real, sub-letters verified, descriptions match clause text (ratio = 1.0) |
+
+### Judge Prompt Template
+
+```
+You are an expert compliance auditor evaluating a model's response to a compliance scenario. Score the response on 6 dimensions using an anchored 0-3 scale for each. All dimensions carry equal weight 0.5. `factual_grounding` is a claim-level check (are the response's factual statements supported?); `citation_correctness` is a citation-level check (are the cited clause IDs real and correctly described?). The two dimensions measure independent signals — score them separately.
+
+**CRITICAL — SCORE STRICTLY FROM GROUND TRUTH**:
+Score only based on what is documented in the ground-truth sections below (Expected Response, Key Facts, Clause Reference, Citation Verifications, Forbidden Claims, Hallucination Patterns). Do NOT use your own parametric memory of the regulation to fill in gaps or give the benefit of the doubt. If a claim in the response is not verifiable against the provided ground truth AND cannot be traced to a clause whose actual text is shown below, treat it as ungrounded. Leniency not based on ground truth is a scoring error.
+
+**Question**:
+{question}
+
+**Model Response**:
+{response}
+
+**Expected Response** (reference for factual context — evaluate correctness, not phrasing similarity):
+{expected_response}
+
+**Key Facts** (grouped by tier; CRITICAL facts are load-bearing for the correct answer — a response missing a CRITICAL fact should score lower on D1 and D2 than one missing only IMPORTANT facts):
+{key_facts}
+
+**Clause Reference** (the clause IDs the expected answer cites):
+{clause_reference}
+
+**Expected Citations** (the actual text of each clause the expected answer cites — use this to evaluate whether the response addresses the substance the expected answer draws on):
+{expected_citations_text}
+
+**Citation Verifications** (programmatically extracted from the response and verified against the CCoP 2.0 clause inventory; use this as ground truth for D3):
+{citation_verifications}
+
+**Forbidden Claims** (the response MUST NOT assert any of these):
+{forbidden_claims}
+
+**Hallucination Patterns** (regex patterns indicating fabrication — check the response against each):
+{hallucination_patterns}
+
+**Evaluation Instructions**:
+
+Score each dimension independently on the 0-3 anchored scale. A response can score high on some dimensions and low on others — each dimension measures a different aspect of quality.
+
+---
+
+**D1 — verdict_accuracy**: Does the final verdict match the Expected Response, including qualifications and secondary conclusions?
+
+Score 0 if the verdict contradicts the expected answer; 1 if directionally right but misses key qualifications, conditions, or secondary conclusions present in the Expected Response; 2 if correct on the main verdict but misses one or more secondary aspects; 3 if fully matches including all qualifications and secondary conclusions.
+
+---
+
+**D2 — justification_quality**: Is the reasoning logically sound and internally consistent? Does each inference follow from its stated premises? Flag internal contradictions.
+
+Score 0 for absent or self-contradictory reasoning; 1 for reasoning that drifts from the actual question; 2 for sound reasoning with minor gaps; 3 for a tight logical chain where every inference is traceable.
+
+---
+
+**D3 — factual_grounding** (weight 0.5):
+
+Claim-level grounding. Are the response's factual statements supported by the available material (Retrieved Contexts, Citation Verifications, Key Facts, Expected Citations)?
+
+Step 1 — Identify the **5 most load-bearing factual claims** in the response. Skip rhetorical framing and generic context.
+
+Step 2 — Classify each:
+  - SUPPORTED: directly stated by or inferrable from available material
+  - UNSUPPORTED: asserted without backing
+  - CONTRADICTED: contradicts available material, OR matches a Forbidden Claim / Hallucination Pattern literally
+
+Step 3 — Score by ratio:
+  - `ratio = SUPPORTED / (SUPPORTED + UNSUPPORTED + CONTRADICTED)`
+  - 1.0 → D3=3 | ≥0.67 → D3=2 | ≥0.34 → D3=1 | <0.34 → D3=0
+  - 0 claims → D3=1
+
+In justification: counts only (no per-claim listing) + 1-line example for any CONTRADICTED claim.
+
+---
+
+**D4 — scope_appropriateness**:
+
+Procedure (perform each step explicitly):
+
+Step 1 — Extract any stated constraints from the Question. Constraints include technical limitations (e.g., "legacy systems don't support X"), jurisdictional limits, scope restrictions, and explicit scenario premises. List each constraint found.
+
+Step 2 — For each constraint, check whether the Response proposes actions that contradict it. A recommendation to "upgrade the legacy system" when the Question states the legacy system cannot be changed is a constraint violation. Recommending something the scenario has already ruled out is also a violation.
+
+Step 3 — Score:
+  - Any constraint violation → 0 (the response misdirects by proposing infeasible actions)
+  - Verbose with multiple tangential sections; core answer buried → 1
+  - Mostly on-topic with minor drift; longer than needed but no constraint violations and doesn't mislead → 2
+  - Focused, direct, no drift, no constraint violations → 3
+
+In your justification, list any constraint violations found.
+
+---
+
+**D5 — actionable_way_forward**:
+
+Distinguish two distinct failure modes; both score 0 but represent different problems:
+- (a) The response provides no next steps at all — it ends at the verdict without telling the client what to do.
+- (b) The response names next steps that contradict stated scenario constraints — the guidance is infeasible or misdirects.
+
+Score:
+  - 0 — either (a) no next steps, OR (b) proposed steps contradict constraints. Note which in your justification.
+  - 1 — vague direction only (e.g., "review your controls", "consult compliance") with no specific mechanism, instrument, or action named.
+  - 2 — specific action or mechanism named but lacks detail, or specificity without feasibility awareness given constraints.
+  - 3 — specific action + correct mechanism/instrument + feasibility-aware given the scenario's stated constraints.
+
+---
+
+**D6 — citation_correctness** (weight 0.5):
+
+Citation-level check. Use Citation Verifications as ground truth.
+
+Step 1 — Classify each citation:
+  - EXTERNAL (outside 7-doc corpus): EXCLUDED
+  - FABRICATED (claimed corpus clause that doesn't exist, including invented sub-letters like `5.3.1(c)` when only `(a)`/`(b)` exist): count
+  - EXISTS: go to Step 2
+
+Step 2 — For each EXISTS, compare to actual clause text:
+  - CORRECT, IMPRECISE, or MISATTRIBUTED
+
+Step 3 — Score by ratio:
+  - `correct_weight = CORRECT + 0.5 × IMPRECISE`
+  - `verifiable_total = CORRECT + IMPRECISE + MISATTRIBUTED + FABRICATED`
+  - `ratio = correct_weight / verifiable_total`
+  - 1.0 → D6=3 | ≥0.67 → D6=2 | ≥0.34 → D6=1 | <0.34 → D6=0
+  - 0 citations → D6=1
+
+In justification: counts only.
+
+---
+
+**Output Format** (JSON only, no other text):
+
+{
+  "dimensions": [
+    {"dimension": "verdict_accuracy",       "score": <0-3>, "weight": 0.5},
+    {"dimension": "justification_quality",  "score": <0-3>, "weight": 0.5},
+    {"dimension": "factual_grounding",      "score": <0-3>, "weight": 0.5},
+    {"dimension": "scope_appropriateness",  "score": <0-3>, "weight": 0.5},
+    {"dimension": "actionable_way_forward", "score": <0-3>, "weight": 0.5},
+    {"dimension": "citation_correctness",   "score": <0-3>, "weight": 0.5}
+  ],
+  "justification": "<1-2 sentences per dimension. Be concise. For D3: counts only (e.g., '4 SUPPORTED, 1 UNSUPPORTED, 0 CONTRADICTED → ratio 0.8 → D3=2') plus one example per CONTRADICTED claim. For D4: name any constraint violation. For D5: (a) no steps or (b) infeasible steps. For D6: counts only with the same ratio shown.>",
+  "confidence": <0.0-1.0>
+}
+```
+
+---
+
 ## B3: Conditional Logic
 
 **Dimension**: conditional_logic

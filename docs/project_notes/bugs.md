@@ -76,6 +76,13 @@ Use bullet lists for simplicity. Older entries can be manually removed when they
 - **Status**: Known — chunking granularity issue, not a model or retrieval defect
 - **Fix**: Either split chunks at clause boundaries during ingestion, or implement sub-clause citation resolution that maps response references back to specific clauses within a chunk
 
+### 2026-04-21 - RAGAs context_recall always 0 when ground truth cites clauses inside multi-clause chunks
+- **Issue**: Hybrid-mode eval on B3-001 returned `context_recall=0.00` (pulling context_precision down and Retrieval Quality to 0.50) even though the retriever surfaced topically-related chunks.
+- **Root Cause**: The ground truth reference cites `CCoP 2.0 clause 5.3.1(c)`, but section 5.3.* (Privileged Access Management) is **not indexed as discrete clause chunks** in `ccop_clauses_hybrid` (303 points). Enumerating `document_source="CCoP 2.0"` chapter-5 clauses in Qdrant shows a gap: `5.1.*, 5.2.*, 5.5.*, 5.6.*, ...` — sections 5.3 and 5.4 are missing. Section 5.3 header + the opening line of 5.3.1 got glued onto the tail of the `5.2.2` chunk, but items (a)(b)(c) bodies are not emitted as their own points. Full-text scan for "individual accountability" / "individual authentication" returns 0 hits across all CCoP 2.0 chunks.
+- **Impact**: RAGAs decomposes the reference into atomic claims and checks each against retrieved contexts. When the cited clause's body is absent from the corpus, **no retrieval strategy (hybrid, dense-only, higher top-K, different reranker) can produce non-zero context_recall** — it's a data problem, not a retrieval problem. Affects any test case whose ground truth grounds on sections 5.3 or 5.4.
+- **Status**: Known — same family as "Citation ID Mismatch" (2026-03-21) but distinct observable: that entry notes wrong displayed citation; this entry notes missing content.
+- **Fix**: (1) Verify section 5.3/5.4 exist in `ccop-official/CCoP---Second-Edition_Revision-One.pdf` (expected yes — Privileged Access Management is core). (2) Fix clause-aware chunker under `src/rag/ingestion/` that fails to split on the 5.2 → 5.3 boundary. (3) Drop + re-ingest collection, verify via `/collections/.../scroll` filter `section=5.3`. (4) Add ingestion sanity test: assert TOC-level section count matches indexed section count; fail loudly at ingestion time, not silently at eval time.
+
 ---
 
 ## Tips

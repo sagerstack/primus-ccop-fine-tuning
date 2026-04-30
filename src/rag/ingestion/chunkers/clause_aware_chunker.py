@@ -13,8 +13,36 @@ from rag.ingestion.models import ChunkMetadata, CcopChunk
 
 logger = logging.getLogger(__name__)
 
-# Regex pattern for CCoP clause numbering (e.g., "5.2.1 The CIIO shall...")
-CLAUSE_PATTERN = re.compile(r"^(\d+(?:\.\d+)*)\s+(.+?)$", re.MULTILINE)
+# Regex pattern for CCoP clause numbering.
+#
+# Matches three heading formats produced by Docling's Classic pipeline:
+#   - Bare digit:  "5.2.2 The CIIO shall perform a review..."
+#   - ## prefix:   "## 5.3 Privileged Access Management"
+#                  "## 5.3.1 With respect to privileged accounts..."
+#   - list-item:   "- 6.1.1 The CIIO shall generate, collect and store logs..."
+#
+# The list-item form occurs when a numbered clause immediately introduces a
+# markdown sub-list (Docling assimilates the clause into the surrounding
+# "- (a) ... - (b) ..." structure). Known cases in CCoP 2.0: 6.1.1, 8.2.5.
+# Without this branch, those clauses are silently absorbed into the parent
+# chunk (6.1, 8.2) and become unsearchable as discrete clauses — causing
+# inventory/Qdrant asymmetry that the ground-truth audit flags as Pass 3 hits.
+#
+# The list-item branch is restricted to hierarchical IDs (\d+(?:\.\d+)+ — at
+# least one dot) to avoid matching plain numbered list items like "- 1 Foo"
+# that appear in body prose of legal documents (e.g. Cybersecurity Act 2018).
+#
+# Also matches item-letter notation "5.3.1(c) Implement multi-factor..." when present,
+# though in practice Docling renders sub-items as "- (c) ..." list syntax inside the
+# parent clause body rather than as standalone headings. The optional \\([a-z]\\)
+# group is included per Phase 3.2 plan requirement and is harmless when absent.
+#
+# Chunks stop at the clause level (X.Y.Z or X.Y). Item-letter sub-items remain
+# embedded in parent clause text per the CONTEXT.md leaf-depth decision.
+CLAUSE_PATTERN = re.compile(
+    r"^(?:##\s+|-\s+(?=\d+\.))?(\d+(?:\.\d+)*(?:\([a-z]\))?)\s+(.+?)$",
+    re.MULTILINE,
+)
 
 
 def chunk_by_clauses(
@@ -41,7 +69,6 @@ def chunk_by_clauses(
     filtered_text = _filter_boilerplate(markdown_text)
 
     chunks = []
-    merge_buffer = None
 
     # Split on clause boundaries
     parts = CLAUSE_PATTERN.split(filtered_text)
@@ -79,8 +106,13 @@ def chunk_by_clauses(
                     f"into {len(preamble_chunks)} sub-chunks"
                 )
 
-    # Process clause groups (groups of 3: clause_number, heading, content)
-    i = 1 if parts[0].strip() else 0
+    # Process clause groups (groups of 3: clause_number, heading, content).
+    # Every clause match emits its own chunk — merging disabled per Phase 3.2
+    # decision (bug #9 root cause: <30-word merge rule caused cross-clause bleed).
+    # Clause groups always start at index 1 (parts[0] is always the pre-match preamble
+    # text, even if empty). The previous `i = 1 if parts[0].strip() else 0` was
+    # inverted and only worked accidentally when real documents always have preamble.
+    i = 1
     while i < len(parts) - 2:
         clause_number = parts[i].strip()
         clause_heading = parts[i + 1].strip()
@@ -89,48 +121,18 @@ def chunk_by_clauses(
         # Build chunk text
         chunk_text = f"{clause_number} {clause_heading}\n\n{clause_content}".strip()
 
-        # Word count for size check
-        word_count = len(chunk_text.split())
-
-        # Check if this is a tiny chunk that should be merged
-        if word_count < 30:
-            # Merge with previous chunk or buffer for next
-            if merge_buffer is None:
-                merge_buffer = {
-                    "text": chunk_text,
-                    "clause_number": clause_number,
-                    "clause_heading": clause_heading,
-                }
-            else:
-                # Merge with buffer
-                merge_buffer["text"] += "\n\n" + chunk_text
-            i += 3
-            continue
-
-        # Flush merge buffer if exists
-        if merge_buffer:
-            merged_chunk = _create_clause_chunk(
-                merge_buffer["text"],
-                document_name,
-                merge_buffer["clause_number"],
-            )
-            chunks.append(merged_chunk)
-            merge_buffer = None
-
-        # Create chunk
         chunk = _create_clause_chunk(chunk_text, document_name, clause_number)
         chunks.append(chunk)
 
-        i += 3
-
-    # Don't forget final merge buffer
-    if merge_buffer:
-        merged_chunk = _create_clause_chunk(
-            merge_buffer["text"],
-            document_name,
-            merge_buffer["clause_number"],
+        # Detect tables in the clause body and emit additive table chunks.
+        # Tables remain embedded in the parent clause text for context; table
+        # chunks are additive and enable filtered retrieval ("show me only tables").
+        table_chunks = _extract_table_chunks(
+            clause_content, document_name, clause_number
         )
-        chunks.append(merged_chunk)
+        chunks.extend(table_chunks)
+
+        i += 3
 
     logger.info(
         f"Produced {len(chunks)} clause-level chunks for {document_name} "
@@ -318,6 +320,81 @@ def _build_parent_path(clause_number: str) -> str:
         # Multi-level clause
         section = ".".join(parts[:2])
         return f"Chapter {parts[0]} > Section {section} > {clause_number}"
+
+
+def _extract_table_chunks(
+    clause_content: str, document_name: str, clause_number: str
+) -> List[CcopChunk]:
+    """
+    Detect markdown tables in a clause body and emit additive table chunks.
+
+    Docling emits markdown tables as consecutive lines starting with '|'.
+    A block is classified as a table when ≥3 consecutive pipe-lines are present
+    (heading row + separator row + at least one data row).
+
+    Table chunks are ADDITIVE — the parent clause chunk keeps its full text
+    (tables remain embedded for context). Table chunks enable filtered retrieval
+    on "show me the enumeration matrix" style queries.
+
+    Tables outside clause bodies (preamble) are skipped per Phase 3.2 scope
+    decision (deferred).
+
+    Args:
+        clause_content: Content text of the enclosing clause
+        document_name: Source document name
+        clause_number: Enclosing clause number (e.g., "5.3.1")
+
+    Returns:
+        List of table CcopChunks (empty if no tables found in content)
+    """
+    lines = clause_content.split("\n")
+    table_chunks: List[CcopChunk] = []
+    table_index = 0
+    current_block: List[str] = []
+
+    def _flush_block(block: List[str], idx: int) -> None:
+        table_text = "\n".join(block).strip()
+        if not table_text:
+            return
+
+        section = _extract_section(clause_number)
+        parent_path = _build_parent_path(clause_number)
+        chapter = clause_number.split(".")[0]
+        citation_id = f"{document_name}::{clause_number}::table::{idx}"
+
+        metadata = ChunkMetadata(
+            document_source=document_name,
+            section=section,
+            clause=clause_number,
+            citation_id=citation_id,
+            parent_path=parent_path,
+            chapter=chapter,
+            type="table",
+            parent_clause=clause_number,
+        )
+        table_chunks.append(
+            CcopChunk(id=citation_id, text=table_text, metadata=metadata)
+        )
+
+    for line in lines:
+        if line.strip().startswith("|"):
+            current_block.append(line)
+        else:
+            if len(current_block) >= 3:
+                _flush_block(current_block, table_index)
+                table_index += 1
+            current_block = []
+
+    # Flush any trailing block
+    if len(current_block) >= 3:
+        _flush_block(current_block, table_index)
+
+    if table_chunks:
+        logger.debug(
+            f"  {clause_number}: {len(table_chunks)} table chunk(s) extracted"
+        )
+
+    return table_chunks
 
 
 def _create_clause_chunk(

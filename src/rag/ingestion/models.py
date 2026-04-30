@@ -50,6 +50,14 @@ class ChunkMetadata(BaseModel):
     chapter: str = Field(
         default="", description="Top-level chapter number (e.g., '5')"
     )
+    type: str = Field(
+        default="clause",
+        description="Chunk type: 'clause' (default) or 'table'",
+    )
+    parent_clause: str = Field(
+        default="",
+        description="Parent clause number for table chunks (e.g., '5.3.1'); empty for clause chunks",
+    )
 
 
 class CcopChunk(BaseModel):

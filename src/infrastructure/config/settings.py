@@ -38,11 +38,50 @@ class Settings(BaseSettings):
     # LLM Judge Configuration
     llm_judge_model: str = Field(
         default="sonnet",
-        description="Model for LLM-as-Judge benchmark scoring (via Claude CLI)"
+        description="DEPRECATED: legacy Claude CLI judge model (superseded by openrouter_* fields below)"
     )
     judge_mode: str = Field(
         default="rubric",
         description="Judge mode: rubric (per-benchmark rubrics) or universal (reasoning depth + hallucination)"
+    )
+
+    # OpenRouter Judge Configuration (Path B 2-judge methodology)
+    openrouter_api_key: Optional[str] = Field(
+        default=None,
+        description="OpenRouter API key (required for judge calls; set in .env.local)"
+    )
+    openrouter_base_url: str = Field(
+        default="https://openrouter.ai/api/v1",
+        description="OpenRouter OpenAI-compatible API base URL"
+    )
+    judge_primary_model: str = Field(
+        default="qwen/qwen3-235b-a22b-07-25",
+        description="Primary judge model ID on OpenRouter (runs on every eval)"
+    )
+    judge_secondary_model: str = Field(
+        default="openai/gpt-4o-mini-2024-07-18",
+        description="Secondary judge model ID on OpenRouter (runs only for inter-judge kappa measurement snapshots)"
+    )
+    judge_temperature: float = Field(
+        default=0.2,
+        description="Judge sampling temperature (0.0-1.0); 0.2 is the variance-reduction sweet spot"
+    )
+    judge_max_retries: int = Field(
+        default=3,
+        description="Max retries on OpenRouter API failure before raising JudgeAPIError"
+    )
+    judge_json_retry_attempts: int = Field(
+        default=3,
+        description=(
+            "Max attempts for the rubric/universal judge to return parseable JSON. "
+            "Separate from judge_max_retries: this catches successful API responses "
+            "that contain malformed JSON (e.g., Qwen truncating mid-thought). Each "
+            "attempt re-calls the judge for a fresh response."
+        )
+    )
+    judge_timeout: int = Field(
+        default=60,
+        description="Per-call timeout in seconds for OpenRouter judge calls"
     )
 
     # Model Configuration
@@ -65,8 +104,8 @@ class Settings(BaseSettings):
 
     # Evaluation Configuration
     test_cases_dir: Path = Field(
-        default=Path("../ground-truth/phase-2/test-suite"),
-        description="Test cases directory (Phase 2 ground truth)"
+        default=Path("../ground-truth/test-suite"),
+        description="Test cases directory (v2 ground truth)"
     )
     results_dir: Path = Field(
         default=Path("results/evaluations"),
@@ -250,14 +289,82 @@ class Settings(BaseSettings):
 
     # Retrieval Funnel Configuration (Phase 1.3)
     rerank_top_n: int = Field(
-        default=3,
+        default=3,  # 8→3 (2026-04-27): too much context confused the model (44K-char prompts); short queries had reranker scores clustered at logits 0.000–0.080 with no clear winner, so 8 chunks brought verbosity without precision gain. Lab Exp #41 retrieval recall metric was at top_n=C cardinality not top_n=8.
         ge=1,
         le=20,
         description="Number of documents to keep after cross-encoder reranking"
     )
     cross_encoder_model: str = Field(
-        default="cross-encoder/ms-marco-MiniLM-L12-v2",
+        default="BAAI/bge-reranker-large",  # Per Exp #7
         description="Cross-encoder model for reranking (HuggingFace model ID)"
+    )
+
+    # Production retrieval architecture (per lab research, Exp #41)
+    rag_retrieval_mode: str = Field(
+        default="dense",  # vs "hybrid"; per Exp #11 — dense-only beats hybrid+RRF
+        description="Retrieval mode: 'dense' (pure cosine), 'hybrid' (RRF dense+sparse), or 'sparse'"
+    )
+    rag_contextualization_enabled: bool = Field(
+        default=True,
+        description="Whether to augment chunks with breadcrumb + LLM-generated context at indexing time (Exp #14, #41)"
+    )
+    rag_contextualization_model: str = Field(
+        default="openai/gpt-4o-mini",
+        description="OpenRouter model for context generation (acronyms-only prompt per Exp #41)"
+    )
+    rag_hyde_enabled: bool = Field(
+        default=True,
+        description="Whether to apply HyDE query rewriting before retrieval (Exp #17)"
+    )
+    rag_hyde_model: str = Field(
+        default="openai/gpt-4o-mini",
+        description="OpenRouter model for HyDE hypothetical-clause generation"
+    )
+    rag_rrf_dense_weight: float = Field(
+        default=1.0,
+        description="RRF weight on dense rank (Exp #28 found CE-favored 1:1.5 best)"
+    )
+    rag_rrf_ce_weight: float = Field(
+        default=1.5,
+        description="RRF weight on cross-encoder rank (Exp #28)"
+    )
+    rag_merge_parent_enabled: bool = Field(
+        default=True,
+        description="Whether to merge sibling chunks into parent groups after reranking (Exp #16)"
+    )
+    rag_merge_window: int = Field(
+        default=40,
+        description="Top-K reranked window size for parent-child sibling detection (Exp #33)"
+    )
+    rag_merge_min_siblings: int = Field(
+        default=2,
+        description="Minimum sibling clauses required to trigger parent merge"
+    )
+    rag_merge_min_score_ratio: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description=(
+            "Relevance gate for parent-child merge: only include sibling members "
+            "whose cross-encoder score is at least this fraction of the anchor's score. "
+            "Prevents weak siblings (e.g., adjacent clauses on different sub-topics) "
+            "from being bundled into a slot just because they share a parent. "
+            "Set to 0.0 to disable the gate (legacy behaviour: all in-window siblings merge)."
+        ),
+    )
+    rag_merge_max_members: int = Field(
+        default=4,
+        ge=2,
+        le=10,
+        description=(
+            "Hard cap on members in a single merged group, taken from the highest-scoring "
+            "siblings. Prevents one slot from dominating the LLM context budget when a "
+            "section has many siblings (e.g., chapter 11 with 50+ sub-clauses)."
+        ),
+    )
+    rag_collection_name_contextual: str = Field(
+        default="ccop_clauses_contextual_v3",
+        description="Production Qdrant collection with contextual augmentation (Exp #41)"
     )
 
     # RAGAs Configuration

@@ -159,6 +159,14 @@ def create_rag_pipeline(settings: "Settings") -> Callable[[str, str], dict]:
             "is_rag_augmented": False,
             "citations": [],
             "error": "",
+            # I/O capture fields (Phase 3.1 — traceability)
+            "system_prompt": "",
+            "user_prompt": "",
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+            "latency_ms": 0,
+            "retrieved_contexts_detailed": [],
         }
 
         final_state = graph.invoke(initial_state)

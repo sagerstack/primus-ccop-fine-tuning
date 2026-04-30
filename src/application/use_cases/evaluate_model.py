@@ -74,14 +74,51 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         if not is_available:
             raise ValueError(f"Model '{request.model_name}' is not available")
 
-        # Evaluate each test case
+        # Build a partial-write metadata prelude. Used to (a) match prior
+        # partial files on resume, (b) write the header line on first append.
+        # Final consolidated metadata is built later from summary stats.
+        partial_metadata = self._build_partial_metadata(request, start_time)
+
+        # On resume: load completed cases from prior partial file and skip them.
         results: List[EvaluationResult] = []
+        completed_test_ids: set = set()
+        if request.resume and request.save_results:
+            try:
+                partial = await self._result_repository.load_partial(partial_metadata)
+            except ValueError as exc:
+                # Config drift detected — surface to caller; user must explicitly
+                # opt out of resume or fix the invocation.
+                raise ValueError(f"Resume aborted: {exc}") from exc
+            if partial is not None:
+                completed_test_ids = partial["completed_test_ids"]
+                results.extend(partial["completed_results"])
+                self._logger.info(
+                    f"Resuming run: skipping {len(completed_test_ids)} completed cases"
+                )
+
+        # Evaluate remaining test cases
         for i, test_case in enumerate(test_cases, 1):
+            if test_case.test_id in completed_test_ids:
+                self._logger.info(
+                    f"Skipping already-completed test case {i}/{len(test_cases)}: "
+                    f"{test_case.test_id}"
+                )
+                continue
             self._logger.info(
                 f"Evaluating test case {i}/{len(test_cases)}: {test_case.test_id}"
             )
             result = await self._evaluate_test_case(test_case, request)
             results.append(result)
+
+            # Per-case incremental write: a hard kill loses at most this single case.
+            if request.save_results:
+                try:
+                    await self._result_repository.append_partial(result, partial_metadata)
+                except Exception as exc:  # noqa: BLE001
+                    self._logger.warning(
+                        f"Failed to append partial result for {test_case.test_id}: {exc}. "
+                        f"Continuing without checkpoint for this case."
+                    )
 
         # Generate summary
         end_time = datetime.utcnow()
@@ -95,7 +132,14 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         # Save results if requested (with metadata)
         if request.save_results:
             metadata = self._build_evaluation_metadata(request, summary, start_time, end_time)
-            filepath = await self._result_repository.save_evaluation_run(results, metadata)
+            contexts_by_test_id = {
+                r.test_case.test_id: r.retrieved_contexts_detailed
+                for r in results
+                if r.retrieved_contexts_detailed
+            }
+            filepath = await self._result_repository.save_evaluation_run(
+                results, metadata, contexts_by_test_id=contexts_by_test_id or None
+            )
             self._logger.info(f"Saved {len(results)} results to {filepath}")
 
         self._logger.info(
@@ -105,6 +149,44 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         )
 
         return summary
+
+    def _build_partial_metadata(
+        self,
+        request: EvaluationRequestDTO,
+        start_time: datetime,
+    ) -> Dict[str, any]:
+        """
+        Build the minimal metadata prelude written to the partial JSONL header.
+
+        Mirrors the keys from `_build_evaluation_metadata` that are needed for
+        (a) computing the partial filename, (b) verifying config compatibility
+        on resume. Summary stats are filled in later by the consolidated
+        metadata builder.
+        """
+        # Derive scope by re-running build_scope on current invocation flags.
+        from domain.value_objects.run_id import RunId
+
+        scope = RunId.build_scope(
+            tier=None,  # Tier is encoded into benchmarks list at this point
+            benchmarks=request.benchmark_types,
+            test_ids=request.test_case_ids,
+            total_benchmarks_available=24,
+        )
+
+        judge_config = {
+            "judge_mode": request.judge_mode,
+            "evaluation_mode": request.evaluation_mode,
+        }
+
+        return {
+            "run_id": request.run_id,
+            "schema_version": 6,
+            "model_name": request.model_name,
+            "evaluation_mode": request.evaluation_mode,
+            "scope": scope,
+            "judge_config": judge_config,
+            "evaluated_at": start_time.isoformat(),
+        }
 
     async def _load_test_cases(
         self,
@@ -164,6 +246,9 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         retrieved_chunk_ids = None
         chunk_count = None
         retrieved_contexts = None
+        system_prompt_captured = ""
+        user_prompt_captured = ""
+        retrieved_contexts_detailed_captured = None
 
         if self._rag_pipeline is not None and request.evaluation_mode:
             # RAG pipeline path
@@ -184,21 +269,42 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
                 mode=mode,
             )
 
-            # Build ModelResponse from RagResponse
+            # Build ModelResponse from RagResponse with full token/latency tracking
             from domain.entities.model_response import ModelResponse
             model_response = ModelResponse(
                 content=rag_response.response,
                 model_name=request.model_name,
-                tokens_used=0,  # Not tracked from graph this phase
-                latency_ms=0,   # Not tracked from graph this phase
+                tokens_used=rag_response.total_tokens,  # back-compat display
+                prompt_tokens=rag_response.prompt_tokens,
+                completion_tokens=rag_response.completion_tokens,
+                total_tokens=rag_response.total_tokens,
+                latency_ms=rag_response.latency_ms,
                 temperature=request.temperature,
             )
 
-            # Extract retrieved chunk IDs from citations
-            if rag_response.citations:
+            # Capture full I/O for traceability
+            system_prompt_captured = rag_response.system_prompt
+            user_prompt_captured = rag_response.user_prompt
+            retrieved_contexts_detailed_captured = rag_response.retrieved_contexts_detailed or None
+
+            # Build retrieved_chunk_ids from the RAG retrieval output (top-N
+            # chunks fed to the model). This is intentionally separate from
+            # rag_response.citations — under the <Sources>-based design, that
+            # field reflects what the MODEL declared it relied on, which is a
+            # possibly-different list. retrieved_chunk_ids should always
+            # represent what the retrieval pipeline produced.
+            if rag_response.retrieved_contexts_detailed:
                 retrieved_chunk_ids = []
-                for citation in rag_response.citations:
-                    chunk_id = f"{citation.get('document', 'Unknown')}::{citation.get('clause', citation.get('section', 'N/A'))}"
+                for ctx in rag_response.retrieved_contexts_detailed:
+                    cid = ctx.get("citation_id") or ""
+                    if cid:
+                        chunk_id = cid
+                    else:
+                        doc = ctx.get("document", "Unknown") or "Unknown"
+                        clause_or_section = (
+                            ctx.get("clause") or ctx.get("section") or "N/A"
+                        )
+                        chunk_id = f"{doc}::{clause_or_section}"
                     retrieved_chunk_ids.append(chunk_id)
                 chunk_count = len(retrieved_chunk_ids)
 
@@ -208,6 +314,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
 
         else:
             # Direct model gateway path (backward compatibility)
+            _direct_system_prompt = "You are a cybersecurity compliance expert specializing in Singapore's CCoP 2.0."
             model_response = await self._model_gateway.generate_response(
                 prompt=test_case.question,
                 model_name=request.model_name,
@@ -215,8 +322,13 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
                 max_tokens=max_tokens,
                 top_p=request.top_p,
                 top_k=request.top_k,
-                system_prompt="You are a cybersecurity compliance expert specializing in Singapore's CCoP 2.0.",
+                system_prompt=_direct_system_prompt,
             )
+
+            # Capture I/O for direct path
+            system_prompt_captured = _direct_system_prompt
+            user_prompt_captured = test_case.question
+            retrieved_contexts_detailed_captured = None
 
         # Shadow retrieval: retrieve contexts for universal judge (not passed to model)
         if (
@@ -282,6 +394,9 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             retrieved_chunk_ids=retrieved_chunk_ids,
             chunk_count=chunk_count,
             evaluation_mode=request.evaluation_mode if self._rag_pipeline else None,
+            system_prompt=system_prompt_captured,
+            user_prompt=user_prompt_captured,
+            retrieved_contexts_detailed=retrieved_contexts_detailed_captured,
         )
 
         # Finalize (calculate score and pass/fail with configurable threshold)
@@ -693,6 +808,8 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             Metadata dictionary
         """
         metadata = {
+            "run_id": request.run_id,
+            "schema_version": 6,
             "model_name": request.model_name,
             "evaluation_phase": request.evaluation_phase,
             "evaluation_mode": request.evaluation_mode,
@@ -774,11 +891,18 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         self,
         results: List[EvaluationResult]
     ) -> Dict[str, Dict[str, any]]:
-        """Group results by benchmark type."""
+        """Group results by benchmark type.
+
+        Keyed on the canonical short_name form (e.g., "B5", not "B05") to match
+        `_aggregate_quality_categories` and EvaluationCategory.benchmarks lists.
+        Using benchmark_type.value here previously caused zero-padded keys
+        ("B05") to mismatch the short-form keys ("B5") used everywhere else,
+        making the Quality Breakdown by Benchmark table render all-N/A.
+        """
         grouped: Dict[str, List[EvaluationResult]] = {}
 
         for result in results:
-            benchmark = result.test_case.benchmark_type.value
+            benchmark = result.test_case.benchmark_type.short_name
             if benchmark not in grouped:
                 grouped[benchmark] = []
             grouped[benchmark].append(result)
@@ -919,4 +1043,11 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             contradicted_count=contradicted_count,
             reasoning_criteria_met=reasoning_criteria_met,
             claims=claims,
+            # I/O capture fields (Phase 3.1 — traceability)
+            system_prompt=result.system_prompt,
+            user_prompt=result.user_prompt,
+            prompt_tokens=result.model_response.prompt_tokens,
+            completion_tokens=result.model_response.completion_tokens,
+            total_tokens=result.model_response.total_tokens,
+            retrieved_contexts_detailed=result.retrieved_contexts_detailed,
         )

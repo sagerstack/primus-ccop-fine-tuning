@@ -27,6 +27,28 @@ def rag_only_response(state: GraphState) -> GraphState:
 
     logger.info(f"RAG-only response: {len(filtered_docs)} documents")
 
+    # Populate retrieved_contexts_detailed (no LLM call — token counts stay 0)
+    state["retrieved_contexts_detailed"] = [
+        {
+            "text": doc.page_content,
+            "citation_id": doc.metadata.get("citation_id"),
+            "section": doc.metadata.get("section"),
+            "clause": doc.metadata.get("clause"),
+            "document": doc.metadata.get("document_source"),
+            "score": doc.metadata.get("similarity_score"),
+            "metadata": dict(doc.metadata),
+        }
+        for doc in filtered_docs
+    ]
+
+    # No LLM call in rag-only path
+    state["system_prompt"] = ""
+    state["user_prompt"] = ""
+    state["prompt_tokens"] = 0
+    state["completion_tokens"] = 0
+    state["total_tokens"] = 0
+    state["latency_ms"] = 0
+
     if not filtered_docs:
         state["generation"] = "No relevant documents found."
         state["is_rag_augmented"] = False
@@ -40,7 +62,6 @@ def rag_only_response(state: GraphState) -> GraphState:
         source = doc.metadata.get("document_source", "Unknown")
         section = doc.metadata.get("section", "")
         clause = doc.metadata.get("clause", "")
-        citation_id = doc.metadata.get("citation_id", "")
         score = doc.metadata.get("similarity_score", 0.0)
 
         header = f"**[{i}] {source}**"

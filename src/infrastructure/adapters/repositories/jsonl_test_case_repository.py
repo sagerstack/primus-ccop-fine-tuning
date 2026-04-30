@@ -97,6 +97,7 @@ class JSONLTestCaseRepository(ITestCaseRepository):
             return []
 
         test_cases = []
+        skipped_deprecated = 0
         with open(filepath, "r", encoding="utf-8") as f:
             for line_num, line in enumerate(f, 1):
                 try:
@@ -104,6 +105,12 @@ class JSONLTestCaseRepository(ITestCaseRepository):
                     if not line:  # Skip empty lines
                         continue
                     data = json.loads(line)
+                    if data.get("status") == "deprecated":
+                        skipped_deprecated += 1
+                        self._logger.info(
+                            f"Skipping deprecated test case: {data.get('test_id', f'line-{line_num}')}"
+                        )
+                        continue
                     test_case = self._parse_test_case(data)
                     test_cases.append(test_case)
                 except Exception as e:
@@ -112,6 +119,10 @@ class JSONLTestCaseRepository(ITestCaseRepository):
                         file=str(filepath)
                     )
 
+        if skipped_deprecated:
+            self._logger.info(
+                f"Skipped {skipped_deprecated} deprecated test case(s) from {filepath.name}"
+            )
         return test_cases
 
     async def load_by_id(self, test_id: str) -> Optional[TestCase]:

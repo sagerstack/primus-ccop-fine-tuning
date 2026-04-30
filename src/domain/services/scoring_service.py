@@ -60,43 +60,15 @@ class ScoringService:
                 test_case, response, retrieved_contexts
             )
 
-        # Rubric-based routing (default): existing benchmark scorers
-        benchmark_scorers = {
-            # Rule-based benchmarks (6 total)
-            "B1": ScoringService._score_b1_interpretation,
-            "B2": ScoringService._score_b2_citation,
-            "B4": ScoringService._score_b4_terminology,
-            "B5": ScoringService._score_b5_classification,
-            "B6": ScoringService._score_b6_violation_detection,
-            "B21": ScoringService._score_b3_hallucination,
-
-            # LLM-as-Judge benchmarks (15 total)
-            "B3": ScoringService._score_llm_judge,
-            "B7": ScoringService._score_llm_judge,
-            "B8": ScoringService._score_llm_judge,
-            "B9": ScoringService._score_llm_judge,
-            "B10": ScoringService._score_llm_judge,
-            "B11": ScoringService._score_llm_judge,
-            "B12": ScoringService._score_llm_judge,
-            "B13": ScoringService._score_llm_judge,
-            "B14": ScoringService._score_llm_judge,
-            "B15": ScoringService._score_llm_judge,
-            "B16": ScoringService._score_llm_judge,
-            "B17": ScoringService._score_llm_judge,
-            "B18": ScoringService._score_llm_judge,
-            "B19": ScoringService._score_llm_judge,
-            "B20": ScoringService._score_llm_judge,
-        }
-
-        # Find scorer by checking if benchmark type matches each key
-        for benchmark_key, scorer in benchmark_scorers.items():
-            if test_case.benchmark_type == benchmark_key:
-                return scorer(test_case, response)
-
-        raise ValueError(
-            f"Unknown benchmark: {test_case.benchmark_type.value}. "
-            f"All 21 benchmarks (B1-B21) should be mapped."
-        )
+        # Rubric-based routing (default): EVERY benchmark scored by the LLM judge
+        # universal 5-dim rubric. Rule-based scorers (_score_b1_interpretation,
+        # _score_b3_hallucination, etc.) are retained as historical reference but
+        # no longer dispatched to. Per-benchmark signal flows through the test
+        # case's structured ground truth (key_facts, clause_reference, fail_conditions),
+        # not through scorer-method dispatch — this keeps composite scores
+        # comparable across benchmarks and produces a uniform 5-dimension result
+        # schema for kappa validation.
+        return ScoringService._score_llm_judge(test_case, response)
 
     @staticmethod
     def _score_b1_interpretation(
@@ -313,6 +285,24 @@ class ScoringService:
                 )
             )
 
+        # Persist judge raw_response + justification as a sentinel metric.
+        # weight=0 → ignored by overall_score aggregation. Carried through
+        # the existing pipeline into the saved JSON artifact for audit/debug.
+        judge_artifact = json.dumps({
+            "raw_response": evaluation.raw_response or "",
+            "justification": evaluation.justification or "",
+            "confidence": evaluation.confidence,
+            "judge_mode": "rubric",
+        })
+        metrics.append(
+            EvaluationMetric(
+                name="_judge_raw",
+                value=0.0,
+                weight=0.0,
+                description=judge_artifact,
+            )
+        )
+
         return metrics
 
     @staticmethod
@@ -360,13 +350,29 @@ class ScoringService:
             "justification": evaluation.justification,
         })
 
+        # Sentinel metric carrying judge raw_response. weight=0 → ignored by
+        # overall_score aggregation. Carried through the existing pipeline
+        # into the saved JSON artifact for audit/debug.
+        judge_artifact = json.dumps({
+            "raw_response": evaluation.raw_response or "",
+            "justification": evaluation.justification or "",
+            "confidence": evaluation.confidence,
+            "judge_mode": "universal",
+        })
+
         return [
             EvaluationMetric(
                 name="universal_judge",
                 value=evaluation.overall_score,
                 weight=1.0,
                 description=judge_metadata,
-            )
+            ),
+            EvaluationMetric(
+                name="_judge_raw",
+                value=0.0,
+                weight=0.0,
+                description=judge_artifact,
+            ),
         ]
 
     @staticmethod

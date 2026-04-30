@@ -7,7 +7,7 @@ Saves evaluation results to JSON files.
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from application.ports.output.i_logger import ILogger
@@ -29,63 +29,242 @@ class JSONResultRepository(IResultRepository):
         await self.save_batch([result])
 
     async def save_batch(self, results: List[EvaluationResult]) -> None:
-        """Save multiple results."""
-        if not results:
-            return
+        """
+        Deprecated no-op in schema v6.
 
-        # Group by model name
-        by_model = {}
-        for result in results:
-            model = result.model_response.model_name
-            if model not in by_model:
-                by_model[model] = []
-            by_model[model].append(result)
-
-        # Save each model's results
-        for model_name, model_results in by_model.items():
-            filepath = self._results_dir / f"{model_name}_results.json"
-
-            # Load existing if any
-            existing = []
-            if filepath.exists():
-                with open(filepath, "r") as f:
-                    existing = json.load(f)
-
-            # Append new results
-            for result in model_results:
-                existing.append(self._serialize(result))
-
-            # Save
-            with open(filepath, "w") as f:
-                json.dump(existing, f, indent=2, default=str)
+        Per-run writes happen via save_evaluation_run. This method is retained
+        to avoid breaking any callers that still reference it, but produces no
+        file output.
+        """
+        self._logger.debug(
+            "save_batch is a no-op in schema v6; per-run writes happen via save_evaluation_run"
+        )
 
     async def save_evaluation_run(
         self,
         results: List[EvaluationResult],
-        metadata: Dict[str, any]
+        metadata: Dict[str, any],
+        contexts_by_test_id: Optional[Dict[str, List[Dict[str, any]]]] = None,
     ) -> str:
-        """Save evaluation run with metadata in separate file."""
+        """
+        Save evaluation run results as per-run file under monthly subdirectory.
+
+        Writes:
+          - {run_id}-{model}.json  — main result file
+          - {run_id}-contexts.json — sidecar (only when contexts_by_test_id is provided)
+
+        Both files land under src/results/evaluations/{yyyy-MM}/.
+        """
         if not results:
             return ""
 
-        # Generate filename from parameters
-        filename = self._generate_filename(metadata)
-        filepath = self._results_dir / filename
+        month_dir = self._monthly_dir(metadata.get("evaluated_at", ""))
+        filename = self._generate_filename_v6(metadata)
+        filepath = month_dir / filename
 
-        # Enrich metadata with quality_categories if present
         enriched_metadata = self._enrich_quality_categories_metadata(metadata)
-
-        # Build output structure with metadata first, then results
         output = {
             "metadata": enriched_metadata,
-            "test_results": [self._serialize_with_question(result) for result in results]
+            "test_results": [self._serialize_with_question(result) for result in results],
         }
 
-        # Save to file
         with open(filepath, "w") as f:
             json.dump(output, f, indent=2, default=str)
-
         self._logger.info(f"Saved evaluation run to: {filepath}")
+
+        if contexts_by_test_id:
+            run_id = metadata["run_id"]
+            sidecar_path = month_dir / f"{run_id}-contexts.json"
+            with open(sidecar_path, "w") as f:
+                json.dump(contexts_by_test_id, f, indent=2, default=str)
+            self._logger.info(f"Saved retrieved contexts sidecar to: {sidecar_path}")
+
+        return str(filepath)
+
+    async def append_partial(
+        self,
+        result: EvaluationResult,
+        run_metadata: Dict[str, Any],
+    ) -> str:
+        """
+        Append one completed test-case result to the run's partial JSONL file.
+
+        The first call writes a header line containing run-level metadata so a
+        later resume can verify config compatibility. Each subsequent call
+        writes one JSON-encoded result per line. Each line is flushed and
+        fsynced before returning so a hard kill loses at most the in-flight
+        case.
+        """
+        run_id = run_metadata.get("run_id")
+        model_name = run_metadata.get("model_name", "unknown")
+        if not run_id:
+            raise ValueError("run_metadata.run_id is required for append_partial")
+
+        month_dir = self._monthly_dir(run_metadata.get("evaluated_at", ""))
+        partial_path = month_dir / f"{run_id}-{model_name}.partial.jsonl"
+
+        is_new = not partial_path.exists()
+        with open(partial_path, "a", encoding="utf-8") as f:
+            if is_new:
+                header = {
+                    "_partial_header": True,
+                    "run_id": run_id,
+                    "model_name": model_name,
+                    "evaluation_mode": run_metadata.get("evaluation_mode"),
+                    "judge_config": run_metadata.get("judge_config"),
+                    "started_at": run_metadata.get("evaluated_at"),
+                    "scope": run_metadata.get("scope"),
+                    "schema_version": 6,
+                }
+                f.write(json.dumps(header, default=str) + "\n")
+            entry = self._serialize_with_question(result)
+            f.write(json.dumps(entry, default=str) + "\n")
+            f.flush()
+            try:
+                import os as _os
+                _os.fsync(f.fileno())
+            except OSError:
+                # Best-effort fsync; not all filesystems support it
+                pass
+
+        return str(partial_path)
+
+    async def load_partial(
+        self,
+        run_metadata: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Locate and load the most recent partial file matching this invocation.
+
+        Match criteria: same (mode, scope, model_name) — timestamp is
+        wildcarded so any prior crashed run with the same logical scope can
+        be resumed. When multiple partial files match, the most-recently
+        modified is selected and the others are logged.
+
+        Returns None when no partial file exists. Raises ValueError when a
+        partial file exists but its header is incompatible with the current
+        invocation (e.g., judge_config drifted).
+        """
+        mode = run_metadata.get("evaluation_mode")
+        scope = run_metadata.get("scope")
+        model_name = run_metadata.get("model_name", "unknown")
+        if not (mode and scope):
+            raise ValueError(
+                "run_metadata must include evaluation_mode and scope for load_partial"
+            )
+
+        pattern = f"eval-run-{mode}-{scope}-*-{model_name}.partial.jsonl"
+        candidates = sorted(
+            self._results_dir.rglob(pattern),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        if not candidates:
+            return None
+
+        if len(candidates) > 1:
+            self._logger.warning(
+                f"Multiple partial files match scope={scope} mode={mode}; "
+                f"using most recent ({candidates[0].name}). Others ignored: "
+                f"{[p.name for p in candidates[1:]]}"
+            )
+
+        partial_path = candidates[0]
+        header: Optional[Dict[str, Any]] = None
+        completed_results: List[EvaluationResult] = []
+        completed_test_ids: set[str] = set()
+
+        with open(partial_path, "r", encoding="utf-8") as f:
+            for line_no, line in enumerate(f, 1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    self._logger.warning(
+                        f"Skipping corrupt JSONL line {line_no} in {partial_path.name}: {exc}"
+                    )
+                    continue
+
+                if entry.get("_partial_header"):
+                    header = entry
+                    continue
+
+                test_id = entry.get("test_id")
+                if test_id and test_id not in completed_test_ids:
+                    completed_test_ids.add(test_id)
+                    reconstructed = self._reconstruct_result(entry, header or {})
+                    if reconstructed is not None:
+                        completed_results.append(reconstructed)
+
+        if header is None:
+            raise ValueError(
+                f"Partial file {partial_path.name} is missing the header line. "
+                f"Cannot validate config compatibility — refusing to resume."
+            )
+
+        # Validate config compatibility — bail out on drift to prevent
+        # mixing results from different judge / model configurations.
+        current_judge_config = run_metadata.get("judge_config")
+        partial_judge_config = header.get("judge_config")
+        if current_judge_config and partial_judge_config:
+            if current_judge_config != partial_judge_config:
+                raise ValueError(
+                    f"Resume aborted: partial file {partial_path.name} has "
+                    f"judge_config={partial_judge_config} but current invocation "
+                    f"is judge_config={current_judge_config}. Configs must match."
+                )
+
+        if header.get("model_name") != model_name:
+            raise ValueError(
+                f"Resume aborted: partial file model={header.get('model_name')} "
+                f"but current invocation model={model_name}."
+            )
+
+        self._logger.info(
+            f"Loaded partial run from {partial_path.name}: "
+            f"{len(completed_test_ids)} completed cases."
+        )
+
+        return {
+            "partial_path": str(partial_path),
+            "header": header,
+            "completed_test_ids": completed_test_ids,
+            "completed_results": completed_results,
+        }
+
+    async def save_query_run(
+        self,
+        metadata: Dict[str, any],
+        test_results: List[Dict[str, any]],
+        contexts_by_test_id: Optional[Dict[str, List[Dict[str, any]]]] = None,
+    ) -> str:
+        """
+        Save a single ad-hoc query result as a per-run JSON file.
+
+        Writes:
+          - {run_id}-{model}.json  — main result file
+          - {run_id}-contexts.json — sidecar (only when contexts_by_test_id is provided)
+
+        Both files land under src/results/evaluations/{yyyy-MM}/.
+        """
+        month_dir = self._monthly_dir(metadata.get("evaluated_at", ""))
+        filename = self._generate_filename_v6(metadata)
+        filepath = month_dir / filename
+        output = {"metadata": metadata, "test_results": test_results}
+
+        with open(filepath, "w") as f:
+            json.dump(output, f, indent=2, default=str)
+        self._logger.info(f"Saved query run to: {filepath}")
+
+        if contexts_by_test_id:
+            run_id = metadata["run_id"]
+            sidecar_path = month_dir / f"{run_id}-contexts.json"
+            with open(sidecar_path, "w") as f:
+                json.dump(contexts_by_test_id, f, indent=2, default=str)
+            self._logger.info(f"Saved query contexts sidecar to: {sidecar_path}")
+
         return str(filepath)
 
     async def load_by_id(self, result_id: UUID) -> Optional[EvaluationResult]:
@@ -97,8 +276,143 @@ class JSONResultRepository(IResultRepository):
         return []
 
     async def load_by_model(self, model_name: str) -> List[EvaluationResult]:
-        """Load results by model (not implemented - stub)."""
-        return []
+        """
+        Load all v6 result files for a given model via glob across monthly subdirs.
+
+        Discovery pattern: self._results_dir.rglob(f"*-{model_name}.json")
+
+        Filtering:
+          - Skip sidecar files (name ends with "-contexts.json")
+          - Skip legacy files missing metadata.run_id or schema_version != 6 (warn)
+
+        Returns:
+            List of reconstructed EvaluationResult objects from v6 files.
+        """
+        results = []
+        pattern = f"*-{model_name}.json"
+
+        for path in sorted(self._results_dir.rglob(pattern)):
+            # Skip sidecar files
+            if path.name.endswith("-contexts.json"):
+                continue
+
+            try:
+                with open(path) as f:
+                    data = json.load(f)
+            except (json.JSONDecodeError, OSError) as exc:
+                self._logger.warning(f"Skipping unreadable result file {path}: {exc}")
+                continue
+
+            metadata = data.get("metadata", {})
+
+            # Skip legacy pre-v6 files
+            if not metadata.get("run_id") or metadata.get("schema_version") != 6:
+                self._logger.warning(f"Skipping legacy pre-v6 result file: {path}")
+                continue
+
+            for entry in data.get("test_results", []):
+                result = self._reconstruct_result(entry, metadata)
+                if result is not None:
+                    results.append(result)
+
+        return results
+
+    def _reconstruct_result(
+        self, entry: dict, metadata: dict
+    ) -> Optional["EvaluationResult"]:
+        """
+        Reconstruct a minimal EvaluationResult from a persisted test_results[] entry.
+
+        Only the fields needed by GenerateReportUseCase._calculate_summary are populated.
+        Missing fields are defaulted (None / 0 / empty) rather than raising.
+        """
+        try:
+            from datetime import datetime as _dt
+
+            from domain.entities.model_response import ModelResponse
+            from domain.entities.test_case import TestCase
+            from domain.value_objects.benchmark_type import BenchmarkType
+            from domain.value_objects.ccop_section import CCoPSection
+            from domain.value_objects.difficulty_level import DifficultyLevel
+
+            benchmark_str = entry.get("benchmark", "B1")
+            test_id = entry.get("test_id", "unknown")
+            model_name = entry.get("model", metadata.get("model_name", "unknown"))
+
+            benchmark_type = BenchmarkType(benchmark_str)
+            section = CCoPSection("N/A")
+            difficulty = DifficultyLevel.MEDIUM
+
+            question = entry.get("question") or "N/A — loaded from persisted result"
+            # TestCase requires non-empty question (>=50 chars) and expected_response
+            if len(question.strip()) < 50:
+                question = question + " " * (50 - len(question))
+
+            test_case = TestCase(
+                test_id=test_id,
+                benchmark_type=benchmark_type,
+                section=section,
+                clause_reference="N/A",
+                difficulty=difficulty,
+                question=question,
+                expected_response="N/A — loaded from persisted result",
+                evaluation_criteria={},
+            )
+
+            model_response = ModelResponse(
+                content=entry.get("response", ""),
+                model_name=model_name,
+                tokens_used=entry.get("tokens", 0),
+                latency_ms=entry.get("latency_ms", 0),
+                prompt_tokens=entry.get("prompt_tokens", 0),
+                completion_tokens=entry.get("completion_tokens", 0),
+                total_tokens=entry.get("total_tokens", 0),
+            )
+
+            evaluated_at_str = entry.get("evaluated_at") or metadata.get("evaluated_at", "")
+            try:
+                evaluated_at = _dt.fromisoformat(
+                    evaluated_at_str.replace("Z", "+00:00")
+                ) if evaluated_at_str else _dt.utcnow()
+            except (ValueError, AttributeError):
+                evaluated_at = _dt.utcnow()
+
+            # Restore per-dimension metrics so resume → consolidate preserves
+            # the full scoring detail. Without this, the consolidated output
+            # has overall_score set but metrics list empty.
+            from domain.value_objects.evaluation_metric import EvaluationMetric
+            metrics = []
+            for m in entry.get("metrics", []) or []:
+                try:
+                    metrics.append(
+                        EvaluationMetric(
+                            name=m["name"],
+                            value=float(m["value"]),
+                            weight=float(m.get("weight", 1.0)),
+                        )
+                    )
+                except (KeyError, TypeError, ValueError) as exc:
+                    self._logger.warning(
+                        f"Skipping malformed metric entry in {test_id}: {exc}"
+                    )
+
+            result = EvaluationResult(
+                test_case=test_case,
+                model_response=model_response,
+                metrics=metrics,
+                overall_score=entry.get("score"),
+                passed=entry.get("passed"),
+                evaluated_at=evaluated_at,
+                evaluation_mode=entry.get("evaluation_mode"),
+                system_prompt=entry.get("system_prompt"),
+                user_prompt=entry.get("user_prompt"),
+            )
+
+            return result
+
+        except Exception as exc:  # noqa: BLE001
+            self._logger.warning(f"Skipping malformed test_results entry: {exc}")
+            return None
 
     async def load_all(self) -> List[EvaluationResult]:
         """Load all results (not implemented - stub)."""
@@ -111,6 +425,58 @@ class JSONResultRepository(IResultRepository):
     async def clear_all(self) -> int:
         """Clear all results (not implemented - stub)."""
         return 0
+
+    def _generate_filename_v6(self, metadata: Dict[str, any]) -> str:
+        """
+        Generate schema-v6 filename from run_id.
+
+        Format: {run_id}-{model_name}.json
+
+        Args:
+            metadata: Evaluation metadata containing run_id and model_name.
+
+        Returns:
+            Generated filename.
+
+        Raises:
+            ValueError: If metadata.run_id is missing (required for schema v6).
+        """
+        run_id = metadata.get("run_id")
+        model_name = metadata.get("model_name", "unknown")
+        if not run_id:
+            raise ValueError("metadata.run_id is required for schema v6")
+        return f"{run_id}-{model_name}.json"
+
+    def _generate_filename_legacy(self, metadata: Dict[str, any]) -> str:
+        """
+        Legacy filename generator (pre-v6). Retained for reference; not called on hot path.
+
+        Format: result-{model}-[phase-{phase}]-[mode-{mode}]-...-{timestamp}.json
+        """
+        return self._generate_filename(metadata)
+
+    def _monthly_dir(self, timestamp_iso: str) -> Path:
+        """
+        Return (and create) the monthly subdirectory for the given ISO timestamp.
+
+        Args:
+            timestamp_iso: ISO-formatted datetime string (e.g. "2026-04-21T14:30:00").
+                Falls back to utcnow() if empty or unparseable.
+
+        Returns:
+            Path to the yyyy-MM directory under self._results_dir.
+        """
+        try:
+            if timestamp_iso:
+                dt = datetime.fromisoformat(timestamp_iso.replace("Z", "+00:00"))
+            else:
+                dt = datetime.utcnow()
+        except (ValueError, AttributeError):
+            dt = datetime.utcnow()
+
+        month_dir = self._results_dir / dt.strftime("%Y-%m")
+        month_dir.mkdir(parents=True, exist_ok=True)
+        return month_dir
 
     def _serialize(self, result: EvaluationResult) -> dict:
         """Serialize result to dict."""
@@ -127,7 +493,16 @@ class JSONResultRepository(IResultRepository):
             "ragas_score": ragas_score,
             "passed": result.passed,
             "metrics": [
-                {"name": m.name, "value": m.value, "weight": m.weight}
+                # `description` carries judge metadata (raw_response, justification,
+                # universal-judge claim verifications) for sentinel/metadata metrics
+                # like `_judge_raw` and `universal_judge`. Persist when populated so
+                # the artifact can be audited later.
+                {
+                    "name": m.name,
+                    "value": m.value,
+                    "weight": m.weight,
+                    **({"description": m.description} if m.description else {}),
+                }
                 for m in result.metrics
             ],
             "tokens": result.model_response.tokens_used,
@@ -147,6 +522,13 @@ class JSONResultRepository(IResultRepository):
             else:
                 # Build grouped structure
                 serialized["ragas"] = self._build_grouped_ragas_structure(ragas_eval)
+
+        # I/O capture fields (schema v6 — traceability)
+        serialized["system_prompt"] = result.system_prompt
+        serialized["user_prompt"] = result.user_prompt
+        serialized["prompt_tokens"] = result.model_response.prompt_tokens
+        serialized["completion_tokens"] = result.model_response.completion_tokens
+        serialized["total_tokens"] = result.model_response.total_tokens
 
         # RAG evaluation metadata
         if result.evaluation_mode is not None:

@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 3 (Ground Truth V2 Overhaul) — In progress
+**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — COMPLETE. Sub-goals A (Plans 01-04) and B (Plans 05-07) both delivered. Verifier passed 18/18 must-haves. Ready for Phase 4 (Re-Baseline).
 
 ## Current Position
 
-Phase: 3 of 8 (Ground Truth V2 Overhaul)
-Plan: 4 of 11 — COMPLETE
-Status: In progress
-Last activity: 2026-04-01 — Completed 03-04-PLAN.md (v2 JSONL parser with v1/v2 auto-detection, backward compat)
+Phase: 3.2 of 8 (Corpus and Ground Truth Correctness) — COMPLETE (verifier passed 18/18)
+Plan: 7 of 7 — COMPLETE (validator hard-fail + CLI landed)
+Status: Phase 3.2 closed. Clean ground truth (`ccop-eval validate-ground-truth --no-semantic` → 434 valid, 0 errors); `ccop_clauses_hybrid` re-ingested with all 12 CCoP 2.0 sections 5.1-5.12 present; 691-entry inventory + hard-fail validator + deprecated-skip wired end-to-end. Verifier report at `.planning/phases/03.2-corpus-ground-truth-correctness/03.2-VERIFICATION.md`.
+Last activity: 2026-04-22 — Completed 03.2-07: Pass-2 regex context-awareness (76 false positives resolved) + ER_FOOTER patcher cluster (17 footer hallucinations) + `ccop-eval validate-ground-truth` CLI + JSONL repo deprecated-skip + 4 CLI integration tests; phase verifier passed 18/18.
 
-Progress: [████░░░░░░] 36% (4/11 plans)
+Progress: [███████░░░] 67% (7/11 phase-3 plans + 3/3 phase-3.1 plans + 7/7 phase-3.2 plans)
 
 ## Performance Metrics
 
@@ -36,11 +36,15 @@ Progress: [████░░░░░░] 36% (4/11 plans)
 | 2.2. RAGAs Hallucination Metric & Renaming | 3/3 | ~17 min | ~6 min |
 | 2.3. RAGAs Metric Split & Scoring Formula | 3/3 | ~22 min | ~7 min |
 | 2.4. LLM Judge Redesign & Metric Simplification | 5/5 | ~20 min | ~4 min |
+| 3.1. Eval Run Traceability & I/O Capture | 3/3 | ~90 min | ~30 min |
 
 **Recent Trend:**
-- Last 5 plans: 02.4-01 (3min), 02.4-02 (skipped), 02.4-03 (4min), 02.4-04 (5min), 02.4-05 (8min)
-- Trend: Phase 2.4 complete - test coverage took longer (8min) due to complex entity mocking
-- Phase 2.4 VERIFIED COMPLETE: All 5 plans executed, 23/23 must-haves verified, 86/86 tests passing
+- Last 5 plans: 03.2-01 (chunker regex + merge-rule removal), 03.2-02 (table chunks + TOC gate), 03.2-03 (~15min re-ingest + section/phrase verification, SC #8 N/A), 03.2-04 (~33min B3-001 re-eval + funnel diagnostic + sub-goal A closure, SC #9 N/A), 03.2-05 (~60min clause inventory extraction + committed fixture + Cybersecurity Act legal-numbering extension, SC #11 satisfied)
+- Trend: Phase 3.2 plans average ~15-60 min; Plans 04-05 longer due to human-verify checkpoint pauses
+- Phase 3.1 VERIFIED COMPLETE: 9/9 success criteria PASS, 88/88 schema-v6 targeted tests passing, verifier report at `.planning/phases/03.1-eval-run-traceability/VERIFICATION.md`
+- Phase 3.2 sub-goal A COMPLETE (2026-04-21): bugs #9/#10 corpus-level fix shipped; B3-001 retrieval-ranking gap handed off to Phase 4
+- Phase 3.2 sub-goal B COMPLETE (2026-04-22): Plan 05 landed clause inventory (691 entries, 7 docs); Plan 06 audited + applied 176 Excel corrections across 13 clusters, regenerated 196 JSONL rows; Plan 07 Pass-2 regex context-awareness + ER_FOOTER patcher (17 real hallucinations) + validator hard-fail + `ccop-eval validate-ground-truth` CLI + JSONL repo deprecated-skip + 4 CLI integration tests
+- Phase 3.2 VERIFIED COMPLETE (2026-04-22): 18/18 success criteria PASS; verifier report at `.planning/phases/03.2-corpus-ground-truth-correctness/03.2-VERIFICATION.md`
 
 *Updated after each plan completion*
 
@@ -198,13 +202,44 @@ None yet.
 - Phase 2.3 inserted after Phase 2.2: RAGAs Metric Split & Scoring Formula (URGENT) — Replace aggregated answer_correctness (masks hallucination behind semantic similarity) with separate FactualCorrectness(precision/recall), drop redundant hallucination metric, add SemanticSimilarity as diagnostic, implement multiplicative penalty formula. Discovered during Phase 2.3 triple-score UAT: LLM-only (hallucinating) and hybrid (grounded) responses scored nearly identically (0.87 vs 0.85 RAGAs) because answer_correctness blends 75% factual overlap F1 + 25% semantic similarity.
 - Phase 2.4 inserted after Phase 2.3: LLM Judge Redesign and Metric Simplification (URGENT) — Replace per-benchmark rubric dimensions with two universal LLM Judge dimensions (reasoning depth + hallucination check against retrieved context), drop factual_precision from RAGAs scoring (penalizes valid reasoning). Discovered during Phase 2.3 UAT: factual_precision (0.27) penalizes model for introducing valid reasoning not in ground truth; LLM Judge and RAGAs metrics contradict each other; per-benchmark rubrics redundant with RAGAs factual_recall/relevancy/similarity.
 - Phase 3 replaced: "Ground Truth Dataset Expansion" (1000+ cases, 21 benchmarks) → "Ground Truth V2 Overhaul" (~435 cases, 18 restructured benchmarks, unified v2 schema, Risk Manager focus). Driven by research on LLM eval ground truth quality practices and Singapore CIIO/CCoP compliance landscape. Spec: docs/superpowers/specs/2026-04-01-ground-truth-v2-design.md
+- Phases 3.2 and 3.3 merged into single Phase 3.2 "Corpus and Ground Truth Correctness" (2026-04-21): shared pre-baseline-data-integrity intent, shared dependency (Phase 3.1), shared downstream consumer (Phase 4 re-baseline). Merged to one phase with ~7 sequential plans — sub-goal A (corpus/ingestion fix: bugs #9, #10) before sub-goal B (ground truth clause audit: bug #8). Saves phase-level overhead (one CONTEXT.md, one verification pass, one closeout). All 18 success criteria preserved verbatim across both sub-goals.
+- **[03.1-01] RunId as frozen dataclass:** Matches EvaluationMetric pattern; immutable VO with `value` property rendering canonical string
+- **[03.1-01] total_tokens auto-summed in ModelResponse:** Auto-sums prompt_tokens + completion_tokens when not explicitly provided; back-populates tokens_used for display back-compat
+- **[03.1-01] retrieved_contexts_detailed alongside retrieved_contexts in RagResponse:** Text-only list for RAGAs, detailed dict list for traceability — both coexist on RagResponse
+- **[03.1-01] perf_counter() wraps chain.invoke():** Captures wall-clock LLM latency accurately in generation/fallback nodes
+- **[03.1-01] response_metadata['prompt_eval_count'] with usage_metadata fallback:** Handles both ChatOllama response_metadata style and LangChain usage_metadata style
+- **[03.1-02] Per-run monthly directory layout:** src/results/evaluations/{yyyy-MM}/{run_id}-{model}.json — self-archives as runs accumulate, no explicit cleanup needed
+- **[03.1-02] Sidecar contexts file pattern:** {run_id}-contexts.json alongside result JSON — keeps main files small while preserving full retrieval debuggability
+- **[03.1-02] save_batch no-op in schema v6:** Retained as logged no-op rather than deleted to avoid breaking callers; per-run writes happen via save_evaluation_run
+- **[03.1-02] Non-fatal query persistence:** CLI query wraps save_query_run in try/except; failure logs warning but never blocks user from seeing their answer
+- **[03.1-02] container.config() for model_name in query CLI:** Settings singleton accessed via container provider; model_name is the configured Ollama model name
+- **[03.1-03] rglob report discovery with name-first legacy filter:** `load_by_model` uses `rglob(f"*-{model_name}.json")` to discover per-run files across monthly subdirs, then filters `-contexts.json` sidecars by name *before* JSON parse so malformed sidecars never log spurious WARNINGs; pre-v6 files (missing `metadata.run_id` or `schema_version != 6`) logged + skipped
+- **[03.1-03] _reconstruct_result pads question to satisfy TestCase invariant:** Persisted test_results only carry truncated question text; reconstruction for report summary pads with trailing spaces to ≥50 chars and sets a placeholder `expected_response`. Padding is reporting-only — persisted JSON untouched, summary math unaffected
+- **[03.1-03] --verbose-io lazy sidecar load:** CLI opens `{run_id}-contexts.json` only when flag set AND file exists; missing sidecar is silent no-op. Prompts truncated at 600/1200 chars, contexts show first ~200 chars + citation_id/section/clause/score
+- **[03.1-03] Schema v6 contract locked by 88 targeted tests:** `test_run_id.py` (27), `test_json_result_repository_v6.py` (19), `test_evaluate_model_metadata.py` v6 additions (4), `test_graph_state.py` I/O capture additions (13). Numeric sort test explicitly guards `B2<B3<B11` ordering in multi-benchmark scope
+- **[03.1-03] Legacy migration hint surfaces only on empty v6 result:** `GenerateReportUseCase.get_summary` inspects flat dir for `{model}_results.json` only when `load_by_model` returns empty, emits one-line INFO guidance pointing to re-run; zero cost on happy path
+  - **[03.2-01] CLAUSE_PATTERN extended with ## heading prefix:** Docling Classic pipeline emits 56 section/clause headings as `## X.Y heading` format; the original regex only matched bare-digit lines, causing 5.3/5.4/5.3.1/5.4.1 to be unrecognized as boundaries (bug #10 root cause)
+  - **[03.2-01] Optional item-letter group in CLAUSE_PATTERN:** `(?:\([a-z]\))?` suffix added per plan; harmless in practice because Docling renders sub-items as `- (a)` list syntax, not as standalone headings
+  - **[03.2-01] Merge rule removed unconditionally:** `<30-word merge_buffer` branch deleted entirely — short chunks acceptable with hybrid retrieval; any knob preserves bleed risk
+  - **[03.2-01] Loop index i=1 always:** Pre-existing inverted condition (`i = 1 if parts[0].strip() else 0`) masked by real documents always having preamble; fixed to unconditional `i = 1`
+  - **[03.2-02] Table chunks are ADDITIVE:** Parent clause chunk keeps full text; table chunks layer on top for filtered retrieval. No replacement — both coexist in the index
+  - **[03.2-02] Table detection: >=3 consecutive pipe-lines:** Heading row + separator + at least 1 data row threshold; 2-line pipe blocks excluded
+  - **[03.2-02] EXPECTED_CCOP_2_SECTIONS as module constant:** CCoP 2.0 TOC is a structural contract of the PDF, not a runtime parameter; defined once at the top of run_ingestion.py citing source PDF
+  - **[03.2-02] TOC gate filters on type='clause' only:** Table chunks and preamble excluded from section evidence; gate positioned at Step 2.5 (after chunking, before upload)
+  - **[03.2-03] SC #8 marked N/A (human-approved 2026-04-21):** 'individual accountability'/'individual authentication' phrases are absent from CCoP 2.0 source PDF (verified via 151,269-char Docling parse with 0 matches); their absence from the index is not a chunker defect. Real fix (sections 5.3/5.4 as discrete retrievable chunks) proven by SC #7 PASS
+  - **[03.2-03] N/A annotation preserved in plan document:** Phrases kept in `must_haves.truths` + `<success_criteria>` with inline `# N/A — phrase not in source PDF` comments rather than deleted — traceability over silent removal
+  - **[03.2-03] 490 chunks -> 477 Qdrant points (13 dedup):** Deterministic uuid5 over citation_id collapses preamble sub-chunks that share parent IDs; functional content preserved, all 12 expected sections retrievable
+  - **[03.2-04] SC #9 marked N/A (human-approved 2026-04-21):** context_recall=0 on B3-001 is a retrieval-ranking problem, not a corpus gap; CCoP 2.0::5.3.1 is indexed and scoreable but lands at rank 5/20 post-cross-encoder (score -6.773), below the top-3 cutoff (-5.613). CONTEXT.md defers retriever/reranker tuning to Phase 4
+  - **[03.2-04] Sub-goal A CLOSED:** Plans 01-04 collectively deliver the corpus fix — chunker regex (01), table chunks + TOC gate (02), clean re-ingestion (03), retrievability proof (04). Bugs #9 and #10 addressed at the corpus level
+  - **[03.2-04] Retrieval funnel diagnostic as closure artifact:** Capturing rank at each stage (hybrid top_k -> cross-encoder rerank -> top-N cutoff) isolates corpus-vs-ranking failures; pattern reusable for any future retrieval metric regression
+  - **[03.2-04] Phase 4 candidate fixes pre-identified:** (1) bump rerank_top_n 3->5 (cheapest), (2) domain-tuned cross-encoder (highest signal), (3) query rewriting for privileged/admin synonymy. Documented in b3-001-rerun-evidence.md so Phase 4 planning starts with a named option space
 
 ### Blockers/Concerns
 
-None yet.
+- **Ground-truth test_id casing inconsistency (B04/B4, B05/B5, ...):** Pre-existing issue surfaced by the 03.2-04 re-eval logs. Ground-truth files use `B04-001` but benchmark codes are `B4`. Not addressed by Phase 3.2 (out of scope — audit covered citation correctness, not id canonicalization). Carry into Phase 4 acceptance testing.
 
 ## Session Continuity
 
-Last session: 2026-04-01
-Stopped at: Completed 03-04-PLAN.md — JSONL repository parser updated with v1/v2 auto-detection, 4 new v2 parsing tests, 99/99 tests passing
-Resume file: .planning/phases/03-ground-truth-v2-overhaul/03-05-PLAN.md
+Last session: 2026-04-22
+Stopped at: Completed 03.2-07-PLAN.md — validator hard-fail + `ccop-eval validate-ground-truth` CLI + JSONL repo deprecated-skip + 4 CLI integration tests. Phase 3.2 verifier passed 18/18. Phase closed.
+Resume file: N/A — Phase 3.2 complete. Next: Phase 4 (Re-Baseline & Re-Evaluate) — plan and execute the main baseline eval on v2 ground truth with corrected corpus.

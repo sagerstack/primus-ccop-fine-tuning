@@ -11,9 +11,15 @@ from typing import Any, Dict, List, Optional
 class OllamaClient:
     """HTTP client for Ollama API."""
 
-    def __init__(self, host: str = "http://localhost:11434", timeout: int = 300) -> None:
+    def __init__(
+        self,
+        host: str = "http://localhost:11434",
+        timeout: int = 300,
+        num_ctx: Optional[int] = None,
+    ) -> None:
         self.host = host.rstrip("/")
         self.timeout = timeout
+        self.num_ctx = num_ctx
         self._client = httpx.AsyncClient(timeout=timeout)
 
     async def generate(
@@ -39,6 +45,11 @@ class OllamaClient:
                 "num_predict": max_tokens,
             },
         }
+        # Per Primus model card the native context is 131072; default Ollama uses 2048
+        # without explicit num_ctx. Pass through configured value so retrieval-augmented
+        # prompts (often 7-11K tokens) are not silently truncated.
+        if self.num_ctx is not None:
+            payload["options"]["num_ctx"] = self.num_ctx
         if system:
             payload["system"] = system
 

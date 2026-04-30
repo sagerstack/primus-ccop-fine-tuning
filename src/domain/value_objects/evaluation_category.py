@@ -46,13 +46,15 @@ class EvaluationCategory:
             EvaluationCategory(
                 name="Remediation & Audit Reasoning",
                 weight=0.20,
-                benchmarks=["B13", "B14", "B15", "B16"],
+                # B24 (incident-response-guidance) added 2026-04-27 — operational/remediation
+                benchmarks=["B13", "B14", "B15", "B16", "B24"],
                 description="Assesses practical remediation quality and alignment with audit expectations"
             ),
             EvaluationCategory(
                 name="Governance & Consistency (SG Context)",
                 weight=0.10,
-                benchmarks=["B17", "B18", "B19"],
+                # B22 (waiver-exception-reasoning) and B23 (multi-regulator-coordination) added 2026-04-27 — governance mechanisms
+                benchmarks=["B17", "B18", "B19", "B22", "B23"],
                 description="Validates responsibility attribution and stable reasoning within Singapore's CII governance"
             ),
             EvaluationCategory(

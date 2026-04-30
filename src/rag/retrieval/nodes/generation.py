@@ -7,6 +7,7 @@ Embeds citation anchors in response for later resolution.
 
 import logging
 import re
+from time import perf_counter
 
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
@@ -27,10 +28,16 @@ _THINKING_TOKEN_PATTERN = re.compile(
 
 
 def strip_thinking_tokens(text: str) -> str:
-    """Strip Llama chain-of-thought tokens from model output."""
+    """Strip Llama chain-of-thought tokens from model output.
+
+    Catches both the wrapped CoT block (python_tag ... reserved_special_token_1)
+    and any standalone special token markers. The character class includes
+    digits to handle numbered variants like `<|reserved_special_token_0|>`,
+    `<|reserved_special_token_2|>`, etc. — without digits, those numbered
+    tokens leaked into the user-facing response.
+    """
     cleaned = _THINKING_TOKEN_PATTERN.sub("", text)
-    # Also strip any remaining special tokens individually
-    cleaned = re.sub(r"<\|[a-z_]+\|>", "", cleaned)
+    cleaned = re.sub(r"<\|[a-z_0-9]+\|>", "", cleaned)
     return cleaned.strip()
 
 
@@ -38,11 +45,12 @@ def generate_response(state: GraphState) -> GraphState:
     """
     Generate RAG-augmented response using filtered documents.
 
-    Uses Llama-Primus-Reasoning via ChatOllama with retrieved context.
-    Constructs prompt with citation anchors for each source document.
+    Uses Llama-Primus-Reasoning via ChatOllama with the retrieved passages.
+    Constructs the prompt with plain-language source headers per passage.
 
-    Response contains raw citation anchors <c>citation_id</c> that will
-    be resolved and formatted by Plan 01-04 citation resolution module.
+    The model is instructed to end its response with a `**Sources:**`
+    markdown footer listing the clauses it relied on. The resolver parses
+    that footer into structured citation metadata after generation.
 
     Args:
         state: Current graph state with 'query' and 'filtered_documents'
@@ -70,29 +78,64 @@ def generate_response(state: GraphState) -> GraphState:
         sim = doc.metadata.get("similarity_score", 0.0)
         logger.info(f"  [{i}] {src} | {sec} | {cid} | similarity={sim:.3f} | {len(doc.page_content)} chars")
 
-    # Generation prompt with citation instructions
+    # Generation prompt: persona + glossary + source-material framing in system
+    # message; question + relevant passages in user message. Revised 2026-04-27
+    # to remove the "Retrieved Context" framing that the model was parroting at
+    # the start of every response. Strategy: strip the seed phrases rather than
+    # add forbidden-phrase rules.
     generation_prompt = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
-                """You are a CCoP 2.0 compliance expert advising Critical Information Infrastructure Owners (CIIOs) in Singapore. Answer the question using the retrieved context below.
+                """You are a regulatory compliance advisor specializing in Singapore's Cybersecurity Code of Practice for Critical Information Infrastructure, Second Edition (CCoP 2.0).
 
-Question: {query}
+WHAT CCoP 2.0 IS:
+CCoP 2.0 is the legally mandated cybersecurity code issued by the Cyber Security Agency of Singapore (CSA) under the Singapore Cybersecurity Act 2018. It applies exclusively to designated Critical Information Infrastructure Owners (CIIOs) operating in Singapore.
 
-Retrieved Context:
-{context}
+GLOSSARY (apply these meanings throughout):
+- CCoP / CCoP 2.0: Cybersecurity Code of Practice (Second Edition), Singapore
+- CSA: Cyber Security Agency of Singapore (the regulator)
+- CIIO: Critical Information Infrastructure Owner (the regulated entity)
+- CII: Critical Information Infrastructure (the protected system)
+- CIRT: Cyber Incident Response Team
+- IT/OT: Information Technology / Operational Technology
+
+SOURCE MATERIAL:
+You answer questions using the Singapore regulatory corpus, which consists of seven documents organized into two tiers:
+
+PRIMARY (the main code):
+  1. CCoP 2.0
+
+SUPPORTING (related Singapore regulatory documents):
+  2. CCoP Response to Feedback
+  3. Cybersecurity Act 2018
+  4. Guidelines for Auditing Critical Information Infrastructure
+  5. Guide to Cyber Threat Modelling
+  6. Guide to Conducting Cybersecurity Risk Assessment for CII
+  7. Security By Design Framework
+
+Verbatim passages from this corpus are appended to each user message. Prioritize answers grounded in those passages. You may also reference external frameworks (e.g., NIST CSF, ISO 27001, MITRE ATT&CK) for context where relevant — declare those separately in the footer.
 
 RESPONSE STRUCTURE:
-1. CLAUSE CITATIONS: Reference specific CCoP clauses (e.g., Clause 5.2.1, Section 3.4) from the retrieved context. Use citation anchors in the format <c>Document::Clause</c> after each claim.
-2. CONDITIONAL ANALYSIS: Where applicable, analyze conditions, scenarios, or trade-offs relevant to the compliance question. Use "if-then" reasoning for different situations the CIIO may face.
-3. ACTIONABLE STEPS: Where applicable, provide concrete implementation steps the CIIO should take to achieve compliance.
+1. LEAD WITH THE ANSWER — Begin your response with the substantive answer. Do not preface with what you're about to do or where the information comes from.
+2. CONDITIONAL ANALYSIS — when applicable, use "if-then" reasoning for the scenarios the CIIO may face.
+3. ACTIONABLE STEPS — when applicable, provide concrete implementation steps grounded in the cited clauses.
+4. SOURCES FOOTER — End your response with a `**Sources:**` block listing every source you used, one per line in the format `<document name>: <clause reference>`. Example:
 
-RULES:
-- Only use citation anchors that appear in the retrieved context above
-- If context is insufficient for a complete answer, state this explicitly
-- Not all questions require all three elements — factual questions may only need clause citations, while advisory questions benefit from all three""",
+   **Sources:**
+   CCoP 2.0: 5.3.1
+   Cybersecurity Act 2018: Section 11(7)
+
+   Each clause reference must appear verbatim in the passages above — do not invent sub-letters like (c), (d) that aren't shown.""",
             ),
-            ("human", "{query}"),
+            (
+                "human",
+                """Question: {query}
+
+Relevant passages from the regulatory corpus:
+
+{context}""",
+            ),
         ]
     )
 
@@ -103,6 +146,21 @@ RULES:
         base_url=settings.ollama_host,
     )
 
+    # Build retrieved_contexts_detailed from filtered documents (before LLM call)
+    state["retrieved_contexts_detailed"] = [
+        {
+            "text": doc.page_content,
+            "citation_id": doc.metadata.get("citation_id"),
+            "section": doc.metadata.get("section"),
+            "clause": doc.metadata.get("clause"),
+            "document": doc.metadata.get("document_source"),
+            "score": doc.metadata.get("similarity_score"),
+            "metadata": dict(doc.metadata),
+        }
+        for doc in filtered_docs
+    ]
+
+    _start = perf_counter()
     try:
         # Log complete LLM input
         formatted_messages = generation_prompt.format_messages(context=context, query=query)
@@ -113,9 +171,31 @@ RULES:
             logger.info(f"[{msg.type}]\n{msg.content}")
         logger.info("=" * 60)
 
+        # Capture system_prompt and user_prompt before invoking the chain
+        _system_msg = next((m for m in formatted_messages if m.type == "system"), None)
+        _human_msg = next((m for m in formatted_messages if m.type == "human"), None)
+        state["system_prompt"] = _system_msg.content if _system_msg else ""
+        state["user_prompt"] = _human_msg.content if _human_msg else ""
+
         # Generate response
         chain = generation_prompt | llm
         response = chain.invoke({"context": context, "query": query})
+
+        state["latency_ms"] = int((perf_counter() - _start) * 1000)
+
+        # Extract token counts from Ollama response metadata
+        response_metadata = getattr(response, "response_metadata", {}) or {}
+        usage_metadata = getattr(response, "usage_metadata", {}) or {}
+        prompt_tokens = response_metadata.get(
+            "prompt_eval_count", usage_metadata.get("input_tokens", 0)
+        )
+        completion_tokens = response_metadata.get(
+            "eval_count", usage_metadata.get("output_tokens", 0)
+        )
+        total_tokens = usage_metadata.get("total_tokens") or (prompt_tokens + completion_tokens)
+        state["prompt_tokens"] = prompt_tokens
+        state["completion_tokens"] = completion_tokens
+        state["total_tokens"] = total_tokens
 
         raw_generation = (
             response.content if hasattr(response, "content") else str(response)
@@ -132,55 +212,33 @@ RULES:
             "filtered_documents": filtered_docs,
         }
 
-        # Resolve raw <c>citation_id</c> anchors to citation metadata
+        # Parse the model's <Sources> block into structured citation metadata.
+        # Citations referencing clauses not in the retrieved set are dropped
+        # (logged warning) so audit metadata reflects only grounded declarations.
         resolved_citations = build_citations_from_state(temp_state)
 
-        # Format final response with end-of-response references
+        # Pass-through formatter: keeps the model's <Sources> block visible in
+        # the response body. No auto-built References footer, no fallback
+        # synthesizer — structured citations live in state["citations"] only.
         formatted_generation = format_response_with_citations(
             raw_generation, resolved_citations
         )
 
-        # Fallback: if LLM failed to cite correctly, build citations from
-        # filtered documents so sources are always traceable
-        if not resolved_citations and filtered_docs:
-            seen = set()
-            for doc in filtered_docs:
-                source = doc.metadata.get("document_source", "Unknown")
-                clause = doc.metadata.get("clause", "")
-                section = doc.metadata.get("section", "")
-                ref_key = f"{source}::{clause or section}"
-                if ref_key in seen:
-                    continue
-                seen.add(ref_key)
-                resolved_citations.append({
-                    "document": source,
-                    "section": section,
-                    "clause": clause,
-                    "citation_id": doc.metadata.get("citation_id", ""),
-                    "document_type": doc.metadata.get("document_type", "standard"),
-                })
-
-            source_refs = ["\n\nSources:"]
-            for citation in resolved_citations:
-                ref = f"- {citation['document']}"
-                if citation["clause"]:
-                    ref += f", Clause {citation['clause']}"
-                elif citation["section"]:
-                    ref += f", Section {citation['section']}"
-                source_refs.append(ref)
-            formatted_generation = formatted_generation.strip() + "\n".join(source_refs)
-
-        # Update state with formatted output
         state["generation"] = formatted_generation
         state["is_rag_augmented"] = True
         state["citations"] = resolved_citations
 
         logger.info(
             f"Generated response: {len(formatted_generation)} chars, "
-            f"{len(resolved_citations)} citations resolved"
+            f"{len(resolved_citations)} citations resolved, "
+            f"tokens={total_tokens}, latency={state['latency_ms']}ms"
         )
 
     except Exception as e:
+        state["latency_ms"] = int((perf_counter() - _start) * 1000)
+        state["prompt_tokens"] = 0
+        state["completion_tokens"] = 0
+        state["total_tokens"] = 0
         logger.error(f"Generation failed: {e}")
         state["generation"] = (
             f"Error generating response: {str(e)}. Query: {query}"
