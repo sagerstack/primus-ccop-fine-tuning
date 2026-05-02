@@ -376,26 +376,26 @@ Per-dimension scores (mean across 18 cases):
 
 Per-benchmark scores, both modes:
 
-| Benchmark | LLM-only | Hybrid (RAG) | RAG Δ |
-|---|---:|---:|---:|
-| B01 | 0.44 | 0.61 | **+0.17** |
-| B02 | 0.11 ✗ | 0.44 | **+0.33** |
-| B03 | 0.28 | 0.28 | 0.00 |
-| B04 | 0.78 | 0.44 | **−0.33** |
-| B05 | 0.22 | 0.28 | +0.06 |
-| B06 | 0.28 | 0.22 | −0.06 |
-| B07 | 0.50 | 0.50 | 0.00 |
-| B08 | 0.72 | 0.67 | −0.06 |
-| B09 | 0.72 | 0.78 | +0.06 |
-| B10 | 0.56 | 0.50 | −0.06 |
-| B12 | 0.33 | 0.50 | **+0.17** |
-| B13 | 0.17 | 0.61 | **+0.44** |
-| B14 | 0.56 | 0.56 | 0.00 |
-| B18 | 0.11 ✗ | 0.89 | **+0.78** |
-| B21 | 0.28 | 0.61 | **+0.33** |
-| B22 | 0.44 | 0.39 | −0.06 |
-| B23 | 0.33 | 0.17 | −0.17 |
-| B24 | 0.22 | 0.17 | −0.06 |
+| Benchmark | Name | LLM-only | Hybrid (RAG) | RAG Δ |
+|---|---|---:|---:|---:|
+| B01 | CCoP Applicability & Scope | 0.44 | 0.61 | **+0.17** |
+| B02 | Compliance Classification | 0.11 ✗ | 0.44 | **+0.33** |
+| B03 | Conditional Compliance Reasoning | 0.28 | 0.28 | 0.00 |
+| B04 | IT / OT Classification Boundary | 0.78 | 0.44 | **−0.33** |
+| B05 | Control Comprehension | 0.22 | 0.28 | +0.06 |
+| B06 | Intent Understanding | 0.28 | 0.22 | −0.06 |
+| B07 | Gap Identification Quality | 0.50 | 0.50 | 0.00 |
+| B08 | Risk-Based Prioritization | 0.72 | 0.67 | −0.06 |
+| B09 | Risk Identification & Residual Risk | 0.72 | 0.78 | +0.06 |
+| B10 | Risk Justification Coherence | 0.56 | 0.50 | −0.06 |
+| B12 | Audit Perspective Alignment | 0.33 | 0.50 | **+0.17** |
+| B13 | Evidence Expectation Awareness | 0.17 | 0.61 | **+0.44** |
+| B14 | Remediation Quality & Feasibility | 0.56 | 0.56 | 0.00 |
+| B18 | Responsibility Attribution (SG) | 0.11 ✗ | 0.89 | **+0.78** |
+| B21 | Hallucination & Over-Specification | 0.28 | 0.61 | **+0.33** |
+| B22 | Waiver / Exception Reasoning | 0.44 | 0.39 | −0.06 |
+| B23 | Multi-Regulator Coordination | 0.33 | 0.17 | −0.17 |
+| B24 | Incident Response Guidance | 0.22 | 0.17 | −0.06 |
 
 **Insights:**
 
