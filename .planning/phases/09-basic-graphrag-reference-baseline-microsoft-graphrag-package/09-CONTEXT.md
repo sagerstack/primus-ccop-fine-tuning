@@ -59,14 +59,29 @@ guardrails, any change to the hybrid stack itself.
   than re-parsing. Do NOT pre-chunk to clause units — isolated clauses starve prose-based
   entity extraction.
 
-### Model / embedding backend (compute parity)
-- **D-06: Same local stack as hybrid** — graph-build/query LLM = `primus-reasoning`, embeddings
-  = BGE-family, both via Ollama's OpenAI-compatible endpoint. Isolates the graph-structure
-  variable at compute parity. Risk to watch: the small quantized model may produce weaker
-  extractions/summaries.
-- **D-07 (deferred to research):** exact BGE embedding model served via Ollama
-  (BGE-large-en-v1.5 vs bge-m3 availability) — researcher/planner resolves the concrete
-  embedding endpoint.
+### Model roles (three distinct models — only ONE is the subject under test)
+GraphRAG uses a chat LLM in TWO places (extraction at index time, generation at query time)
+plus an embedder. These MUST be kept separate — conflating any of them with the subject model
+(`primus-reasoning`) confounds the comparison.
+- **D-06 (CORRECTED — supersedes the original "primus for graph-build/query"): Answer
+  generation = `primus-reasoning`, used OUTSIDE the graph.** The Neo4j graph is used as a
+  **retriever only** (returns context / subgraph); `primus` generates the scored answer via the
+  SAME generation path hybrid uses (retriever → primus). This holds the generator constant so
+  the comparison isolates *retrieval* (graph vs vector), not the model. `primus` is NEVER used
+  inside GraphRAG's own extraction or internal answer synthesis. `--mode graphrag` swaps only
+  the LangGraph *retrieval* node; the primus generation node is unchanged.
+- **D-06a: KG-extraction LLM = `openai/gpt-4o-mini` via OpenRouter — NOT primus.** Entity/
+  relationship extraction at index time is retrieval *infrastructure* (like the embedder), not
+  the subject. `gpt-4o-mini` is already the configured OpenRouter model for RAG-infra LLM tasks
+  (`rag_contextualization_model`, `rag_hyde_model` in settings.py), so this is consistent
+  precedent — and better/cheaper than a small local model for structured JSON extraction.
+  **Held constant across Phase 9 and Phase 10** so the P9↔P10 ablation isolates the ontology,
+  not the extraction model. (A capable local instruct model via Ollama remains a fallback if a
+  fully-local KG build is later required.)
+- **D-07 (RESOLVED): Embeddings = `BAAI/bge-large-en-v1.5` (1024-dim), exact parity with
+  hybrid**, via neo4j-graphrag's `SentenceTransformerEmbeddings` (in-process — same model as
+  `CCOP_QDRANT_EMBEDDING_MODEL`). No Ollama embedding endpoint needed. Vector index
+  `dimensions=1024`, cosine similarity.
 
 ### Config fidelity
 - **D-08: Pure defaults** — set only what's required (LLM + embedder config, vector index,
@@ -81,10 +96,12 @@ guardrails, any change to the hybrid stack itself.
 ### Eval integration & `--mode`
 - **D-10: `--mode graphrag`** ships alongside `--mode hybrid` / `--mode llm-only`, consistent
   with the existing pattern.
-- **D-11: Pluggable graph-retrieval provider.** graphrag lives behind a provider abstraction
-  selected by the mode flag, returning answer + retrieved contexts in the **existing shape** so
-  the universal judge + RAGAs harness runs unchanged. Phase 10 registers a *second* provider
-  (`--mode graphrag-ontology`) without touching Phase 9's — this is the additivity seam.
+- **D-11: Pluggable graph *retrieval* provider.** The Neo4j graph sits behind a
+  retrieval-provider abstraction selected by the mode flag; it returns **retrieved contexts**
+  (graph neighborhood) into the existing `primus` generation node — NOT a finished answer (see
+  D-06). Output shape matches hybrid's retriever so the universal judge + RAGAs harness runs
+  unchanged. Phase 10 registers a *second* provider (`--mode graphrag-ontology`) without
+  touching Phase 9's — the additivity seam.
 
 ### Storage
 - **D-12: Neo4j (local Docker)** — run alongside the existing Qdrant container. Persistent,
@@ -158,9 +175,12 @@ guardrails, any change to the hybrid stack itself.
 - Universal LLM judge (reasoning depth + hallucination) via OpenRouter + RAGAs groups — reused as-is.
 
 ### Integration Points
-- New: Neo4j adapter behind a `GraphRetrievalProvider` port; DI wiring; `--mode graphrag` in CLI;
-  Neo4j service in docker-compose; graph-build (ingestion) entry point consuming Docling text.
-- Unchanged: judge + RAGAs scoring, 18-case GT loading, result JSON schema, comparison report path.
+- New: Neo4j **retrieval** adapter behind a `GraphRetrievalProvider` port (returns contexts, not
+  answers); DI wiring; `--mode graphrag` swaps the retrieval node only; Neo4j service in
+  docker-compose; graph-build ingestion (extraction = `gpt-4o-mini` via OpenRouter; embeddings =
+  `bge-large-en-v1.5` in-process) consuming Docling text.
+- Unchanged: **primus generation node**, judge + RAGAs scoring, 18-case GT loading, result JSON
+  schema, comparison report path.
 </code_context>
 
 <specifics>
@@ -170,8 +190,10 @@ guardrails, any change to the hybrid stack itself.
   ontology governance only. Keep that ablation clean.
 - ⚠️ Carry the known blocker: `B04/B4` test_id casing inconsistency surfaces in eval logs —
   handle during eval integration so graphrag results align with GT ids.
-- Small-model risk (D-06): if `primus-reasoning` extractions are too weak to form a usable graph,
-  flag it during research rather than silently tuning — that would blur the baseline.
+- Extraction quality (D-06a): the KG is built by `gpt-4o-mini`, not primus — so extraction is
+  capable. What's measured is primus's *response* quality on graph-retrieved context (parity with
+  hybrid). If the emergent graph is too sparse/noisy to retrieve over, that's a *finding to
+  report*, not something to silently tune away — that would blur the baseline.
 </specifics>
 
 <deferred>
