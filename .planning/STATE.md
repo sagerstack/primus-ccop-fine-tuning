@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 9 context gathered (GraphRAG baseline reframed to Neo4j)
-last_updated: "2026-07-01T13:08:26.972Z"
+stopped_at: Completed 09-02-PLAN.md
+last_updated: "2026-07-01T13:36:35.010Z"
 last_activity: 2026-07-01
 progress:
   total_phases: 19
   completed_phases: 9
   total_plans: 62
-  completed_plans: 54
+  completed_plans: 55
   percent: 47
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 09 (basic-graphrag-reference-baseline-microsoft-graphrag-package) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-07-01
 
-Progress: [█████████░] 87%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Progress: [█████████░] 87%
 
 *Updated after each plan completion*
 | Phase 09 P01 | 109 | 3 tasks | 7 files |
+| Phase 09 P02 | 25min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -206,6 +207,9 @@ Recent decisions affecting current work:
 - **[03-03] B5 all Revise (not Discard):** All 7 cases have valuable clause references; practitioner reframing preserves generation effort
 - **[03-03] B19 (Cross-Scenario) removed:** Meta-benchmark retired; 3/3 cases discard; consistency addressed at dataset analysis level
 - **[03-03] B20→B21 full migration:** All 3 over-specification cases Keep to B21 — strong adversarial patterns reusable as-is
+- [Phase 09-02]: EmergentKGBuilder wraps SimpleKGPipeline with NO schema/entities/relations kwargs (D-03/D-08 emergent baseline); LLM/embedder/pipeline construction behind injectable factories preserves the D-16 Phase-10 additivity seam
+- [Phase 09-02]: Graph build stats (nodes/relationships/chunks) read via direct Cypher count queries after each pipeline run, not from PipelineResult internals - not a stable schema across neo4j-graphrag versions
+- [Phase 09-02]: Unignored src/rag/graph/build/ and tests/rag/graph/build/ in .gitignore - the top-level build/ packaging-artifact rule was silently shadowing the plan-mandated directory name
 
 ### Pending Todos
 
@@ -259,6 +263,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-01T13:08:26.962Z
-Stopped at: Phase 9 context gathered (GraphRAG baseline reframed to Neo4j)
+Last session: 2026-07-01T13:36:35.000Z
+Stopped at: Completed 09-02-PLAN.md
 Resume file: None
