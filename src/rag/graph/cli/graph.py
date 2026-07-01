@@ -3,10 +3,19 @@ GraphRAG CLI Commands
 
 `ccop-eval graph build` constructs the emergent CCoP knowledge graph in Neo4j
 as a first-class, repeatable command (D-17) — not a throwaway spike.
+
+`ccop-eval graph inspect` / `graph stats` surface the D-18 KG-quality metrics
+(KGInspector) so the emergent graph is seen and measured before it is ever
+scored — the quantitative half of the D-19 iterate-and-improve loop
+(inspect -> adjust -> rebuild -> re-inspect). The interactive/visual half is
+docs/phase-2/neo4j-browser-workflow.md.
 """
 
 import asyncio
+import json
 import logging
+from pathlib import Path
+from typing import Any, Optional
 
 import neo4j
 import typer
@@ -16,6 +25,7 @@ from rich.table import Table
 from infrastructure.config.settings import get_settings
 from rag.graph.build.corpus_source import DEFAULT_CCOP_DIR, load_ccop_corpus_texts
 from rag.graph.build.kg_builder import BuildStats, EmergentKGBuilder
+from rag.graph.inspect.metrics import DEFAULT_CLAUSE_INVENTORY_PATH, KGInspector
 
 graph_app = typer.Typer(help="Build and inspect the GraphRAG knowledge graph")
 
@@ -107,3 +117,136 @@ def _print_summary(stats: BuildStats) -> None:
         console.print("[red]Failures:[/red]")
         for failure in stats.failures:
             console.print(f"  - {failure}")
+
+
+def _open_driver(settings) -> neo4j.Driver:
+    return neo4j.GraphDatabase.driver(
+        settings.neo4j_uri,
+        auth=(settings.neo4j_user, settings.neo4j_password),
+    )
+
+
+@graph_app.command(name="inspect")
+def inspect_command(
+    inventory_path: str = typer.Option(
+        str(DEFAULT_CLAUSE_INVENTORY_PATH),
+        "--inventory-path",
+        help="Path to clause_inventory.json (D-18 clause-coverage source)",
+    ),
+) -> None:
+    """
+    Print a human-readable KG-quality report (D-18).
+
+    Node/edge counts, entity-type distribution, degree summary, orphan
+    count, clause coverage vs clause_inventory.json, duplicate-entity
+    groups, and extraction failure rate. Complements the interactive Neo4j
+    Browser workflow (docs/phase-2/neo4j-browser-workflow.md) — this is the
+    quantitative half of the D-19 inspect -> adjust -> rebuild -> re-inspect
+    loop, run BEFORE the graph is ever scored.
+
+    Honesty guardrail (D-19): these metrics measure structural/extraction
+    functionality. They are not a knob for chasing B01/B03/B04 scores.
+
+    Example:
+        ccop-eval graph inspect
+    """
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        inspector = KGInspector(driver=driver, database=settings.neo4j_database)
+        summary = inspector.summary(inventory_path=inventory_path)
+        _print_inspect_report(summary)
+    except Exception as e:
+        console.print(f"[red]Graph inspect failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+    finally:
+        driver.close()
+
+
+@graph_app.command(name="stats")
+def stats_command(
+    inventory_path: str = typer.Option(
+        str(DEFAULT_CLAUSE_INVENTORY_PATH),
+        "--inventory-path",
+        help="Path to clause_inventory.json (D-18 clause-coverage source)",
+    ),
+    output: Optional[str] = typer.Option(
+        None,
+        "--output",
+        help="Write JSON stats to this path instead of stdout (feeds the Plan 06 comparison report)",
+    ),
+) -> None:
+    """
+    Print (or write) the D-18 KG-quality summary as machine-readable JSON.
+
+    Same metrics as `graph inspect`, JSON-encoded for programmatic
+    consumption (e.g. the Plan 06 graphrag-vs-hybrid comparison report's
+    KG-quality section, D-15).
+
+    Example:
+        ccop-eval graph stats --output kg-stats.json
+    """
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        inspector = KGInspector(driver=driver, database=settings.neo4j_database)
+        summary = inspector.summary(inventory_path=inventory_path)
+        payload = json.dumps(summary, indent=2, default=str)
+
+        if output:
+            Path(output).write_text(payload)
+            console.print(f"[green]Stats written to {output}[/green]")
+        else:
+            console.print(payload)
+    except Exception as e:
+        console.print(f"[red]Graph stats failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+    finally:
+        driver.close()
+
+
+def _print_inspect_report(summary: dict[str, Any]) -> None:
+    coverage = summary["clause_coverage"]
+    console.print(
+        f"[bold]clause_coverage:[/bold] {coverage['covered']}/{coverage['total']} "
+        f"({coverage['coverage_ratio']:.1%})"
+    )
+
+    counts_table = Table(title="KG Structure", show_header=True)
+    counts_table.add_column("Metric", style="cyan")
+    counts_table.add_column("Value", justify="right", style="bold")
+    counts_table.add_row("Nodes", str(summary["node_count"]))
+    counts_table.add_row("Edges", str(summary["edge_count"]))
+    counts_table.add_row("Orphan nodes", str(summary["orphan_nodes"]))
+    console.print(counts_table)
+
+    entity_table = Table(title="Entity-Type Distribution", show_header=True)
+    entity_table.add_column("Type", style="cyan")
+    entity_table.add_column("Count", justify="right", style="bold")
+    for label, count in summary["entity_type_distribution"].items():
+        entity_table.add_row(label, str(count))
+    console.print(entity_table)
+
+    degree = summary["degree_distribution"]
+    console.print(
+        f"[bold]Degree:[/bold] min={degree['min']} max={degree['max']} "
+        f"avg={degree['avg']} buckets={degree.get('buckets', {})}"
+    )
+
+    duplicates = summary["duplicate_entities"]
+    console.print(f"[bold]Duplicate-entity groups:[/bold] {len(duplicates)}")
+    if duplicates:
+        dup_table = Table(title="Duplicate Entities (top 10 by group size)")
+        dup_table.add_column("Name", style="yellow")
+        dup_table.add_column("Labels")
+        dup_table.add_column("Count", justify="right")
+        for group in sorted(duplicates, key=len, reverse=True)[:10]:
+            dup_table.add_row(
+                group[0]["name"], ", ".join(group[0]["labels"]), str(len(group))
+            )
+        console.print(dup_table)
+
+    failure = summary["extraction_failure_rate"]
+    console.print(
+        f"[bold]Extraction failure rate:[/bold] {failure['rate']} — {failure['note']}"
+    )
