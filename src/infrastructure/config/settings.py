@@ -407,6 +407,61 @@ class Settings(BaseSettings):
         description="Sparse embedding model name for BM25 (e.g., Qdrant/bm25)"
     )
 
+    # ------------------------------------------------------------------
+    # Neo4j GraphRAG Configuration (Phase 9 — emergent-KG baseline)
+    # ------------------------------------------------------------------
+    # Connection (D-01/D-12): local Docker Neo4j alongside qdrant.
+    neo4j_uri: str = Field(
+        default="bolt://localhost:7687",
+        description="Neo4j Bolt URI (local Docker service)"
+    )
+    neo4j_user: str = Field(
+        default="neo4j",
+        description="Neo4j username"
+    )
+    neo4j_password: Optional[str] = Field(
+        default=None,
+        description=(
+            "Neo4j password. No insecure default — supply via CCOP_NEO4J_PASSWORD "
+            "in config/.env.local (must match docker-compose NEO4J_AUTH). Never a "
+            "committed literal."
+        )
+    )
+    neo4j_database: str = Field(
+        default="neo4j",
+        description="Neo4j database name"
+    )
+    graph_vector_index_name: str = Field(
+        default="ccop_chunk_embeddings",
+        description="Neo4j vector index name for chunk embeddings (CCOP_GRAPH_VECTOR_INDEX)",
+        alias="CCOP_GRAPH_VECTOR_INDEX",
+    )
+
+    # GraphRAG infrastructure models — held constant across Phase 9 and Phase 10
+    # (D-16 additivity). Kept as explicit standalone fields so they remain an
+    # interceptable seam for ontology-governed extraction in Phase 10.
+    graph_extraction_model: str = Field(
+        default="openai/gpt-4o-mini",
+        description=(
+            "KG entity/relationship extraction LLM (D-06a) — runs via OpenRouter "
+            "(reuses openrouter_api_key / openrouter_base_url). Held constant across "
+            "Phase 9 and Phase 10 so the ablation isolates the ontology, not the model."
+        )
+    )
+    graph_embedding_model: str = Field(
+        default="BAAI/bge-large-en-v1.5",
+        description=(
+            "GraphRAG embedding model (D-07) — in-process SentenceTransformer, exact "
+            "parity with hybrid's CCOP_QDRANT_EMBEDDING_MODEL. Held constant across "
+            "Phase 9 and Phase 10."
+        )
+    )
+    graph_embedding_dimensions: int = Field(
+        default=1024,
+        ge=1,
+        description="Embedding vector dimensionality for the Neo4j vector index (bge-large-en-v1.5 = 1024, D-07)"
+    )
+
     model_config = SettingsConfigDict(
         env_file=("config/.env.example", "config/.env.local"),
         env_file_encoding="utf-8",
