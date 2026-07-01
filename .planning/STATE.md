@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
+stopped_at: Phase 9 context gathered (GraphRAG baseline reframed to Neo4j)
+last_updated: "2026-07-01T09:46:43.998Z"
+last_activity: "2026-04-22 — Completed 03.2-07: Pass-2 regex context-awareness (76 false positives resolved) + ER_FOOTER patcher cluster (17 footer hallucinations) + `ccop-eval validate-ground-truth` CLI + JSONL repo deprecated-skip + 4 CLI integration tests; phase verifier passed 18/18."
+progress:
+  total_phases: 19
+  completed_phases: 9
+  total_plans: 56
+  completed_plans: 53
+  percent: 47
+---
+
 # Project State
 
 ## Project Reference
@@ -19,6 +35,7 @@ Progress: [███████░░░] 67% (7/11 phase-3 plans + 3/3 phase-3
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 32
 - Average duration: 5.97 min
 - Total execution time: 3.22 hours
@@ -39,6 +56,7 @@ Progress: [███████░░░] 67% (7/11 phase-3 plans + 3/3 phase-3
 | 3.1. Eval Run Traceability & I/O Capture | 3/3 | ~90 min | ~30 min |
 
 **Recent Trend:**
+
 - Last 5 plans: 03.2-01 (chunker regex + merge-rule removal), 03.2-02 (table chunks + TOC gate), 03.2-03 (~15min re-ingest + section/phrase verification, SC #8 N/A), 03.2-04 (~33min B3-001 re-eval + funnel diagnostic + sub-goal A closure, SC #9 N/A), 03.2-05 (~60min clause inventory extraction + committed fixture + Cybersecurity Act legal-numbering extension, SC #11 satisfied)
 - Trend: Phase 3.2 plans average ~15-60 min; Plans 04-05 longer due to human-verify checkpoint pauses
 - Phase 3.1 VERIFIED COMPLETE: 9/9 success criteria PASS, 88/88 schema-v6 targeted tests passing, verifier report at `.planning/phases/03.1-eval-run-traceability/VERIFICATION.md`
@@ -240,6 +258,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-22
-Stopped at: Completed 03.2-07-PLAN.md — validator hard-fail + `ccop-eval validate-ground-truth` CLI + JSONL repo deprecated-skip + 4 CLI integration tests. Phase 3.2 verifier passed 18/18. Phase closed.
-Resume file: N/A — Phase 3.2 complete. Next: Phase 4 (Re-Baseline & Re-Evaluate) — plan and execute the main baseline eval on v2 ground truth with corrected corpus.
+Last session: 2026-07-01T09:46:43.987Z
+Stopped at: Phase 9 context gathered (GraphRAG baseline reframed to Neo4j)
+Resume file: .planning/phases/09-basic-graphrag-reference-baseline-microsoft-graphrag-package/09-CONTEXT.md
