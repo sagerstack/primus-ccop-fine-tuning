@@ -47,6 +47,13 @@ docling = "^2.75.0"
 ragas = "^0.4.3"
 langchain-anthropic = "<1.0"
 
+# Neo4j GraphRAG (Phase 9 — emergent-KG baseline)
+# neo4j-graphrag caps at Python <3.15; the project root declares ^3.10 (>=3.10,<4.0),
+# so the dependency carries an explicit python marker to scope it to the supported range
+# (Poetry's own recommended fix for this range conflict). Our runtime is 3.13.
+neo4j-graphrag = { version = "^1.18.0", python = ">=3.10,<3.15" }
+neo4j = "^6.2.0"                         # Official Neo4j Bolt driver
+
 [tool.poetry.group.dev.dependencies]
 # Testing
 pytest = "^7.4.0"

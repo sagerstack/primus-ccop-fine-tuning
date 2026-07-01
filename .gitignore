@@ -252,3 +252,6 @@ sandbox/
 
 # Qdrant local storage
 qdrant_storage/
+
+# Neo4j local storage (GraphRAG baseline — Phase 9)
+neo4j_storage/
