@@ -97,8 +97,18 @@ plus an embedder. These MUST be kept separate — conflating any of them with th
   clause-level questions. Global/corpus-wide sensemaking is not required here.
 
 ### Eval integration & `--mode`
-- **D-10: `--mode graphrag`** ships alongside `--mode hybrid` / `--mode llm-only`, consistent
-  with the existing pattern.
+- **D-10: `--mode graphrag` ships on both CLIs (mirroring hybrid/llm-only), but the mode set
+  differs per command — exactly as `rag-only` already differs today:**
+  - **`evaluate run`** (`VALID_EVAL_MODES`): add **`graphrag`** only — graph retrieval → primus
+    generation → scored. **NO retrieval-only mode** (unscoreable without an answer; consistent
+    with `rag-only` being excluded from eval, decision [02-01]). Becomes: `hybrid`, `llm-only`,
+    `graphrag`.
+  - **`query ask`** (`VALID_MODES`): add **`graphrag`** (graph retrieval → primus) **AND a
+    graph-retrieval-only inspection mode** — the `rag-only` analog: returns the retrieved
+    subgraph/context with **no generation**, for per-question retrieval inspection during KG
+    iteration (D-18/19). Becomes: `hybrid`, `llm-only`, `rag-only`, `graphrag`, + graph-retrieval-only.
+  - Exact naming (`graphrag-only` vs generalizing retrieval-source × generation-toggle) is an
+    implementation detail for the planner.
 - **D-11: Pluggable graph *retrieval* provider.** The Neo4j graph sits behind a
   retrieval-provider abstraction selected by the mode flag; it returns **retrieved contexts**
   (graph neighborhood) into the existing `primus` generation node — NOT a finished answer (see
@@ -130,6 +140,9 @@ plus an embedder. These MUST be kept separate — conflating any of them with th
     **clause coverage** (how many of `clause_inventory.json`'s 691 clauses surface as/among nodes),
     duplicate/near-duplicate entities, and extraction failure rate. This is what makes iteration
     measurable.
+  - **Per-question (retrieval):** `query ask` graph-retrieval-only mode (D-10) — inspect the
+    subgraph/context the graph returns for a specific question, no generation. Complements the
+    global KG view above with case-level retrieval signal.
 - **D-19: Iteration loop before scoring** — inspect → adjust → rebuild → re-inspect, so we never
   score a degenerate graph. **Honesty guardrail:** iteration is for making the *emergent* extraction
   *functional* (fix malformed/failed extractions, obvious garbage nodes), NOT for tuning
