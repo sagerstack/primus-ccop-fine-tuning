@@ -255,3 +255,10 @@ qdrant_storage/
 
 # Neo4j local storage (GraphRAG baseline — Phase 9)
 neo4j_storage/
+
+# GraphRAG source/test package literally named `build/` (Phase 9) — not a
+# packaging artifact; unignore it despite the top-level `build/` rule above.
+!src/rag/graph/build/
+!src/rag/graph/build/**
+!tests/rag/graph/build/
+!tests/rag/graph/build/**
