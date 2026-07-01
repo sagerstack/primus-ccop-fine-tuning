@@ -22,8 +22,11 @@ This is deliberately the *un-governed* reference point. Ontology grounding
 **Phase 10** and is explicitly OUT of scope here.
 
 **In scope:**
-- Neo4j GraphRAG stack (KG construction from Docling-parsed CCoP text; graph+vector retrieval)
-- Same local backend as hybrid (primus-reasoning + BGE-family via Ollama)
+- Neo4j GraphRAG stack (KG construction from Docling-parsed CCoP text; graph retrieval feeding primus)
+- **KG quality inspection + visualization** capability so the graph can be iterated/improved before
+  and alongside eval (Neo4j Browser/Bloom + a `ccop-eval graph` CLI) — see D-17/18/19
+- Correct model roles (D-06/06a/07): extraction = `gpt-4o-mini` (OpenRouter); embeddings =
+  `bge-large-en-v1.5` (in-process); answer generation = `primus-reasoning` (local, graph-as-retriever)
 - `--mode graphrag` toggle behind a **pluggable graph-retrieval provider**
 - Evaluation on all 18 fixed-GT cases through the existing judge + RAGAs harness
 - graphrag-vs-hybrid comparison report, deep-diving B01/B03/B04
@@ -113,7 +116,25 @@ plus an embedder. These MUST be kept separate — conflating any of them with th
 - **D-14: Deciding metrics** — composite score + per-group (retrieval quality vs response
   quality) + hallucination, compared against the canonical hybrid baseline run
   `eval-run-hybrid-tests-18-bdc4927d-20260430-0232`.
-- **D-15: Deliverable** — a graphrag-vs-hybrid **comparison report** artifact.
+- **D-15: Deliverable** — a graphrag-vs-hybrid **comparison report** artifact (include a KG-quality section, see D-18).
+
+### KG quality visualization & iteration
+- **D-17: Graph building is a formal Phase 9 deliverable** — a first-class ingestion/build step
+  (e.g. `ccop-eval graph build`), part of the graphrag pipeline. NOT a throwaway `.lab/` spike.
+- **D-18: KG-quality inspection + visualization is a first-class Phase 9 capability** so the
+  emergent graph can be *seen* and *measured*, not taken on faith. Two layers:
+  - **Interactive (visual):** Neo4j Browser / Bloom (ships with the Neo4j service) — explore
+    entities/relationships via Cypher, eyeball density/clusters/garbage.
+  - **Quantitative (measurable):** a `ccop-eval graph inspect|stats` command reporting KG-quality
+    metrics — node/edge counts, entity-type distribution, degree + orphan/isolated-node analysis,
+    **clause coverage** (how many of `clause_inventory.json`'s 691 clauses surface as/among nodes),
+    duplicate/near-duplicate entities, and extraction failure rate. This is what makes iteration
+    measurable.
+- **D-19: Iteration loop before scoring** — inspect → adjust → rebuild → re-inspect, so we never
+  score a degenerate graph. **Honesty guardrail:** iteration is for making the *emergent* extraction
+  *functional* (fix malformed/failed extractions, obvious garbage nodes), NOT for tuning
+  chunk/prompt to chase B01/B03/B04 scores — that would blur the baseline. Any change beyond
+  "make it work" is a reported, principled decision, not silent tuning (ties to the Specifics note).
 
 ### Phase-10 forward guidance (additive, do not implement here)
 - **D-16:** Phase 10 layers onto this same Neo4j stack: define a CCoP ontology; deterministically
@@ -179,6 +200,9 @@ plus an embedder. These MUST be kept separate — conflating any of them with th
   answers); DI wiring; `--mode graphrag` swaps the retrieval node only; Neo4j service in
   docker-compose; graph-build ingestion (extraction = `gpt-4o-mini` via OpenRouter; embeddings =
   `bge-large-en-v1.5` in-process) consuming Docling text.
+- New: `ccop-eval graph` CLI namespace — `build` (construct KG) + `inspect`/`stats` (KG-quality
+  metrics, D-18), following the existing Typer subcommand pattern (`setup`/`evaluate`/`report`).
+  Interactive visualization via Neo4j Browser (`http://localhost:7474`) / Bloom — no build needed.
 - Unchanged: **primus generation node**, judge + RAGAs scoring, 18-case GT loading, result JSON
   schema, comparison report path.
 </code_context>
