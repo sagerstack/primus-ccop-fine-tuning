@@ -29,6 +29,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 6: Hybrid Integration** - Combine fine-tuned model + RAG with adaptive routing
 - [ ] **Phase 7: Safety & Validation** - Hallucination detection, uncertainty flagging, out-of-scope refusal
 - [ ] **Phase 8: Final Evaluation & Comparison** - Full comparison report across all model iterations
+- [ ] **Phase 9: Basic GraphRAG baseline (Neo4j, emergent KG)** - Basic GraphRAG on Neo4j with LLM-emergent entity/relationship extraction (no ontology) over the CCoP corpus; `--mode graphrag`, eval on the 18-case fixed GT vs current hybrid, deep-dive B01/B03/B04
+- [ ] **Phase 10: Ontology-grounded GraphRAG (Neo4j, governed KG)** - Additive ontology grounding on the same Neo4j engine: CCoP ontology, deterministic clause seeding from clause_inventory, schema-constrained extraction + SHACL validation; `--mode graphrag-ontology`, A/B vs basic GraphRAG and hybrid
 
 ## Phase Details
 
@@ -398,7 +400,8 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute: 1 -> 1.2 -> 1.3 -> 1.1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 2.4 -> 3 -> 3.1 -> 3.2 -> 4 -> 5 -> 6 -> 7 -> 8
+Phases execute: 1 -> 1.2 -> 1.3 -> 1.1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 2.4 -> 3 -> 3.1 -> 3.2 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
+Note: Phases 9-10 (GraphRAG track) are a term-3 research thread that runs on the Phase 3.2 clean corpus + 18-case fixed GT + hybrid baseline; they do not depend on Phases 4-8 and can be pursued ahead of them.
 Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 runs before 1.1 so eval infrastructure measures improved retrieval. Phase 3.2 merges former 3.2 (corpus/ingestion fix) and 3.3 (ground truth clause audit) — executed sequentially inside the phase, A before B.
 
 | Phase | Plans Complete | Status | Completed |
@@ -420,6 +423,28 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 6. Hybrid Integration | 0/TBD | Not started | - |
 | 7. Safety & Validation | 0/TBD | Not started | - |
 | 8. Final Evaluation & Comparison | 0/TBD | Not started | - |
+| 9. Basic GraphRAG baseline (Neo4j, emergent KG) | 0/TBD | Context gathered | - |
+| 10. Ontology-grounded GraphRAG (Neo4j, governed KG) | 0/TBD | Not started | - |
+
+### Phase 9: Basic GraphRAG baseline (Neo4j, emergent KG)
+
+**Goal:** Stand up a basic (emergent-KG) GraphRAG baseline on Neo4j — Docling-parsed CCoP text → LLM-extracted knowledge graph with **no ontology/schema constraint** → entity-anchored graph+vector retrieval — running on the same local backend as hybrid (primus-reasoning + BGE-family via Ollama). Expose it as `--mode graphrag` and evaluate on the 18-case fixed GT (`bdc4927d`) through the existing judge + RAGAs harness against the canonical hybrid baseline (`eval-run-hybrid-tests-18-bdc4927d-20260430-0232`), deep-diving B01/B03/B04. This is the emergent-KG reference point Phase 10's ontology grounding is measured against; the graph-retrieval provider is built pluggable so Phase 10 adds ontology governance additively on the same engine.
+**Requirements**: TBD (run /gsd-plan-phase 9 to break down)
+**Depends on:** Phase 3.2 (clean corpus + Docling clause chunks), the 18-case fixed GT + canonical hybrid baseline run, and the existing eval harness (judge + RAGAs). Does NOT depend on Phases 4–8.
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 9 to break down)
+
+### Phase 10: Ontology-grounded GraphRAG (Neo4j, governed KG) via Text Ontology Learning (paper 3.2.2)
+
+**Goal:** Layer ontology governance onto the Phase 9 Neo4j GraphRAG stack **additively** — define a CCoP ontology (entity/relation types), deterministically seed clause nodes from `clause_inventory.json` (691 entries), constrain KG extraction to the ontology (schema-guided), and validate the graph with SHACL (n10s in-DB or rdflib/pyshacl export). Expose as `--mode graphrag-ontology` behind the same pluggable provider. A/B on the 18-case fixed GT vs Phase 9 basic (emergent) GraphRAG and the hybrid baseline, isolating the effect of ontology grounding on the identical engine / input / harness.
+**Requirements**: TBD (run /gsd-plan-phase 10 to break down)
+**Depends on:** Phase 9 (shares the Neo4j engine, Docling input, retrieval-provider abstraction, eval harness, and comparison-report format)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 10 to break down)
 
 ---
 *Roadmap created: 2026-02-05*

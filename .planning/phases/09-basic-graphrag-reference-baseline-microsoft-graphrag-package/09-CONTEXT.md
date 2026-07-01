@@ -1,0 +1,193 @@
+# Phase 9: Basic GraphRAG baseline (Neo4j, emergent KG) - Context
+
+**Gathered:** 2026-07-01
+**Status:** Ready for planning
+
+> **Note on naming:** the phase directory slug still reads
+> `...microsoft-graphrag-package` for legacy reasons. During discussion the phase
+> was **reframed** away from the Microsoft `graphrag` package to a **Neo4j-based
+> GraphRAG** stack (see D-01). The ROADMAP Phase 9/10 titles + goals were updated
+> to match; the directory slug was left as-is (GSD tracks by phase number).
+
+<domain>
+## Phase Boundary
+
+Stand up a **basic, emergent-KG GraphRAG baseline on Neo4j** over the CCoP corpus and
+evaluate it against the current hybrid baseline on the 18-case fixed ground truth.
+
+"Basic / emergent" means: the knowledge graph is built by **LLM free-extraction with
+NO ontology/schema constraint** — whatever entities and relationships the LLM discovers.
+This is deliberately the *un-governed* reference point. Ontology grounding
+(schema-constrained extraction, deterministic clause seeding, SHACL validation) is
+**Phase 10** and is explicitly OUT of scope here.
+
+**In scope:**
+- Neo4j GraphRAG stack (KG construction from Docling-parsed CCoP text; graph+vector retrieval)
+- Same local backend as hybrid (primus-reasoning + BGE-family via Ollama)
+- `--mode graphrag` toggle behind a **pluggable graph-retrieval provider**
+- Evaluation on all 18 fixed-GT cases through the existing judge + RAGAs harness
+- graphrag-vs-hybrid comparison report, deep-diving B01/B03/B04
+
+**Out of scope (→ Phase 10):** CCoP ontology, schema-constrained extraction, clause
+seeding from `clause_inventory.json`, SHACL validation. Also out: fine-tuning, safety
+guardrails, any change to the hybrid stack itself.
+</domain>
+
+<decisions>
+## Implementation Decisions
+
+### Engine & framework (the central reframe)
+- **D-01: Neo4j GraphRAG for BOTH Phase 9 and Phase 10 — not the Microsoft `graphrag` package.**
+  Rationale: makes Phase 10 *truly additive* — Phase 9→10 differs by exactly one variable
+  (extraction governance: emergent → ontology-grounded) on an identical engine, storage,
+  retrieval, input, and harness. This isolates the ontology-grounding contribution cleanly
+  (a proper ablation) instead of confounding it with an engine swap. Use the official
+  `neo4j-graphrag-python` package.
+- **D-02: Tradeoff accepted** — we forgo the "Microsoft GraphRAG published-method named
+  baseline" citation. If desired later, a Microsoft `graphrag` reference run may be added as
+  an *optional secondary* data point, but Neo4j is the primary track for both phases.
+- **D-03: Basic = emergent KG.** Phase 9 uses `neo4j-graphrag` KG construction (e.g.
+  `SimpleKGPipeline`) with **no schema constraint** — the un-governed baseline.
+
+### Indexing input
+- **D-04: Feed the same Docling-parsed CCoP text the hybrid stack uses**; let the Neo4j KG
+  pipeline do its own chunking + LLM entity/relationship extraction. Input text is held
+  **constant** across both systems so the comparison isolates graph-vs-vector retrieval, not
+  parsing quality. (We already proved naive PDF parsing is inferior — decision [01.3-01],
+  Docling replaced PyMuPDF4LLM.)
+- **D-05: Reuse the existing corpus prep** (`src/rag/ingestion/` Docling parser output) rather
+  than re-parsing. Do NOT pre-chunk to clause units — isolated clauses starve prose-based
+  entity extraction.
+
+### Model / embedding backend (compute parity)
+- **D-06: Same local stack as hybrid** — graph-build/query LLM = `primus-reasoning`, embeddings
+  = BGE-family, both via Ollama's OpenAI-compatible endpoint. Isolates the graph-structure
+  variable at compute parity. Risk to watch: the small quantized model may produce weaker
+  extractions/summaries.
+- **D-07 (deferred to research):** exact BGE embedding model served via Ollama
+  (BGE-large-en-v1.5 vs bge-m3 availability) — researcher/planner resolves the concrete
+  embedding endpoint.
+
+### Config fidelity
+- **D-08: Pure defaults** — set only what's required (LLM + embedder config, vector index,
+  retriever), leave chunking / extraction prompts / retrieval params at sensible defaults.
+  Honest emergent baseline. All alignment/tuning belongs to Phase 10.
+
+### Retrieval mode
+- **D-09: Entity-anchored ("local") retrieval** — Neo4j VectorRetriever / VectorCypherRetriever
+  (find query-relevant entities → pull their neighborhood → answer). Fits B01/B03/B04's
+  clause-level questions. Global/corpus-wide sensemaking is not required here.
+
+### Eval integration & `--mode`
+- **D-10: `--mode graphrag`** ships alongside `--mode hybrid` / `--mode llm-only`, consistent
+  with the existing pattern.
+- **D-11: Pluggable graph-retrieval provider.** graphrag lives behind a provider abstraction
+  selected by the mode flag, returning answer + retrieved contexts in the **existing shape** so
+  the universal judge + RAGAs harness runs unchanged. Phase 10 registers a *second* provider
+  (`--mode graphrag-ontology`) without touching Phase 9's — this is the additivity seam.
+
+### Storage
+- **D-12: Neo4j (local Docker)** — run alongside the existing Qdrant container. Persistent,
+  queryable (Cypher), visualizable (Browser/Bloom) — a browsable KG is a dissertation asset.
+  Local-first preserved (no cloud). Replaces Microsoft graphrag's parquet+LanceDB.
+
+### Comparison scope & deliverable
+- **D-13: Run ALL 18 fixed-GT cases** (`bdc4927d`), analyze **B01/B03/B04** deeply.
+- **D-14: Deciding metrics** — composite score + per-group (retrieval quality vs response
+  quality) + hallucination, compared against the canonical hybrid baseline run
+  `eval-run-hybrid-tests-18-bdc4927d-20260430-0232`.
+- **D-15: Deliverable** — a graphrag-vs-hybrid **comparison report** artifact.
+
+### Phase-10 forward guidance (additive, do not implement here)
+- **D-16:** Phase 10 layers onto this same Neo4j stack: define a CCoP ontology; deterministically
+  seed clause nodes from `clause_inventory.json` (691 entries) via Cypher `MERGE`; constrain
+  extraction to the ontology (schema-guided KG build); validate with SHACL (n10s in-DB OR
+  rdflib/pyshacl export). Phase 9 must keep the extraction + provider stages **interceptable**
+  so Phase 10 is purely additive.
+
+### Claude's Discretion
+- Concrete `neo4j-graphrag` pipeline/retriever class selection, Neo4j Docker version, vector
+  index config, and repo layout for graph artifacts — planner/executor decide within CA
+  conventions.
+</decisions>
+
+<canonical_refs>
+## Canonical References
+
+**Downstream agents MUST read these before planning or implementing.**
+
+### Phase & project planning
+- `.planning/ROADMAP.md` §"Phase 9" / §"Phase 10" — reframed titles/goals/dependencies
+- `.planning/phases/03.2-corpus-ground-truth-correctness/03.2-VERIFICATION.md` — clean corpus + GT state this phase builds on
+- `CLAUDE.md` §"Benchmarks (Active Set)", §"Build, Run, Test" — 18 benchmarks, `ccop-eval` CLI
+
+### GraphRAG framework (external)
+- Library: `neo4j-graphrag-python` (Context7 id `/neo4j/neo4j-graphrag-python`) — `SimpleKGPipeline`
+  (schema optional), retrievers (Vector, VectorCypher, Text2Cypher, Hybrid, Tools), Ollama LLM/embedder
+- Reference (secondary, if a Microsoft run is added): `/microsoft/graphrag`
+- Neo4j `neosemantics` (n10s) — RDF import + `n10s.validation.shacl` (relevant to Phase 10)
+
+### Eval bed & baseline
+- `ground-truth/test-suite/` — 18 active benchmark JSONL files (fixed-GT subset hash `bdc4927d`)
+- `src/results/evaluations/2026-04/eval-run-hybrid-tests-18-bdc4927d-20260430-0232-primus-reasoning.json`
+  — **canonical hybrid baseline** (comparison target); `-contexts.json` sidecar for retrieval audit
+
+### Reusable corpus / graph seed (Phase 10)
+- `src/rag/ingestion/` — Docling parser + clause chunker (produces the input text for D-04)
+- `src/rag/ingestion/fixtures/clause_inventory.json` — 691-entry clause inventory (Phase 10 seeding)
+- `src/rag/ingestion/scripts/build_clause_inventory.py` — how the inventory is built
+</canonical_refs>
+
+<code_context>
+## Existing Code Insights
+
+### Reusable Assets
+- `src/rag/ingestion/` (Docling parser, clause chunker, `run_ingestion.py`): source of the
+  Docling-parsed CCoP text fed to the Neo4j KG pipeline (D-04/D-05).
+- `src/rag/retrieval/` LangGraph pipeline + `IModelGateway`/graph state: the shape graphrag
+  answers must conform to so judge + RAGAs run unchanged (D-11).
+- `ccop-eval` CLI (`presentation/cli/`) + `evaluate run --mode ...`: where `--mode graphrag` plugs in (D-10).
+- `docker-compose.yml` (Qdrant): pattern for adding a local Neo4j service (D-12).
+- `clause_inventory.json` fixture: Phase-10 clause seeding source (D-16).
+
+### Established Patterns
+- Clean Architecture / ports & adapters — the graph-retrieval provider must be a port with a
+  Neo4j adapter, selected via DI container by mode (mirrors the Qdrant/Databricks vector-store
+  adapter selection, decision [01.2-04]).
+- `--mode hybrid | llm-only` toggle in `evaluate run` — `graphrag` is an additional mode value.
+- Universal LLM judge (reasoning depth + hallucination) via OpenRouter + RAGAs groups — reused as-is.
+
+### Integration Points
+- New: Neo4j adapter behind a `GraphRetrievalProvider` port; DI wiring; `--mode graphrag` in CLI;
+  Neo4j service in docker-compose; graph-build (ingestion) entry point consuming Docling text.
+- Unchanged: judge + RAGAs scoring, 18-case GT loading, result JSON schema, comparison report path.
+</code_context>
+
+<specifics>
+## Specific Ideas
+
+- The Phase-9-vs-Phase-10 experiment is the point: identical Neo4j engine/input/harness, delta =
+  ontology governance only. Keep that ablation clean.
+- ⚠️ Carry the known blocker: `B04/B4` test_id casing inconsistency surfaces in eval logs —
+  handle during eval integration so graphrag results align with GT ids.
+- Small-model risk (D-06): if `primus-reasoning` extractions are too weak to form a usable graph,
+  flag it during research rather than silently tuning — that would blur the baseline.
+</specifics>
+
+<deferred>
+## Deferred Ideas
+
+- **Ontology-grounded KG (schema-constrained extraction, clause seeding, SHACL)** — Phase 10 (D-16).
+- **Global/corpus-wide sensemaking retrieval** (community summarization) — not needed for the
+  entity-anchored B01/B03/B04 focus; revisit only if a global-search comparison is wanted.
+- **Optional Microsoft `graphrag` reference run** — possible secondary baseline for the
+  published-method citation (D-02); not in Phase 9 scope.
+
+### Reviewed Todos (not folded)
+None — no pending todos matched this phase.
+</deferred>
+
+---
+
+*Phase: 9-basic-graphrag-baseline-neo4j-emergent-kg (dir slug: 09-basic-graphrag-reference-baseline-microsoft-graphrag-package)*
+*Context gathered: 2026-07-01*
