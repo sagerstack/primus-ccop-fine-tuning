@@ -10,7 +10,6 @@ left to neo4j-graphrag's own default text splitter (D-08: pure defaults).
 """
 
 import logging
-from typing import Dict
 
 from infrastructure.config.settings import Settings
 from rag.ingestion.parsers.ccop_pdf_parser import CCOP_DOCUMENTS
@@ -24,7 +23,7 @@ DEFAULT_CCOP_DIR = "../ccop-official"
 
 def load_ccop_corpus_texts(
     settings: Settings, ccop_dir: str = DEFAULT_CCOP_DIR
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Load the full Docling-parsed markdown for every CCoP document.
 
