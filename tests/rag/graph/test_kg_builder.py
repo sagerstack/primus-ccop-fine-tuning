@@ -178,6 +178,12 @@ class TestEmergentKGBuilderBuild:
             assert pipeline_instance.run_async.call_count == 2
             assert stats.nodes_created == 5
             assert stats.relationships_created == 5
+            # Provenance fix: each doc's name is passed as file_path so the
+            # Document node's path is the real source (not "document.txt").
+            call_kwargs = [c.kwargs for c in pipeline_instance.run_async.call_args_list]
+            assert {c["file_path"] for c in call_kwargs} == {"doc1", "doc2"}
+            for c in call_kwargs:
+                assert c["text"] == ("text one" if c["file_path"] == "doc1" else "text two")
 
     @pytest.mark.asyncio
     async def test_build_records_failures_without_raising(self):

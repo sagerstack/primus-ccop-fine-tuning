@@ -163,7 +163,15 @@ class EmergentKGBuilder:
 
         for doc_name, text in texts.items():
             try:
-                await self.pipeline.run_async(text=text)
+                # Pass doc_name as file_path so each Document node's `path` is the
+                # real source name (e.g. "CCoP 2.0", "CCoP Response to Feedback")
+                # instead of neo4j-graphrag's generic "document.txt" default. In
+                # text mode (from_pdf=False) file_path is used ONLY to set
+                # document_info.path — it does NOT trigger file loading. Without
+                # this, all 7 docs collapse to one indistinguishable Document node,
+                # destroying retrieval provenance (bug: doc source unattributable →
+                # model fabricates citations). See bugs.md 2026-07-02.
+                await self.pipeline.run_async(text=text, file_path=doc_name)
                 stats.docs_processed += 1
             except Exception as e:
                 logger.error(f"KG build failed for document '{doc_name}': {e}")

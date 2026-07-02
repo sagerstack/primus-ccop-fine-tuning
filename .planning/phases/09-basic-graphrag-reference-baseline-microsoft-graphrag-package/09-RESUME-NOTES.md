@@ -40,7 +40,7 @@ Design principle: graph adds **structure on top of a comparable retrieval funnel
 
 ## Other known issues
 - **RAGAs `429` rate limits** (OpenRouter) during eval — lower RAGAs concurrency / add backoff before the 18-case run.
-- Default `--judge-mode` is **rubric**; canonical baseline uses `--judge-mode universal` — use universal for parity.
+- `--judge-mode` **rubric** is the parity mode: the canonical hybrid baseline run (`...20260430-0232`) used **rubric** (its `judge_mode` metadata is unset = default rubric; its dims are the per-benchmark rubric dims). Verified 2026-07-02 by reading the file. (Earlier note claiming "universal" was WRONG — do NOT pass `--judge-mode universal`.)
 - 9 pre-existing `test_llm_judge_service.py` failures = stale/unrelated (do not fix, not regressions).
 - D-19 decision: emergent graph accepted as honest baseline — do NOT tune the graph itself; retrieval-funnel parity is a harness concern, not graph tuning.
 
