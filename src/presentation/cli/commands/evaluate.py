@@ -27,7 +27,7 @@ from presentation.cli.formatters import build_per_result_panel
 evaluate_app = typer.Typer()
 console = Console()
 
-VALID_EVAL_MODES = ["hybrid", "llm-only", "graphrag"]
+VALID_EVAL_MODES = ["hybrid", "llm-only", "graphrag", "graphrag-ontology"]
 
 
 @evaluate_app.command()
@@ -59,7 +59,7 @@ def run(
         "hybrid",
         "--mode",
         "-m",
-        help="Evaluation mode: hybrid (RAG-augmented), llm-only, or graphrag (graph retrieval -> primus generation, scored; no retrieval-only mode on evaluate)"
+        help="Evaluation mode: hybrid (RAG-augmented), llm-only, graphrag (emergent-KG graph retrieval -> primus generation, scored), or graphrag-ontology (Phase 10 ontology-grounded graph retrieval -> primus generation, scored; no retrieval-only mode on evaluate)"
     ),
     judge_mode: str = typer.Option(
         "rubric",

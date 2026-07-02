@@ -91,6 +91,13 @@ def build_rag_graph(settings: "Settings"):
         {
             "retrieval": "retrieval",
             "graph_retrieval": "graph_retrieval",
+            # Phase 10 (D-16 additivity, plan 10-02): route_by_mode returns a
+            # DISTINCT key for graphrag-ontology (proves routing is
+            # provably distinguishable, closing RESEARCH Pitfall 3), but it
+            # targets the SAME physical node — graph_retrieve_documents is
+            # mode-aware and selects the ontology provider vs the Phase 9
+            # provider based on state["mode"].
+            "graph_retrieval_ontology": "graph_retrieval",
             "fallback": "fallback",
         },
     )

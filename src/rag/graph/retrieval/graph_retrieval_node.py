@@ -1,11 +1,19 @@
 """
-Graph Retrieval Node (Phase 9 — `--mode graphrag`)
+Graph Retrieval Node (Phase 9 — `--mode graphrag`; Phase 10 — `--mode graphrag-ontology`)
 
-LangGraph node that swaps the vector `retrieval` node for entity-anchored
-Neo4j graph retrieval (D-06: retriever only). It fetches contexts from the
-`IGraphRetrievalProvider` (selected in the DI container, D-11) and populates
-`documents` in hybrid's Document shape (D-11), then flows through the SAME
-`reranking` → `grade_documents` → primus `generate` path as hybrid mode.
+LangGraph node that swaps the vector `retrieval` node for graph retrieval
+(D-06: retriever only). It fetches contexts from the `IGraphRetrievalProvider`
+(selected in the DI container, D-11) and populates `documents` in hybrid's
+Document shape (D-11), then flows through the SAME `reranking` →
+`grade_documents` → primus `generate` path as hybrid mode.
+
+Mode-aware provider selection (Phase 10, plan 10-02, D-16 additivity): this
+node is shared by BOTH `graphrag` (Phase 9 emergent-KG) and `graphrag-ontology`
+(Phase 10 ontology-grounded KG). It selects
+`container.graph_retrieval_provider_ontology()` when `state["mode"] ==
+"graphrag-ontology"`, else `container.graph_retrieval_provider()` (Phase 9,
+unchanged). This closes RESEARCH Pitfall 3 — provider selection was not
+previously mode-aware.
 
 Wave-6 retrieval parity (2026-07-02): the graph path retrieves a WIDE candidate
 pool (`rag_retrieval_top_k`, same as hybrid's pre-rerank count) and routes
@@ -27,13 +35,15 @@ logger = logging.getLogger(__name__)
 
 def graph_retrieve_documents(state: GraphState) -> GraphState:
     """
-    Retrieve entity-anchored graph contexts for `--mode graphrag`.
+    Retrieve graph contexts for `--mode graphrag` or `--mode graphrag-ontology`.
 
-    Uses the graph_retrieval_provider from the DI container (Neo4j adapter when
-    `neo4j_uri` is set). Populates `documents` (the WIDE candidate pool) and
-    attaches `similarity_score`/`dense_rank` so the downstream shared reranker
-    can funnel to `rerank_top_n`; `filtered_documents` is set later by the
-    grader, NOT here (Wave-6 parity — the reranker owns the final top-N).
+    Mode-aware provider selection (Phase 10, D-16 additivity): picks
+    `container.graph_retrieval_provider_ontology()` when `state["mode"] ==
+    "graphrag-ontology"`, else `container.graph_retrieval_provider()` (Phase 9,
+    unchanged). Populates `documents` (the WIDE candidate pool) and attaches
+    `similarity_score`/`dense_rank` so the downstream shared reranker can
+    funnel to `rerank_top_n`; `filtered_documents` is set later by the grader,
+    NOT here (Wave-6 parity — the reranker owns the final top-N).
 
     Args:
         state: Current graph state (uses 'rewritten_query' or 'query').
@@ -46,14 +56,19 @@ def graph_retrieve_documents(state: GraphState) -> GraphState:
     query = state.get("rewritten_query", "") or state.get("query", "")
     retrieval_attempts = state.get("retrieval_attempts", 0)
     top_k = settings.rag_retrieval_top_k
+    mode = state.get("mode", "graphrag")
 
     logger.info(
-        f"Graph retrieval (attempt {retrieval_attempts + 1}, k={top_k}): {query[:80]}..."
+        f"Graph retrieval (mode={mode}, attempt {retrieval_attempts + 1}, k={top_k}): {query[:80]}..."
     )
 
     try:
         container = get_container()
-        provider = container.graph_retrieval_provider()
+        provider = (
+            container.graph_retrieval_provider_ontology()
+            if mode == "graphrag-ontology"
+            else container.graph_retrieval_provider()
+        )
 
         if provider is None:
             logger.error(
