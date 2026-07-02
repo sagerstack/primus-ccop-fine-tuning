@@ -21,13 +21,21 @@ def route_by_mode(state: GraphState) -> str:
         state: Current graph state with 'mode'
 
     Returns:
-        "retrieval" for hybrid/rag-only, "fallback" for llm-only
+        "graph_retrieval" for graphrag, "retrieval" for hybrid/rag-only,
+        "fallback" for llm-only
     """
     mode = state.get("mode", "hybrid")
 
     if mode == "llm-only":
         logger.info("Routing: mode=llm-only -> fallback node")
         return "fallback"
+
+    if mode == "graphrag":
+        # Graph retrieval (Phase 9): swaps ONLY the retrieval node — the
+        # graph provides contexts, the unchanged primus `generate` node still
+        # produces the scored answer (D-06).
+        logger.info("Routing: mode=graphrag -> graph_retrieval node")
+        return "graph_retrieval"
 
     logger.info(f"Routing: mode={mode} -> retrieval node")
     return "retrieval"

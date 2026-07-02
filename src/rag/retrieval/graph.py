@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Callable
 
 from langgraph.graph import END, StateGraph
 
+from rag.graph.retrieval.graph_retrieval_node import graph_retrieve_documents
 from rag.retrieval.edges.routing import decide_after_grading, route_by_mode
 
 if TYPE_CHECKING:
@@ -73,6 +74,7 @@ def build_rag_graph(settings: "Settings"):
     # Nodes
     workflow.add_node("query_analysis", analyze_query)
     workflow.add_node("retrieval", retrieve_documents)
+    workflow.add_node("graph_retrieval", graph_retrieve_documents)
     workflow.add_node("reranking", rerank_documents)
     workflow.add_node("grade_documents", grade_documents)
     workflow.add_node("generate", generate_response)
@@ -88,6 +90,7 @@ def build_rag_graph(settings: "Settings"):
         route_by_mode,
         {
             "retrieval": "retrieval",
+            "graph_retrieval": "graph_retrieval",
             "fallback": "fallback",
         },
     )
@@ -95,6 +98,10 @@ def build_rag_graph(settings: "Settings"):
     # Retrieval → reranking → grading (always)
     workflow.add_edge("retrieval", "reranking")
     workflow.add_edge("reranking", "grade_documents")
+
+    # Graph retrieval bypasses reranking (already a bounded neighborhood) and
+    # goes straight to grading → generate (the unchanged primus node, D-06).
+    workflow.add_edge("graph_retrieval", "grade_documents")
 
     # After grading: route by mode + retrieval success
     workflow.add_conditional_edges(
