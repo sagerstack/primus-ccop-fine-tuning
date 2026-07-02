@@ -472,6 +472,52 @@ class Settings(BaseSettings):
         description="Embedding vector dimensionality for the Neo4j vector index (bge-large-en-v1.5 = 1024, D-07)"
     )
 
+    # ------------------------------------------------------------------
+    # Neo4j GraphRAG Ontology Configuration (Phase 10 — ontology-grounded KG)
+    # ------------------------------------------------------------------
+    # Front-loaded here (plan 10-02) so NO other Phase 10 plan needs to touch
+    # settings.py — single-owner seam, avoids same-wave write conflicts in
+    # Waves 3 and 5 (10-08/10-09 both read settings in the same wave).
+    ontology_config_path: str = Field(
+        default="src/rag/graph/ontology/ontology_config.json",
+        description=(
+            "Path to the Phase 10 ontology config (entity/relation/function-type "
+            "schema, D-01). File is created by a later Phase 10 plan."
+        )
+    )
+    shacl_shapes_path: str = Field(
+        default="src/rag/graph/ontology/shapes.ttl",
+        description=(
+            "Path to the SHACL shapes file used to validate ontology-grounded "
+            "extraction (D-02/D-03). File is created by a later Phase 10 plan."
+        )
+    )
+    ontology_discovery_model: str = Field(
+        default="openai/gpt-4o-mini",
+        description=(
+            "LLM used for ontology-guided discovery/extraction passes (Phase 10, "
+            "D-06a parity with graph_extraction_model) — runs via OpenRouter."
+        )
+    )
+    function_type_boost: float = Field(
+        default=1.5,
+        gt=0,
+        description=(
+            "Retrieval-time score boost applied to nodes matching the query's "
+            "inferred function-type (D-12). Applied by the real clause-anchored "
+            "retrieval query landing in plan 10-09."
+        )
+    )
+    gleaning_max_gleanings: int = Field(
+        default=1,
+        ge=0,
+        description="Maximum number of additional 'gleaning' extraction passes per chunk (D-11)"
+    )
+    graphrag_ontology_enabled: bool = Field(
+        default=True,
+        description="Feature flag gating the Phase 10 `graphrag-ontology` mode and its DI provider"
+    )
+
     model_config = SettingsConfigDict(
         env_file=("config/.env.example", "config/.env.local"),
         env_file_encoding="utf-8",
