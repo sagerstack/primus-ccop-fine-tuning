@@ -21,7 +21,7 @@ from typing import List, Optional
 _MAX_INLINE_TEST_IDS = 5
 
 
-_VALID_MODES = {"hybrid", "llm-only", "rag-only"}
+_VALID_MODES = {"hybrid", "llm-only", "rag-only", "graphrag", "graphrag-retrieval"}
 
 
 @dataclass(frozen=True)
