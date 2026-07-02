@@ -528,14 +528,24 @@ Plans:
 
 ### Phase 10: Ontology-grounded GraphRAG (Neo4j, governed KG) via Text Ontology Learning (paper 3.2.2)
 
-**Goal:** Layer ontology governance onto the Phase 9 Neo4j GraphRAG stack **additively** — define a CCoP ontology (entity/relation types), deterministically seed clause nodes from `clause_inventory.json` (691 entries), constrain KG extraction to the ontology (schema-guided), and validate the graph with SHACL (n10s in-DB or rdflib/pyshacl export). Expose as `--mode graphrag-ontology` behind the same pluggable provider. A/B on the 18-case fixed GT vs Phase 9 basic (emergent) GraphRAG and the hybrid baseline, isolating the effect of ontology grounding on the identical engine / input / harness.
-**Requirements**: TBD (run /gsd-plan-phase 10 to break down)
+**Goal:** Layer ontology governance onto the Phase 9 Neo4j GraphRAG stack **additively** — define a CCoP ontology (entity/relation types), deterministically seed clause nodes from `clause_inventory.json` (691 entries), constrain KG extraction to the ontology (schema-guided), and validate the graph with SHACL (rdflib/pyshacl export). Expose as `--mode graphrag-ontology` behind the same pluggable provider. A/B on the 18-case fixed GT vs Phase 9 basic (emergent) GraphRAG and the hybrid baseline, isolating the effect of ontology grounding on the identical engine / input / harness.
+**Requirements**: RAG-01, RAG-02, RAG-06, EVAL-02, EVAL-03 (+ phase-local decisions D-01..D-18 from 10-CONTEXT.md — every decision covered by ≥1 plan)
 **Depends on:** Phase 9 (shares the Neo4j engine, Docling input, retrieval-provider abstraction, eval harness, and comparison-report format)
-**Plans:** 0 plans
+**Plans:** 11 plans (7 waves)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 10 to break down)
+- [ ] 10-01-PLAN.md — Wave 1: deferred Phase 9 18-case basic-GraphRAG baseline (D-16 hard dep) + exact-search/determinism spike (D-15)
+- [ ] 10-02-PLAN.md — Wave 1: mode-aware provider wiring (Pitfall 3) + 4-allowlist mode plumbing + skeleton ontology adapter + settings + E2E routing proof (D-16)
+- [ ] 10-03-PLAN.md — Wave 1: ontology discovery Method C (grounded synthesis) + gold-relation parser + coverage checks + curation gate (a) (D-01/02/04/08/09/17/18)
+- [ ] 10-04-PLAN.md — Wave 2: ontology Method B (clustering cross-check) + reconcile + curation gate (b) + LOCK ontology_config (D-01/05/14/17)
+- [ ] 10-05-PLAN.md — Wave 3: deterministic clause seeding (691 :Clause nodes + hierarchy + function_type tags) + CLI (D-10/09)
+- [ ] 10-06-PLAN.md — Wave 3: section-aligned extraction splitter + gleaning multi-pass extractor (D-11 extraction-unit decouple)
+- [ ] 10-07-PLAN.md — Wave 4: schema-constrained OntologyKGBuilder + entity resolution + entity→clause linker + build CLI (D-06/07/11)
+- [ ] 10-08-PLAN.md — Wave 5: SHACL validation (shapes.ttl + pyshacl export + quarantine) + validate CLI (D-13)
+- [ ] 10-09-PLAN.md — Wave 5: clause-anchored ontology retrieval adapter + function-type routing + stable tie-break (D-12/11/15)
+- [ ] 10-10-PLAN.md — Wave 6: deterministic clause-hit@3 harness (hit@3/recall@3/recall@pool) + gold-set cross-check (D-15)
+- [ ] 10-11-PLAN.md — Wave 7: three-way A/B report (graphrag-ontology vs basic graphrag vs hybrid) + per-benchmark gap analysis (D-16, EVAL-02/03)
 
 ---
 *Roadmap created: 2026-02-05*
