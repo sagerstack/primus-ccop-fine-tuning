@@ -21,8 +21,8 @@ def route_by_mode(state: GraphState) -> str:
         state: Current graph state with 'mode'
 
     Returns:
-        "graph_retrieval" for graphrag, "retrieval" for hybrid/rag-only,
-        "fallback" for llm-only
+        "graph_retrieval" for graphrag/graphrag-retrieval, "retrieval" for
+        hybrid/rag-only, "fallback" for llm-only
     """
     mode = state.get("mode", "hybrid")
 
@@ -30,11 +30,13 @@ def route_by_mode(state: GraphState) -> str:
         logger.info("Routing: mode=llm-only -> fallback node")
         return "fallback"
 
-    if mode == "graphrag":
+    if mode in ("graphrag", "graphrag-retrieval"):
         # Graph retrieval (Phase 9): swaps ONLY the retrieval node — the
-        # graph provides contexts, the unchanged primus `generate` node still
-        # produces the scored answer (D-06).
-        logger.info("Routing: mode=graphrag -> graph_retrieval node")
+        # graph provides contexts. For `graphrag` the unchanged primus
+        # `generate` node still produces the scored answer (D-06); for
+        # `graphrag-retrieval` (the rag-only analog) decide_after_grading
+        # routes straight to rag_response with no generation.
+        logger.info(f"Routing: mode={mode} -> graph_retrieval node")
         return "graph_retrieval"
 
     logger.info(f"Routing: mode={mode} -> retrieval node")
@@ -46,8 +48,8 @@ def decide_after_grading(state: GraphState) -> str:
     Decide next step after document grading.
 
     Routes based on mode and retrieval results:
-    - rag-only: always → rag_response (no LLM generation)
-    - hybrid + docs found: → generate
+    - rag-only / graphrag-retrieval: always → rag_response (no LLM generation)
+    - graphrag + hybrid + docs found: → generate
     - hybrid + no docs: → fallback
 
     Args:
@@ -58,8 +60,8 @@ def decide_after_grading(state: GraphState) -> str:
     """
     mode = state.get("mode", "hybrid")
 
-    if mode == "rag-only":
-        logger.info("Routing: mode=rag-only -> rag_response node")
+    if mode in ("rag-only", "graphrag-retrieval"):
+        logger.info(f"Routing: mode={mode} -> rag_response node")
         return "rag_response"
 
     retrieval_succeeded = state.get("retrieval_succeeded", False)

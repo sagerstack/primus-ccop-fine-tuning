@@ -50,7 +50,8 @@ class LangGraphRagAdapter(IRagPipeline):
 
         Args:
             question: User question
-            mode: Pipeline mode — "hybrid", "llm-only", "rag-only"
+            mode: Pipeline mode — "hybrid", "llm-only", "rag-only", "graphrag",
+                "graphrag-retrieval"
 
         Returns:
             RagResponse with formatted response and citations
@@ -107,6 +108,7 @@ class LangGraphRagAdapter(IRagPipeline):
 
         llm-only requires only Ollama.
         hybrid and rag-only require vector store (Qdrant or Databricks) + Ollama.
+        graphrag and graphrag-retrieval require the graph provider (Neo4j) + Ollama.
         """
         has_ollama = bool(self.settings.ollama_host)
         if not has_ollama:
@@ -115,6 +117,12 @@ class LangGraphRagAdapter(IRagPipeline):
 
         if mode == "llm-only":
             return True
+
+        if mode in ("graphrag", "graphrag-retrieval"):
+            has_graph = bool(getattr(self.settings, "neo4j_uri", None))
+            if not has_graph:
+                self.logger.debug("No graph provider configured (CCOP_NEO4J_URI unset)")
+            return has_graph
 
         # For hybrid/rag-only: check if any vector store is configured
         has_qdrant = bool(self.settings.qdrant_url)
