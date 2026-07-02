@@ -76,11 +76,11 @@ the generator (primus held constant per P9 D-06); the Microsoft `graphrag` packa
   (Permitted: P9 D-08 says "all alignment/tuning belongs to Phase 10.") See ADR-007 / research report.
 
 ### Retrieval relevance-routing (the citation-retrieval fix)
-- **D-12:** **Function-type routing** — classify question intent → prefer clauses tagged with the
-  matching function-type (D-09). This is the mechanism that makes §1.2.1 out-rank §5.6 for a scope
-  question. Grounding + clause nodes fix *citation correctness/granularity*; routing is the SEPARATE
-  lever that fixes *ranking*. ⚠️ **Pending user confirmation** (asked, timed out — best-judgment
-  default; "Both, layered" = function-type + entity-anchored traversal is the richer future option).
+- **D-12:** **Function-type routing** (CONFIRMED by user) — classify question intent → prefer
+  clauses tagged with the matching function-type (D-09). This is the mechanism that makes §1.2.1
+  out-rank §5.6 for a scope question. Grounding + clause nodes fix *citation correctness/granularity*;
+  routing is the SEPARATE lever that fixes *ranking*. If function-type alone doesn't clear the
+  clause-hit@3 gate, escalate to "Both, layered" (function-type + entity-anchored traversal).
 
 ### Validation & human gates
 - **D-13:** **SHACL validation** (locked, D-16 from P9) — reject non-conforming facts, log
@@ -102,11 +102,25 @@ the generator (primus held constant per P9 D-06); the Microsoft `graphrag` packa
   trustworthy until that 18-case Phase 9 baseline exists. Deciding signals: clause-hit@3 + LLM-judge
   citation/grounding dims + RAGAs context metrics.
 
+### Ontology coverage validation against gold relations (user-added)
+- **D-17:** After ontology construction (C→B→curate, D-01), **cross-check the ontology's entity
+  types + relation types against the `graph_relation` column (col 22) of
+  `src/results/evaluations/eval-report-hybrid-suite-20260630-0907.xlsx`, sheet `eval-18`** — a
+  **hand-authored gold-standard** of the relationship triples each of the 18 cases requires, with
+  clause citations. Parse the triples → extract their entity types + relation types → **any type
+  present in the gold triples but MISSING from the ontology is a gap → ADD it.** This is a stronger,
+  concrete coverage check than the benchmark-name mapping (D-14) — it's per-case gold relations.
+- **D-18:** The gold triples reveal relation families the emergent extraction (and the naïve starter
+  set) **missed** and that the ontology MUST cover — especially **negation/modal relations** central
+  to compliance reasoning: `NOT_DESIGNATED_AS`, `CANNOT_SATISFY`, `DOES_NOT_WAIVE`, `DEFINES_NO`,
+  `DOES_NOT_SPECIFY`, `PERMITS…where_necessary`, `TECHNOLOGY_NEUTRAL_ON`, `RECOMMENDS_AGAINST`,
+  `DEFERS_TO`, plus `IS_A`/`DEFINED_AS`/`CLASSIFIED_AS`/`DESIGNATES`/`DETERMINED_BY`. Extend the
+  starter relation set (D-08) accordingly during curation.
+
 ### Claude's Discretion
 - Method B embedding model + clustering algorithm (AP suggested), corpus term-extraction strategy.
 - Concrete SHACL shape authoring; entity-resolution algorithm (exact-match vs LLM-based).
 - Exact `--mode` naming / provider wiring (mirror P9's pluggable seam).
-- D-12 (function-type routing) is best-judgment pending user confirmation — may become "Both, layered".
 </decisions>
 
 <canonical_refs>
@@ -127,6 +141,7 @@ the generator (primus held constant per P9 D-06); the Microsoft `graphrag` packa
 - `src/rag/ingestion/fixtures/clause_inventory.json` — 691 clause IDs for deterministic seeding (D-10). NOTE: IDs + source_doc only, no titles.
 - `ground-truth/test-suite/*.jsonl` — the 18 benchmarks; their definitions seed the reasoning/relation concepts (D-04) and the coverage check (D-14). GT clause references (e.g. B01-001 → §1.2.1/§1.4.1) feed the clause-hit@3 gate (D-15).
 - Canonical hybrid baseline: `src/results/evaluations/2026-04/eval-run-hybrid-tests-18-bdc4927d-20260430-0232` (rubric judge — the parity mode; NOT universal).
+- **`src/results/evaluations/eval-report-hybrid-suite-20260630-0907.xlsx`, sheet `eval-18`, col 22 `graph_relation`** — hand-authored GOLD-STANDARD relationship triples per case (with clause citations). The ontology coverage check (D-17) validates against this; D-18 relation families come from it. MUST read during ontology curation.
 
 ### Bugs / lessons carried in
 - `docs/project_notes/bugs.md` — 2026-07-02 provenance-collapse bug (all docs → "document.txt"); P9 NER emergent-entity audit (the D-06 anti-patterns).

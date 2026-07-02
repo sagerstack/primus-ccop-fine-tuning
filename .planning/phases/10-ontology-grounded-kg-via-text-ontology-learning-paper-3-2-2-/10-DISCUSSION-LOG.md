@@ -35,9 +35,23 @@
 | Both, layered | Function-type + entity traversal combined | (noted as richer future option) |
 | Start minimal, let the gate drive | Clause-node dense retrieval first; add routing only if clause-hit@3 shows need | |
 
-**User's choice:** No response within 60s — proceeded with best judgment (Function-type routing).
-**Notes:** Marked pending user confirmation in CONTEXT D-12. This is the lever that fixes ranking
-(§1.2.1 over §5.6); grounding/clause-nodes alone do not.
+**User's choice:** Function-type routing — **CONFIRMED** by user in a follow-up ("go with your
+assessment"). Escalate to "Both, layered" only if it doesn't clear the clause-hit@3 gate.
+**Notes:** This is the lever that fixes ranking (§1.2.1 over §5.6); grounding/clause-nodes alone do not.
+
+---
+
+## Ontology coverage vs. gold graph_relations (user-added)
+
+**User request:** "after constructing the ontology, compare it vs the relationships stated in the
+last column in the excel file. if there are any gaps, add them in."
+
+The last column = `graph_relation` (col 22) of `eval-report-hybrid-suite-20260630-0907.xlsx` (sheet
+`eval-18`) — hand-authored gold-standard relationship triples per case, with clause citations.
+Captured as CONTEXT D-17 (cross-check ontology types vs the triples; add gaps) and D-18 (the gold
+triples reveal missed negation/modal relation families — NOT_DESIGNATED_AS, CANNOT_SATISFY,
+DOES_NOT_WAIVE, DEFINES_NO, TECHNOLOGY_NEUTRAL_ON, etc.). This is a stronger coverage check than the
+benchmark-name mapping.
 
 ---
 
