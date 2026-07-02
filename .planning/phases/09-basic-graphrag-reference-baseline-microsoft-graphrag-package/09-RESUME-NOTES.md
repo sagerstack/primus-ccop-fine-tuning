@@ -1,16 +1,32 @@
-# Phase 9 — Resume Notes (2026-07-02)
+# Phase 9 — Resume Notes (updated 2026-07-02, post-B01-001 diagnosis)
 
-Paused near end of execution (context limit). Read this first when resuming.
+Read this first when resuming.
 
-## Status: 5 of 6 waves complete + committed
+## ⚠️ OPEN DELIVERABLE — Wave 6 (18-case comparison) DEFERRED, Phase 10 started against a PARTIAL baseline
+User chose (2026-07-02) to commit the harness fixes + fix P3, but **defer the full
+18-case graphrag-vs-hybrid comparison** and move to Phase 10. Consequence to carry:
+**Phase 10's "A/B vs basic GraphRAG" has no measured basic-GraphRAG baseline yet** —
+only B01-001 was ever run (n=1, and it swung 0.50→0.33 between two runs = within noise).
+Before any Phase-10 conclusion is trusted, run Wave 6 (18-case graphrag on the
+`bdc4927d` GT vs canonical hybrid `...20260430-0232`, rubric judge, deep-dive
+B01/B03/B04). All harness blockers are now cleared (funnel parity, provenance, P3).
+
+## Status: waves + post-execution harness fixes
 | Wave | Plan | State |
 |---|---|---|
 | 1 | 09-01 Neo4j foundation | ✅ committed |
-| 2 | 09-02 KG build | ✅ committed — **live graph: 625 nodes / 1,232 rels / 179 chunks / 7 docs** |
+| 2 | 09-02 KG build | ✅ committed — **live graph rebuilt 2026-07-02 with 7 DISTINCT Document paths (provenance fix)** |
 | 3 | 09-03 inspect/stats | ✅ committed |
-| 4 | 09-04 retrieval provider + `--mode graphrag` | ✅ committed (finished inline after 2 executor stalls) |
+| 4 | 09-04 retrieval provider + `--mode graphrag` | ✅ committed |
 | 5 | 09-05 CLI modes + B04/B4 fix | ✅ committed (`5a25c8d`) + hotfix `run_id.py _VALID_MODES` |
-| **6** | **09-06 eval + comparison report** | ⏳ **NOT started (human-gated)** |
+| **6** | **09-06 eval + comparison report** | ⏳ **DEFERRED (harness ready; not run)** |
+
+### Post-execution harness fixes (2026-07-02, all committed)
+- **Q1/Q2 retrieval parity** (`597d909`): graph retrieve-wide→shared rerank→top-3; dense+sparse via HybridCypherRetriever (+ fulltext index). Isolates graph structure from the untuned-funnel confound.
+- **Provenance fix** (`c5740e6`): docs no longer collapse to "document.txt"; requires the rebuild already done.
+- **P3 reporting** (`7658505`): `_RETRIEVAL_EVAL_MODES` — graphrag context metrics now roll up in summary/report (were N/A). Phase 10: add `graphrag-ontology` to that set (already pre-added) AND to `run_id._VALID_MODES` + `VALID_EVAL_MODES`.
+- **Known residual**: `evaluate_model.py:269` hardcodes `mode=="hybrid"` for the fail-loud-if-RAG-unavailable guard — graphrag has no such guard (degrades to empty+error). Low priority.
+- **Clause-grounding gap (Phase 10, ADR-007/D-16a)**: B01-001 still fabricated clause numbers even after provenance fix — chunks lack clause-level metadata. This is the genuine limitation Phase 10 addresses via clause-node seeding + clause-anchored retrieval.
 
 ## Environment (already up — verify on resume)
 - Neo4j `neo4j-local` running + populated (625 nodes). Repo-root `.env` is a **symlink → `src/config/.env.local`** so `docker compose up -d neo4j` interpolates `CCOP_NEO4J_PASSWORD` (compose doesn't read `.env.local` directly — this was a plan gap, fixed via symlink).
