@@ -31,12 +31,12 @@ First real E2E run (`evaluate run --mode graphrag --test-ids B01-001`) completed
 
 Result: graph `context_recall` 0.88 → **0.00**; retrieved 50 off-target "Response-to-Feedback" chunks; primus produced a generic non-answer. **We're measuring "untuned vs tuned retrieval," not "graph vs vector."**
 
-## DECISION NEEDED before Wave 6 (retrieval parity) — settle deliberately, don't guess
-How much of hybrid's funnel to give the graph path so the comparison isolates *graph structure*:
-1. **`top_k` funnel (min fix):** graph node uses `settings.rag_retrieval_top_k`=50 (pre-rerank count) → cap to hybrid's effective **3** (add `graph_retrieval_top_k` default 3, use in `graph_retrieval_node.py`).
-2. **Rerank/sparse parity:** route graph chunks through the SAME cross-encoder reranker (graph_retrieval → reranking → grade), and/or use neo4j-graphrag **HybridCypherRetriever** (vector + fulltext ≈ dense+sparse).
-3. **Chunk parity:** feed the graph the same clause-level chunks, OR accept coarse chunking as an explicit reported OOTB limitation.
-Design principle: graph should add **structure on top of a comparable retrieval funnel**, not replace the whole tuned pipeline with bare dense search.
+## DECISIONS SETTLED 2026-07-02 (retrieval parity) — ready to implement
+Isolate *graph structure* by giving the graph a comparable retrieval funnel (NOT re-tuning the graph):
+1. **Funnel to 3 via retrieve-wide→rerank→3 (Q1 ✅):** graph retrieves a WIDE candidate pool (~50), routes through the SAME cross-encoder reranker (`graph_retrieval → reranking → grade_documents`), funnels to `rerank_top_n`=3. NOT "retrieve 3" (that makes rerank a no-op). Impl: drop `filtered_documents` pre-set in `graph_retrieval_node.py`; re-route the edge; reranker already RRF-combines `dense_rank`+`ce_rank` which the graph node sets.
+2. **Dense + sparse via HybridCypherRetriever (Q2 ✅):** swap `VectorCypherRetriever`→`HybridCypherRetriever` (dense vector index + NEW Lucene fulltext index on `Chunk.text`). Keeps dense, ADDS sparse. Caveat: Lucene BM25 ≠ Qdrant fastembed BM25 → approximate parity, reported as such.
+3. **Chunk parity: NO — report coarse chunking as intrinsic OOTB limitation (Q3 ✅, D-20 / ADR-007).** Do NOT re-chunk (violates D-05: starves relationship extraction; D-01: 2nd ablation var). Clause granularity is Phase 10's job (D-16a: clause-node seeding + clause-anchored fine retrieval). Research: `docs/project_notes/research/2026-07-02-graphrag-chunking-regulatory.md`.
+Design principle: graph adds **structure on top of a comparable retrieval funnel**, not a replacement for the whole tuned pipeline. Chunk granularity is the one confound deliberately left as a reported limitation.
 
 ## Other known issues
 - **RAGAs `429` rate limits** (OpenRouter) during eval — lower RAGAs concurrency / add backoff before the 18-case run.

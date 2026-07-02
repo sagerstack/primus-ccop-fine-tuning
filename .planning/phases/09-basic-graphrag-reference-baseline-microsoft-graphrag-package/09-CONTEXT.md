@@ -149,12 +149,61 @@ plus an embedder. These MUST be kept separate — conflating any of them with th
   chunk/prompt to chase B01/B03/B04 scores — that would blur the baseline. Any change beyond
   "make it work" is a reported, principled decision, not silent tuning (ties to the Specifics note).
 
+### Chunking / retrieval-granularity decision (research-backed, 2026-07-02)
+- **D-20: Phase 9 keeps neo4j-graphrag's default `FixedSizeSplitter` (4000 char / 200 overlap,
+  single pass, NO gleaning); the coarse chunk granularity is REPORTED as an intrinsic OOTB
+  limitation of the emergent baseline — NOT patched by re-chunking.** Rationale (holds D-04/D-05/
+  D-08 intact and settles the Wave-6 confound question):
+  - Re-chunking to clause units would (a) violate D-05 — verified: clause-level fragmentation
+    *starves relationship extraction* because both endpoints of a relation must co-occur in one
+    chunk (arXiv 2605.28004, "Beyond Chunk-Local Extraction"; 3-0 adversarial); and (b) add a
+    second variable to the P9→P10 ablation, violating D-01.
+  - "Bigger is simply better" is ALSO false: smaller chunks recover ~2× more entity references
+    (600 vs 2400 tokens, Microsoft GraphRAG paper arXiv 2404.16130v2, direct ablation, 3-0). The
+    field reconciles this with **gleaning** (repeated extraction passes) — Microsoft defaults to
+    1200 tokens + `max_gleanings`. **neo4j-graphrag ships neither gleaning nor a structure-aware
+    splitter**, so its 4000-char single-pass default is a *generic library default*, not a
+    quality-tuned choice (Neo4j KG-builder docs, 3-0). Reporting it as an honest OOTB
+    characteristic is therefore correct and defensible.
+  - The retrieval-return-unit confound (a 4000-char chunk = ~10–40 clauses handed to primus) is a
+    SEPARATE axis from the extraction unit. D-05 justifies large *extraction* chunks; it does NOT
+    justify returning coarse chunks at query time. The evidence-backed fix is architectural
+    (clause-node seeding + clause-anchored fine retrieval) → **Phase 10**, see D-16.
+  - Wave-6 harness parity work (rerank + sparse + top_n funnel) is orthogonal to chunking and
+    stays in scope for Phase 9 (a harness concern, per D-19 framing) — chunk granularity is the
+    one confound axis deliberately left as a reported limitation.
+
 ### Phase-10 forward guidance (additive, do not implement here)
 - **D-16:** Phase 10 layers onto this same Neo4j stack: define a CCoP ontology; deterministically
   seed clause nodes from `clause_inventory.json` (691 entries) via Cypher `MERGE`; constrain
   extraction to the ontology (schema-guided KG build); validate with SHACL (n10s in-DB OR
   rdflib/pyshacl export). Phase 9 must keep the extraction + provider stages **interceptable**
   so Phase 10 is purely additive.
+- **D-16a (research-backed chunking/retrieval architecture, 2026-07-02 — informs but does not
+  pre-decide Phase 10):** the evidence-backed way to get clause granularity WITHOUT re-splitting
+  extraction chunks is a three-part decouple:
+  1. **Extraction unit:** section-level chunks + overlap (multiple clauses per chunk) so
+     relationships have co-occurrence context; ideally add a **gleaning / multi-pass** extraction
+     step (neo4j-graphrag lacks it natively — must be user-added) to recover entity recall lost
+     at larger chunk sizes. Do NOT clause-fragment the extraction input (D-05, D-20).
+  2. **Graph backbone:** make the document's own **clause hierarchy** the primary structure
+     (Title→Chapter→Article→Item nodes, parent-child edges) via the D-16 clause seeding — NOT NER
+     co-occurrence. Entity-centric GraphRAG is "structurally blind" to hierarchy, a known failure
+     mode for legal/regulatory text (SAT-Graph, arXiv 2505.00039v5, 3-0).
+  3. **Retrieval unit:** re-anchor retrieval on the seeded **clause nodes** to return fine,
+     clause-level snippets — legal RAG favors minimal precise clause segments over coarse chunks
+     (LegalBench-RAG, arXiv 2408.10343, 3-0).
+  - **CRITICAL for the P9→P10 comparison:** clause-node seeding alone is NOT sufficient — if
+    Phase 10 retrieval still returns the coarse 4000-char chunk, the D-20 return-unit confound
+    **rides into Phase 10**. The seeding MUST be paired with clause-anchored retrieval (step 3),
+    else the "graph vs vector" comparison stays confounded on chunk granularity in both phases.
+  - **Evidence base (all survived 3-vote adversarial verification unless noted):** section-based
+    beats naive fixed-size chunking on structured statutes (NitiBench, arXiv 2502.10868 — a real
+    ablation); small fixed chunks cause "concept fragmentation" on structured text (arXiv
+    2502.20364). Caveat: no source ran the exact extract-large/retrieve-fine decouple ablation on
+    a cybersecurity-CoP corpus — this is a synthesis, so Phase 10 should treat it as a strong
+    hypothesis to *measure* (RAGAs context_precision/recall/faithfulness), not a settled result.
+    Full research report: `docs/project_notes/research/2026-07-02-graphrag-chunking-regulatory.md`.
 
 ### Claude's Discretion
 - Concrete `neo4j-graphrag` pipeline/retriever class selection, Neo4j Docker version, vector
