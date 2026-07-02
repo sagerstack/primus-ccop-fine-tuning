@@ -177,3 +177,7 @@ None - no external service configuration required. (Neo4j was already running lo
 ---
 *Phase: 10-ontology-grounded-kg-via-text-ontology-learning-paper-3-2-2*
 *Completed: 2026-07-02*
+
+## Self-Check: PASSED
+
+All created files verified present on disk; all task commit hashes (925edb0, 6e0113d, 74c39cf) and the metadata commit (1929774) verified present in `git log`.
