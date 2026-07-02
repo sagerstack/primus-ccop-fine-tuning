@@ -535,16 +535,36 @@ Plans:
 
 Plans:
 
+**Wave 1**
+
 - [ ] 10-01-PLAN.md — Wave 1: deferred Phase 9 18-case basic-GraphRAG baseline (D-16 hard dep) + exact-search/determinism spike (D-15)
 - [ ] 10-02-PLAN.md — Wave 1: mode-aware provider wiring (Pitfall 3) + 4-allowlist mode plumbing + skeleton ontology adapter + settings + E2E routing proof (D-16)
 - [ ] 10-03-PLAN.md — Wave 1: ontology discovery Method C (grounded synthesis) + gold-relation parser + coverage checks + curation gate (a) (D-01/02/04/08/09/17/18)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 10-04-PLAN.md — Wave 2: ontology Method B (clustering cross-check) + reconcile + curation gate (b) + LOCK ontology_config (D-01/05/14/17)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 10-05-PLAN.md — Wave 3: deterministic clause seeding (691 :Clause nodes + hierarchy + function_type tags) + CLI (D-10/09)
 - [ ] 10-06-PLAN.md — Wave 3: section-aligned extraction splitter + gleaning multi-pass extractor (D-11 extraction-unit decouple)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 10-07-PLAN.md — Wave 4: schema-constrained OntologyKGBuilder + entity resolution + entity→clause linker + build CLI (D-06/07/11)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 10-08-PLAN.md — Wave 5: SHACL validation (shapes.ttl + pyshacl export + quarantine) + validate CLI (D-13)
 - [ ] 10-09-PLAN.md — Wave 5: clause-anchored ontology retrieval adapter + function-type routing + stable tie-break (D-12/11/15)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 10-10-PLAN.md — Wave 6: deterministic clause-hit@3 harness (hit@3/recall@3/recall@pool) + gold-set cross-check (D-15)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 10-11-PLAN.md — Wave 7: three-way A/B report (graphrag-ontology vs basic graphrag vs hybrid) + per-benchmark gap analysis (D-16, EVAL-02/03)
 
 ---
