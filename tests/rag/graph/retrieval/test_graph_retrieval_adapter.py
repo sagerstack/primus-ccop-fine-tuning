@@ -23,6 +23,7 @@ def _make_settings(**overrides):
     settings.neo4j_password = "test-password"
     settings.neo4j_database = "neo4j"
     settings.graph_vector_index_name = "ccop_chunk_embeddings"
+    settings.graph_fulltext_index_name = "ccop_chunk_fulltext"
     settings.graph_embedding_model = "BAAI/bge-large-en-v1.5"
     settings.graph_embedding_dimensions = 1024
     for key, value in overrides.items():
@@ -93,11 +94,11 @@ class TestNeo4jGraphRetrievalAdapterRetrieve:
 
 
 class TestNeo4jGraphRetrievalAdapterConstruction:
-    """Construction wires bge embeddings + the configured vector index name."""
+    """Construction wires bge embeddings + the configured dense + sparse indexes."""
 
-    @patch("rag.graph.retrieval.neo4j_graph_retrieval_adapter.VectorCypherRetriever")
+    @patch("rag.graph.retrieval.neo4j_graph_retrieval_adapter.HybridCypherRetriever")
     @patch("rag.graph.retrieval.neo4j_graph_retrieval_adapter.SentenceTransformerEmbeddings")
-    def test_uses_configured_embedding_model_and_index(
+    def test_uses_configured_embedding_model_and_hybrid_indexes(
         self, mock_embedder_cls, mock_retriever_cls
     ):
         settings = _make_settings()
@@ -106,7 +107,9 @@ class TestNeo4jGraphRetrievalAdapterConstruction:
 
         mock_embedder_cls.assert_called_once_with(model=settings.graph_embedding_model)
         _, kwargs = mock_retriever_cls.call_args
-        assert kwargs["index_name"] == settings.graph_vector_index_name
+        # Wave-6 parity: dense (vector) + sparse (fulltext) legs both wired.
+        assert kwargs["vector_index_name"] == settings.graph_vector_index_name
+        assert kwargs["fulltext_index_name"] == settings.graph_fulltext_index_name
         assert kwargs["neo4j_database"] == settings.neo4j_database
 
 

@@ -4,11 +4,16 @@ Graph Retrieval Node (Phase 9 — `--mode graphrag`)
 LangGraph node that swaps the vector `retrieval` node for entity-anchored
 Neo4j graph retrieval (D-06: retriever only). It fetches contexts from the
 `IGraphRetrievalProvider` (selected in the DI container, D-11) and populates
-`documents` + `filtered_documents` in hybrid's Document shape (D-11) so the
-downstream grading and the UNCHANGED primus `generate` node run exactly as in
-hybrid mode. This node bypasses the cross-encoder reranker (graph retrieval
-already returns a bounded, entity-anchored neighborhood), going straight to
-`grade_documents` → `generate`.
+`documents` in hybrid's Document shape (D-11), then flows through the SAME
+`reranking` → `grade_documents` → primus `generate` path as hybrid mode.
+
+Wave-6 retrieval parity (2026-07-02): the graph path retrieves a WIDE candidate
+pool (`rag_retrieval_top_k`, same as hybrid's pre-rerank count) and routes
+through the shared cross-encoder reranker, which funnels to `rerank_top_n`
+(=3) — mirroring hybrid's retrieve-wide → rerank → top-3 funnel. This node
+therefore does NOT pre-set `filtered_documents` (the reranker + grader own the
+final top-N), and it attaches `dense_rank`/`similarity_score` so the reranker's
+RRF ensemble (dense_rank ⊕ ce_rank) has the inputs it expects.
 """
 
 import logging
@@ -25,10 +30,10 @@ def graph_retrieve_documents(state: GraphState) -> GraphState:
     Retrieve entity-anchored graph contexts for `--mode graphrag`.
 
     Uses the graph_retrieval_provider from the DI container (Neo4j adapter when
-    `neo4j_uri` is set). Populates `documents` and `filtered_documents` directly
-    (the reranking node is bypassed for the graph path), attaches
-    `similarity_score`/`dense_rank` for downstream parity, and sets
-    `retrieval_succeeded` based on whether any contexts came back.
+    `neo4j_uri` is set). Populates `documents` (the WIDE candidate pool) and
+    attaches `similarity_score`/`dense_rank` so the downstream shared reranker
+    can funnel to `rerank_top_n`; `filtered_documents` is set later by the
+    grader, NOT here (Wave-6 parity — the reranker owns the final top-N).
 
     Args:
         state: Current graph state (uses 'rewritten_query' or 'query').
@@ -70,10 +75,10 @@ def graph_retrieve_documents(state: GraphState) -> GraphState:
             doc.metadata.setdefault("similarity_score", doc.metadata.get("similarity_score", 0.0))
             doc.metadata["dense_rank"] = rank
 
-        # Graph path bypasses reranking, so populate BOTH documents and
-        # filtered_documents (the generate node reads filtered_documents).
+        # Graph path now flows through the shared reranker → grader (Wave-6
+        # parity), so populate ONLY `documents` (the wide candidate pool). The
+        # reranker funnels to rerank_top_n and the grader sets filtered_documents.
         state["documents"] = documents
-        state["filtered_documents"] = documents
         state["retrieval_succeeded"] = bool(documents)
         state["retrieval_attempts"] = retrieval_attempts + 1
 

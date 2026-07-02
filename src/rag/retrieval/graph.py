@@ -99,9 +99,10 @@ def build_rag_graph(settings: "Settings"):
     workflow.add_edge("retrieval", "reranking")
     workflow.add_edge("reranking", "grade_documents")
 
-    # Graph retrieval bypasses reranking (already a bounded neighborhood) and
-    # goes straight to grading → generate (the unchanged primus node, D-06).
-    workflow.add_edge("graph_retrieval", "grade_documents")
+    # Graph retrieval flows through the SAME reranking → grading → generate path
+    # as hybrid (Wave-6 retrieval parity, 2026-07-02): retrieve wide → shared
+    # cross-encoder rerank → top-N → primus generate (the unchanged node, D-06).
+    workflow.add_edge("graph_retrieval", "reranking")
 
     # After grading: route by mode + retrieval success
     workflow.add_conditional_edges(

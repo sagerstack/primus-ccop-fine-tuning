@@ -34,6 +34,7 @@ class TestEmergentKGBuilderConstruction:
             patch("rag.graph.build.kg_builder.SentenceTransformerEmbeddings"),
             patch("rag.graph.build.kg_builder.SimpleKGPipeline"),
             patch("rag.graph.build.kg_builder.create_vector_index"),
+            patch("rag.graph.build.kg_builder.create_fulltext_index"),
         ):
             settings = _settings()
             EmergentKGBuilder(settings=settings, driver=MagicMock())
@@ -50,6 +51,7 @@ class TestEmergentKGBuilderConstruction:
             patch("rag.graph.build.kg_builder.SentenceTransformerEmbeddings") as mock_emb_cls,
             patch("rag.graph.build.kg_builder.SimpleKGPipeline"),
             patch("rag.graph.build.kg_builder.create_vector_index"),
+            patch("rag.graph.build.kg_builder.create_fulltext_index"),
         ):
             settings = _settings()
             EmergentKGBuilder(settings=settings, driver=MagicMock())
@@ -64,6 +66,7 @@ class TestEmergentKGBuilderConstruction:
             patch("rag.graph.build.kg_builder.SentenceTransformerEmbeddings"),
             patch("rag.graph.build.kg_builder.SimpleKGPipeline"),
             patch("rag.graph.build.kg_builder.create_vector_index") as mock_index,
+            patch("rag.graph.build.kg_builder.create_fulltext_index"),
         ):
             settings = _settings()
             EmergentKGBuilder(settings=settings, driver=MagicMock())
@@ -75,12 +78,33 @@ class TestEmergentKGBuilderConstruction:
             assert kwargs["label"] == "Chunk"
             assert kwargs["embedding_property"] == "embedding"
 
+    def test_fulltext_index_created_over_chunk_text(self):
+        """Wave-6 sparse leg: a Lucene fulltext index over Chunk.text, idempotent."""
+        with (
+            patch("rag.graph.build.kg_builder.OpenAILLM"),
+            patch("rag.graph.build.kg_builder.SentenceTransformerEmbeddings"),
+            patch("rag.graph.build.kg_builder.SimpleKGPipeline"),
+            patch("rag.graph.build.kg_builder.create_vector_index"),
+            patch("rag.graph.build.kg_builder.create_fulltext_index") as mock_ft,
+        ):
+            settings = _settings()
+            EmergentKGBuilder(settings=settings, driver=MagicMock())
+
+            mock_ft.assert_called_once()
+            args, kwargs = mock_ft.call_args
+            assert args[1] == settings.graph_fulltext_index_name
+            assert kwargs["label"] == "Chunk"
+            assert kwargs["node_properties"] == ["text"]
+            # Idempotent — no-op when the index already exists (rebuilds + live graph).
+            assert kwargs["fail_if_exists"] is False
+
     def test_pipeline_constructed_with_no_schema_kwargs(self):
         with (
             patch("rag.graph.build.kg_builder.OpenAILLM"),
             patch("rag.graph.build.kg_builder.SentenceTransformerEmbeddings"),
             patch("rag.graph.build.kg_builder.SimpleKGPipeline") as mock_pipeline_cls,
             patch("rag.graph.build.kg_builder.create_vector_index"),
+            patch("rag.graph.build.kg_builder.create_fulltext_index"),
         ):
             settings = _settings()
             EmergentKGBuilder(settings=settings, driver=MagicMock())
@@ -98,6 +122,7 @@ class TestEmergentKGBuilderConstruction:
             patch("rag.graph.build.kg_builder.SentenceTransformerEmbeddings"),
             patch("rag.graph.build.kg_builder.SimpleKGPipeline"),
             patch("rag.graph.build.kg_builder.create_vector_index") as mock_index,
+            patch("rag.graph.build.kg_builder.create_fulltext_index"),
         ):
             mock_index.side_effect = Exception("An equivalent index already exists")
             settings = _settings()
@@ -111,6 +136,7 @@ class TestEmergentKGBuilderConstruction:
             patch("rag.graph.build.kg_builder.SentenceTransformerEmbeddings"),
             patch("rag.graph.build.kg_builder.SimpleKGPipeline"),
             patch("rag.graph.build.kg_builder.create_vector_index") as mock_index,
+            patch("rag.graph.build.kg_builder.create_fulltext_index"),
         ):
             mock_index.side_effect = RuntimeError("connection refused")
             settings = _settings()
@@ -136,6 +162,7 @@ class TestEmergentKGBuilderBuild:
             patch("rag.graph.build.kg_builder.SentenceTransformerEmbeddings"),
             patch("rag.graph.build.kg_builder.SimpleKGPipeline") as mock_pipeline_cls,
             patch("rag.graph.build.kg_builder.create_vector_index"),
+            patch("rag.graph.build.kg_builder.create_fulltext_index"),
         ):
             driver = self._driver_with_counts(5)
             pipeline_instance = mock_pipeline_cls.return_value
@@ -159,6 +186,7 @@ class TestEmergentKGBuilderBuild:
             patch("rag.graph.build.kg_builder.SentenceTransformerEmbeddings"),
             patch("rag.graph.build.kg_builder.SimpleKGPipeline") as mock_pipeline_cls,
             patch("rag.graph.build.kg_builder.create_vector_index"),
+            patch("rag.graph.build.kg_builder.create_fulltext_index"),
         ):
             driver = self._driver_with_counts(0)
             pipeline_instance = mock_pipeline_cls.return_value

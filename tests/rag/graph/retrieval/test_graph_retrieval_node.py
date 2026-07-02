@@ -2,9 +2,10 @@
 Tests for the graph_retrieve_documents LangGraph node (Phase 9, D-06/D-11).
 
 Mocked — no live Neo4j. Verifies the node pulls contexts from the DI
-graph_retrieval_provider, populates documents + filtered_documents in hybrid's
-Document shape, sets retrieval_succeeded, and degrades cleanly when no provider
-is configured.
+graph_retrieval_provider, populates `documents` (the wide candidate pool) in
+hybrid's Document shape WITHOUT pre-setting filtered_documents (Wave-6 parity:
+the shared reranker + grader own the final top-N), sets retrieval_succeeded,
+and degrades cleanly when no provider is configured.
 """
 
 from unittest.mock import MagicMock, patch
@@ -46,7 +47,7 @@ def _docs():
     ]
 
 
-def test_node_populates_documents_and_filtered_documents():
+def test_node_populates_documents_and_defers_filtering_to_reranker():
     provider = MagicMock()
     provider.retrieve.return_value = _docs()
     container = MagicMock()
@@ -57,13 +58,15 @@ def test_node_populates_documents_and_filtered_documents():
     ):
         out = graph_retrieve_documents({"query": "access control?", "retrieval_attempts": 0})
 
+    # Retrieves the WIDE candidate pool (rag_retrieval_top_k), not the final top-N.
     provider.retrieve.assert_called_once_with(query="access control?", top_k=5)
     assert len(out["documents"]) == 2
-    # Graph path bypasses reranking → must populate filtered_documents itself.
-    assert out["filtered_documents"] == out["documents"]
+    # Wave-6 parity: the node must NOT pre-set filtered_documents — the shared
+    # reranker → grader own the final top-N (else the reranker is a no-op).
+    assert "filtered_documents" not in out
     assert out["retrieval_succeeded"] is True
     assert out["retrieval_attempts"] == 1
-    # dense_rank attached for downstream parity with the vector path.
+    # dense_rank attached so the reranker's RRF ensemble (dense_rank ⊕ ce_rank) works.
     assert out["documents"][0].metadata["dense_rank"] == 1
     assert out["documents"][1].metadata["dense_rank"] == 2
 

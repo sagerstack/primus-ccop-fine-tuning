@@ -27,7 +27,7 @@ import neo4j
 from neo4j_graphrag.embeddings import SentenceTransformerEmbeddings
 from neo4j_graphrag.embeddings.base import Embedder
 from neo4j_graphrag.experimental.pipeline.kg_builder import SimpleKGPipeline
-from neo4j_graphrag.indexes import create_vector_index
+from neo4j_graphrag.indexes import create_fulltext_index, create_vector_index
 from neo4j_graphrag.llm import LLMInterface, OpenAILLM
 
 from infrastructure.config.settings import Settings
@@ -103,6 +103,7 @@ class EmergentKGBuilder:
         self.llm = llm_factory(settings)
         self.embedder = embedder_factory(settings)
         self._ensure_vector_index()
+        self._ensure_fulltext_index()
         self.pipeline = pipeline_factory(self.llm, self.driver, self.embedder)
 
     def _ensure_vector_index(self) -> None:
@@ -129,6 +130,22 @@ class EmergentKGBuilder:
                 )
             else:
                 raise
+
+    def _ensure_fulltext_index(self) -> None:
+        """
+        Idempotently create the Chunk fulltext (Lucene) index over `Chunk.text`
+        — the sparse leg of the graph HybridCypherRetriever (Wave-6 retrieval
+        parity: dense + sparse). `fail_if_exists=False` makes this a no-op when
+        the index already exists, so rebuilds and the existing live graph both
+        converge to the same index set without manual intervention.
+        """
+        create_fulltext_index(
+            self.driver,
+            self.settings.graph_fulltext_index_name,
+            label="Chunk",
+            node_properties=["text"],
+            fail_if_exists=False,
+        )
 
     async def build(self, texts: dict[str, str]) -> BuildStats:
         """

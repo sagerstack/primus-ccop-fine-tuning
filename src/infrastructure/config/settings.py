@@ -436,6 +436,16 @@ class Settings(BaseSettings):
         description="Neo4j vector index name for chunk embeddings (CCOP_GRAPH_VECTOR_INDEX)",
         alias="CCOP_GRAPH_VECTOR_INDEX",
     )
+    graph_fulltext_index_name: str = Field(
+        default="ccop_chunk_fulltext",
+        description=(
+            "Neo4j fulltext (Lucene) index name over Chunk.text — the sparse leg of "
+            "the graph HybridCypherRetriever (Wave-6 retrieval parity: dense + sparse, "
+            "mirroring hybrid's dense+BM25 RRF). NOTE: Lucene BM25 is an approximate, "
+            "not bit-identical, parity to hybrid's fastembed BM25 (CCOP_GRAPH_FULLTEXT_INDEX)."
+        ),
+        alias="CCOP_GRAPH_FULLTEXT_INDEX",
+    )
 
     # GraphRAG infrastructure models — held constant across Phase 9 and Phase 10
     # (D-16 additivity). Kept as explicit standalone fields so they remain an

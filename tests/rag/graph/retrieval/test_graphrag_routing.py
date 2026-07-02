@@ -40,5 +40,17 @@ def test_compiled_graph_has_graph_retrieval_node_reaching_generate():
     assert "graph_retrieval" in node_names
     # The unchanged primus generation node is still the terminal generator.
     assert "generate" in node_names
-    # Reranking still exists for the vector path (graph path bypasses it).
+    # Reranking is shared: the graph path now flows THROUGH it (Wave-6 parity).
     assert "reranking" in node_names
+
+
+def test_graph_retrieval_edge_flows_through_reranking():
+    """Wave-6 parity: graph_retrieval → reranking (not straight to grade_documents)."""
+    from infrastructure.config.settings import get_settings
+    from rag.retrieval.graph import build_rag_graph
+
+    app = build_rag_graph(get_settings())
+    edges = {(e.source, e.target) for e in app.get_graph().edges}
+    assert ("graph_retrieval", "reranking") in edges
+    assert ("graph_retrieval", "grade_documents") not in edges
+    assert ("reranking", "grade_documents") in edges

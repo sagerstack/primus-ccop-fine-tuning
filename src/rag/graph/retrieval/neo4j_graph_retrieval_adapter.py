@@ -1,13 +1,20 @@
 """
 Neo4j Graph Retrieval Adapter (Phase 9 — entity-anchored / "local" retrieval)
 
-Implements IGraphRetrievalProvider using neo4j-graphrag's VectorCypherRetriever:
-vector-match relevant Chunk nodes (bge-large-en-v1.5 embeddings, D-07) then
+Implements IGraphRetrievalProvider using neo4j-graphrag's HybridCypherRetriever:
+match relevant Chunk nodes via BOTH a dense vector index (bge-large-en-v1.5
+embeddings, D-07) AND a Lucene fulltext index over `Chunk.text` (sparse), then
 expand one hop to neighboring entities connected via FROM_CHUNK (D-09) to
 build a lightweight graph-neighborhood context. All Cypher is a STATIC,
 class-level string — the user query is passed only as an embedded query
-vector via neo4j-graphrag's own parameterization (T-09-12); it is never
-string-formatted into the Cypher body.
+vector + fulltext query via neo4j-graphrag's own parameterization (T-09-12); it
+is never string-formatted into the Cypher body.
+
+Wave-6 retrieval parity note: the hybrid (dense + sparse) retrieval mirrors the
+naive-RAG hybrid stack's dense+BM25 RRF so the graphrag-vs-hybrid comparison
+isolates *graph structure*, not a dense-only vs tuned-funnel asymmetry. The
+sparse leg is Neo4j's Lucene fulltext (BM25-family), which is an APPROXIMATE —
+not bit-identical — parity to hybrid's fastembed BM25. Reported, not hidden.
 
 Honesty note (D-08/D-19, emergent baseline): the un-governed KG (Plan 02)
 does not carry clause-level citation/section metadata on Chunk nodes (only
@@ -24,7 +31,7 @@ import neo4j
 from langchain_core.documents import Document
 from neo4j_graphrag.embeddings import SentenceTransformerEmbeddings
 from neo4j_graphrag.embeddings.base import Embedder
-from neo4j_graphrag.retrievers import VectorCypherRetriever
+from neo4j_graphrag.retrievers import HybridCypherRetriever
 from neo4j_graphrag.types import RetrieverResultItem
 
 from infrastructure.config.settings import Settings
@@ -37,11 +44,12 @@ class Neo4jGraphRetrievalAdapter(IGraphRetrievalProvider):
     """
     Entity-anchored ("local") Neo4j graph retrieval (D-09).
 
-    Vector-searches the `Chunk` embedding index (bge-large-en-v1.5, D-07),
-    then expands one hop to neighboring entities via `FROM_CHUNK` to attach
-    graph-neighborhood context. Returns hybrid-shaped Documents (D-11) so
-    the unchanged primus generation node (D-06) and the judge + RAGAs
-    harness run unaffected by the retrieval-provider swap.
+    Hybrid-searches the `Chunk` dense embedding index (bge-large-en-v1.5, D-07)
+    AND the `Chunk.text` Lucene fulltext index (sparse), then expands one hop to
+    neighboring entities via `FROM_CHUNK` to attach graph-neighborhood context.
+    Returns hybrid-shaped Documents (D-11) so the unchanged primus generation
+    node (D-06) and the judge + RAGAs harness run unaffected by the
+    retrieval-provider swap.
     """
 
     # STATIC, parameterized Cypher (T-09-12). `node` and `score` are the
@@ -70,7 +78,7 @@ ORDER BY score DESC
         settings: Settings,
         driver: Optional["neo4j.Driver"] = None,
         embedder: Optional[Embedder] = None,
-        retriever: Optional[VectorCypherRetriever] = None,
+        retriever: Optional[HybridCypherRetriever] = None,
         logger_: Optional[logging.Logger] = None,
     ) -> None:
         self.settings = settings
@@ -82,9 +90,10 @@ ORDER BY score DESC
         self._embedder = embedder or SentenceTransformerEmbeddings(
             model=settings.graph_embedding_model
         )
-        self._retriever = retriever or VectorCypherRetriever(
+        self._retriever = retriever or HybridCypherRetriever(
             driver=self._driver,
-            index_name=settings.graph_vector_index_name,
+            vector_index_name=settings.graph_vector_index_name,
+            fulltext_index_name=settings.graph_fulltext_index_name,
             retrieval_query=self.RETRIEVAL_QUERY,
             embedder=self._embedder,
             result_formatter=self._format_record,
@@ -125,8 +134,10 @@ ORDER BY score DESC
         """
         Retrieve graph-neighborhood contexts for `query` (D-06: contexts, not
         an answer). The query text is embedded internally by neo4j-graphrag
-        (`self._embedder`) and passed as `query_vector` — never interpolated
-        into Cypher (T-09-12).
+        (`self._embedder`, passed as `query_vector` for the dense leg) and used
+        as the Lucene fulltext query for the sparse leg — in both cases via
+        neo4j-graphrag's own parameterization, never interpolated into the
+        static RETRIEVAL_QUERY Cypher body (T-09-12).
         """
         self._logger.info(f"Graph retrieval (top_k={top_k}): {query[:80]}...")
         result = self._retriever.search(query_text=query, top_k=top_k)
