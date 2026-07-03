@@ -126,3 +126,14 @@ None — no external service configuration required beyond the already-running l
 ---
 *Phase: 10-ontology-grounded-kg-via-text-ontology-learning-paper-3-2-2-*
 *Completed: 2026-07-03*
+
+## Self-Check: PASSED
+
+- FOUND: src/rag/graph/ontology/clause_seeder.py
+- FOUND: tests/rag/graph/ontology/test_clause_seeding.py
+- FOUND: .planning/phases/10-ontology-grounded-kg-via-text-ontology-learning-paper-3-2-2-/10-05-SUMMARY.md
+- FOUND commit: 9724f8d (test RED)
+- FOUND commit: de540e4 (feat GREEN)
+- FOUND commit: 65bae81 (CLI subcommand)
+- FOUND commit: 0f63b38 (deferred-items docs)
+- FOUND commit: 1321423 (SUMMARY docs)
