@@ -75,32 +75,109 @@ def _relationship_type_labels(ontology: dict) -> set[str]:
 
 
 # ---------------------------------------------------------------------------
+# Gold-relation normalization (curation gate a — decisions 2b + 2e)
+# ---------------------------------------------------------------------------
+# Collapse semantic-duplicate / inverse-direction gold verbs onto the
+# ontology's CANONICAL relation types BEFORE the D-17 missing-set diff, so the
+# schema stays lean (no synonym fragmentation, per the gate's governing
+# principle) while coverage stays honest. This does NOT overfit the schema to
+# the gold's surface verbs -- it maps the gold's phrasing onto the schema, not
+# the reverse.
+GOLD_RELATION_SYNONYM_MAP: dict[str, str] = {
+    # 2b -- collapse onto canonical (obligation verbs -> REQUIRES, etc.)
+    "MANDATED_BY": "REQUIRES",
+    "REQUIRED_BY": "REQUIRES",
+    "MANDATORY_FOR": "REQUIRES",
+    "MUST_INCLUDE": "REQUIRES",
+    "MUST_DETAIL": "REQUIRES",
+    "MUST_MAINTAIN": "REQUIRES",
+    "MUST_SEPARATELY_COMPLY_WITH": "REQUIRES",
+    "LEGALLY_OBLIGED_TO_COMPLY_WITH": "REQUIRES",
+    "GOVERNED_BY": "GOVERNS",          # inverse direction
+    "SUBJECT_TO": "APPLIES_TO",        # inverse direction
+    "NOT_DEFINED_IN": "DEFINES_NO",
+    "DOES_NOT_DEFINE": "DEFINES_NO",
+    "PREVENTS": "MITIGATES",
+    "PREVENT": "MITIGATES",
+    "ASSESSES": "AUDITS",
+    "LEAVES": "CREATES_RISK",
+    # 2e -- best-judgment PROVISIONAL collapse; each flagged for gate-b
+    # (plan 10-04) reconciliation in the SUMMARY, not silently locked.
+    "VIOLATES": "CANNOT_SATISFY",      # active breach vs inability -- provisional
+    "MAY_REQUEST": "APPLIES_FOR_WAIVER",  # waiver-request context -- provisional
+    "ADDRESSES": "MITIGATES",          # generic "addresses a risk" -- provisional
+}
+
+# Gold verbs intentionally NOT modelled as extraction relation types. Remaining
+# post-normalization "missing" entries are expected to be exactly these:
+#   - hierarchy verbs owned by the deterministic clause backbone (decision 2c)
+#   - junk prose fragments, not reusable relation types (decision 2d)
+INTENTIONALLY_EXCLUDED_GOLD_RELATIONS: frozenset[str] = frozenset(
+    {
+        "INCLUDES", "PART_OF", "HAS_CHILDREN", "SPANS",  # 2c -- clause backbone owns hierarchy
+        "ARE", "TO", "CANNOT", "LISTS", "MUST_BE",       # 2d -- junk prose fragments
+    }
+)
+
+
+def normalize_gold_relation(relation: str) -> str:
+    """Map a raw gold relation label onto its ontology canonical (identity if unmapped)."""
+    return GOLD_RELATION_SYNONYM_MAP.get(relation, relation)
+
+
+# ---------------------------------------------------------------------------
 # D-17 — gold-relation coverage
 # ---------------------------------------------------------------------------
 
 
 def gold_relation_coverage_from_cases(
-    ontology: dict, cases: list[CaseGoldRelations]
+    ontology: dict, cases: list[CaseGoldRelations], normalize: bool = True
 ) -> dict[str, Any]:
-    """Pure D-17 diff over already-parsed cases — no file I/O, unit-testable."""
+    """
+    Pure D-17 diff over already-parsed cases -- no file I/O, unit-testable.
+
+    When `normalize` is True (default), each gold relation label is first mapped
+    onto its ontology canonical via GOLD_RELATION_SYNONYM_MAP (curation gate a,
+    decisions 2b/2e) before diffing against the ontology's relationship-type
+    vocabulary. The returned `missing_relations` is further split into:
+      - `unresolved_missing`: gold canonicals absent from the ontology AND not
+        on the intentionally-excluded list -- these are real schema gaps.
+      - `intentionally_excluded_missing`: gold verbs deliberately not modelled
+        (clause-backbone hierarchy + junk, decisions 2c/2d).
+    """
+
+    def _norm_set(relations: set[str]) -> set[str]:
+        return {normalize_gold_relation(r) for r in relations} if normalize else set(relations)
+
     ontology_relationship_types = _relationship_type_labels(ontology)
 
     gold_relation_types: set[str] = set()
     per_case: dict[str, dict[str, Any]] = {}
     for case in cases:
-        gold_relation_types |= case.relation_types
+        normed = _norm_set(case.relation_types)
+        gold_relation_types |= normed
         per_case[case.test_id] = {
             "relation_types": sorted(case.relation_types),
+            "normalized_relation_types": sorted(normed),
             "clause_citations": case.clause_citations,
-            "missing_relations": sorted(case.relation_types - ontology_relationship_types),
+            "missing_relations": sorted(normed - ontology_relationship_types),
         }
 
     missing_relations = sorted(gold_relation_types - ontology_relationship_types)
+    intentionally_excluded_missing = sorted(
+        set(missing_relations) & INTENTIONALLY_EXCLUDED_GOLD_RELATIONS
+    )
+    unresolved_missing = sorted(
+        set(missing_relations) - INTENTIONALLY_EXCLUDED_GOLD_RELATIONS
+    )
 
     return {
+        "normalized": normalize,
         "gold_relation_types": sorted(gold_relation_types),
         "ontology_relationship_types": sorted(ontology_relationship_types),
         "missing_relations": missing_relations,
+        "unresolved_missing": unresolved_missing,
+        "intentionally_excluded_missing": intentionally_excluded_missing,
         "cases_covered": len(cases),
         "per_case": per_case,
     }

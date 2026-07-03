@@ -5,8 +5,11 @@ Tests for the D-14/D-17 coverage checker (plan 10-03, Task 1).
 import json
 
 from rag.graph.ontology.discovery.coverage_check import (
+    GOLD_RELATION_SYNONYM_MAP,
+    INTENTIONALLY_EXCLUDED_GOLD_RELATIONS,
     benchmark_coverage,
     gold_relation_coverage_from_cases,
+    normalize_gold_relation,
 )
 from rag.graph.ontology.gold_relation_parser import CaseGoldRelations
 
@@ -78,6 +81,71 @@ class TestGoldRelationCoverageFromCases:
         assert report["gold_relation_types"] == []
         assert report["missing_relations"] == []
         assert report["cases_covered"] == 0
+
+
+class TestGoldRelationNormalization:
+    """Curation gate (a) decisions 2b/2e -- synonym->canonical normalization."""
+
+    def test_normalize_gold_relation_collapses_synonym(self):
+        assert normalize_gold_relation("MANDATED_BY") == "REQUIRES"
+        assert normalize_gold_relation("GOVERNED_BY") == "GOVERNS"
+        assert normalize_gold_relation("SUBJECT_TO") == "APPLIES_TO"
+
+    def test_normalize_gold_relation_identity_for_unmapped(self):
+        assert normalize_gold_relation("SHARES_NETWORK_WITH") == "SHARES_NETWORK_WITH"
+
+    def test_synonym_collapses_to_canonical_present_in_ontology(self):
+        """A gold verb that collapses onto a canonical the ontology HAS is not missing."""
+        ontology = {
+            "node_types": [],
+            "relationship_types": ["REQUIRES"],  # canonical present
+            "patterns": [],
+        }
+        cases = [
+            CaseGoldRelations(
+                test_id="B10-001",
+                triples=[("x", "MANDATED_BY", "y")],
+                relation_types={"MANDATED_BY"},  # gold uses the synonym
+                entity_terms={"x", "y"},
+                clause_citations=[],
+            )
+        ]
+        report = gold_relation_coverage_from_cases(ontology, cases)
+        assert report["missing_relations"] == []
+        assert report["per_case"]["B10-001"]["normalized_relation_types"] == ["REQUIRES"]
+
+    def test_intentionally_excluded_split_out_from_unresolved(self):
+        ontology = {"node_types": [], "relationship_types": [], "patterns": []}
+        cases = [
+            CaseGoldRelations(
+                test_id="B12-001",
+                triples=[],
+                relation_types={"SPANS", "INCLUDES", "SHARES_NETWORK_WITH"},
+                entity_terms=set(),
+                clause_citations=[],
+            )
+        ]
+        report = gold_relation_coverage_from_cases(ontology, cases)
+        assert set(report["intentionally_excluded_missing"]) == {"SPANS", "INCLUDES"}
+        assert report["unresolved_missing"] == ["SHARES_NETWORK_WITH"]
+
+    def test_normalize_disabled_keeps_raw_labels(self):
+        ontology = {"node_types": [], "relationship_types": ["REQUIRES"], "patterns": []}
+        cases = [
+            CaseGoldRelations(
+                test_id="B10-001",
+                triples=[],
+                relation_types={"MANDATED_BY"},
+                entity_terms=set(),
+                clause_citations=[],
+            )
+        ]
+        report = gold_relation_coverage_from_cases(ontology, cases, normalize=False)
+        assert report["missing_relations"] == ["MANDATED_BY"]
+
+    def test_excluded_set_and_map_are_disjoint(self):
+        """A verb cannot be both collapsed onto a canonical AND intentionally excluded."""
+        assert not (set(GOLD_RELATION_SYNONYM_MAP) & INTENTIONALLY_EXCLUDED_GOLD_RELATIONS)
 
 
 class TestBenchmarkCoverage:

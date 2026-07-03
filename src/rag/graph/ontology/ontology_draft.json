@@ -3,136 +3,6 @@
   "generated_at": "2026-07-03T01:41:17.697987+00:00",
   "node_types": [
     {
-      "label": "PreliminarySection",
-      "description": "Initial section outlining the foundational aspects of the code.",
-      "example_terms": [
-        "Citation and Commencement",
-        "Glossary and Interpretation",
-        "Purpose of this Code"
-      ],
-      "provenance": [
-        "method_c:control_taxonomy_headers"
-      ],
-      "flagged_ambiguities": []
-    },
-    {
-      "label": "AuditRequirementsSection",
-      "description": "Section detailing the requirements for auditing processes.",
-      "example_terms": [
-        "Remediation of Audit Findings"
-      ],
-      "provenance": [
-        "method_c:control_taxonomy_headers"
-      ],
-      "flagged_ambiguities": []
-    },
-    {
-      "label": "GovernanceRequirementsSection",
-      "description": "Section focused on governance-related requirements.",
-      "example_terms": [
-        "Leadership and Oversight",
-        "Risk Management"
-      ],
-      "provenance": [
-        "method_c:control_taxonomy_headers"
-      ],
-      "flagged_ambiguities": []
-    },
-    {
-      "label": "IdentificationRequirementsSection",
-      "description": "Section outlining requirements for identification processes.",
-      "example_terms": [
-        "Asset Management"
-      ],
-      "provenance": [
-        "method_c:control_taxonomy_headers"
-      ],
-      "flagged_ambiguities": []
-    },
-    {
-      "label": "ProtectionRequirementsSection",
-      "description": "Section detailing requirements for protecting assets and information.",
-      "example_terms": [
-        "Access Control",
-        "Network Security"
-      ],
-      "provenance": [
-        "method_c:control_taxonomy_headers"
-      ],
-      "flagged_ambiguities": []
-    },
-    {
-      "label": "DetectionRequirementsSection",
-      "description": "Section focused on requirements for detection mechanisms.",
-      "example_terms": [
-        "Logging",
-        "Threat Hunting"
-      ],
-      "provenance": [
-        "method_c:control_taxonomy_headers"
-      ],
-      "flagged_ambiguities": []
-    },
-    {
-      "label": "ResponseAndRecoveryRequirementsSection",
-      "description": "Section detailing requirements for responding to and recovering from incidents.",
-      "example_terms": [
-        "Incident Management",
-        "Crisis Communication Plan"
-      ],
-      "provenance": [
-        "method_c:control_taxonomy_headers"
-      ],
-      "flagged_ambiguities": []
-    },
-    {
-      "label": "CyberResiliencyRequirementsSection",
-      "description": "Section focused on requirements for ensuring cyber resiliency.",
-      "example_terms": [
-        "Backup and Restoration Plan",
-        "Business Continuity Plan"
-      ],
-      "provenance": [
-        "method_c:control_taxonomy_headers"
-      ],
-      "flagged_ambiguities": []
-    },
-    {
-      "label": "CybersecurityTrainingAndAwarenessSection",
-      "description": "Section detailing requirements for training and awareness in cybersecurity.",
-      "example_terms": [
-        "Cybersecurity Awareness Programme",
-        "Cybersecurity Training and Skills"
-      ],
-      "provenance": [
-        "method_c:control_taxonomy_headers"
-      ],
-      "flagged_ambiguities": []
-    },
-    {
-      "label": "OperationalTechnologySecurityRequirementsSection",
-      "description": "Section focused on security requirements specific to operational technology.",
-      "example_terms": [
-        "OT Architecture and Security",
-        "Secure Coding"
-      ],
-      "provenance": [
-        "method_c:control_taxonomy_headers"
-      ],
-      "flagged_ambiguities": []
-    },
-    {
-      "label": "DomainSpecificPracticesSection",
-      "description": "Section outlining practices specific to certain domains.",
-      "example_terms": [
-        "Domain Name System Security Extension (DNSSEC)"
-      ],
-      "provenance": [
-        "method_c:control_taxonomy_headers"
-      ],
-      "flagged_ambiguities": []
-    },
-    {
       "label": "CriticalInformationInfrastructure",
       "description": "Systems and assets that are essential for the functioning of a society and economy, designated as critical by regulatory frameworks.",
       "example_terms": [
@@ -403,33 +273,50 @@
   "relationship_types": [
     "APPLIES_FOR_WAIVER",
     "APPLIES_TO",
+    "ARISES_UNDER",
+    "ARISES_VIA",
     "AUDITS",
     "CANNOT_SATISFY",
     "CLASSIFIED_AS",
     "CONDUCTS_RISK_ASSESSMENT",
+    "CREATES_RISK",
+    "DEFERS_LENGTH_TO",
     "DEFERS_TO",
     "DEFINED_AS",
     "DEFINES_NO",
     "DESIGNATES",
     "DETERMINED_BY",
+    "DOES_NOT_SET",
     "DOES_NOT_SPECIFY",
     "DOES_NOT_WAIVE",
+    "ENFORCED_VIA",
+    "EVIDENCED_BY",
     "FOLLOWS_INCIDENT_RESPONSE_PLAN",
     "GOVERNED_BY_CYBERSECURITY_GOVERNANCE",
     "GOVERNS",
     "HAS_ACCESS_CONTROL",
+    "HAS_NON_DELEGABLE",
     "IDENTIFIES",
     "IDENTIFIES_COMPLIANCE_GAP",
+    "IN_SCOPE_ONLY_IF",
     "IS_A",
     "MANAGES",
+    "MAY_AFFECT",
+    "MAY_WAIVE",
     "MITIGATES",
+    "MUST_SUPPORT",
     "NOT_DESIGNATED_AS",
     "PERMITS_WHERE_NECESSARY",
     "PROVIDES",
     "RECOMMENDS_AGAINST",
+    "REMEDIATED_PER",
     "REQUIRES",
     "REQUIRES_MULTI_FACTOR_AUTHENTICATION",
+    "RESOLVED_VIA",
     "RESPONSIBLE_FOR",
+    "SCORED_BY",
+    "SHARES_NETWORK_WITH",
+    "SUBMITTED_TO",
     "TECHNOLOGY_NEUTRAL_ON"
   ],
   "relationship_type_metadata": {
@@ -658,6 +545,159 @@
         "seeded (D-18 negation/modal relation families, gold-relation xlsx)"
       ],
       "flagged_ambiguities": []
+    },
+    "ENFORCED_VIA": {
+      "description": "A regulatory obligation is enforced through a specified control or mechanism.",
+      "domain": "Obligation",
+      "range": "Control",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "EVIDENCED_BY": {
+      "description": "A compliance obligation is evidenced by a specified artifact, record, or evidence type (B13).",
+      "domain": "Obligation",
+      "range": "Definition",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "SCORED_BY": {
+      "description": "A risk or gap is scored/prioritized by a specified method or scale (B08).",
+      "domain": "RiskAssessment",
+      "range": "Definition",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "RESOLVED_VIA": {
+      "description": "A conflict or gap is resolved via a specified process (e.g. multi-regulator coordination, B23).",
+      "domain": "ComplianceGap",
+      "range": "Control",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "REMEDIATED_PER": {
+      "description": "A gap is remediated per a specified requirement, plan, or timeline (B14).",
+      "domain": "ComplianceGap",
+      "range": "Clause",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "SUBMITTED_TO": {
+      "description": "A waiver/report is submitted to a specified authority (e.g. the Commissioner, B22). Range references an authority concept not yet in the node vocabulary -- placeholder Obligation.",
+      "domain": "Waiver",
+      "range": "Obligation",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "SHARES_NETWORK_WITH": {
+      "description": "A system shares network infrastructure with a CII without itself being designated -- the B01 crux distinguishing 'connected-but-not-designated' from in-scope.",
+      "domain": "CriticalInformationInfrastructure",
+      "range": "CriticalInformationInfrastructure",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "IN_SCOPE_ONLY_IF": {
+      "description": "A system falls within mandatory-compliance scope only if a stated condition holds (B01).",
+      "domain": "CriticalInformationInfrastructure",
+      "range": "Clause",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "CREATES_RISK": {
+      "description": "An entity or condition creates/introduces a risk (canonical for the gold verb LEAVES).",
+      "domain": "CriticalInformationInfrastructure",
+      "range": "RiskAssessment",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "MAY_AFFECT": {
+      "description": "A system may affect a CII, triggering interface-assessment obligations (B01/B10).",
+      "domain": "CriticalInformationInfrastructure",
+      "range": "CriticalInformationInfrastructure",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "MAY_WAIVE": {
+      "description": "A competent authority may waive a specified obligation under the waiver process (B22).",
+      "domain": "Obligation",
+      "range": "Waiver",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "HAS_NON_DELEGABLE": {
+      "description": "An accountable party holds a non-delegable obligation/responsibility (B18).",
+      "domain": "CriticalInformationInfrastructure",
+      "range": "Obligation",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "DEFERS_LENGTH_TO": {
+      "description": "A clause defers a specific parameter (e.g. password length) to another standard/authority (B05/B06).",
+      "domain": "Clause",
+      "range": "Definition",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "ARISES_UNDER": {
+      "description": "An obligation or duty arises under a specified legal provision (B24).",
+      "domain": "Obligation",
+      "range": "Clause",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "ARISES_VIA": {
+      "description": "A risk or obligation arises via a specified pathway or dependency (B18).",
+      "domain": "ComplianceGap",
+      "range": "Control",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "DOES_NOT_SET": {
+      "description": "A clause does not set/prescribe a specified parameter (modal negation, B23).",
+      "domain": "Clause",
+      "range": "Definition",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
+    },
+    "MUST_SUPPORT": {
+      "description": "A system or control must support a specified capability (B07).",
+      "domain": "Control",
+      "range": "Obligation",
+      "provenance": [
+        "amended at curation gate (a) -- added per human decision 2a (D-17 gold-relation coverage)"
+      ],
+      "flagged_ambiguities": []
     }
   },
   "patterns": [
@@ -685,33 +725,22 @@
         "file": "b01_ccop_applicability_scope.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -721,33 +750,22 @@
         "file": "b02_compliance_classification.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -757,33 +775,22 @@
         "file": "b03_conditional_compliance_reasoning.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -793,33 +800,22 @@
         "file": "b04_it_ot_classification_boundary.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -829,33 +825,22 @@
         "file": "b05_control_comprehension.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -865,33 +850,22 @@
         "file": "b06_intent_understanding.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -901,33 +875,22 @@
         "file": "b07_gap_identification_quality.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -937,32 +900,21 @@
         "file": "b08_risk_based_prioritization.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -972,31 +924,20 @@
         "file": "b09_risk_identification_residual_risk.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -1006,31 +947,21 @@
         "file": "b10_risk_justification_coherence.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -1040,32 +971,21 @@
         "file": "b12_audit_perspective_alignment.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -1075,33 +995,22 @@
         "file": "b13_evidence_expectation_awareness.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -1111,33 +1020,22 @@
         "file": "b14_remediation_quality_feasibility.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -1147,32 +1045,22 @@
         "file": "b18_responsibility_attribution_sg.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -1182,33 +1070,22 @@
         "file": "b21_hallucination_over_specification.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -1218,32 +1095,21 @@
         "file": "b22_waiver_exception_reasoning.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
           "Definition",
           "DefinitionClause",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -1253,30 +1119,19 @@
         "file": "b23_multi_regulator_coordination.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -1286,31 +1141,20 @@
         "file": "b24_incident_response_guidance.jsonl",
         "covering_types": [
           "AccessControl",
-          "AuditRequirementsSection",
           "Clause",
           "ComplianceGap",
           "Control",
           "ControlClause",
           "CriticalInformationInfrastructure",
-          "CyberResiliencyRequirementsSection",
           "CyberThreatIntelligence",
           "CybersecurityAudit",
           "CybersecurityGovernance",
           "CybersecurityIncident",
           "CybersecurityTraining",
-          "CybersecurityTrainingAndAwarenessSection",
-          "DetectionRequirementsSection",
-          "DomainSpecificPracticesSection",
-          "GovernanceRequirementsSection",
-          "IdentificationRequirementsSection",
           "IncidentManagement",
           "IncidentResponsePlan",
           "MultiFactorAuthentication",
           "Obligation",
-          "OperationalTechnologySecurityRequirementsSection",
-          "PreliminarySection",
-          "ProtectionRequirementsSection",
-          "ResponseAndRecoveryRequirementsSection",
           "RiskAssessment",
           "ScopeClause",
           "Waiver"
@@ -1321,13 +1165,14 @@
     "total_benchmarks": 18
   },
   "gold_relation_coverage_report": {
+    "normalized": true,
     "gold_relation_types": [
-      "ADDRESSES",
+      "APPLIES_FOR_WAIVER",
       "APPLIES_TO",
       "ARE",
       "ARISES_UNDER",
       "ARISES_VIA",
-      "ASSESSES",
+      "AUDITS",
       "CANNOT",
       "CANNOT_SATISFY",
       "CLASSIFIED_AS",
@@ -1337,132 +1182,118 @@
       "DEFINES_NO",
       "DESIGNATES",
       "DETERMINED_BY",
-      "DOES_NOT_DEFINE",
       "DOES_NOT_SET",
       "DOES_NOT_SPECIFY",
       "ENFORCED_VIA",
       "EVIDENCED_BY",
-      "GOVERNED_BY",
+      "GOVERNS",
       "HAS_CHILDREN",
       "HAS_NON_DELEGABLE",
       "INCLUDES",
       "IN_SCOPE_ONLY_IF",
       "IS_A",
-      "LEAVES",
-      "LEGALLY_OBLIGED_TO_COMPLY_WITH",
       "LISTS",
-      "MANDATED_BY",
-      "MANDATORY_FOR",
       "MAY_AFFECT",
-      "MAY_REQUEST",
       "MAY_WAIVE",
+      "MITIGATES",
       "MUST_BE",
-      "MUST_DETAIL",
-      "MUST_INCLUDE",
-      "MUST_MAINTAIN",
-      "MUST_SEPARATELY_COMPLY_WITH",
       "MUST_SUPPORT",
-      "NOT_DEFINED_IN",
       "NOT_DESIGNATED_AS",
       "PART_OF",
-      "PREVENT",
-      "PREVENTS",
       "RECOMMENDS_AGAINST",
       "REMEDIATED_PER",
-      "REQUIRED_BY",
       "REQUIRES",
       "RESOLVED_VIA",
       "SCORED_BY",
       "SHARES_NETWORK_WITH",
       "SPANS",
-      "SUBJECT_TO",
       "SUBMITTED_TO",
-      "TO",
-      "VIOLATES"
+      "TO"
     ],
     "ontology_relationship_types": [
       "APPLIES_FOR_WAIVER",
       "APPLIES_TO",
+      "ARISES_UNDER",
+      "ARISES_VIA",
       "AUDITS",
       "CANNOT_SATISFY",
       "CLASSIFIED_AS",
       "CONDUCTS_RISK_ASSESSMENT",
+      "CREATES_RISK",
+      "DEFERS_LENGTH_TO",
       "DEFERS_TO",
       "DEFINED_AS",
       "DEFINES_NO",
       "DESIGNATES",
       "DETERMINED_BY",
+      "DOES_NOT_SET",
       "DOES_NOT_SPECIFY",
       "DOES_NOT_WAIVE",
+      "ENFORCED_VIA",
+      "EVIDENCED_BY",
       "FOLLOWS_INCIDENT_RESPONSE_PLAN",
       "GOVERNED_BY_CYBERSECURITY_GOVERNANCE",
       "GOVERNS",
       "HAS_ACCESS_CONTROL",
+      "HAS_NON_DELEGABLE",
       "IDENTIFIES",
       "IDENTIFIES_COMPLIANCE_GAP",
+      "IN_SCOPE_ONLY_IF",
       "IS_A",
       "MANAGES",
+      "MAY_AFFECT",
+      "MAY_WAIVE",
       "MITIGATES",
+      "MUST_SUPPORT",
       "NOT_DESIGNATED_AS",
       "PERMITS_WHERE_NECESSARY",
       "PROVIDES",
       "RECOMMENDS_AGAINST",
+      "REMEDIATED_PER",
       "REQUIRES",
       "REQUIRES_MULTI_FACTOR_AUTHENTICATION",
+      "RESOLVED_VIA",
       "RESPONSIBLE_FOR",
+      "SCORED_BY",
+      "SHARES_NETWORK_WITH",
+      "SUBMITTED_TO",
       "TECHNOLOGY_NEUTRAL_ON"
     ],
     "missing_relations": [
-      "ADDRESSES",
       "ARE",
-      "ARISES_UNDER",
-      "ARISES_VIA",
-      "ASSESSES",
       "CANNOT",
-      "CREATES_RISK",
-      "DEFERS_LENGTH_TO",
-      "DOES_NOT_DEFINE",
-      "DOES_NOT_SET",
-      "ENFORCED_VIA",
-      "EVIDENCED_BY",
-      "GOVERNED_BY",
       "HAS_CHILDREN",
-      "HAS_NON_DELEGABLE",
       "INCLUDES",
-      "IN_SCOPE_ONLY_IF",
-      "LEAVES",
-      "LEGALLY_OBLIGED_TO_COMPLY_WITH",
       "LISTS",
-      "MANDATED_BY",
-      "MANDATORY_FOR",
-      "MAY_AFFECT",
-      "MAY_REQUEST",
-      "MAY_WAIVE",
       "MUST_BE",
-      "MUST_DETAIL",
-      "MUST_INCLUDE",
-      "MUST_MAINTAIN",
-      "MUST_SEPARATELY_COMPLY_WITH",
-      "MUST_SUPPORT",
-      "NOT_DEFINED_IN",
       "PART_OF",
-      "PREVENT",
-      "PREVENTS",
-      "REMEDIATED_PER",
-      "REQUIRED_BY",
-      "RESOLVED_VIA",
-      "SCORED_BY",
-      "SHARES_NETWORK_WITH",
       "SPANS",
-      "SUBJECT_TO",
-      "SUBMITTED_TO",
-      "TO",
-      "VIOLATES"
+      "TO"
+    ],
+    "unresolved_missing": [],
+    "intentionally_excluded_missing": [
+      "ARE",
+      "CANNOT",
+      "HAS_CHILDREN",
+      "INCLUDES",
+      "LISTS",
+      "MUST_BE",
+      "PART_OF",
+      "SPANS",
+      "TO"
     ],
     "cases_covered": 18,
     "per_case": {
       "B01-001": {
         "relation_types": [
+          "APPLIES_TO",
+          "DESIGNATES",
+          "DETERMINED_BY",
+          "IN_SCOPE_ONLY_IF",
+          "NOT_DESIGNATED_AS",
+          "SHARES_NETWORK_WITH"
+        ],
+        "normalized_relation_types": [
           "APPLIES_TO",
           "DESIGNATES",
           "DETERMINED_BY",
@@ -1476,13 +1307,15 @@
           "1.4.1",
           "RTF 2.2"
         ],
-        "missing_relations": [
-          "IN_SCOPE_ONLY_IF",
-          "SHARES_NETWORK_WITH"
-        ]
+        "missing_relations": []
       },
       "B02-001": {
         "relation_types": [
+          "DEFINED_AS",
+          "IS_A",
+          "RECOMMENDS_AGAINST"
+        ],
+        "normalized_relation_types": [
           "DEFINED_AS",
           "IS_A",
           "RECOMMENDS_AGAINST"
@@ -1499,18 +1332,30 @@
           "REQUIRES",
           "TO"
         ],
+        "normalized_relation_types": [
+          "APPLIES_FOR_WAIVER",
+          "CANNOT_SATISFY",
+          "IS_A",
+          "REQUIRES",
+          "TO"
+        ],
         "clause_citations": [
           "5.3.1(c)",
           "5.3.1(c)"
         ],
         "missing_relations": [
-          "MAY_REQUEST",
-          "REQUIRED_BY",
           "TO"
         ]
       },
       "B04-001": {
         "relation_types": [
+          "ARE",
+          "CLASSIFIED_AS",
+          "DEFINES_NO",
+          "IS_A",
+          "LISTS"
+        ],
+        "normalized_relation_types": [
           "ARE",
           "CLASSIFIED_AS",
           "DEFINES_NO",
@@ -1533,23 +1378,26 @@
           "DEFERS_LENGTH_TO",
           "DOES_NOT_SPECIFY"
         ],
+        "normalized_relation_types": [
+          "DEFERS_LENGTH_TO",
+          "DOES_NOT_SPECIFY"
+        ],
         "clause_citations": [
           "RTF 11.28"
         ],
-        "missing_relations": [
-          "DEFERS_LENGTH_TO"
-        ]
+        "missing_relations": []
       },
       "B06-001": {
         "relation_types": [
           "DEFERS_LENGTH_TO"
         ],
+        "normalized_relation_types": [
+          "DEFERS_LENGTH_TO"
+        ],
         "clause_citations": [
           "RTF 11.28"
         ],
-        "missing_relations": [
-          "DEFERS_LENGTH_TO"
-        ]
+        "missing_relations": []
       },
       "B07-006": {
         "relation_types": [
@@ -1558,16 +1406,19 @@
           "PREVENT",
           "VIOLATES"
         ],
+        "normalized_relation_types": [
+          "CANNOT",
+          "CANNOT_SATISFY",
+          "MITIGATES",
+          "MUST_SUPPORT"
+        ],
         "clause_citations": [
           "5.2.1(c)",
           "(d)",
           "5.3.1(a)"
         ],
         "missing_relations": [
-          "CANNOT",
-          "MUST_SUPPORT",
-          "PREVENT",
-          "VIOLATES"
+          "CANNOT"
         ]
       },
       "B08-001": {
@@ -1575,11 +1426,12 @@
           "GOVERNED_BY",
           "SCORED_BY"
         ],
-        "clause_citations": [],
-        "missing_relations": [
-          "GOVERNED_BY",
+        "normalized_relation_types": [
+          "GOVERNS",
           "SCORED_BY"
-        ]
+        ],
+        "clause_citations": [],
+        "missing_relations": []
       },
       "B09-001": {
         "relation_types": [
@@ -1587,11 +1439,12 @@
           "IS_A",
           "LEAVES"
         ],
-        "clause_citations": [],
-        "missing_relations": [
+        "normalized_relation_types": [
           "CREATES_RISK",
-          "LEAVES"
-        ]
+          "IS_A"
+        ],
+        "clause_citations": [],
+        "missing_relations": []
       },
       "B10-001": {
         "relation_types": [
@@ -1601,21 +1454,27 @@
           "MAY_AFFECT",
           "PREVENTS"
         ],
+        "normalized_relation_types": [
+          "ENFORCED_VIA",
+          "MAY_AFFECT",
+          "MITIGATES",
+          "REQUIRES"
+        ],
         "clause_citations": [
           "4.1.1(e)",
           "Cybersecurity_Act_2018"
         ],
-        "missing_relations": [
-          "ENFORCED_VIA",
-          "MANDATED_BY",
-          "MANDATORY_FOR",
-          "MAY_AFFECT",
-          "PREVENTS"
-        ]
+        "missing_relations": []
       },
       "B12-001": {
         "relation_types": [
           "ASSESSES",
+          "INCLUDES",
+          "REQUIRES",
+          "SPANS"
+        ],
+        "normalized_relation_types": [
+          "AUDITS",
           "INCLUDES",
           "REQUIRES",
           "SPANS"
@@ -1625,13 +1484,16 @@
           "5.3.1(c)"
         ],
         "missing_relations": [
-          "ASSESSES",
           "INCLUDES",
           "SPANS"
         ]
       },
       "B13-001": {
         "relation_types": [
+          "EVIDENCED_BY",
+          "MUST_BE"
+        ],
+        "normalized_relation_types": [
           "EVIDENCED_BY",
           "MUST_BE"
         ],
@@ -1643,7 +1505,6 @@
           "7.4"
         ],
         "missing_relations": [
-          "EVIDENCED_BY",
           "MUST_BE"
         ]
       },
@@ -1653,14 +1514,17 @@
           "PART_OF",
           "REMEDIATED_PER"
         ],
+        "normalized_relation_types": [
+          "PART_OF",
+          "REMEDIATED_PER",
+          "REQUIRES"
+        ],
         "clause_citations": [
           "5.9.2(b)",
           "2.1.2"
         ],
         "missing_relations": [
-          "MUST_DETAIL",
-          "PART_OF",
-          "REMEDIATED_PER"
+          "PART_OF"
         ]
       },
       "B18-001": {
@@ -1671,6 +1535,12 @@
           "MUST_INCLUDE",
           "NOT_DEFINED_IN"
         ],
+        "normalized_relation_types": [
+          "ARISES_VIA",
+          "DEFINES_NO",
+          "HAS_NON_DELEGABLE",
+          "REQUIRES"
+        ],
         "clause_citations": [
           "Cybersecurity_Act_2018 s11(6)",
           "3.7.1",
@@ -1678,13 +1548,7 @@
           "3.1.2",
           "3.1.3"
         ],
-        "missing_relations": [
-          "ARISES_VIA",
-          "HAS_NON_DELEGABLE",
-          "LEGALLY_OBLIGED_TO_COMPLY_WITH",
-          "MUST_INCLUDE",
-          "NOT_DEFINED_IN"
-        ]
+        "missing_relations": []
       },
       "B21-001": {
         "relation_types": [
@@ -1693,9 +1557,14 @@
           "HAS_CHILDREN",
           "SPANS"
         ],
+        "normalized_relation_types": [
+          "DOES_NOT_SPECIFY",
+          "HAS_CHILDREN",
+          "MITIGATES",
+          "SPANS"
+        ],
         "clause_citations": [],
         "missing_relations": [
-          "ADDRESSES",
           "HAS_CHILDREN",
           "SPANS"
         ]
@@ -1707,24 +1576,30 @@
           "SUBJECT_TO",
           "SUBMITTED_TO"
         ],
+        "normalized_relation_types": [
+          "APPLIES_FOR_WAIVER",
+          "APPLIES_TO",
+          "MAY_WAIVE",
+          "SUBMITTED_TO"
+        ],
         "clause_citations": [
           "1.6.2",
           "Act_s11(7)",
           "1.6.1",
           "1.6.3"
         ],
-        "missing_relations": [
-          "MAY_REQUEST",
-          "MAY_WAIVE",
-          "SUBJECT_TO",
-          "SUBMITTED_TO"
-        ]
+        "missing_relations": []
       },
       "B23-001": {
         "relation_types": [
           "DOES_NOT_SET",
           "MUST_MAINTAIN",
           "MUST_SEPARATELY_COMPLY_WITH",
+          "RESOLVED_VIA"
+        ],
+        "normalized_relation_types": [
+          "DOES_NOT_SET",
+          "REQUIRES",
           "RESOLVED_VIA"
         ],
         "clause_citations": [
@@ -1734,18 +1609,18 @@
           "1.6",
           "3.2.1"
         ],
-        "missing_relations": [
-          "DOES_NOT_SET",
-          "MUST_MAINTAIN",
-          "MUST_SEPARATELY_COMPLY_WITH",
-          "RESOLVED_VIA"
-        ]
+        "missing_relations": []
       },
       "B24-001": {
         "relation_types": [
           "ARE",
           "ARISES_UNDER",
           "DOES_NOT_DEFINE"
+        ],
+        "normalized_relation_types": [
+          "ARE",
+          "ARISES_UNDER",
+          "DEFINES_NO"
         ],
         "clause_citations": [
           "7.1.1",
@@ -1754,11 +1629,56 @@
           "8.2.1"
         ],
         "missing_relations": [
-          "ARE",
-          "ARISES_UNDER",
-          "DOES_NOT_DEFINE"
+          "ARE"
         ]
       }
     }
+  },
+  "relationship_synonym_map": {
+    "MANDATED_BY": "REQUIRES",
+    "REQUIRED_BY": "REQUIRES",
+    "MANDATORY_FOR": "REQUIRES",
+    "MUST_INCLUDE": "REQUIRES",
+    "MUST_DETAIL": "REQUIRES",
+    "MUST_MAINTAIN": "REQUIRES",
+    "MUST_SEPARATELY_COMPLY_WITH": "REQUIRES",
+    "LEGALLY_OBLIGED_TO_COMPLY_WITH": "REQUIRES",
+    "GOVERNED_BY": "GOVERNS",
+    "SUBJECT_TO": "APPLIES_TO",
+    "NOT_DEFINED_IN": "DEFINES_NO",
+    "DOES_NOT_DEFINE": "DEFINES_NO",
+    "PREVENTS": "MITIGATES",
+    "PREVENT": "MITIGATES",
+    "ASSESSES": "AUDITS",
+    "LEAVES": "CREATES_RISK",
+    "VIOLATES": "CANNOT_SATISFY",
+    "MAY_REQUEST": "APPLIES_FOR_WAIVER",
+    "ADDRESSES": "MITIGATES"
+  },
+  "gate_b_reconciliation_candidates": {
+    "VIOLATES": {
+      "provisional_canonical": "CANNOT_SATISFY",
+      "note": "active breach vs CANNOT_SATISFY inability -- collapsed provisionally; 10-04 to confirm/split"
+    },
+    "MAY_REQUEST": {
+      "provisional_canonical": "APPLIES_FOR_WAIVER",
+      "note": "waiver-request context vs generic request -- collapsed provisionally; 10-04 to confirm"
+    },
+    "ADDRESSES": {
+      "provisional_canonical": "MITIGATES",
+      "note": "generic 'addresses a risk' -- collapsed provisionally; 10-04 to confirm"
+    }
+  },
+  "curation": {
+    "gate": "a",
+    "status": "approved-with-amendments",
+    "decisions_applied": [
+      "1: dropped 11 ...Section node types (mirror the CCoP TOC; clause backbone (10-05) encodes hierarchy)",
+      "2a: added 17 genuinely-new relation types",
+      "2b: recorded synonym->canonical collapse map (16 gold verbs)",
+      "2c: hierarchy verbs (INCLUDES/PART_OF/HAS_CHILDREN/SPANS) NOT modelled -- clause backbone owns hierarchy",
+      "2d: junk prose fragments (ARE/TO/CANNOT/LISTS/MUST_BE) NOT modelled",
+      "2e: 3 ambiguous verbs provisionally collapsed, flagged for gate-b (10-04)"
+    ]
   }
 }
