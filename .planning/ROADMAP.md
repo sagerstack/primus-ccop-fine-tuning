@@ -492,7 +492,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 7. Safety & Validation | 0/TBD | Not started | - |
 | 8. Final Evaluation & Comparison | 0/TBD | Not started | - |
 | 9. Basic GraphRAG baseline (Neo4j, emergent KG) | 5/6 | In Progress|  |
-| 10. Ontology-grounded GraphRAG (Neo4j, governed KG) | 9/11 | In Progress|  |
+| 10. Ontology-grounded GraphRAG (Neo4j, governed KG) | 10/11 | In Progress|  |
 
 ### Phase 9: Basic GraphRAG baseline (Neo4j, emergent KG)
 
@@ -531,7 +531,7 @@ Plans:
 **Goal:** Layer ontology governance onto the Phase 9 Neo4j GraphRAG stack **additively** — define a CCoP ontology (entity/relation types), deterministically seed clause nodes from `clause_inventory.json` (691 entries), constrain KG extraction to the ontology (schema-guided), and validate the graph with SHACL (rdflib/pyshacl export). Expose as `--mode graphrag-ontology` behind the same pluggable provider. A/B on the 18-case fixed GT vs Phase 9 basic (emergent) GraphRAG and the hybrid baseline, isolating the effect of ontology grounding on the identical engine / input / harness.
 **Requirements**: RAG-01, RAG-02, RAG-06, EVAL-02, EVAL-03 (+ phase-local decisions D-01..D-18 from 10-CONTEXT.md — every decision covered by ≥1 plan)
 **Depends on:** Phase 9 (shares the Neo4j engine, Docling input, retrieval-provider abstraction, eval harness, and comparison-report format)
-**Plans:** 9/11 plans executed
+**Plans:** 10/11 plans executed
 
 Plans:
 
@@ -561,7 +561,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 10-10-PLAN.md — Wave 6: deterministic clause-hit@3 harness (hit@3/recall@3/recall@pool) + gold-set cross-check (D-15)
+- [x] 10-10-PLAN.md — Wave 6: deterministic clause-hit@3 harness (hit@3/recall@3/recall@pool) + gold-set cross-check (D-15)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
