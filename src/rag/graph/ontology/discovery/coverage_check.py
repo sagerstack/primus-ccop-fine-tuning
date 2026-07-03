@@ -101,11 +101,13 @@ GOLD_RELATION_SYNONYM_MAP: dict[str, str] = {
     "PREVENT": "MITIGATES",
     "ASSESSES": "AUDITS",
     "LEAVES": "CREATES_RISK",
-    # 2e -- best-judgment PROVISIONAL collapse; each flagged for gate-b
-    # (plan 10-04) reconciliation in the SUMMARY, not silently locked.
-    "VIOLATES": "CANNOT_SATISFY",      # active breach vs inability -- provisional
-    "MAY_REQUEST": "APPLIES_FOR_WAIVER",  # waiver-request context -- provisional
-    "ADDRESSES": "MITIGATES",          # generic "addresses a risk" -- provisional
+    # 2e -- CONFIRMED at curation gate (b), plan 10-04. VIOLATES was SPLIT OUT
+    # (human decision): active breach (Control/Entity VIOLATES a Requirement) is
+    # now its OWN relation type, DISTINCT from CANNOT_SATISFY (structural
+    # inability) -- so it is no longer collapsed here. The remaining two
+    # collapses were confirmed to keep the schema lean.
+    "MAY_REQUEST": "APPLIES_FOR_WAIVER",  # waiver-request context -- confirmed (gate b)
+    "ADDRESSES": "MITIGATES",          # generic "addresses a risk" -- confirmed (gate b)
 }
 
 # Gold verbs intentionally NOT modelled as extraction relation types. Remaining

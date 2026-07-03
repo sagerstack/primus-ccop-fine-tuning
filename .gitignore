@@ -165,6 +165,9 @@ data/cache/
 # Committed Phase 10 Method-B clustering cross-check reconcile report — input
 # to the second human curation gate (b, plan 10-04)
 !src/rag/graph/ontology/method_b_reconcile.json
+# Committed Phase 10 LOCKED ontology — reconciled at curation gate (b, plan
+# 10-04); the authoritative build-time schema every mechanical build wave consumes
+!src/rag/graph/ontology/ontology_config.json
 *.parquet
 *.feather
 *.h5
