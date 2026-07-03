@@ -64,9 +64,10 @@ def graph_retrieve_documents(state: GraphState) -> GraphState:
 
     try:
         container = get_container()
+        is_ontology_mode = mode == "graphrag-ontology"
         provider = (
             container.graph_retrieval_provider_ontology()
-            if mode == "graphrag-ontology"
+            if is_ontology_mode
             else container.graph_retrieval_provider()
         )
 
@@ -82,7 +83,20 @@ def graph_retrieve_documents(state: GraphState) -> GraphState:
             state["error"] = "No graph retrieval provider configured"
             return state
 
-        documents = provider.retrieve(query=query, top_k=top_k)
+        if is_ontology_mode:
+            # D-12 (plan 10-09): thread the classified function-type intent
+            # (state["function_type"], set by the function_type_routing node
+            # that runs immediately before this one — see
+            # rag/retrieval/graph.py) into the ontology provider's boosted
+            # Cypher query. This kwarg exists ONLY on
+            # Neo4jOntologyGraphRetrievalAdapter.retrieve — the Phase 9
+            # branch below is untouched (D-16 additivity), and the shared
+            # IGraphRetrievalProvider port's abstract signature is unchanged.
+            documents = provider.retrieve(
+                query=query, top_k=top_k, function_type=state.get("function_type", "")
+            )
+        else:
+            documents = provider.retrieve(query=query, top_k=top_k)
 
         # Attach rank + ensure a similarity_score exists for downstream parity
         # with the vector path (retrieval.py sets similarity_score + dense_rank).
