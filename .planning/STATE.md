@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Paused at 10-04 gate (b) — Method-B cross-check run + committed; awaiting human reconciliation before LOCK
-last_updated: "2026-07-03T02:23:31.298Z"
+stopped_at: "Completed 10-04-PLAN.md (ontology LOCKED at gate b: 24 node types, 48 relations)"
+last_updated: "2026-07-03T03:44:55.162Z"
 last_activity: 2026-07-03
 progress:
   total_phases: 19
   completed_phases: 9
   total_plans: 73
-  completed_plans: 61
+  completed_plans: 62
   percent: 47
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 10 (ontology-grounded-kg-via-text-ontology-learning-paper-3-2-2-) — EXECUTING
-Plan: 4 of 11 (PAUSED at curation gate (b) — Method-B cross-check done; ontology LOCK awaits human reconciliation)
-Status: Awaiting human decision at gate (b)
+Plan: 5 of 11 (10-04 COMPLETE — ontology LOCKED at gate b: 24 node types, 48 relations; D-01 C→curate→B→reconcile→lock sequence done)
+Status: Ready to execute
 Last activity: 2026-07-03
 
-Progress: [████████░░] 84%
+Progress: [█████████░] 85%
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Progress: [████████░░] 84%
 | Phase 09 P02 | 25min | 3 tasks | 13 files |
 | Phase 09 P03 | ~35min | 3 tasks | 8 files |
 | Phase 10 P03 | 47min | 3 tasks | 9 files |
+| Phase 10 P04 | 80min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -217,6 +218,8 @@ Recent decisions affecting current work:
 - [Phase 09-03]: duplicate_entities groups on a priority-ordered display name (identifier-shaped properties like user_id/asset_id before descriptive labels like username/name) - matches actual heterogeneous property shapes in the live emergent-extraction graph
 - [Phase 10]: [10-03] Method-C ontology discovery from structured sources (section headings + 18 benchmark defs + stratified prose), one LLM call per category — NOT open per-chunk NER (fixes the Phase 9 D-06 failure mode)
 - [Phase 10]: [10-03] Curation gate (a) approve-with-amendments: 20 node types (dropped 11 TOC-mirroring Section types), 47 relations (added 17), gold synonyms collapsed onto canonicals; D-17 unresolved_missing=0
+- [Phase ?]: [10-04] Curation gate (b) reconciled: +4 Method-B-only node types (OperationalTechnology/ThirdParty/EssentialService/BusinessEntity) -> 24 node types; VIOLATES split from CANNOT_SATISFY -> 48 relations; ontology LOCKED (additional_*_types=false)
+- [Phase ?]: [10-04] Method B clustering cross-check corroborated 10 Method-C types; only 4 of 71 B-only candidates cleared the GT-need bar; D-01 C->curate->B->reconcile->lock sequence COMPLETE
 
 ### Pending Todos
 
@@ -270,6 +273,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-03T02:22:51.993Z
-Stopped at: Completed 10-03-PLAN.md (Method-C draft curated at gate a)
+Last session: 2026-07-03T03:44:55.153Z
+Stopped at: Completed 10-04-PLAN.md (ontology LOCKED at gate b: 24 node types, 48 relations)
 Resume file: None
