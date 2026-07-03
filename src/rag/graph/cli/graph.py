@@ -39,6 +39,12 @@ from rag.graph.ontology.clause_seeder import (
     DEFAULT_CLAUSE_INVENTORY_PATH as DEFAULT_SEED_INVENTORY_PATH,
 )
 from rag.graph.ontology.clause_seeder import ClauseSeeder, SeedStats
+from rag.graph.ontology.shacl_validator import (
+    DEFAULT_REPORT_PATH,
+    DEFAULT_SHAPES_PATH,
+    SHACLValidator,
+    ValidationReport,
+)
 
 graph_app = typer.Typer(help="Build and inspect the GraphRAG knowledge graph")
 
@@ -466,3 +472,94 @@ def _print_inspect_report(summary: dict[str, Any]) -> None:
     console.print(
         f"[bold]Extraction failure rate:[/bold] {failure['rate']} — {failure['note']}"
     )
+
+
+@graph_app.command(name="validate")
+def validate_command(
+    shapes_path: str = typer.Option(
+        str(DEFAULT_SHAPES_PATH),
+        "--shapes-path",
+        help="Path to the committed SHACL shapes.ttl (D-07/D-13 constraints)",
+    ),
+    report_path: str = typer.Option(
+        str(DEFAULT_REPORT_PATH),
+        "--report-path",
+        help="Where to quarantine violations as JSON (D-13 reject + log)",
+    ),
+) -> None:
+    """
+    SHACL-validate the live ontology graph (D-13) — the structural backstop.
+
+    Exports the built graph LPG -> RDF, validates it against the committed
+    shapes.ttl (D-07: canonical name REQUIRED, junk names REJECTED), and
+    QUARANTINES non-conforming facts to a JSON report — reject + log
+    separately, NEVER silent-delete. Whatever slips past the schema-constrained
+    extraction prompt is caught here as a machine-checked constraint.
+
+    Exits non-zero when HIGH-severity (sh:Violation) violations exist, so it can
+    gate a build in CI / the D-19 inspect -> adjust -> rebuild loop.
+
+    Example:
+        ccop-eval graph validate
+    """
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        validator = SHACLValidator(
+            driver=driver,
+            database=settings.neo4j_database,
+            shapes_path=shapes_path,
+        )
+        report = validator.validate(report_path=report_path)
+        _print_validation_report(report, report_path)
+    except Exception as e:
+        console.print(f"[red]Graph validate failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+    finally:
+        driver.close()
+
+    if report.high_severity_count > 0:
+        raise typer.Exit(code=1)
+
+
+def _print_validation_report(report: "ValidationReport", report_path: str) -> None:
+    if report.conforms:
+        console.print(
+            "[green]SHACL validation: graph CONFORMS[/green] "
+            "(0 violations — D-07 canonical-name/junk constraints satisfied)."
+        )
+        return
+
+    console.print(
+        f"[red]SHACL validation: {report.violation_count} violation(s)[/red] "
+        f"({report.high_severity_count} high-severity). "
+        f"Quarantined (reject + log, D-13 — not deleted) to: {report_path}"
+    )
+
+    severity_table = Table(title="Violations by Severity", show_header=True)
+    severity_table.add_column("Severity", style="cyan")
+    severity_table.add_column("Count", justify="right", style="bold")
+    for severity, count in sorted(report.severity_counts().items()):
+        severity_table.add_row(severity, str(count))
+    console.print(severity_table)
+
+    shape_table = Table(title="Violations by Shape (top 15)", show_header=True)
+    shape_table.add_column("Shape", style="cyan")
+    shape_table.add_column("Count", justify="right", style="bold")
+    for shape, count in sorted(
+        report.shape_counts().items(), key=lambda kv: kv[1], reverse=True
+    )[:15]:
+        shape_table.add_row(shape, str(count))
+    console.print(shape_table)
+
+    example_table = Table(title="Example Violations (up to 10)", show_header=True)
+    example_table.add_column("Focus Node", style="yellow", overflow="fold")
+    example_table.add_column("Value")
+    example_table.add_column("Message", overflow="fold")
+    for v in report.violations[:10]:
+        example_table.add_row(
+            v.focus_node,
+            str(v.value) if v.value is not None else "—",
+            (v.message or "").split(".")[0],
+        )
+    console.print(example_table)
