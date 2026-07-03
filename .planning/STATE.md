@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 10-03-PLAN.md (Method-C draft curated at gate a)
+stopped_at: Paused at 10-04 gate (b) — Method-B cross-check run + committed; awaiting human reconciliation before LOCK
 last_updated: "2026-07-03T02:23:31.298Z"
 last_activity: 2026-07-03
 progress:
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 10 (ontology-grounded-kg-via-text-ontology-learning-paper-3-2-2-) — EXECUTING
-Plan: 2 of 11
-Status: Ready to execute
+Plan: 4 of 11 (PAUSED at curation gate (b) — Method-B cross-check done; ontology LOCK awaits human reconciliation)
+Status: Awaiting human decision at gate (b)
 Last activity: 2026-07-03
 
 Progress: [████████░░] 84%
