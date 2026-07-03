@@ -51,7 +51,7 @@ class LangGraphRagAdapter(IRagPipeline):
         Args:
             question: User question
             mode: Pipeline mode — "hybrid", "llm-only", "rag-only", "graphrag",
-                "graphrag-retrieval"
+                "graphrag-retrieval", "graphrag-ontology"
 
         Returns:
             RagResponse with formatted response and citations
@@ -108,7 +108,8 @@ class LangGraphRagAdapter(IRagPipeline):
 
         llm-only requires only Ollama.
         hybrid and rag-only require vector store (Qdrant or Databricks) + Ollama.
-        graphrag and graphrag-retrieval require the graph provider (Neo4j) + Ollama.
+        graphrag, graphrag-retrieval, and graphrag-ontology (Phase 10, D-16
+        additivity) require the graph provider (Neo4j) + Ollama.
         """
         has_ollama = bool(self.settings.ollama_host)
         if not has_ollama:
@@ -118,7 +119,12 @@ class LangGraphRagAdapter(IRagPipeline):
         if mode == "llm-only":
             return True
 
-        if mode in ("graphrag", "graphrag-retrieval"):
+        # T-10-02-01 (this plan's own threat register): an unlisted mode must
+        # never silently fall through to the vector-store check below — a
+        # fifth mode-gating site discovered live via `grep -rn "graphrag" src/`
+        # per this plan's action step (Rule 1/2 fix, not in the original
+        # four-allowlist table).
+        if mode in ("graphrag", "graphrag-retrieval", "graphrag-ontology"):
             has_graph = bool(getattr(self.settings, "neo4j_uri", None))
             if not has_graph:
                 self.logger.debug("No graph provider configured (CCOP_NEO4J_URI unset)")

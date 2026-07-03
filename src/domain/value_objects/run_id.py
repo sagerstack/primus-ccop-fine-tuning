@@ -21,7 +21,14 @@ from typing import List, Optional
 _MAX_INLINE_TEST_IDS = 5
 
 
-_VALID_MODES = {"hybrid", "llm-only", "rag-only", "graphrag", "graphrag-retrieval"}
+_VALID_MODES = {
+    "hybrid",
+    "llm-only",
+    "rag-only",
+    "graphrag",
+    "graphrag-retrieval",
+    "graphrag-ontology",  # Phase 10 (D-16 additivity) — ontology-grounded graph retrieval
+}
 
 
 @dataclass(frozen=True)

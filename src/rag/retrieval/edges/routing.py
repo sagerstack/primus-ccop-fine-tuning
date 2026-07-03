@@ -39,6 +39,21 @@ def route_by_mode(state: GraphState) -> str:
         logger.info(f"Routing: mode={mode} -> graph_retrieval node")
         return "graph_retrieval"
 
+    if mode == "graphrag-ontology":
+        # Ontology-grounded graph retrieval (Phase 10, D-16 additivity): a
+        # SEPARATE branch from `graphrag` above — this plan (10-02) closes
+        # RESEARCH Pitfall 3, so the route key is intentionally DISTINCT
+        # ("graph_retrieval_ontology") even though it targets the SAME
+        # `graph_retrieval` node in the compiled graph (see
+        # rag/retrieval/graph.py's conditional-edge map). The node itself is
+        # mode-aware (graph_retrieve_documents) and selects
+        # container.graph_retrieval_provider_ontology() vs
+        # container.graph_retrieval_provider() based on state["mode"] — this
+        # branch's job is solely to prove the route is distinguishable, not
+        # to duplicate the node.
+        logger.info(f"Routing: mode={mode} -> graph_retrieval node (ontology provider)")
+        return "graph_retrieval_ontology"
+
     logger.info(f"Routing: mode={mode} -> retrieval node")
     return "retrieval"
 

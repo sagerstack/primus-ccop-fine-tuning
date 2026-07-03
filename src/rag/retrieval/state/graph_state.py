@@ -36,6 +36,12 @@ class GraphState(TypedDict):
     # Reranker fields (Phase 1.3)
     reranker_scores: List[float]  # Cross-encoder scores for all retrieved docs (before top-N selection)
 
+    # Ontology-grounded retrieval (Phase 10, D-12): inferred function-type tag
+    # used to boost retrieval scoring in the ontology-grounded graph provider.
+    # Populated by function-type classification landing in plan 10-09; this
+    # plan (10-02) only reserves the field on the state contract.
+    function_type: str
+
     # Lab Exp #41 production-promoted fields:
     hyde_query: str  # gpt-4o-mini-generated hypothetical clause (used for retrieval embedding)
     dense_ranks: List[int]  # Original dense-retrieval rank for each retrieved doc

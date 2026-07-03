@@ -32,7 +32,14 @@ query_app = typer.Typer(help="Query CCoP compliance information")
 
 console = Console()
 
-VALID_MODES = ["hybrid", "llm-only", "rag-only", "graphrag", "graphrag-retrieval"]
+VALID_MODES = [
+    "hybrid",
+    "llm-only",
+    "rag-only",
+    "graphrag",
+    "graphrag-retrieval",
+    "graphrag-ontology",  # Phase 10 (D-16 additivity) — ontology-grounded graph retrieval
+]
 
 
 @query_app.command(name="ask")
@@ -109,6 +116,7 @@ async def _execute_query(
             "rag-only": "Retrieving documents (no LLM)...",
             "graphrag": "Querying graph pipeline...",
             "graphrag-retrieval": "Retrieving graph context (no LLM)...",
+            "graphrag-ontology": "Querying ontology-grounded graph pipeline...",
         }
 
         ts = datetime.utcnow()
@@ -133,7 +141,7 @@ async def _execute_query(
                     console.print("   - DATABRICKS_TOKEN")
                     console.print("   - DATABRICKS_CATALOG")
                     console.print("   - DATABRICKS_SCHEMA")
-                elif mode in ("graphrag", "graphrag-retrieval"):
+                elif mode in ("graphrag", "graphrag-retrieval", "graphrag-ontology"):
                     console.print("1. Ensure .env.local has the Neo4j graph provider settings:")
                     console.print("   - CCOP_NEO4J_URI")
                     console.print("   - CCOP_NEO4J_USER")

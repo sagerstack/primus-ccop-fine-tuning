@@ -31,7 +31,8 @@ class TestEvaluateModeSurface:
         from presentation.cli.commands.evaluate import VALID_EVAL_MODES
 
         assert "graphrag" in VALID_EVAL_MODES
-        assert VALID_EVAL_MODES == ["hybrid", "llm-only", "graphrag"]
+        # Phase 10 (plan 10-02) adds "graphrag-ontology" to this allowlist.
+        assert VALID_EVAL_MODES == ["hybrid", "llm-only", "graphrag", "graphrag-ontology"]
 
     def test_no_retrieval_only_mode_on_evaluate(self):
         from presentation.cli.commands.evaluate import VALID_EVAL_MODES
@@ -48,7 +49,15 @@ class TestQueryModeSurface:
 
         assert "graphrag" in VALID_MODES
         assert "graphrag-retrieval" in VALID_MODES
-        assert VALID_MODES == ["hybrid", "llm-only", "rag-only", "graphrag", "graphrag-retrieval"]
+        # Phase 10 (plan 10-02) adds "graphrag-ontology" to this allowlist.
+        assert VALID_MODES == [
+            "hybrid",
+            "llm-only",
+            "rag-only",
+            "graphrag",
+            "graphrag-retrieval",
+            "graphrag-ontology",
+        ]
 
 
 class TestGraphragRouting:
