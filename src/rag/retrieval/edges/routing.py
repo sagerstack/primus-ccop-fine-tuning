@@ -41,17 +41,21 @@ def route_by_mode(state: GraphState) -> str:
 
     if mode == "graphrag-ontology":
         # Ontology-grounded graph retrieval (Phase 10, D-16 additivity): a
-        # SEPARATE branch from `graphrag` above — this plan (10-02) closes
-        # RESEARCH Pitfall 3, so the route key is intentionally DISTINCT
-        # ("graph_retrieval_ontology") even though it targets the SAME
-        # `graph_retrieval` node in the compiled graph (see
-        # rag/retrieval/graph.py's conditional-edge map). The node itself is
-        # mode-aware (graph_retrieve_documents) and selects
+        # SEPARATE branch from `graphrag` above — the route key is
+        # intentionally DISTINCT ("graph_retrieval_ontology", closing
+        # RESEARCH Pitfall 3, plan 10-02). As of plan 10-09 (D-12), this key
+        # maps to the `function_type_routing` node in the compiled graph
+        # (see rag/retrieval/graph.py's conditional-edge map), NOT directly
+        # to `graph_retrieval` — the D-09 function-type classification MUST
+        # run and persist to state before the boosted ontology Cypher query
+        # executes (conditional-edge functions cannot themselves persist
+        # state mutations in LangGraph, verified empirically). That node then
+        # edges into the SAME mode-aware `graph_retrieval` node
+        # (graph_retrieve_documents), which selects
         # container.graph_retrieval_provider_ontology() vs
-        # container.graph_retrieval_provider() based on state["mode"] — this
-        # branch's job is solely to prove the route is distinguishable, not
-        # to duplicate the node.
-        logger.info(f"Routing: mode={mode} -> graph_retrieval node (ontology provider)")
+        # container.graph_retrieval_provider() based on state["mode"] and
+        # threads state["function_type"] into the ontology provider only.
+        logger.info(f"Routing: mode={mode} -> function_type_routing node (ontology provider)")
         return "graph_retrieval_ontology"
 
     logger.info(f"Routing: mode={mode} -> retrieval node")

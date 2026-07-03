@@ -16,6 +16,7 @@ from rag.retrieval.edges.routing import decide_after_grading, route_by_mode
 if TYPE_CHECKING:
     from infrastructure.config.settings import Settings
 from rag.retrieval.nodes.fallback import fallback_generation
+from rag.retrieval.nodes.function_type_routing import classify_function_type
 from rag.retrieval.nodes.generation import generate_response
 from rag.retrieval.nodes.grading import grade_documents
 from rag.retrieval.nodes.query_analysis import analyze_query
@@ -74,6 +75,7 @@ def build_rag_graph(settings: "Settings"):
     # Nodes
     workflow.add_node("query_analysis", analyze_query)
     workflow.add_node("retrieval", retrieve_documents)
+    workflow.add_node("function_type_routing", classify_function_type)
     workflow.add_node("graph_retrieval", graph_retrieve_documents)
     workflow.add_node("reranking", rerank_documents)
     workflow.add_node("grade_documents", grade_documents)
@@ -91,13 +93,17 @@ def build_rag_graph(settings: "Settings"):
         {
             "retrieval": "retrieval",
             "graph_retrieval": "graph_retrieval",
-            # Phase 10 (D-16 additivity, plan 10-02): route_by_mode returns a
-            # DISTINCT key for graphrag-ontology (proves routing is
-            # provably distinguishable, closing RESEARCH Pitfall 3), but it
-            # targets the SAME physical node — graph_retrieve_documents is
-            # mode-aware and selects the ontology provider vs the Phase 9
-            # provider based on state["mode"].
-            "graph_retrieval_ontology": "graph_retrieval",
+            # Phase 10 (D-12, plan 10-09): route_by_mode's graphrag-ontology
+            # key now targets a dedicated `function_type_routing` node (NOT
+            # `graph_retrieval` directly, unlike plan 10-02's placeholder
+            # wiring) so the D-09 function-type classification runs and
+            # persists to `state["function_type"]` BEFORE the boosted
+            # ontology Cypher query executes. LangGraph conditional-edge
+            # functions do not persist state mutations (verified empirically
+            # — only node function return values are merged into state), so
+            # this MUST be a real node, not a side effect inside
+            # `route_by_mode` itself.
+            "graph_retrieval_ontology": "function_type_routing",
             "fallback": "fallback",
         },
     )
@@ -105,6 +111,12 @@ def build_rag_graph(settings: "Settings"):
     # Retrieval → reranking → grading (always)
     workflow.add_edge("retrieval", "reranking")
     workflow.add_edge("reranking", "grade_documents")
+
+    # D-12: function-type classification runs BEFORE ontology graph
+    # retrieval, so `state["function_type"]` is set when
+    # `graph_retrieve_documents` calls the ontology provider's
+    # retrieve(..., function_type=...).
+    workflow.add_edge("function_type_routing", "graph_retrieval")
 
     # Graph retrieval flows through the SAME reranking → grading → generate path
     # as hybrid (Wave-6 retrieval parity, 2026-07-02): retrieve wide → shared

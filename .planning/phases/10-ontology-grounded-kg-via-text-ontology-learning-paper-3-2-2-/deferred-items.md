@@ -73,6 +73,29 @@ task's own changes).
   (`pytest -m "not integration"`) as part of this plan's E2E verification.
   Needs its own investigation/fix outside Phase 10 scope.
 
+## 10-09
+
+- **RESOLVED (carried from 10-01):** the Lucene fulltext lexical-error bug on
+  `/` and `'` characters (flagged above under `## 10-01`) is fixed for the
+  ontology adapter by `_escape_lucene_query_text` in
+  `neo4j_ontology_graph_retrieval_adapter.py` — verified live in this plan's
+  E2E slice with the exact B02-001-class question shape
+  ("username/password plus the user's SMS OTP"), which returned documents
+  with no `TokenMgrError`/`SearchQueryParseError`. **Still open for Phase 9's
+  `Neo4jGraphRetrievalAdapter`** (`neo4j_graph_retrieval_adapter.py`) — that
+  file is untouched by this plan (D-16 additivity: Phase 9's adapter must
+  stay unmodified), so `--mode graphrag` (as opposed to `--mode
+  graphrag-ontology`) still has the unescaped-Lucene-text bug. A future
+  bugfix plan could either backport the same `_escape_lucene_query_text`
+  helper to Phase 9's adapter or leave it as a Phase-9-only known limitation.
+
+- **`tests/rag/test_container_vector_store.py` and
+  `tests/rag/test_port_adapters.py` collection errors** (same `mlflow`
+  `ImportError`, see `## 10-05` below) still present in this plan's worktree;
+  confirmed pre-existing and unrelated to this plan's files (`git diff --stat`
+  shows zero changes to `pyproject.toml`/`poetry.lock`). Excluded from this
+  plan's `pytest -m "not integration"` verification runs via `--ignore`.
+
 ## 10-05
 
 - **`tests/rag/test_container_vector_store.py` and
