@@ -146,6 +146,7 @@ module = [
     "dependency_injector.*",
     "huggingface_hub.*",
     "openai.*",
+    "sklearn.*",
 ]
 ignore_missing_imports = true
 

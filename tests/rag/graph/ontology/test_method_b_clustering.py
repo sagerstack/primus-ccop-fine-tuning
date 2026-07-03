@@ -80,7 +80,6 @@ class TestClustering:
         clusters = group_terms_by_cluster(terms, labels)
 
         assert len(clusters) == 2
-        member_sets = sorted((sorted(c) for c in clusters), key=lambda c: c[0])
         assert ["CII", "Critical Infrastructure"] in [sorted(c) for c in clusters]
         assert ["Pen Test", "Penetration Testing"] in [sorted(c) for c in clusters]
 
@@ -160,9 +159,13 @@ class TestD02Compliance:
         """D-02: Method B discovers fresh from corpus prose, never from the
         Phase 9 emergent knowledge graph."""
         src = inspect.getsource(mb)
-        # No reads of the emergent graph / Neo4j.
+        # No reads of the emergent knowledge graph. (The embedding model is
+        # legitimately sourced from neo4j_graphrag.embeddings -- that is the
+        # SAME embedder as chunk embeddings, D-05/D-07 -- so we assert on
+        # graph-READ surfaces specifically, not on the string "neo4j".)
         assert "KGInspector" not in src
         assert "MATCH (" not in src
-        assert "neo4j" not in src.lower()
+        assert "session.run" not in src
+        assert "GraphDatabase" not in src
         # Term source is the Docling corpus loader (same text the KG builders use).
         assert "load_ccop_corpus_texts" in src
