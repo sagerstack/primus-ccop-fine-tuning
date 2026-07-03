@@ -492,7 +492,7 @@ Note: Phase 1.2 runs before 1.3 (quality fixes build on local stack). Phase 1.3 
 | 7. Safety & Validation | 0/TBD | Not started | - |
 | 8. Final Evaluation & Comparison | 0/TBD | Not started | - |
 | 9. Basic GraphRAG baseline (Neo4j, emergent KG) | 5/6 | In Progress|  |
-| 10. Ontology-grounded GraphRAG (Neo4j, governed KG) | 4/11 | In Progress|  |
+| 10. Ontology-grounded GraphRAG (Neo4j, governed KG) | 6/11 | In Progress|  |
 
 ### Phase 9: Basic GraphRAG baseline (Neo4j, emergent KG)
 
@@ -531,7 +531,7 @@ Plans:
 **Goal:** Layer ontology governance onto the Phase 9 Neo4j GraphRAG stack **additively** — define a CCoP ontology (entity/relation types), deterministically seed clause nodes from `clause_inventory.json` (691 entries), constrain KG extraction to the ontology (schema-guided), and validate the graph with SHACL (rdflib/pyshacl export). Expose as `--mode graphrag-ontology` behind the same pluggable provider. A/B on the 18-case fixed GT vs Phase 9 basic (emergent) GraphRAG and the hybrid baseline, isolating the effect of ontology grounding on the identical engine / input / harness.
 **Requirements**: RAG-01, RAG-02, RAG-06, EVAL-02, EVAL-03 (+ phase-local decisions D-01..D-18 from 10-CONTEXT.md — every decision covered by ≥1 plan)
 **Depends on:** Phase 9 (shares the Neo4j engine, Docling input, retrieval-provider abstraction, eval harness, and comparison-report format)
-**Plans:** 4/11 plans executed
+**Plans:** 6/11 plans executed
 
 Plans:
 
@@ -547,8 +547,8 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 10-05-PLAN.md — Wave 3: deterministic clause seeding (691 :Clause nodes + hierarchy + function_type tags) + CLI (D-10/09)
-- [ ] 10-06-PLAN.md — Wave 3: section-aligned extraction splitter + gleaning multi-pass extractor (D-11 extraction-unit decouple)
+- [x] 10-05-PLAN.md — Wave 3: deterministic clause seeding (691 :Clause nodes + hierarchy + function_type tags) + CLI (D-10/09)
+- [x] 10-06-PLAN.md — Wave 3: section-aligned extraction splitter + gleaning multi-pass extractor (D-11 extraction-unit decouple)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
