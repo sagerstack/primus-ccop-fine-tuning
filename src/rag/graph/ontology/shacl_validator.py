@@ -239,7 +239,7 @@ class SHACLValidator:
             data_graph,
             shacl_graph=self.load_shapes(),
             inference="none",
-            abort_on_error=False,
+            abort_on_first=False,
             meta_shacl=False,
             advanced=True,
         )
