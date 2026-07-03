@@ -26,6 +26,10 @@ from infrastructure.config.settings import get_settings
 from rag.graph.build.corpus_source import DEFAULT_CCOP_DIR, load_ccop_corpus_texts
 from rag.graph.build.kg_builder import BuildStats, EmergentKGBuilder
 from rag.graph.inspect.metrics import DEFAULT_CLAUSE_INVENTORY_PATH, KGInspector
+from rag.graph.ontology.clause_seeder import (
+    DEFAULT_CLAUSE_INVENTORY_PATH as DEFAULT_SEED_INVENTORY_PATH,
+)
+from rag.graph.ontology.clause_seeder import ClauseSeeder, SeedStats
 
 graph_app = typer.Typer(help="Build and inspect the GraphRAG knowledge graph")
 
@@ -124,6 +128,57 @@ def _open_driver(settings) -> neo4j.Driver:
         settings.neo4j_uri,
         auth=(settings.neo4j_user, settings.neo4j_password),
     )
+
+
+@graph_app.command(name="seed-clauses")
+def seed_clauses_command(
+    inventory_path: str = typer.Option(
+        str(DEFAULT_SEED_INVENTORY_PATH),
+        "--inventory-path",
+        help="Path to clause_inventory.json (D-10 deterministic seed source)",
+    ),
+) -> None:
+    """
+    Seed (or re-seed) the deterministic clause backbone (D-10).
+
+    MERGEs :Clause nodes from clause_inventory.json with Title -> Chapter ->
+    Article -> Item parent-child edges and function_type tags (D-09) from
+    the locked ontology. No LLM call -- deterministic and idempotent;
+    re-running never creates duplicates. These real-ID clause nodes become
+    the fine-grained retrieval unit (D-11) that extracted entities LINK to.
+
+    Example:
+        ccop-eval graph seed-clauses
+    """
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        seeder = ClauseSeeder(settings=settings, driver=driver, inventory_path=inventory_path)
+        with console.status("[bold green]Seeding clause backbone (deterministic, no LLM)..."):
+            stats = seeder.seed()
+        _print_seed_summary(stats)
+    except Exception as e:
+        console.print(f"[red]Clause seeding failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+    finally:
+        driver.close()
+
+
+def _print_seed_summary(stats: SeedStats) -> None:
+    table = Table(title="Clause Backbone Seed Summary", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("Entries in fixture", str(stats.entries_total))
+    table.add_row("Clause nodes (post-seed)", str(stats.nodes_seeded))
+    table.add_row("Parent-child edges", str(stats.edges_created))
+    console.print(table)
+
+    dist_table = Table(title="function_type Distribution (D-09)", show_header=True)
+    dist_table.add_column("function_type", style="cyan")
+    dist_table.add_column("Count", justify="right", style="bold")
+    for function_type, count in stats.function_type_distribution.items():
+        dist_table.add_row(function_type, str(count))
+    console.print(dist_table)
 
 
 @graph_app.command(name="inspect")
