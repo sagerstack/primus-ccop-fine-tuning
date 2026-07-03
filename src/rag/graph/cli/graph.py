@@ -26,6 +26,10 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from application.use_cases.clause_hit_harness import (
+    ClauseHitHarnessResult,
+    ClauseHitHarnessUseCase,
+)
 from infrastructure.config.settings import get_settings
 from rag.graph.build.corpus_source import DEFAULT_CCOP_DIR, load_ccop_corpus_texts
 from rag.graph.build.kg_builder import BuildStats, EmergentKGBuilder
@@ -45,6 +49,8 @@ from rag.graph.ontology.shacl_validator import (
     SHACLValidator,
     ValidationReport,
 )
+
+DEFAULT_GOLD_RELATION_XLSX_FILENAME = "eval-report-hybrid-suite-20260630-0907.xlsx"
 
 graph_app = typer.Typer(help="Build and inspect the GraphRAG knowledge graph")
 
@@ -563,3 +569,147 @@ def _print_validation_report(report: "ValidationReport", report_path: str) -> No
             (v.message or "").split(".")[0],
         )
     console.print(example_table)
+
+
+@graph_app.command(name="clause-hit")
+def clause_hit_command(
+    gold_xlsx: Optional[str] = typer.Option(
+        None,
+        "--gold-xlsx",
+        help=(
+            "Path to the D-17 gold-relation xlsx (defaults to "
+            f"<results_dir>/{DEFAULT_GOLD_RELATION_XLSX_FILENAME})"
+        ),
+    ),
+    pool_size: int = typer.Option(
+        50,
+        "--pool-size",
+        help="Candidate pool depth for recall@pool (D-15 default: 50)",
+    ),
+    test_id: list[str] = typer.Option(
+        [],
+        "--test-id",
+        help=(
+            "Restrict to specific test id(s) (repeatable). Default: the "
+            "fixed 18-case bdc4927d GT set."
+        ),
+    ),
+    output: Optional[str] = typer.Option(
+        None,
+        "--output",
+        help="Write JSON results to this path instead of stdout",
+    ),
+) -> None:
+    """
+    Run the deterministic clause-hit@3 acceptance gate (D-15).
+
+    For each of the 18 fixed-GT cases (or the ids given via --test-id), runs
+    the REAL graphrag-ontology retrieval path (plan 10-09, deterministic per
+    the LOCKED D-15 tie-break decision) and scores the retrieved clause ids
+    against a gold clause SET — the UNION of GT `clause_reference` and the
+    D-17 xlsx's hand-authored bracketed citations, with disagreements
+    flagged (Pitfall 4). Prints per-case + aggregate hit@3/recall@3/
+    recall@pool(pool_size).
+
+    Example:
+        ccop-eval graph clause-hit
+        ccop-eval graph clause-hit --test-id B01-001 --test-id B03-001
+    """
+    settings = get_settings()
+
+    try:
+        result = asyncio.run(
+            _run_clause_hit(settings, gold_xlsx, pool_size, test_id or None)
+        )
+    except Exception as e:
+        console.print(f"[red]Clause-hit harness failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+
+    _print_clause_hit_report(result)
+
+    if output:
+        payload = json.dumps(_clause_hit_result_to_dict(result), indent=2, default=str)
+        Path(output).write_text(payload)
+        console.print(f"[green]Results written to {output}[/green]")
+
+
+async def _run_clause_hit(
+    settings, gold_xlsx: Optional[str], pool_size: int, test_ids: Optional[list[str]]
+) -> ClauseHitHarnessResult:
+    from infrastructure.config.container import get_container
+
+    container = get_container()
+    graph_retrieval_provider = container.graph_retrieval_provider_ontology()
+    if graph_retrieval_provider is None:
+        raise RuntimeError(
+            "graphrag-ontology retrieval provider unavailable "
+            "(CCOP_NEO4J_URI unset or CCOP_GRAPHRAG_ONTOLOGY_ENABLED=false)"
+        )
+
+    test_case_repository = container.test_case_repository()
+    gold_xlsx_path = Path(gold_xlsx) if gold_xlsx else (
+        settings.results_dir / DEFAULT_GOLD_RELATION_XLSX_FILENAME
+    )
+
+    harness = ClauseHitHarnessUseCase(
+        test_case_repository=test_case_repository,
+        graph_retrieval_provider=graph_retrieval_provider,
+        gold_xlsx_path=gold_xlsx_path,
+        pool_size=pool_size,
+    )
+    return await harness.execute(test_ids=test_ids)
+
+
+def _print_clause_hit_report(result: ClauseHitHarnessResult) -> None:
+    table = Table(title="Clause-Hit@3 Harness (D-15)", show_header=True)
+    table.add_column("Test ID", style="cyan")
+    table.add_column("hit@3", justify="right")
+    table.add_column("recall@3", justify="right")
+    table.add_column("recall@pool", justify="right")
+    table.add_column("gold_set", overflow="fold")
+    table.add_column("disagree?", justify="center")
+    for case in result.per_case:
+        table.add_row(
+            case.test_id,
+            str(case.hit_at_3),
+            f"{case.recall_at_3:.2f}",
+            f"{case.recall_at_pool:.2f}",
+            ", ".join(sorted(case.gold_set)) or "—",
+            "[yellow]YES[/yellow]" if case.gold_disagreement else "",
+        )
+    console.print(table)
+
+    console.print(
+        f"[bold]Aggregate:[/bold] hit@3={result.aggregate_hit_at_3:.2%} "
+        f"recall@3={result.aggregate_recall_at_3:.2%} "
+        f"recall@pool={result.aggregate_recall_at_pool:.2%}"
+    )
+    if result.disagreement_test_ids:
+        console.print(
+            f"[yellow]Gold-source disagreements (Pitfall 4, human review):[/yellow] "
+            f"{', '.join(result.disagreement_test_ids)}"
+        )
+
+
+def _clause_hit_result_to_dict(result: ClauseHitHarnessResult) -> dict[str, Any]:
+    return {
+        "aggregate_hit_at_3": result.aggregate_hit_at_3,
+        "aggregate_recall_at_3": result.aggregate_recall_at_3,
+        "aggregate_recall_at_pool": result.aggregate_recall_at_pool,
+        "disagreement_test_ids": result.disagreement_test_ids,
+        "per_case": [
+            {
+                "test_id": c.test_id,
+                "gold_set": sorted(c.gold_set),
+                "clause_reference_set": sorted(c.clause_reference_set),
+                "xlsx_citation_set": sorted(c.xlsx_citation_set),
+                "gold_disagreement": c.gold_disagreement,
+                "retrieved_top3": c.retrieved_top3,
+                "retrieved_pool": c.retrieved_pool,
+                "hit_at_3": c.hit_at_3,
+                "recall_at_3": c.recall_at_3,
+                "recall_at_pool": c.recall_at_pool,
+            }
+            for c in result.per_case
+        ],
+    }
