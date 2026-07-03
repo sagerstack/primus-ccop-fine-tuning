@@ -4,6 +4,10 @@ GraphRAG CLI Commands
 `ccop-eval graph build` constructs the emergent CCoP knowledge graph in Neo4j
 as a first-class, repeatable command (D-17) — not a throwaway spike.
 
+`ccop-eval graph build-ontology` constructs the SCHEMA-CONSTRAINED
+(ontology-governed) CCoP knowledge graph (Phase 10, D-06/D-07 fix), then
+LINKs extracted entities to the seeded :Clause backbone (D-10/D-11).
+
 `ccop-eval graph inspect` / `graph stats` surface the D-18 KG-quality metrics
 (KGInspector) so the emergent graph is seen and measured before it is ever
 scored — the quantitative half of the D-19 iterate-and-improve loop
@@ -25,7 +29,12 @@ from rich.table import Table
 from infrastructure.config.settings import get_settings
 from rag.graph.build.corpus_source import DEFAULT_CCOP_DIR, load_ccop_corpus_texts
 from rag.graph.build.kg_builder import BuildStats, EmergentKGBuilder
+from rag.graph.build.ontology_kg_builder import (
+    BuildStats as OntologyBuildStats,
+)
+from rag.graph.build.ontology_kg_builder import OntologyKGBuilder
 from rag.graph.inspect.metrics import DEFAULT_CLAUSE_INVENTORY_PATH, KGInspector
+from rag.graph.ontology.clause_linker import ClauseLinker, LinkStats
 from rag.graph.ontology.clause_seeder import (
     DEFAULT_CLAUSE_INVENTORY_PATH as DEFAULT_SEED_INVENTORY_PATH,
 )
@@ -121,6 +130,158 @@ def _print_summary(stats: BuildStats) -> None:
         console.print("[red]Failures:[/red]")
         for failure in stats.failures:
             console.print(f"  - {failure}")
+
+
+@graph_app.command(name="build-ontology")
+def build_ontology_command(
+    ccop_dir: str = typer.Option(
+        DEFAULT_CCOP_DIR,
+        "--ccop-dir",
+        help="Path to the ccop-official directory containing CCoP PDFs",
+    ),
+    drop: bool = typer.Option(
+        False,
+        "--drop/--no-drop",
+        help=(
+            "Wipe the existing graph before building (clean rebuild for "
+            "iteration, D-19). Default: off — the destructive path is "
+            "explicit opt-in."
+        ),
+    ),
+    permissive: bool = typer.Option(
+        False,
+        "--permissive/--strict",
+        help=(
+            "Flip additional_node_types/additional_relationship_types to "
+            "True for iteration (RESEARCH.md Pitfall 1 escape hatch — the "
+            "locked vocabulary can silently drop out-of-schema entities). "
+            "Default: --strict (the locked ontology_config.json vocabulary)."
+        ),
+    ),
+    sample: bool = typer.Option(
+        False,
+        "--sample/--full",
+        help=(
+            "Build on ONLY the first loaded document (cheap iteration / "
+            "smoke-test). Default: --full (the entire CCoP corpus)."
+        ),
+    ),
+    link: bool = typer.Option(
+        True,
+        "--link/--no-link",
+        help=(
+            "Run the deterministic clause_linker pass after the build "
+            "(D-10/D-11 entity->:Clause LINKED_TO). Default: on."
+        ),
+    ),
+) -> None:
+    """
+    Build the SCHEMA-CONSTRAINED (ontology-governed) CCoP knowledge graph in
+    Neo4j (Phase 10, D-06/D-07 anti-pattern fix), then LINK extracted
+    entities to the seeded :Clause backbone (D-10/D-11).
+
+    Extraction = openai/gpt-4o-mini via OpenRouter (D-06a, held constant with
+    Phase 9). Embeddings = BAAI/bge-large-en-v1.5, in-process (D-07). Schema
+    = the LOCKED ontology_config.json (24 node types, 48 relationship types,
+    additional_node_types=false) unless --permissive is set. Extraction unit
+    = SectionAlignedSplitter + gleaning (D-11, 10-06).
+
+    Run `ccop-eval graph seed-clauses` FIRST so extracted entities have a
+    seeded :Clause backbone to link to.
+
+    Examples:
+        ccop-eval graph seed-clauses
+        ccop-eval graph build-ontology
+        ccop-eval graph build-ontology --sample --permissive
+        ccop-eval graph build-ontology --drop
+    """
+    try:
+        asyncio.run(_run_build_ontology(ccop_dir, drop, permissive, sample, link))
+    except Exception as e:
+        console.print(f"[red]Ontology KG build failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+
+
+async def _run_build_ontology(
+    ccop_dir: str, drop: bool, permissive: bool, sample: bool, link: bool
+) -> None:
+    settings = get_settings()
+
+    driver = neo4j.GraphDatabase.driver(
+        settings.neo4j_uri,
+        auth=(settings.neo4j_user, settings.neo4j_password),
+    )
+
+    try:
+        if drop:
+            console.print(
+                "[yellow]--drop set: wiping existing graph before build...[/yellow]"
+            )
+            with driver.session(database=settings.neo4j_database) as session:
+                session.run("MATCH (n) DETACH DELETE n")
+
+        with console.status("[bold green]Loading CCoP corpus (Docling markdown)..."):
+            texts = load_ccop_corpus_texts(settings, ccop_dir=ccop_dir)
+
+        if sample:
+            first_doc_name, first_doc_text = next(iter(texts.items()))
+            texts = {first_doc_name: first_doc_text}
+            console.print(
+                f"[yellow]--sample set: building on 1 document only "
+                f"({first_doc_name})[/yellow]"
+            )
+
+        console.print(f"[bold]Loaded {len(texts)} document(s) from {ccop_dir}[/bold]")
+
+        builder = OntologyKGBuilder(settings=settings, driver=driver, permissive=permissive)
+
+        mode_label = "PERMISSIVE" if permissive else "STRICT (locked schema)"
+        with console.status(
+            f"[bold green]Building ontology-constrained KG "
+            f"({mode_label}, gpt-4o-mini extraction + gleaning)..."
+        ):
+            stats = await builder.build(texts)
+
+        _print_ontology_build_summary(stats, permissive)
+
+        if link:
+            with console.status(
+                "[bold green]Linking extracted entities to seeded :Clause backbone..."
+            ):
+                linker = ClauseLinker(settings=settings, driver=driver)
+                link_stats = linker.link()
+            _print_link_summary(link_stats)
+    finally:
+        driver.close()
+
+
+def _print_ontology_build_summary(stats: OntologyBuildStats, permissive: bool) -> None:
+    mode = "permissive" if permissive else "strict (locked schema)"
+    table = Table(title=f"Ontology KG Build Summary ({mode})", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("Documents processed", str(stats.docs_processed))
+    table.add_row("Chunks written", str(stats.chunks_written))
+    table.add_row("Nodes created", str(stats.nodes_created))
+    table.add_row("Relationships created", str(stats.relationships_created))
+    table.add_row("Failures", str(len(stats.failures)))
+    console.print(table)
+
+    if stats.failures:
+        console.print("[red]Failures:[/red]")
+        for failure in stats.failures:
+            console.print(f"  - {failure}")
+
+
+def _print_link_summary(stats: LinkStats) -> None:
+    table = Table(title="Clause Linking Summary (D-10/D-11)", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("Chunks scanned", str(stats.chunks_scanned))
+    table.add_row("Clauses scanned", str(stats.clauses_scanned))
+    table.add_row("Chunk-clause matches", str(stats.chunk_clause_pairs))
+    table.add_row("LINKED_TO edges (total)", str(stats.linked_to_edges_total))
+    console.print(table)
 
 
 def _open_driver(settings) -> neo4j.Driver:
