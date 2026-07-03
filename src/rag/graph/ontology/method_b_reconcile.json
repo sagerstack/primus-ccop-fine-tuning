@@ -1,0 +1,2812 @@
+{
+  "method": "B (AffinityPropagation clustering cross-check)",
+  "generated_at": "2026-07-03T02:52:18.714033+00:00",
+  "method_c_source": "rag/graph/ontology/ontology_draft.json",
+  "c_types": [
+    "AccessControl",
+    "Clause",
+    "ComplianceGap",
+    "Control",
+    "ControlClause",
+    "CriticalInformationInfrastructure",
+    "CyberThreatIntelligence",
+    "CybersecurityAudit",
+    "CybersecurityGovernance",
+    "CybersecurityIncident",
+    "CybersecurityTraining",
+    "Definition",
+    "DefinitionClause",
+    "IncidentManagement",
+    "IncidentResponsePlan",
+    "MultiFactorAuthentication",
+    "Obligation",
+    "RiskAssessment",
+    "ScopeClause",
+    "Waiver"
+  ],
+  "b_types": [
+    "AccessControlMeasures",
+    "AccessPoints",
+    "AssetManagement",
+    "AttackSimulation",
+    "AuditManagement",
+    "BusinessEntity",
+    "BusinessObjectives",
+    "ChangeManagementProcess",
+    "ComplianceManagement",
+    "ComputingInfrastructure",
+    "ContinuityAndRecoveryPlanning",
+    "ControlAdequacy",
+    "Controller",
+    "CriticalInformationInfrastructure",
+    "CryptographicSecurity",
+    "CybersecurityAudit",
+    "CybersecurityAuthority",
+    "CybersecurityCodeOfPractice",
+    "CybersecurityFramework",
+    "CybersecurityIncident",
+    "CybersecurityPersonnel",
+    "CybersecurityPractices",
+    "CybersecurityRecommendations",
+    "CybersecurityRegulation",
+    "CybersecurityRiskManagement",
+    "CybersecurityService",
+    "CybersecurityTrainingAndAwareness",
+    "DataFlowManagement",
+    "DataRepository",
+    "DetectionCapabilities",
+    "DisasterRecoveryObjectives",
+    "EnterpriseRiskManagement",
+    "EssentialService",
+    "ExecutiveLeadership",
+    "ExternalEntity",
+    "GovernanceFramework",
+    "IncidentImpactAnalysis",
+    "IncidentResponseManagement",
+    "IndustrialControlSystem",
+    "InformationSecurity",
+    "InformationTechnology",
+    "InformationTechnologyAssets",
+    "LicensingAuthority",
+    "LoggingManagement",
+    "ManagementPerspective",
+    "NationalDefenceStrategy",
+    "NetworkArchitecture",
+    "NetworkComponents",
+    "NetworkDefense",
+    "OperationalDocumentation",
+    "OperationalManagement",
+    "OperationalTechnology",
+    "PerformanceStandards",
+    "PrivilegedAccess",
+    "PublicSafetyFramework",
+    "RecurringRequirements",
+    "RemoteAccessManagement",
+    "RiskAssessment",
+    "RiskManagement",
+    "RoleDefinition",
+    "SecureDisposal",
+    "SecurityByDesign",
+    "SecurityFramework",
+    "SecurityProcesses",
+    "SecurityRequirements",
+    "SoftwareDevelopmentLifecycle",
+    "StakeholderManagement",
+    "SystemAdministrator",
+    "SystemArchitecture",
+    "SystemDevelopmentLifecycle",
+    "SystemSecurity",
+    "TeamCollaboration",
+    "TechnicalCompetencyFramework",
+    "ThreatIntelligence",
+    "ThreatManagement",
+    "TrustBoundary",
+    "UserAccountManagement",
+    "VendorManagement",
+    "WaiverManagement",
+    "WebApplication"
+  ],
+  "b_only": [
+    {
+      "name": "CybersecurityService",
+      "members": [
+        "Cyber Security Agency of Singapore",
+        "shared security services",
+        "licensable cybersecurity service",
+        "unlicensed cybersecurity service provider",
+        "licensable cybersecurity services",
+        "cybersecurity program",
+        "cybersecurity service",
+        "cybersecurity solutions",
+        "cybersecurity policy",
+        "cybersecurity service provider"
+      ]
+    },
+    {
+      "name": "AuditManagement",
+      "members": [
+        "Audit Requirements",
+        "Audit",
+        "audit scope",
+        "audit period",
+        "auditor",
+        "COI audit",
+        "audit expectations",
+        "auditors",
+        "audit firm/team",
+        "audit reports",
+        "audit activities",
+        "auditee",
+        "audit client",
+        "audit information",
+        "audit subject",
+        "audit objective",
+        "audit methodology",
+        "Audit Approach",
+        "audit worksheet"
+      ]
+    },
+    {
+      "name": "RiskManagement",
+      "members": [
+        "Risk Management",
+        "systemic risks",
+        "risks",
+        "risk levels",
+        "risk scenarios",
+        "risk-taking",
+        "risk context",
+        "risk",
+        "risk factors"
+      ]
+    },
+    {
+      "name": "PerformanceStandards",
+      "members": [
+        "Standards",
+        "standards of performance",
+        "certifications",
+        "NIST SP 800-30",
+        "defined standards",
+        "organisation standards",
+        "IT standards bodies",
+        "functional specifications",
+        "standard of performance"
+      ]
+    },
+    {
+      "name": "CybersecurityPractices",
+      "members": [
+        "Procedures",
+        "skills",
+        "tactics",
+        "techniques",
+        "heuristic techniques",
+        "concept"
+      ]
+    },
+    {
+      "name": "SecurityByDesign",
+      "members": [
+        "Security-by-Design",
+        "Cybersecurity Design Principles",
+        "defence-in-depth design principles",
+        "defence-by-diversity design principles",
+        "security-by-design principles",
+        "zero trust principles",
+        "Security-by-Design Lifecycle",
+        "Security-by-Design Approach",
+        "Security-by-Design Framework",
+        "Security-by-Design development process"
+      ]
+    },
+    {
+      "name": "ChangeManagementProcess",
+      "members": [
+        "Change Management",
+        "procurement process",
+        "change management process",
+        "risk management process"
+      ]
+    },
+    {
+      "name": "SystemArchitecture",
+      "members": [
+        "Cloud Computing Systems and Services",
+        "OT Architecture",
+        "security architecture",
+        "system level approach",
+        "system perspective",
+        "system constructs",
+        "system behaviours",
+        "architectural layers",
+        "system decomposition",
+        "system architecture"
+      ]
+    },
+    {
+      "name": "VendorManagement",
+      "members": [
+        "Outsourcing and Vendor Management",
+        "Account Management",
+        "Patch Management",
+        "vendor",
+        "vendor management",
+        "vendors"
+      ]
+    },
+    {
+      "name": "AssetManagement",
+      "members": [
+        "Asset Management",
+        "asset identification",
+        "crown jewels",
+        "assets",
+        "system assets",
+        "physical assets",
+        "logical assets",
+        "asset inventory list",
+        "asset"
+      ]
+    },
+    {
+      "name": "SecurityRequirements",
+      "members": [
+        "Protection Requirements",
+        "OT Security Requirement",
+        "IM8 requirements",
+        "protection",
+        "protection of informers"
+      ]
+    },
+    {
+      "name": "Controller",
+      "members": [
+        "Domain Controller",
+        "Field Controllers",
+        "Field Controller"
+      ]
+    },
+    {
+      "name": "NetworkArchitecture",
+      "members": [
+        "Network Segmentation",
+        "network diagrams",
+        "architecture drawings",
+        "network",
+        "network architecture diagram"
+      ]
+    },
+    {
+      "name": "NetworkDefense",
+      "members": [
+        "Network Security",
+        "intrusion detection systems",
+        "intrusion prevention systems"
+      ]
+    },
+    {
+      "name": "RemoteAccessManagement",
+      "members": [
+        "Remote Connection",
+        "remote access",
+        "remote facilities",
+        "remote access management"
+      ]
+    },
+    {
+      "name": "InformationTechnology",
+      "members": [
+        "Wireless Communication",
+        "information technology",
+        "information communication technology",
+        "Infocomm Technologies",
+        "Internet of Things",
+        "information technology system"
+      ]
+    },
+    {
+      "name": "SystemSecurity",
+      "members": [
+        "System Hardening",
+        "malware",
+        "firewalls",
+        "vulnerabilities",
+        "vulnerability",
+        "system disruptions",
+        "systems vulnerabilities",
+        "security vulnerabilities",
+        "misconfigurations"
+      ]
+    },
+    {
+      "name": "ComputingInfrastructure",
+      "members": [
+        "Portable Computing Devices",
+        "Removable Storage Media",
+        "computer system",
+        "Computers",
+        "computer systems",
+        "system and data protection",
+        "system",
+        "client workstations",
+        "transactional system",
+        "systems",
+        "system upgrades",
+        "computer",
+        "computer program",
+        "computer service",
+        "computer network"
+      ]
+    },
+    {
+      "name": "InformationSecurity",
+      "members": [
+        "Application Security",
+        "Database Security",
+        "Domain Name System Security Extension",
+        "sensitive data",
+        "security of information",
+        "security",
+        "security specifications",
+        "security evaluation",
+        "security posture",
+        "security decisions",
+        "cyber protection considerations",
+        "security considerations",
+        "decision point considerations",
+        "security planning",
+        "security capabilities",
+        "security guidance"
+      ]
+    },
+    {
+      "name": "AttackSimulation",
+      "members": [
+        "Penetration Testing",
+        "Adversarial Attack Simulation",
+        "threat vector",
+        "threat vectors",
+        "sequence of attack",
+        "attack surface",
+        "attack vectors"
+      ]
+    },
+    {
+      "name": "CryptographicSecurity",
+      "members": [
+        "Cryptographic Key Management",
+        "Secure Coding",
+        "Code",
+        "strong encryption",
+        "Secured Coding",
+        "preservation of secrecy"
+      ]
+    },
+    {
+      "name": "DetectionCapabilities",
+      "members": [
+        "Detection Requirements",
+        "Monitoring and Detection",
+        "blind spots",
+        "gap analysis",
+        "identification",
+        "detection"
+      ]
+    },
+    {
+      "name": "LoggingManagement",
+      "members": [
+        "Logging",
+        "Logging Requirements",
+        "raw logs",
+        "log correlation"
+      ]
+    },
+    {
+      "name": "CybersecurityFramework",
+      "members": [
+        "Cyber Resiliency Requirements",
+        "cyber operating environment",
+        "cyber stack",
+        "cybersecurity capabilities",
+        "sectoral cybersecurity requirements",
+        "cybersecurity requirements",
+        "cyber resiliency",
+        "Common Cyber Threat Framework"
+      ]
+    },
+    {
+      "name": "ContinuityAndRecoveryPlanning",
+      "members": [
+        "Backup and Restoration Plan",
+        "Business Continuity Plan",
+        "Disaster Recovery Plan",
+        "Back Up and Restoration",
+        "Business Continuity",
+        "Disaster Recovery",
+        "remediation plan"
+      ]
+    },
+    {
+      "name": "OperationalTechnology",
+      "members": [
+        "Operational Technology Security Requirements",
+        "operational technology",
+        "Operational Technologies",
+        "operational technology system"
+      ]
+    },
+    {
+      "name": "SoftwareDevelopmentLifecycle",
+      "members": [
+        "Domain-Specific Practices",
+        "software design document",
+        "SDLC",
+        "SDLC methodologies",
+        "conventional SDLC model"
+      ]
+    },
+    {
+      "name": "CybersecurityRegulation",
+      "members": [
+        "Cybersecurity Code of Practice",
+        "Cybersecurity Act 2018",
+        "Cybersecurity Act",
+        "Cybersecurity Code-of-Practice",
+        "cybersecurity codes of practice"
+      ]
+    },
+    {
+      "name": "OperationalDocumentation",
+      "members": [
+        "pre-defined level of operation",
+        "test environment",
+        "Government's Instruction Manual 8",
+        "system operations manual",
+        "system-related documentation"
+      ]
+    },
+    {
+      "name": "DataRepository",
+      "members": [
+        "resources",
+        "glossary",
+        "knowledge",
+        "database system",
+        "data triaging",
+        "databases",
+        "data store",
+        "data",
+        "database"
+      ]
+    },
+    {
+      "name": "EssentialService",
+      "members": [
+        "services",
+        "essential service",
+        "service providers",
+        "essential services"
+      ]
+    },
+    {
+      "name": "OperationalManagement",
+      "members": [
+        "activities",
+        "baseline of normal operations",
+        "SoPs",
+        "functions",
+        "technical operations",
+        "Operations",
+        "Maintenance",
+        "acquisition",
+        "production",
+        "deployment operations",
+        "Ops"
+      ]
+    },
+    {
+      "name": "CybersecurityPersonnel",
+      "members": [
+        "Commissioner of Cybersecurity",
+        "Assistant Commissioners of Cybersecurity",
+        "CSA sector officers",
+        "Chief Information Security Officers",
+        "security professionals",
+        "cybersecurity technical experts",
+        "cybersecurity officer",
+        "cybersecurity officers"
+      ]
+    },
+    {
+      "name": "CybersecurityAuthority",
+      "members": [
+        "Deputy Commissioner",
+        "Commissioner's approval",
+        "jurisdiction of court",
+        "Assistant Commissioner",
+        "Commissioner",
+        "Minister"
+      ]
+    },
+    {
+      "name": "InformationTechnologyAssets",
+      "members": [
+        "mechanism",
+        "patch",
+        "physical sites",
+        "end-point devices",
+        "servers",
+        "routers",
+        "hardware",
+        "software"
+      ]
+    },
+    {
+      "name": "RecurringRequirements",
+      "members": [
+        "periodic",
+        "recurring requirements",
+        "systemic finding",
+        "recurring finding",
+        "expected occurrences",
+        "construction iterations"
+      ]
+    },
+    {
+      "name": "TeamCollaboration",
+      "members": [
+        "purple teaming",
+        "Red Teaming",
+        "Red team members",
+        "blue team defenders",
+        "purple team members"
+      ]
+    },
+    {
+      "name": "UserAccountManagement",
+      "members": [
+        "Previous Version",
+        "shared user account",
+        "Users",
+        "system owners",
+        "hosts",
+        "owner",
+        "economy"
+      ]
+    },
+    {
+      "name": "DisasterRecoveryObjectives",
+      "members": [
+        "recovery point objective",
+        "recovery time objective",
+        "recovery capabilities"
+      ]
+    },
+    {
+      "name": "ExternalEntity",
+      "members": [
+        "external network",
+        "subsidiary legislation",
+        "External consultants",
+        "external entity",
+        "external subject",
+        "business entity",
+        "corporation"
+      ]
+    },
+    {
+      "name": "RiskManagement",
+      "members": [
+        "residual risk",
+        "risk appetite",
+        "risk tolerance",
+        "risk likelihood",
+        "risk framing",
+        "likelihood",
+        "acceptable risk"
+      ]
+    },
+    {
+      "name": "SecurityProcesses",
+      "members": [
+        "secured intermediary mechanism",
+        "Security Processes",
+        "security-related processes",
+        "SBD processes",
+        "processes",
+        "security lifecycle processes"
+      ]
+    },
+    {
+      "name": "SystemDevelopmentLifecycle",
+      "members": [
+        "system development lifecycle",
+        "Systems Development Lifecycle",
+        "Agile Development Lifecycle",
+        "system development",
+        "lifecycle",
+        "systems developers",
+        "design/development",
+        "IT Project Lifecycle",
+        "system development effort"
+      ]
+    },
+    {
+      "name": "EnterpriseRiskManagement",
+      "members": [
+        "risk management framework",
+        "enterprise risk management process",
+        "risk-aware culture",
+        "organisational context",
+        "enterprise risk management programme",
+        "organisation-wide risk management",
+        "self-organising cross-functional teams",
+        "organisation-wide risk program",
+        "organisation risk"
+      ]
+    },
+    {
+      "name": "RoleDefinition",
+      "members": [
+        "Sector Leads",
+        "roles",
+        "Roles and Responsibilities"
+      ]
+    },
+    {
+      "name": "TechnicalCompetencyFramework",
+      "members": [
+        "industry and trade associations",
+        "technical competencies",
+        "technical areas",
+        "advanced analytics",
+        "technical scope",
+        "technical specification",
+        "technical function"
+      ]
+    },
+    {
+      "name": "CybersecurityCodeOfPractice",
+      "members": [
+        "CCoP 2.0",
+        "CCoP clause"
+      ]
+    },
+    {
+      "name": "NetworkComponents",
+      "members": [
+        "network components",
+        "key components",
+        "components",
+        "system components",
+        "switches",
+        "component types",
+        "phases",
+        "component testing"
+      ]
+    },
+    {
+      "name": "TrustBoundary",
+      "members": [
+        "digital boundary",
+        "perimeter boundary",
+        "trust boundaries",
+        "trust levels",
+        "trust boundary"
+      ]
+    },
+    {
+      "name": "NationalDefenceStrategy",
+      "members": [
+        "Annex A",
+        "independence",
+        "defence in depth",
+        "effective layered defence",
+        "demilitarised zones",
+        "Defence Capability Management Framework",
+        "full-time national serviceman",
+        "national security",
+        "defence",
+        "foreign relations"
+      ]
+    },
+    {
+      "name": "CybersecurityCodeOfPractice",
+      "members": [
+        "national code of practice",
+        "harmonisation of codes",
+        "codes of practice",
+        "professional qualifications",
+        "Due Professional Care",
+        "good practices",
+        "best practices",
+        "records management regulation",
+        "code of practice"
+      ]
+    },
+    {
+      "name": "ControlAdequacy",
+      "members": [
+        "mitigating controls",
+        "compensating controls",
+        "Adequacy of control",
+        "Compensating control"
+      ]
+    },
+    {
+      "name": "AuditManagement",
+      "members": [
+        "audit finding remediation plan",
+        "follow-up audit",
+        "audit finding",
+        "audit principles",
+        "audit conclusion",
+        "audit findings",
+        "audit conclusions",
+        "audit evidence",
+        "audit criteria",
+        "executive summary",
+        "Audit Completion Timeline",
+        "Audit Report Format",
+        "Implementation of COI Recommendations - Audit Template",
+        "powers of investigation"
+      ]
+    },
+    {
+      "name": "ExecutiveLeadership",
+      "members": [
+        "Senior Management",
+        "business unit heads",
+        "senior official"
+      ]
+    },
+    {
+      "name": "StakeholderManagement",
+      "members": [
+        "stakeholders",
+        "conflict of interest",
+        "relevant experiences",
+        "Internal stakeholders"
+      ]
+    },
+    {
+      "name": "PublicSafetyFramework",
+      "members": [
+        "CoPs",
+        "public officer",
+        "public health",
+        "public order",
+        "public safety"
+      ]
+    },
+    {
+      "name": "IncidentImpactAnalysis",
+      "members": [
+        "condition",
+        "cause",
+        "effect",
+        "kill-chain",
+        "consequences",
+        "impact",
+        "consequence",
+        "response",
+        "financial penalty"
+      ]
+    },
+    {
+      "name": "CybersecurityRecommendations",
+      "members": [
+        "recommendation",
+        "recommendations",
+        "COI recommendations"
+      ]
+    },
+    {
+      "name": "ManagementPerspective",
+      "members": [
+        "management comments",
+        "management perspective",
+        "equipment or application perspective"
+      ]
+    },
+    {
+      "name": "BusinessObjectives",
+      "members": [
+        "purpose",
+        "business mission",
+        "business objectives",
+        "business objective",
+        "business unit",
+        "business goals",
+        "business function",
+        "business need"
+      ]
+    },
+    {
+      "name": "WebApplication",
+      "members": [
+        "web application",
+        "web applications",
+        "applications"
+      ]
+    },
+    {
+      "name": "IndustrialControlSystem",
+      "members": [
+        "industrial control system",
+        "Continuous Monitoring Activities",
+        "programmable logic controller",
+        "supervisory control and data acquisition system",
+        "distributed control system"
+      ]
+    },
+    {
+      "name": "CybersecurityFramework",
+      "members": [
+        "Purdue model",
+        "STRIDE-LM methodology",
+        "stepping stones",
+        "Waterfall model"
+      ]
+    },
+    {
+      "name": "ThreatManagement",
+      "members": [
+        "threat event",
+        "threat actor",
+        "threat events",
+        "threat lifecycle",
+        "contextualised threat events",
+        "historical occurrences"
+      ]
+    },
+    {
+      "name": "SecurityFramework",
+      "members": [
+        "framework",
+        "framework overview",
+        "SBD Framework"
+      ]
+    },
+    {
+      "name": "DataFlowManagement",
+      "members": [
+        "data flows",
+        "data diodes",
+        "data flow diagram",
+        "data flow"
+      ]
+    },
+    {
+      "name": "SystemAdministrator",
+      "members": [
+        "system custodian",
+        "system administrator",
+        "database administrator",
+        "systems administrators"
+      ]
+    },
+    {
+      "name": "AccessPoints",
+      "members": [
+        "entry points",
+        "initiation",
+        "inception",
+        "transition"
+      ]
+    },
+    {
+      "name": "SecureDisposal",
+      "members": [
+        "Disposal",
+        "disposal security",
+        "Secure Disposal Activities"
+      ]
+    },
+    {
+      "name": "LicensingAuthority",
+      "members": [
+        "authorised officers",
+        "licensing officer",
+        "assistant licensing officers",
+        "licence",
+        "assistant licensing officer",
+        "licensee"
+      ]
+    },
+    {
+      "name": "BusinessEntity",
+      "members": [
+        "unincorporated association",
+        "partnership",
+        "limited liability partnership"
+      ]
+    }
+  ],
+  "overlap": [
+    {
+      "name": "CriticalInformationInfrastructure",
+      "members": [
+        "Critical Information Infrastructure",
+        "Information Sharing",
+        "Guidelines for Auditing Critical Information Infrastructure",
+        "Critical Information Infrastructure Owners",
+        "persistent repository",
+        "Information Sharing and Analysis Centres",
+        "technological infrastructure",
+        "network infrastructures"
+      ],
+      "matched_c_type": "CriticalInformationInfrastructure"
+    },
+    {
+      "name": "GovernanceFramework",
+      "members": [
+        "Governance Requirements",
+        "Leadership and Oversight",
+        "organisational structure",
+        "Board of Directors",
+        "governance",
+        "government policies",
+        "statutory body"
+      ],
+      "matched_c_type": "CybersecurityGovernance"
+    },
+    {
+      "name": "GovernanceFramework",
+      "members": [
+        "Policies",
+        "Guidelines",
+        "interpretation section",
+        "preamble paragraphs",
+        "relevant forms",
+        "written directions",
+        "criteria",
+        "expectations",
+        "directives"
+      ],
+      "matched_c_type": "CybersecurityGovernance"
+    },
+    {
+      "name": "AccessControlMeasures",
+      "members": [
+        "Access Control",
+        "access control management",
+        "effective controls",
+        "controls",
+        "security checks",
+        "control measures",
+        "targeted controls",
+        "security perimeters",
+        "security controls",
+        "cybersecurity controls",
+        "Control Gates",
+        "security activities"
+      ],
+      "matched_c_type": "AccessControl"
+    },
+    {
+      "name": "PrivilegedAccess",
+      "members": [
+        "Privileged Access Management",
+        "Kerberos Ticket Granting Ticket account",
+        "privilege",
+        "privileged account",
+        "privileged access"
+      ],
+      "matched_c_type": "AccessControl"
+    },
+    {
+      "name": "RiskAssessment",
+      "members": [
+        "Vulnerability Assessment",
+        "supply chain risk assessment",
+        "risk-based approach",
+        "risk assessment process",
+        "IT risk assessment and management",
+        "risk assessment",
+        "risk treatment",
+        "risk monitoring",
+        "risk-based decisions",
+        "risk identification",
+        "risk analysis",
+        "risk evaluation",
+        "risk identification step",
+        "Assessment",
+        "risk assessments"
+      ],
+      "matched_c_type": "RiskAssessment"
+    },
+    {
+      "name": "ThreatIntelligence",
+      "members": [
+        "Threat Hunting",
+        "indicators of compromise",
+        "threats",
+        "threat identification",
+        "adversary",
+        "cyber threat hunting",
+        "threat sources",
+        "threat intelligence sources",
+        "targeted measures",
+        "potential threats",
+        "identified threats"
+      ],
+      "matched_c_type": "CyberThreatIntelligence"
+    },
+    {
+      "name": "ThreatIntelligence",
+      "members": [
+        "Cyber Threat Intelligence",
+        "threat modelling",
+        "attack modelling",
+        "threat model",
+        "system threat model",
+        "threat analysis",
+        "OWASP Automated Threat Handbook"
+      ],
+      "matched_c_type": "CyberThreatIntelligence"
+    },
+    {
+      "name": "IncidentResponseManagement",
+      "members": [
+        "Response and Recovery Requirements",
+        "Incident Management",
+        "Crisis Communication Plan",
+        "incident response plan",
+        "incident response processes",
+        "incident response officer",
+        "computer emergency response teams"
+      ],
+      "matched_c_type": "IncidentManagement"
+    },
+    {
+      "name": "CybersecurityTrainingAndAwareness",
+      "members": [
+        "Cybersecurity Exercise",
+        "Cybersecurity Training Programme",
+        "Cybersecurity Awareness",
+        "Cybersecurity Training and Skills",
+        "scenario-based cybersecurity exercise",
+        "Cybersecurity Training",
+        "Cybersecurity Awareness Programme",
+        "cybersecurity knowledge",
+        "staff cybersecurity competencies",
+        "cybersecurity exercises"
+      ],
+      "matched_c_type": "CybersecurityTraining"
+    },
+    {
+      "name": "CriticalInformationInfrastructure",
+      "members": [
+        "CII asset",
+        "CII Designation Date",
+        "CIIO",
+        "Existing CII",
+        "Redesignated CII",
+        "CII",
+        "CIIOs",
+        "CII system",
+        "CII organisation",
+        "CII systems"
+      ],
+      "matched_c_type": "CriticalInformationInfrastructure"
+    },
+    {
+      "name": "ComplianceManagement",
+      "members": [
+        "Compliance Date",
+        "Effective Date",
+        "compliance timeline",
+        "non-compliance",
+        "confidentiality",
+        "compliance",
+        "compliance-based approach",
+        "compliance-oriented approach",
+        "compliance audit",
+        "reporting",
+        "Implementation"
+      ],
+      "matched_c_type": "CybersecurityAudit"
+    },
+    {
+      "name": "CybersecurityRiskManagement",
+      "members": [
+        "cybersecurity",
+        "cybersecurity risk",
+        "cybersecurity risk profile",
+        "cybersecurity threat",
+        "Cybersecurity Risk Assessment",
+        "cybersecurity risks",
+        "technology risks",
+        "cybersecurity risk management plans",
+        "cybersecurity risk scenarios",
+        "security risks",
+        "cybersecurity threats",
+        "cybersecurity vulnerability"
+      ],
+      "matched_c_type": "RiskAssessment"
+    },
+    {
+      "name": "CybersecurityIncident",
+      "members": [
+        "cybersecurity event",
+        "cybersecurity incident",
+        "Cyber Incident Management",
+        "cyber-attack",
+        "emergency cybersecurity measures",
+        "cybersecurity incidents"
+      ],
+      "matched_c_type": "CybersecurityIncident"
+    },
+    {
+      "name": "CybersecurityAudit",
+      "members": [
+        "cybersecurity audit",
+        "2022 cybersecurity audit cycle",
+        "cybersecurity audits"
+      ],
+      "matched_c_type": "CybersecurityAudit"
+    },
+    {
+      "name": "WaiverManagement",
+      "members": [
+        "grace period",
+        "waivers",
+        "waiver request",
+        "waiver"
+      ],
+      "matched_c_type": "Waiver"
+    }
+  ],
+  "c_not_corroborated": [
+    "Clause",
+    "ComplianceGap",
+    "Control",
+    "ControlClause",
+    "Definition",
+    "DefinitionClause",
+    "IncidentResponsePlan",
+    "MultiFactorAuthentication",
+    "Obligation",
+    "ScopeClause"
+  ],
+  "terms": [
+    "Cyber Security Agency of Singapore",
+    "Critical Information Infrastructure",
+    "Audit Requirements",
+    "Governance Requirements",
+    "Leadership and Oversight",
+    "Risk Management",
+    "Policies",
+    "Standards",
+    "Guidelines",
+    "Procedures",
+    "Security-by-Design",
+    "Cybersecurity Design Principles",
+    "Change Management",
+    "Cloud Computing Systems and Services",
+    "Outsourcing and Vendor Management",
+    "Asset Management",
+    "Protection Requirements",
+    "Access Control",
+    "Account Management",
+    "Privileged Access Management",
+    "Domain Controller",
+    "Network Segmentation",
+    "Network Security",
+    "Remote Connection",
+    "Wireless Communication",
+    "System Hardening",
+    "Patch Management",
+    "Portable Computing Devices",
+    "Removable Storage Media",
+    "Application Security",
+    "Database Security",
+    "Vulnerability Assessment",
+    "Penetration Testing",
+    "Adversarial Attack Simulation",
+    "Cryptographic Key Management",
+    "Detection Requirements",
+    "Logging",
+    "Monitoring and Detection",
+    "Threat Hunting",
+    "Cyber Threat Intelligence",
+    "Information Sharing",
+    "Response and Recovery Requirements",
+    "Incident Management",
+    "Crisis Communication Plan",
+    "Cybersecurity Exercise",
+    "Cyber Resiliency Requirements",
+    "Backup and Restoration Plan",
+    "Business Continuity Plan",
+    "Disaster Recovery Plan",
+    "Cybersecurity Training Programme",
+    "Cybersecurity Awareness",
+    "Cybersecurity Training and Skills",
+    "Operational Technology Security Requirements",
+    "OT Architecture",
+    "Secure Coding",
+    "Field Controllers",
+    "Domain-Specific Practices",
+    "Domain Name System Security Extension",
+    "Cybersecurity Code of Practice",
+    "Cybersecurity Act 2018",
+    "pre-defined level of operation",
+    "resources",
+    "services",
+    "activities",
+    "Commissioner of Cybersecurity",
+    "Deputy Commissioner",
+    "Assistant Commissioners of Cybersecurity",
+    "CII asset",
+    "CII Designation Date",
+    "CIIO",
+    "Code",
+    "Compliance Date",
+    "cyber operating environment",
+    "cybersecurity",
+    "cybersecurity event",
+    "cybersecurity incident",
+    "cybersecurity risk",
+    "cybersecurity risk profile",
+    "cybersecurity threat",
+    "Effective Date",
+    "essential service",
+    "Existing CII",
+    "Redesignated CII",
+    "indicators of compromise",
+    "information technology",
+    "Kerberos Ticket Granting Ticket account",
+    "malware",
+    "mechanism",
+    "operational technology",
+    "organisational structure",
+    "patch",
+    "periodic",
+    "physical sites",
+    "purple teaming",
+    "Previous Version",
+    "privilege",
+    "privileged account",
+    "recovery point objective",
+    "recovery time objective",
+    "remote access",
+    "external network",
+    "remote facilities",
+    "computer system",
+    "residual risk",
+    "risk appetite",
+    "scenario-based cybersecurity exercise",
+    "security architecture",
+    "secured intermediary mechanism",
+    "sensitive data",
+    "shared user account",
+    "strong encryption",
+    "system development lifecycle",
+    "test environment",
+    "vendor",
+    "incident response plan",
+    "privileged access",
+    "risk management framework",
+    "asset identification",
+    "defence-in-depth design principles",
+    "defence-by-diversity design principles",
+    "security-by-design principles",
+    "zero trust principles",
+    "cyber stack",
+    "vendor management",
+    "supply chain risk assessment",
+    "access control management",
+    "remote access management",
+    "Computers",
+    "Red Teaming",
+    "Logging Requirements",
+    "Cyber Incident Management",
+    "Back Up and Restoration",
+    "Business Continuity",
+    "Disaster Recovery",
+    "Cybersecurity Training",
+    "Cybersecurity Awareness Programme",
+    "OT Security Requirement",
+    "Secured Coding",
+    "Field Controller",
+    "CII",
+    "Cybersecurity Risk Assessment",
+    "Audit",
+    "Sector Leads",
+    "CIIOs",
+    "industry and trade associations",
+    "CCoP 2.0",
+    "CII system",
+    "CII organisation",
+    "CII systems",
+    "computer systems",
+    "network components",
+    "end-point devices",
+    "digital boundary",
+    "cybersecurity capabilities",
+    "Annex A",
+    "Cybersecurity Act",
+    "cybersecurity audit",
+    "audit scope",
+    "2022 cybersecurity audit cycle",
+    "Cybersecurity Code-of-Practice",
+    "audit period",
+    "Government's Instruction Manual 8",
+    "national code of practice",
+    "sectoral cybersecurity requirements",
+    "harmonisation of codes",
+    "IM8 requirements",
+    "compliance timeline",
+    "grace period",
+    "cybersecurity requirements",
+    "cybersecurity risks",
+    "waivers",
+    "mitigating controls",
+    "recurring requirements",
+    "waiver request",
+    "codes of practice",
+    "standards of performance",
+    "CSA sector officers",
+    "CCoP clause",
+    "compensating controls",
+    "raw logs",
+    "baseline of normal operations",
+    "glossary",
+    "interpretation section",
+    "preamble paragraphs",
+    "audit finding remediation plan",
+    "remediation plan",
+    "non-compliance",
+    "follow-up audit",
+    "audit finding",
+    "Guidelines for Auditing Critical Information Infrastructure",
+    "auditor",
+    "Board of Directors",
+    "Senior Management",
+    "effective controls",
+    "cyber resiliency",
+    "cybersecurity knowledge",
+    "systemic risks",
+    "COI audit",
+    "audit expectations",
+    "stakeholders",
+    "Chief Information Security Officers",
+    "Commissioner's approval",
+    "auditors",
+    "relevant forms",
+    "audit firm/team",
+    "conflict of interest",
+    "technical competencies",
+    "professional qualifications",
+    "certifications",
+    "skills",
+    "knowledge",
+    "relevant experiences",
+    "audit principles",
+    "audit conclusion",
+    "audit findings",
+    "audit reports",
+    "audit activities",
+    "auditee",
+    "Due Professional Care",
+    "audit client",
+    "confidentiality",
+    "security of information",
+    "audit information",
+    "independence",
+    "audit conclusions",
+    "audit evidence",
+    "audit subject",
+    "audit criteria",
+    "compliance",
+    "subsidiary legislation",
+    "written directions",
+    "CoPs",
+    "SoPs",
+    "waiver",
+    "compliance-based approach",
+    "risk-based approach",
+    "risks",
+    "threats",
+    "systemic finding",
+    "recurring finding",
+    "good practices",
+    "governance",
+    "controls",
+    "condition",
+    "criteria",
+    "cause",
+    "effect",
+    "recommendation",
+    "management comments",
+    "executive summary",
+    "purpose",
+    "audit objective",
+    "audit methodology",
+    "cyber-attack",
+    "recommendations",
+    "staff cybersecurity competencies",
+    "system and data protection",
+    "security checks",
+    "incident response processes",
+    "COI recommendations",
+    "Audit Completion Timeline",
+    "Audit Approach",
+    "Audit Report Format",
+    "audit worksheet",
+    "Implementation of COI Recommendations - Audit Template",
+    "Adequacy of control",
+    "Compensating control",
+    "threat modelling",
+    "risk assessment process",
+    "system level approach",
+    "threat identification",
+    "attack modelling",
+    "information communication technology",
+    "web application",
+    "database system",
+    "industrial control system",
+    "Purdue model",
+    "threat event",
+    "threat actor",
+    "threat vector",
+    "tactics",
+    "techniques",
+    "control measures",
+    "key components",
+    "system",
+    "adversary",
+    "kill-chain",
+    "crown jewels",
+    "threat model",
+    "blind spots",
+    "threat events",
+    "Critical Information Infrastructure Owners",
+    "framework",
+    "system threat model",
+    "Users",
+    "Internal stakeholders",
+    "system owners",
+    "business unit heads",
+    "IT risk assessment and management",
+    "External consultants",
+    "service providers",
+    "Red team members",
+    "blue team defenders",
+    "purple team members",
+    "technical areas",
+    "threat analysis",
+    "management perspective",
+    "system perspective",
+    "equipment or application perspective",
+    "Common Cyber Threat Framework",
+    "threat lifecycle",
+    "system constructs",
+    "system behaviours",
+    "components",
+    "architectural layers",
+    "data flows",
+    "assets",
+    "cyber threat hunting",
+    "log correlation",
+    "data triaging",
+    "advanced analytics",
+    "heuristic techniques",
+    "defence in depth",
+    "system components",
+    "contextualised threat events",
+    "targeted controls",
+    "effective layered defence",
+    "perimeter boundary",
+    "system decomposition",
+    "trust boundaries",
+    "threat vectors",
+    "sequence of attack",
+    "technical scope",
+    "system architecture",
+    "security perimeters",
+    "attack surface",
+    "system operations manual",
+    "software design document",
+    "technical specification",
+    "system-related documentation",
+    "system custodian",
+    "system administrator",
+    "database administrator",
+    "network diagrams",
+    "architecture drawings",
+    "data diodes",
+    "demilitarised zones",
+    "servers",
+    "databases",
+    "client workstations",
+    "hosts",
+    "switches",
+    "routers",
+    "firewalls",
+    "intrusion detection systems",
+    "intrusion prevention systems",
+    "data store",
+    "persistent repository",
+    "external entity",
+    "external subject",
+    "data flow diagram",
+    "data",
+    "functions",
+    "business mission",
+    "component types",
+    "database",
+    "transactional system",
+    "data flow",
+    "trust levels",
+    "trust boundary",
+    "STRIDE-LM methodology",
+    "NIST SP 800-30",
+    "threat sources",
+    "web applications",
+    "OWASP Automated Threat Handbook",
+    "Information Sharing and Analysis Centres",
+    "threat intelligence sources",
+    "risk assessment",
+    "enterprise risk management process",
+    "risk levels",
+    "risk-aware culture",
+    "technology risks",
+    "risk scenarios",
+    "vulnerabilities",
+    "consequences",
+    "organisational context",
+    "targeted measures",
+    "compliance-oriented approach",
+    "security controls",
+    "compliance audit",
+    "gap analysis",
+    "defined standards",
+    "risk tolerance",
+    "cybersecurity risk management plans",
+    "enterprise risk management programme",
+    "risk-taking",
+    "business objectives",
+    "risk likelihood",
+    "historical occurrences",
+    "expected occurrences",
+    "expectations",
+    "risk framing",
+    "risk treatment",
+    "risk monitoring",
+    "reporting",
+    "risk context",
+    "risk",
+    "vulnerability",
+    "likelihood",
+    "impact",
+    "risk factors",
+    "business objective",
+    "acceptable risk",
+    "roles",
+    "senior official",
+    "business unit",
+    "business goals",
+    "system disruptions",
+    "organisation-wide risk management",
+    "technical function",
+    "business function",
+    "risk-based decisions",
+    "technological infrastructure",
+    "network",
+    "applications",
+    "system assets",
+    "technical operations",
+    "cybersecurity controls",
+    "potential threats",
+    "cybersecurity risk scenarios",
+    "identified threats",
+    "risk identification",
+    "risk analysis",
+    "risk evaluation",
+    "physical assets",
+    "logical assets",
+    "stepping stones",
+    "network architecture diagram",
+    "entry points",
+    "attack vectors",
+    "asset inventory list",
+    "risk identification step",
+    "asset",
+    "consequence",
+    "Systems Development Lifecycle",
+    "Agile Development Lifecycle",
+    "Security-by-Design Lifecycle",
+    "Security-by-Design Approach",
+    "Security-by-Design Framework",
+    "Security Processes",
+    "Control Gates",
+    "Roles and Responsibilities",
+    "security",
+    "system development",
+    "SDLC",
+    "systems vulnerabilities",
+    "security specifications",
+    "security evaluation",
+    "best practices",
+    "security vulnerabilities",
+    "misconfigurations",
+    "shared security services",
+    "security posture",
+    "security decisions",
+    "lifecycle",
+    "cyber protection considerations",
+    "identification",
+    "protection",
+    "detection",
+    "response",
+    "recovery capabilities",
+    "security-related processes",
+    "security considerations",
+    "SBD processes",
+    "security risks",
+    "decision point considerations",
+    "framework overview",
+    "processes",
+    "network infrastructures",
+    "Infocomm Technologies",
+    "Operational Technologies",
+    "Internet of Things",
+    "SDLC methodologies",
+    "government policies",
+    "directives",
+    "security activities",
+    "organisation standards",
+    "IT standards bodies",
+    "Security-by-Design development process",
+    "security professionals",
+    "systems developers",
+    "systems administrators",
+    "vendors",
+    "systems",
+    "business need",
+    "functional specifications",
+    "procurement process",
+    "design/development",
+    "phases",
+    "Implementation",
+    "Assessment",
+    "Operations",
+    "Maintenance",
+    "Disposal",
+    "initiation",
+    "acquisition",
+    "hardware",
+    "software",
+    "system upgrades",
+    "records management regulation",
+    "IT Project Lifecycle",
+    "Defence Capability Management Framework",
+    "conventional SDLC model",
+    "Waterfall model",
+    "self-organising cross-functional teams",
+    "concept",
+    "inception",
+    "construction iterations",
+    "transition",
+    "production",
+    "change management process",
+    "SBD Framework",
+    "risk management process",
+    "security planning",
+    "component testing",
+    "deployment operations",
+    "disposal security",
+    "security lifecycle processes",
+    "system development effort",
+    "security capabilities",
+    "organisation-wide risk program",
+    "organisation risk",
+    "security guidance",
+    "Ops",
+    "Continuous Monitoring Activities",
+    "Secure Disposal Activities",
+    "authorised officers",
+    "cybersecurity audits",
+    "risk assessments",
+    "cybersecurity exercises",
+    "incident response officer",
+    "cybersecurity technical experts",
+    "emergency cybersecurity measures",
+    "licensable cybersecurity service",
+    "licensing officer",
+    "assistant licensing officers",
+    "licence",
+    "financial penalty",
+    "unlicensed cybersecurity service provider",
+    "powers of investigation",
+    "jurisdiction of court",
+    "preservation of secrecy",
+    "protection of informers",
+    "essential services",
+    "licensable cybersecurity services",
+    "Assistant Commissioner",
+    "assistant licensing officer",
+    "business entity",
+    "corporation",
+    "unincorporated association",
+    "partnership",
+    "limited liability partnership",
+    "code of practice",
+    "Commissioner",
+    "computer",
+    "computer program",
+    "computer service",
+    "information technology system",
+    "operational technology system",
+    "programmable logic controller",
+    "supervisory control and data acquisition system",
+    "distributed control system",
+    "cybersecurity officer",
+    "cybersecurity program",
+    "cybersecurity service",
+    "cybersecurity solutions",
+    "cybersecurity threats",
+    "cybersecurity policy",
+    "cybersecurity service provider",
+    "cybersecurity vulnerability",
+    "full-time national serviceman",
+    "licensee",
+    "owner",
+    "standard of performance",
+    "computer network",
+    "public officer",
+    "statutory body",
+    "Minister",
+    "cybersecurity officers",
+    "cybersecurity incidents",
+    "national security",
+    "defence",
+    "economy",
+    "foreign relations",
+    "public health",
+    "public order",
+    "public safety",
+    "cybersecurity codes of practice",
+    "computer emergency response teams"
+  ],
+  "clusters": [
+    {
+      "name": "CybersecurityService",
+      "members": [
+        "Cyber Security Agency of Singapore",
+        "shared security services",
+        "licensable cybersecurity service",
+        "unlicensed cybersecurity service provider",
+        "licensable cybersecurity services",
+        "cybersecurity program",
+        "cybersecurity service",
+        "cybersecurity solutions",
+        "cybersecurity policy",
+        "cybersecurity service provider"
+      ]
+    },
+    {
+      "name": "CriticalInformationInfrastructure",
+      "members": [
+        "Critical Information Infrastructure",
+        "Information Sharing",
+        "Guidelines for Auditing Critical Information Infrastructure",
+        "Critical Information Infrastructure Owners",
+        "persistent repository",
+        "Information Sharing and Analysis Centres",
+        "technological infrastructure",
+        "network infrastructures"
+      ]
+    },
+    {
+      "name": "AuditManagement",
+      "members": [
+        "Audit Requirements",
+        "Audit",
+        "audit scope",
+        "audit period",
+        "auditor",
+        "COI audit",
+        "audit expectations",
+        "auditors",
+        "audit firm/team",
+        "audit reports",
+        "audit activities",
+        "auditee",
+        "audit client",
+        "audit information",
+        "audit subject",
+        "audit objective",
+        "audit methodology",
+        "Audit Approach",
+        "audit worksheet"
+      ]
+    },
+    {
+      "name": "GovernanceFramework",
+      "members": [
+        "Governance Requirements",
+        "Leadership and Oversight",
+        "organisational structure",
+        "Board of Directors",
+        "governance",
+        "government policies",
+        "statutory body"
+      ]
+    },
+    {
+      "name": "RiskManagement",
+      "members": [
+        "Risk Management",
+        "systemic risks",
+        "risks",
+        "risk levels",
+        "risk scenarios",
+        "risk-taking",
+        "risk context",
+        "risk",
+        "risk factors"
+      ]
+    },
+    {
+      "name": "GovernanceFramework",
+      "members": [
+        "Policies",
+        "Guidelines",
+        "interpretation section",
+        "preamble paragraphs",
+        "relevant forms",
+        "written directions",
+        "criteria",
+        "expectations",
+        "directives"
+      ]
+    },
+    {
+      "name": "PerformanceStandards",
+      "members": [
+        "Standards",
+        "standards of performance",
+        "certifications",
+        "NIST SP 800-30",
+        "defined standards",
+        "organisation standards",
+        "IT standards bodies",
+        "functional specifications",
+        "standard of performance"
+      ]
+    },
+    {
+      "name": "CybersecurityPractices",
+      "members": [
+        "Procedures",
+        "skills",
+        "tactics",
+        "techniques",
+        "heuristic techniques",
+        "concept"
+      ]
+    },
+    {
+      "name": "SecurityByDesign",
+      "members": [
+        "Security-by-Design",
+        "Cybersecurity Design Principles",
+        "defence-in-depth design principles",
+        "defence-by-diversity design principles",
+        "security-by-design principles",
+        "zero trust principles",
+        "Security-by-Design Lifecycle",
+        "Security-by-Design Approach",
+        "Security-by-Design Framework",
+        "Security-by-Design development process"
+      ]
+    },
+    {
+      "name": "ChangeManagementProcess",
+      "members": [
+        "Change Management",
+        "procurement process",
+        "change management process",
+        "risk management process"
+      ]
+    },
+    {
+      "name": "SystemArchitecture",
+      "members": [
+        "Cloud Computing Systems and Services",
+        "OT Architecture",
+        "security architecture",
+        "system level approach",
+        "system perspective",
+        "system constructs",
+        "system behaviours",
+        "architectural layers",
+        "system decomposition",
+        "system architecture"
+      ]
+    },
+    {
+      "name": "VendorManagement",
+      "members": [
+        "Outsourcing and Vendor Management",
+        "Account Management",
+        "Patch Management",
+        "vendor",
+        "vendor management",
+        "vendors"
+      ]
+    },
+    {
+      "name": "AssetManagement",
+      "members": [
+        "Asset Management",
+        "asset identification",
+        "crown jewels",
+        "assets",
+        "system assets",
+        "physical assets",
+        "logical assets",
+        "asset inventory list",
+        "asset"
+      ]
+    },
+    {
+      "name": "SecurityRequirements",
+      "members": [
+        "Protection Requirements",
+        "OT Security Requirement",
+        "IM8 requirements",
+        "protection",
+        "protection of informers"
+      ]
+    },
+    {
+      "name": "AccessControlMeasures",
+      "members": [
+        "Access Control",
+        "access control management",
+        "effective controls",
+        "controls",
+        "security checks",
+        "control measures",
+        "targeted controls",
+        "security perimeters",
+        "security controls",
+        "cybersecurity controls",
+        "Control Gates",
+        "security activities"
+      ]
+    },
+    {
+      "name": "PrivilegedAccess",
+      "members": [
+        "Privileged Access Management",
+        "Kerberos Ticket Granting Ticket account",
+        "privilege",
+        "privileged account",
+        "privileged access"
+      ]
+    },
+    {
+      "name": "Controller",
+      "members": [
+        "Domain Controller",
+        "Field Controllers",
+        "Field Controller"
+      ]
+    },
+    {
+      "name": "NetworkArchitecture",
+      "members": [
+        "Network Segmentation",
+        "network diagrams",
+        "architecture drawings",
+        "network",
+        "network architecture diagram"
+      ]
+    },
+    {
+      "name": "NetworkDefense",
+      "members": [
+        "Network Security",
+        "intrusion detection systems",
+        "intrusion prevention systems"
+      ]
+    },
+    {
+      "name": "RemoteAccessManagement",
+      "members": [
+        "Remote Connection",
+        "remote access",
+        "remote facilities",
+        "remote access management"
+      ]
+    },
+    {
+      "name": "InformationTechnology",
+      "members": [
+        "Wireless Communication",
+        "information technology",
+        "information communication technology",
+        "Infocomm Technologies",
+        "Internet of Things",
+        "information technology system"
+      ]
+    },
+    {
+      "name": "SystemSecurity",
+      "members": [
+        "System Hardening",
+        "malware",
+        "firewalls",
+        "vulnerabilities",
+        "vulnerability",
+        "system disruptions",
+        "systems vulnerabilities",
+        "security vulnerabilities",
+        "misconfigurations"
+      ]
+    },
+    {
+      "name": "ComputingInfrastructure",
+      "members": [
+        "Portable Computing Devices",
+        "Removable Storage Media",
+        "computer system",
+        "Computers",
+        "computer systems",
+        "system and data protection",
+        "system",
+        "client workstations",
+        "transactional system",
+        "systems",
+        "system upgrades",
+        "computer",
+        "computer program",
+        "computer service",
+        "computer network"
+      ]
+    },
+    {
+      "name": "InformationSecurity",
+      "members": [
+        "Application Security",
+        "Database Security",
+        "Domain Name System Security Extension",
+        "sensitive data",
+        "security of information",
+        "security",
+        "security specifications",
+        "security evaluation",
+        "security posture",
+        "security decisions",
+        "cyber protection considerations",
+        "security considerations",
+        "decision point considerations",
+        "security planning",
+        "security capabilities",
+        "security guidance"
+      ]
+    },
+    {
+      "name": "RiskAssessment",
+      "members": [
+        "Vulnerability Assessment",
+        "supply chain risk assessment",
+        "risk-based approach",
+        "risk assessment process",
+        "IT risk assessment and management",
+        "risk assessment",
+        "risk treatment",
+        "risk monitoring",
+        "risk-based decisions",
+        "risk identification",
+        "risk analysis",
+        "risk evaluation",
+        "risk identification step",
+        "Assessment",
+        "risk assessments"
+      ]
+    },
+    {
+      "name": "AttackSimulation",
+      "members": [
+        "Penetration Testing",
+        "Adversarial Attack Simulation",
+        "threat vector",
+        "threat vectors",
+        "sequence of attack",
+        "attack surface",
+        "attack vectors"
+      ]
+    },
+    {
+      "name": "CryptographicSecurity",
+      "members": [
+        "Cryptographic Key Management",
+        "Secure Coding",
+        "Code",
+        "strong encryption",
+        "Secured Coding",
+        "preservation of secrecy"
+      ]
+    },
+    {
+      "name": "DetectionCapabilities",
+      "members": [
+        "Detection Requirements",
+        "Monitoring and Detection",
+        "blind spots",
+        "gap analysis",
+        "identification",
+        "detection"
+      ]
+    },
+    {
+      "name": "LoggingManagement",
+      "members": [
+        "Logging",
+        "Logging Requirements",
+        "raw logs",
+        "log correlation"
+      ]
+    },
+    {
+      "name": "ThreatIntelligence",
+      "members": [
+        "Threat Hunting",
+        "indicators of compromise",
+        "threats",
+        "threat identification",
+        "adversary",
+        "cyber threat hunting",
+        "threat sources",
+        "threat intelligence sources",
+        "targeted measures",
+        "potential threats",
+        "identified threats"
+      ]
+    },
+    {
+      "name": "ThreatIntelligence",
+      "members": [
+        "Cyber Threat Intelligence",
+        "threat modelling",
+        "attack modelling",
+        "threat model",
+        "system threat model",
+        "threat analysis",
+        "OWASP Automated Threat Handbook"
+      ]
+    },
+    {
+      "name": "IncidentResponseManagement",
+      "members": [
+        "Response and Recovery Requirements",
+        "Incident Management",
+        "Crisis Communication Plan",
+        "incident response plan",
+        "incident response processes",
+        "incident response officer",
+        "computer emergency response teams"
+      ]
+    },
+    {
+      "name": "CybersecurityTrainingAndAwareness",
+      "members": [
+        "Cybersecurity Exercise",
+        "Cybersecurity Training Programme",
+        "Cybersecurity Awareness",
+        "Cybersecurity Training and Skills",
+        "scenario-based cybersecurity exercise",
+        "Cybersecurity Training",
+        "Cybersecurity Awareness Programme",
+        "cybersecurity knowledge",
+        "staff cybersecurity competencies",
+        "cybersecurity exercises"
+      ]
+    },
+    {
+      "name": "CybersecurityFramework",
+      "members": [
+        "Cyber Resiliency Requirements",
+        "cyber operating environment",
+        "cyber stack",
+        "cybersecurity capabilities",
+        "sectoral cybersecurity requirements",
+        "cybersecurity requirements",
+        "cyber resiliency",
+        "Common Cyber Threat Framework"
+      ]
+    },
+    {
+      "name": "ContinuityAndRecoveryPlanning",
+      "members": [
+        "Backup and Restoration Plan",
+        "Business Continuity Plan",
+        "Disaster Recovery Plan",
+        "Back Up and Restoration",
+        "Business Continuity",
+        "Disaster Recovery",
+        "remediation plan"
+      ]
+    },
+    {
+      "name": "OperationalTechnology",
+      "members": [
+        "Operational Technology Security Requirements",
+        "operational technology",
+        "Operational Technologies",
+        "operational technology system"
+      ]
+    },
+    {
+      "name": "SoftwareDevelopmentLifecycle",
+      "members": [
+        "Domain-Specific Practices",
+        "software design document",
+        "SDLC",
+        "SDLC methodologies",
+        "conventional SDLC model"
+      ]
+    },
+    {
+      "name": "CybersecurityRegulation",
+      "members": [
+        "Cybersecurity Code of Practice",
+        "Cybersecurity Act 2018",
+        "Cybersecurity Act",
+        "Cybersecurity Code-of-Practice",
+        "cybersecurity codes of practice"
+      ]
+    },
+    {
+      "name": "OperationalDocumentation",
+      "members": [
+        "pre-defined level of operation",
+        "test environment",
+        "Government's Instruction Manual 8",
+        "system operations manual",
+        "system-related documentation"
+      ]
+    },
+    {
+      "name": "DataRepository",
+      "members": [
+        "resources",
+        "glossary",
+        "knowledge",
+        "database system",
+        "data triaging",
+        "databases",
+        "data store",
+        "data",
+        "database"
+      ]
+    },
+    {
+      "name": "EssentialService",
+      "members": [
+        "services",
+        "essential service",
+        "service providers",
+        "essential services"
+      ]
+    },
+    {
+      "name": "OperationalManagement",
+      "members": [
+        "activities",
+        "baseline of normal operations",
+        "SoPs",
+        "functions",
+        "technical operations",
+        "Operations",
+        "Maintenance",
+        "acquisition",
+        "production",
+        "deployment operations",
+        "Ops"
+      ]
+    },
+    {
+      "name": "CybersecurityPersonnel",
+      "members": [
+        "Commissioner of Cybersecurity",
+        "Assistant Commissioners of Cybersecurity",
+        "CSA sector officers",
+        "Chief Information Security Officers",
+        "security professionals",
+        "cybersecurity technical experts",
+        "cybersecurity officer",
+        "cybersecurity officers"
+      ]
+    },
+    {
+      "name": "CybersecurityAuthority",
+      "members": [
+        "Deputy Commissioner",
+        "Commissioner's approval",
+        "jurisdiction of court",
+        "Assistant Commissioner",
+        "Commissioner",
+        "Minister"
+      ]
+    },
+    {
+      "name": "CriticalInformationInfrastructure",
+      "members": [
+        "CII asset",
+        "CII Designation Date",
+        "CIIO",
+        "Existing CII",
+        "Redesignated CII",
+        "CII",
+        "CIIOs",
+        "CII system",
+        "CII organisation",
+        "CII systems"
+      ]
+    },
+    {
+      "name": "ComplianceManagement",
+      "members": [
+        "Compliance Date",
+        "Effective Date",
+        "compliance timeline",
+        "non-compliance",
+        "confidentiality",
+        "compliance",
+        "compliance-based approach",
+        "compliance-oriented approach",
+        "compliance audit",
+        "reporting",
+        "Implementation"
+      ]
+    },
+    {
+      "name": "CybersecurityRiskManagement",
+      "members": [
+        "cybersecurity",
+        "cybersecurity risk",
+        "cybersecurity risk profile",
+        "cybersecurity threat",
+        "Cybersecurity Risk Assessment",
+        "cybersecurity risks",
+        "technology risks",
+        "cybersecurity risk management plans",
+        "cybersecurity risk scenarios",
+        "security risks",
+        "cybersecurity threats",
+        "cybersecurity vulnerability"
+      ]
+    },
+    {
+      "name": "CybersecurityIncident",
+      "members": [
+        "cybersecurity event",
+        "cybersecurity incident",
+        "Cyber Incident Management",
+        "cyber-attack",
+        "emergency cybersecurity measures",
+        "cybersecurity incidents"
+      ]
+    },
+    {
+      "name": "InformationTechnologyAssets",
+      "members": [
+        "mechanism",
+        "patch",
+        "physical sites",
+        "end-point devices",
+        "servers",
+        "routers",
+        "hardware",
+        "software"
+      ]
+    },
+    {
+      "name": "RecurringRequirements",
+      "members": [
+        "periodic",
+        "recurring requirements",
+        "systemic finding",
+        "recurring finding",
+        "expected occurrences",
+        "construction iterations"
+      ]
+    },
+    {
+      "name": "TeamCollaboration",
+      "members": [
+        "purple teaming",
+        "Red Teaming",
+        "Red team members",
+        "blue team defenders",
+        "purple team members"
+      ]
+    },
+    {
+      "name": "UserAccountManagement",
+      "members": [
+        "Previous Version",
+        "shared user account",
+        "Users",
+        "system owners",
+        "hosts",
+        "owner",
+        "economy"
+      ]
+    },
+    {
+      "name": "DisasterRecoveryObjectives",
+      "members": [
+        "recovery point objective",
+        "recovery time objective",
+        "recovery capabilities"
+      ]
+    },
+    {
+      "name": "ExternalEntity",
+      "members": [
+        "external network",
+        "subsidiary legislation",
+        "External consultants",
+        "external entity",
+        "external subject",
+        "business entity",
+        "corporation"
+      ]
+    },
+    {
+      "name": "RiskManagement",
+      "members": [
+        "residual risk",
+        "risk appetite",
+        "risk tolerance",
+        "risk likelihood",
+        "risk framing",
+        "likelihood",
+        "acceptable risk"
+      ]
+    },
+    {
+      "name": "SecurityProcesses",
+      "members": [
+        "secured intermediary mechanism",
+        "Security Processes",
+        "security-related processes",
+        "SBD processes",
+        "processes",
+        "security lifecycle processes"
+      ]
+    },
+    {
+      "name": "SystemDevelopmentLifecycle",
+      "members": [
+        "system development lifecycle",
+        "Systems Development Lifecycle",
+        "Agile Development Lifecycle",
+        "system development",
+        "lifecycle",
+        "systems developers",
+        "design/development",
+        "IT Project Lifecycle",
+        "system development effort"
+      ]
+    },
+    {
+      "name": "EnterpriseRiskManagement",
+      "members": [
+        "risk management framework",
+        "enterprise risk management process",
+        "risk-aware culture",
+        "organisational context",
+        "enterprise risk management programme",
+        "organisation-wide risk management",
+        "self-organising cross-functional teams",
+        "organisation-wide risk program",
+        "organisation risk"
+      ]
+    },
+    {
+      "name": "RoleDefinition",
+      "members": [
+        "Sector Leads",
+        "roles",
+        "Roles and Responsibilities"
+      ]
+    },
+    {
+      "name": "TechnicalCompetencyFramework",
+      "members": [
+        "industry and trade associations",
+        "technical competencies",
+        "technical areas",
+        "advanced analytics",
+        "technical scope",
+        "technical specification",
+        "technical function"
+      ]
+    },
+    {
+      "name": "CybersecurityCodeOfPractice",
+      "members": [
+        "CCoP 2.0",
+        "CCoP clause"
+      ]
+    },
+    {
+      "name": "NetworkComponents",
+      "members": [
+        "network components",
+        "key components",
+        "components",
+        "system components",
+        "switches",
+        "component types",
+        "phases",
+        "component testing"
+      ]
+    },
+    {
+      "name": "TrustBoundary",
+      "members": [
+        "digital boundary",
+        "perimeter boundary",
+        "trust boundaries",
+        "trust levels",
+        "trust boundary"
+      ]
+    },
+    {
+      "name": "NationalDefenceStrategy",
+      "members": [
+        "Annex A",
+        "independence",
+        "defence in depth",
+        "effective layered defence",
+        "demilitarised zones",
+        "Defence Capability Management Framework",
+        "full-time national serviceman",
+        "national security",
+        "defence",
+        "foreign relations"
+      ]
+    },
+    {
+      "name": "CybersecurityAudit",
+      "members": [
+        "cybersecurity audit",
+        "2022 cybersecurity audit cycle",
+        "cybersecurity audits"
+      ]
+    },
+    {
+      "name": "CybersecurityCodeOfPractice",
+      "members": [
+        "national code of practice",
+        "harmonisation of codes",
+        "codes of practice",
+        "professional qualifications",
+        "Due Professional Care",
+        "good practices",
+        "best practices",
+        "records management regulation",
+        "code of practice"
+      ]
+    },
+    {
+      "name": "WaiverManagement",
+      "members": [
+        "grace period",
+        "waivers",
+        "waiver request",
+        "waiver"
+      ]
+    },
+    {
+      "name": "ControlAdequacy",
+      "members": [
+        "mitigating controls",
+        "compensating controls",
+        "Adequacy of control",
+        "Compensating control"
+      ]
+    },
+    {
+      "name": "AuditManagement",
+      "members": [
+        "audit finding remediation plan",
+        "follow-up audit",
+        "audit finding",
+        "audit principles",
+        "audit conclusion",
+        "audit findings",
+        "audit conclusions",
+        "audit evidence",
+        "audit criteria",
+        "executive summary",
+        "Audit Completion Timeline",
+        "Audit Report Format",
+        "Implementation of COI Recommendations - Audit Template",
+        "powers of investigation"
+      ]
+    },
+    {
+      "name": "ExecutiveLeadership",
+      "members": [
+        "Senior Management",
+        "business unit heads",
+        "senior official"
+      ]
+    },
+    {
+      "name": "StakeholderManagement",
+      "members": [
+        "stakeholders",
+        "conflict of interest",
+        "relevant experiences",
+        "Internal stakeholders"
+      ]
+    },
+    {
+      "name": "PublicSafetyFramework",
+      "members": [
+        "CoPs",
+        "public officer",
+        "public health",
+        "public order",
+        "public safety"
+      ]
+    },
+    {
+      "name": "IncidentImpactAnalysis",
+      "members": [
+        "condition",
+        "cause",
+        "effect",
+        "kill-chain",
+        "consequences",
+        "impact",
+        "consequence",
+        "response",
+        "financial penalty"
+      ]
+    },
+    {
+      "name": "CybersecurityRecommendations",
+      "members": [
+        "recommendation",
+        "recommendations",
+        "COI recommendations"
+      ]
+    },
+    {
+      "name": "ManagementPerspective",
+      "members": [
+        "management comments",
+        "management perspective",
+        "equipment or application perspective"
+      ]
+    },
+    {
+      "name": "BusinessObjectives",
+      "members": [
+        "purpose",
+        "business mission",
+        "business objectives",
+        "business objective",
+        "business unit",
+        "business goals",
+        "business function",
+        "business need"
+      ]
+    },
+    {
+      "name": "WebApplication",
+      "members": [
+        "web application",
+        "web applications",
+        "applications"
+      ]
+    },
+    {
+      "name": "IndustrialControlSystem",
+      "members": [
+        "industrial control system",
+        "Continuous Monitoring Activities",
+        "programmable logic controller",
+        "supervisory control and data acquisition system",
+        "distributed control system"
+      ]
+    },
+    {
+      "name": "CybersecurityFramework",
+      "members": [
+        "Purdue model",
+        "STRIDE-LM methodology",
+        "stepping stones",
+        "Waterfall model"
+      ]
+    },
+    {
+      "name": "ThreatManagement",
+      "members": [
+        "threat event",
+        "threat actor",
+        "threat events",
+        "threat lifecycle",
+        "contextualised threat events",
+        "historical occurrences"
+      ]
+    },
+    {
+      "name": "SecurityFramework",
+      "members": [
+        "framework",
+        "framework overview",
+        "SBD Framework"
+      ]
+    },
+    {
+      "name": "DataFlowManagement",
+      "members": [
+        "data flows",
+        "data diodes",
+        "data flow diagram",
+        "data flow"
+      ]
+    },
+    {
+      "name": "SystemAdministrator",
+      "members": [
+        "system custodian",
+        "system administrator",
+        "database administrator",
+        "systems administrators"
+      ]
+    },
+    {
+      "name": "AccessPoints",
+      "members": [
+        "entry points",
+        "initiation",
+        "inception",
+        "transition"
+      ]
+    },
+    {
+      "name": "SecureDisposal",
+      "members": [
+        "Disposal",
+        "disposal security",
+        "Secure Disposal Activities"
+      ]
+    },
+    {
+      "name": "LicensingAuthority",
+      "members": [
+        "authorised officers",
+        "licensing officer",
+        "assistant licensing officers",
+        "licence",
+        "assistant licensing officer",
+        "licensee"
+      ]
+    },
+    {
+      "name": "BusinessEntity",
+      "members": [
+        "unincorporated association",
+        "partnership",
+        "limited liability partnership"
+      ]
+    }
+  ]
+}

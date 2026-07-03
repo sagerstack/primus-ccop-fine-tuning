@@ -162,6 +162,9 @@ data/cache/
 # Committed Phase 10 ontology draft — Method-C output, curated at the human
 # gate (plan 10-03) and consumed by downstream Phase 10 plans (10-04+)
 !src/rag/graph/ontology/ontology_draft.json
+# Committed Phase 10 Method-B clustering cross-check reconcile report — input
+# to the second human curation gate (b, plan 10-04)
+!src/rag/graph/ontology/method_b_reconcile.json
 *.parquet
 *.feather
 *.h5
