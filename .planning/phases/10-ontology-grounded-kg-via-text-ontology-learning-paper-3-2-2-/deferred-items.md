@@ -72,3 +72,18 @@ task's own changes).
   / `graph_state.py`. Discovered while running the fast slice
   (`pytest -m "not integration"`) as part of this plan's E2E verification.
   Needs its own investigation/fix outside Phase 10 scope.
+
+## 10-05
+
+- **`tests/rag/test_container_vector_store.py` and
+  `tests/rag/test_port_adapters.py` — collection errors, `ImportError: cannot
+  import name 'Dataset' from 'mlflow.entities'`** — pre-existing installed-
+  package version mismatch inside `mlflow`'s own internal imports
+  (`mlflow.data.dataset` importing `mlflow.entities.Dataset`, which the
+  currently-locked `mlflow` version doesn't expose). `poetry.lock` /
+  `pyproject.toml` are untouched by this plan (`git status` confirms zero
+  diff on both), so this is an environment state issue, not something this
+  plan's `clause_seeder.py` / `graph.py` changes caused. Unrelated to the
+  `src/rag/graph/ontology/` and `src/rag/graph/cli/` files this plan
+  modifies. Needs its own investigation (likely an `mlflow` version bump or
+  pin) outside Phase 10 scope.
