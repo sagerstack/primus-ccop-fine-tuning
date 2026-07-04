@@ -30,11 +30,18 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# CCoP 2.0 section-level TOC (5.1 through 5.12).
+# CCoP 2.0 section-level TOC (5.1 through 5.17).
 #
 # Source: CCoP---Second-Edition_Revision-One.pdf, Table of Contents (page 4).
 # Each entry is the X.Y prefix that must have at least one clause chunk in the index.
 # Adjust this list if a future revision of the PDF adds or removes sections.
+#
+# CORRECTED (Phase 11, D-19): this list previously stopped at 5.12 (the
+# page-4 TOC summary's granularity), silently under-checking real sections
+# 5.13-5.17 that DO exist in the document body and DO have clause_inventory.json
+# entries (883-entry fixture, the authoritative D-06/D-07 source) — a gate
+# that only enumerated 5.1-5.12 could never catch a regression dropping
+# 5.13-5.17 entirely. Verified against the live re-ingested corpus.
 EXPECTED_CCOP_2_SECTIONS = [
     "5.1",
     "5.2",
@@ -48,6 +55,11 @@ EXPECTED_CCOP_2_SECTIONS = [
     "5.10",
     "5.11",
     "5.12",
+    "5.13",
+    "5.14",
+    "5.15",
+    "5.16",
+    "5.17",
 ]
 
 
@@ -248,7 +260,10 @@ def _verify_toc_coverage(chunks: List[CcopChunk]) -> None:
             f"TOC sanity gate failed: expected sections missing from index: {sorted(missing)}"
         )
 
-    logger.info("TOC sanity gate PASSED — all 12 expected sections present")
+    logger.info(
+        f"TOC sanity gate PASSED — all {len(EXPECTED_CCOP_2_SECTIONS)} "
+        "expected sections present"
+    )
 
 
 def run_ingestion(ccop_dir: str, settings: Settings, dry_run: bool = False) -> Dict:
