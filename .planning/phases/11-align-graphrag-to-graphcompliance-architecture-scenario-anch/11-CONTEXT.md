@@ -173,6 +173,46 @@ generator (primus held constant, P9 D-06); the Microsoft `graphrag` package (P9 
   benches part of the Phase-10 ontology investment. (User: "focus on aligning with GraphCompliance,
   not OMAGR.")
 
+### Prior Phase-9/10 bugs — MUST NOT recur (regression guards; user mandate)
+These are hard planning constraints, not aspirations. Each maps to a logged bug; the planner MUST
+encode each as an acceptance criterion / task. Sources: `docs/project_notes/bugs.md` +
+`.planning/phases/10-.../deferred-items.md`.
+- **D-19 (corpus completeness — blocks D-13 payload):** bug 2026-04-21 — CCoP sections **5.3/5.4
+  clause bodies are absent from the index** (chunker failed to split the 5.2→5.3 boundary); *"no
+  retrieval strategy can fix a data problem."* This **voids the verbatim-text guarantee** for any
+  missing clause. **Guard:** step-0 clause-text alignment MUST run a completeness check — every
+  clause id in the inventory resolves to retrievable verbatim text; assert TOC section count ==
+  aligned clause-text count; **fail loudly at build, not silently at eval**. **No CU may exist
+  without its provision text.** (Also subsumes 2026-03-21 citation-ID-mismatch: CUs are clause-
+  grained with sub-clause `(a)(b)(c)` resolution, so `citation_id` = the actual clause, not the
+  chunk-boundary heading.)
+- **D-20 (provenance integrity):** bug 2026-07-02 — the KG collapsed all 7 docs into
+  `path="document.txt"`, producing **fabricated cross-doc citations** (0/3 grounding). **Guard:**
+  every CU/clause node carries correct per-source-doc provenance; assert at build that the 7 source
+  docs have 7 distinct identities and **zero `document.txt`**; citation ids namespaced by source
+  doc (also F2/D-08). No fabricated-citation regression.
+- **D-21 (verbose-io data-pipeline wiring — blocks D-17/D-15.1):** bug 2026-03-20 SC13c — the full
+  prompt + retrieved context are **not propagated** GraphState → RagResponse → EvaluationResult/CLI
+  (known-unwired). The D-17 trace and the D-15.1 verbatim-text-in-prompt assertion **depend on this
+  path existing**. **Guard:** plan the data-model change to propagate system/user prompt, retrieved
+  CUs + verbatim clause text, tokens, and latency (drop the hardcoded `tokens_used=0, latency_ms=0`
+  at `evaluate_model.py:192-193`) for the new mode. Without this, D-17 cannot be built.
+- **D-22 (clause-hit@3 gold validation — broken-ruler guard):** bug 2026-03-21 — GT `clause_reference`
+  fields contain **hallucinated clause ids** (`5.1.5` etc. don't exist; contamination spans B2–B20)
+  + Finding 7 (B02-001 mismatch). clause-hit@3 scores against these. **Guard:** before trusting the
+  metric, validate the 18-case gold clause SETs against the actual CCoP PDF (leverage `/gt-audit`);
+  never score against a nonexistent clause; flag/patch contaminated gold. A green clause-hit@3 on a
+  bad gold is meaningless.
+- **D-23 (Lucene/query-text escaping):** deferred-items 10-01/10-09 — raw `/` and `'` in question
+  text threw `TokenMgrError` in the fulltext path (fixed for the P10 ontology adapter via
+  `_escape_lucene_query_text`, still open for P9's). The D-13 channel-(ii) hybrid BM25/fulltext over
+  clause text MUST escape Lucene special chars — reuse/port the helper; do not reintroduce the bug.
+- **D-24 (build/eval hygiene):** deferred-items 10-01 — (a) `.gitignore`'s `models/` pattern shadows
+  `src/infrastructure/adapters/models/` (silently un-versioned adapter files; bit P9 *and* P10) —
+  verify the new mode's files are actually tracked; (b) the MEMORY-canonical hybrid baseline JSON
+  (`eval-run-hybrid-tests-18-bdc4927d-20260430-0232`) has a **corrupted B04 `test_id`** (`"\n  "`) —
+  verify/restore before using it as the A/B comparison leg.
+
 ### Claude's Discretion
 - Exact CU-node schema on Neo4j (new `:ComplianceUnit` layer vs upgrading `:Clause`); leaning new
   additive layer (a clause can spawn multiple CUs) — confirm at plan.
@@ -204,6 +244,12 @@ generator (primus held constant, P9 D-06); the Microsoft `graphrag` package (P9 
   collision; F3 short-id over-linking; F4 RAGAs rate-limit corruption; F5 score instability; F6
   hedge-instead-of-decide; F8 1,880-row fan-out) + the GraphCompliance reference-architecture
   comparison section.
+- `docs/project_notes/bugs.md` — the project bug log; the regression guards D-19–D-24 map to these
+  entries (2026-04-21 missing 5.3/5.4; 2026-07-02 document.txt provenance; 2026-03-20 SC13c prompt
+  propagation + tokens/latency; 2026-03-21 GT hallucinated clause refs + citation-ID mismatch).
+- `.planning/phases/10-.../deferred-items.md` (operational bugs section) — Lucene escaping (D-23),
+  `.gitignore models/` shadowing + corrupted canonical baseline `test_id` (D-24), in addition to
+  Findings 0–8.
 - `.planning/phases/10-.../10-CONTEXT.md` — locked ontology (24 types, 48 relations), clause
   backbone (D-10, count stale per our D-06), function-type tags (D-09, warm-start for D-03),
   clause-hit@3 harness (D-15), A/B scope (D-16), gold-relation coverage check (D-17/D-18).
