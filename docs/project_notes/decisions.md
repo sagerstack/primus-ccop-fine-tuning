@@ -253,6 +253,14 @@ Each decision should include:
   Corpus/index changes must be treated as explicit, announced decisions — not silent — and any
   frozen baseline they invalidate must be re-noted or regenerated.
 
+**Scope note (2026-07-04) — retired modes are an explicit exception:** `graphrag`,
+`graphrag-retrieval`, and `graphrag-ontology` (Phase 9/10) are **retired**, superseded by
+`graph-compliance` (Phase 11). Their Neo4j substrate (the emergent entity graph) was deleted and
+will not be maintained or rebuilt. Their breakage is therefore **not** a backward-compat
+regression under this ADR — the compat guarantee applies to *live* modes (`llm-only`, `hybrid`,
+`rag-only`, `graph-compliance`). Do not "fix" a non-functional graphrag mode; if fully removing
+its code/allowlist entries, do so as a deliberate deprecation, not a silent edit.
+
 ---
 
 ## Tips
