@@ -184,6 +184,49 @@ Cypher against the built graph (`graph build-ontology`, 221 chunks / 2751 nodes)
   asks about "Clause 5.1.5 multi-factor authentication" but the GT expected
   answer cites §5.7.2(b) for MFA. Flag for the ground-truth audit (`/gt-audit`).
 
+- **FINDING 8 — No dedup anywhere in the retrieve→rerank path; the
+  cross-encoder scores 1,880 mostly-duplicate rows and the top-3 collapse to a
+  single chunk. (Code-level locus of Findings 1 & 3.)** Settings in play:
+  `rag_retrieval_top_k=50`, `rerank_top_n=3`, `rag_merge_parent_enabled=True`,
+  cross-encoder `BAAI/bge-reranker-large`, `function_type_boost=1.5`. Trace:
+  - `graph_retrieval_node.py:95` → `provider.retrieve(query, top_k=50, function_type)`.
+  - Adapter `neo4j_ontology_graph_retrieval_adapter.py:208` →
+    `HybridCypherRetriever.search(top_k=50)`. `top_k=50` bounds only the
+    vector+fulltext index pre-fetch (~50 fused chunks); the custom
+    `RETRIEVAL_QUERY` (line 108) then `OPTIONAL MATCH (chunk)-[:LINKED_TO]->(c:Clause)`
+    fans each chunk into one row per linked clause and has **no final `LIMIT`**
+    → ~50 × ~37 = **1,880 rows** (matches the "returned 1880 documents" log).
+    `graph_retrieval_node` sets all 1,880 as `state["documents"]` by design
+    ("the reranker owns the final top-N").
+  - `reranking.py::rerank_documents` builds `pairs = [(query, doc.page_content)
+    for doc in documents]` and runs `bge-reranker-large` on **all 1,880**
+    (lines 85–91) — a heavy cross-encoder, most inferences redundant (identical
+    `page_content`); a big share of the ~20 min/case cost. Identical chunk texts
+    → identical CE scores → they cluster; RRF (dense_rank+ce_rank) tie-breaks by
+    tiny dense_rank deltas so they stay adjacent.
+  - The **parent-child merge** (enabled) groups by `parent_path_of(citation_id)`
+    (line 139), but bare chapter ids `1`/`10`/`11` have no dotted parent → each
+    is its own parent → **no merge fires**; and it merges by clause parent-path,
+    **not by chunk identity**, so it structurally cannot collapse "same chunk
+    under different clause labels."
+  - `top_docs = scored_for_topn[:rerank_top_n]` (=3) → the top-3 are **3
+    adjacent rows of the SAME chunk** (B01: `1/10/11`, byte-identical text).
+    **No dedup step exists at any stage.**
+  Fix locations (any one breaks the duplication; source-most preferred):
+  1. **`RETRIEVAL_QUERY` (adapter:108)** — collapse to **one row per chunk** at
+     the source: aggregate linked clauses per chunk, pick the single best
+     (most-specific, boosted) `clause_id` as citation, add `LIMIT $top_k`.
+     Eliminates the 1,880 explosion AND the ~37× redundant CE calls. Best.
+  2. **`graph_retrieval_node.py` (after line 95)** — dedup returned Documents by
+     chunk identity before the reranker (requires the adapter to also RETURN
+     `elementId(chunk)` so dedup keys on the true chunk, not text).
+  3. **`reranking.py` (before line 85)** — dedup `documents` by `page_content`
+     (or chunk id), keeping the best-ranked instance, before CE scoring.
+     Furthest downstream; also protects hybrid mode if it ever fans out.
+  Note: even after dedup the top-3 are 3 **distinct coarse chunks** — still not
+  clause-grained (Finding 1). Dedup + `LIMIT` is necessary but not sufficient;
+  pair with giving `:Clause` nodes real text.
+
 **Net implication for the A/B:** the ontology leg should NOT be reported as a
 fair result until Findings 1–4 are addressed. Findings 1–3 are upstream data-
 model bugs (`clause_seeder.py` + `clause_linker.py`), Finding 4 is a harness
