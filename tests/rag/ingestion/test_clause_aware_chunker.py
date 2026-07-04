@@ -26,7 +26,6 @@ from rag.ingestion.chunkers.clause_aware_chunker import (
     chunk_by_clauses,
 )
 
-
 # ---------------------------------------------------------------------------
 # CLAUSE_PATTERN / ITEM_LETTER_PATTERN regex unit tests
 # ---------------------------------------------------------------------------
