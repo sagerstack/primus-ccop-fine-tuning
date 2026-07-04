@@ -69,16 +69,28 @@ generator (primus held constant, P9 D-06); the Microsoft `graphrag` package (P9 
   e.g. "Clause 5.7.2") + a small LLM (implicit/relative refs). These are traversed at query time
   for exception closure.
 
-### Corpus scope + clause-count reconciliation
+### Corpus scope + the CU definition (GraphCompliance, NOT our clause)
 - **D-06:** The clause inventory (`clause_inventory.json`) has **883 entries across 7 docs**, NOT
   the "691" stated in P10 CONTEXT D-10 (stale — correct it). CCoP 2.0 alone = **415 entries** =
-  11 chapter headers + 51 section headers + 353 leaves (175 of which are lettered sub-items
-  `(a)(b)(c)`). The user's "~220 clauses" ≈ the operative leaves once structural headers are
-  stripped. Verify what `clause_seeder.py` actually MERGEs during planning.
-- **D-07:** **CU candidates = operative provisions only.** The 62 chapter/section headers (`1`,
-  `5.7`) are NOT CUs — they are the `CONTAIN` hierarchy skeleton (they are also the Finding-3
-  "content-empty chapter anchors" that flooded linking). Lettered sub-items `(a)(b)(c)` become
-  their own CUs where they carry a distinct obligation.
+  11 chapter headers + 51 section headers + 353 leaves (175 lettered sub-items). These are
+  **corpus/source facts** (segmentation + text carriers), used to size the clause backbone — they
+  are **NOT the CU count** (see D-07). Do not treat "~220" as a CU target.
+- **D-07 (CORRECTED — use GraphCompliance's CU definition, not our clause):** A **Compliance Unit
+  is an atomic obligation** — GraphCompliance's 4-tuple ⟨subject, constraint, context, conditions⟩,
+  typed `premise` / `meta-CU` / `actor-CU`. **CU identity and count are an OUTPUT of the
+  classification + formalization pass (D-03/D-04), not derived 1:1 from clause ids and not
+  reconciled against the ~220 operative-leaf arithmetic.** Consequences:
+  - The **clause** is only the CU's **source semantic unit + verbatim text carrier + citation
+    anchor** — it is NOT the CU.
+  - A clause classified `premise` yields **no** CU; a clause may carry **more than one** obligation
+    → more than one CU; structural headers (chapters/sections) are premises/`CONTAIN` skeleton,
+    never CUs.
+  - **CU count is emergent** — asserted as a build OUTPUT (e.g. "build reports A actor-CUs,
+    M meta-CUs, P premises; zero CUs without a 4-tuple; zero CUs without hard-linked source text"),
+    **never** as `count == operative-leaf count`. Drop that reconciliation criterion everywhere.
+  - Practically: 11-02 prepares the **source layer** (clause nodes with verbatim text + source-doc-
+    namespaced citation ids, D-08); **11-04's classification/formalization pass MINTS the CUs** from
+    those semantic units. The CU is a GraphCompliance obligation, full stop.
 - **D-08:** **Corpus-scope split (proposed, confirm at plan):** CCoP 2.0 + Cybersecurity Act =
   binding → yield judged `actor-CU`/`meta-CU`s; the 4 guides + Response-to-Feedback =
   `premise`/guidance (context, not judged). Namespace citation ids by source doc
@@ -234,6 +246,16 @@ encode each as an acceptance criterion / task. Sources: `docs/project_notes/bugs
     (3) Compliance Gate (retrieve→gate→judge→closure) → (4) `--mode` + verbose-io trace wiring
     (D-21 pipeline) → (5) eval-ruler + acceptance gates (D-15) + gold validation (D-22). Final
     order is the planner's, but **Wave 0 is fixed as first**.
+
+### Execution control — human approval gate after every wave (user directive)
+- **D-26:** **A human approval gate is MANDATORY after every wave** (all 9 waves), not just the two
+  the planner marked non-autonomous. The user reviews and approves each wave's output before the
+  next wave begins. Mechanism: the terminal plan of every wave is `autonomous: false` and ends with
+  a `type="checkpoint"` (or human-verify) task stating what was built, how to verify it, and the
+  resume signal — so `/gsd:execute-phase` pauses at each wave boundary for approval. No wave
+  auto-advances into the next. This is a hard execution constraint; it does not change scope, only
+  cadence. (Especially important given Wave 0's fail-loud gate and the LLM-extraction waves whose
+  output quality the user wants to eyeball before building on top.)
 
 ### Claude's Discretion
 - Exact CU-node schema on Neo4j (new `:ComplianceUnit` layer vs upgrading `:Clause`); leaning new
