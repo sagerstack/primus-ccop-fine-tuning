@@ -120,6 +120,36 @@ retrieval" was not actually clause-grounded, so the phase's headline metric
 (clause-hit@3) is being measured on a broken layer. Evidence gathered by direct
 Cypher against the built graph (`graph build-ontology`, 221 chunks / 2751 nodes).
 
+- **FINDING 0 (TOP — supersedes F1 in priority) — Retrieval NEVER traverses the
+  ontology graph; it is hybrid chunk search + a 2-hop label decoration.** The
+  `graphrag-ontology` `RETRIEVAL_QUERY` (adapter:108) walks only TWO edges from
+  the index-retrieved `:Chunk`: `FROM_DOCUMENT`→`:Document` (citation source) and
+  `LINKED_TO`→`:Clause` (citation label + `ScopeClause` ×1.5 boost). It touches
+  NONE of the extracted ontology. Relationship inventory in the built graph and
+  whether retrieval uses each:
+  `LINKED_TO` 85,269 ✅ · `FROM_DOCUMENT` 221 ✅ · `FROM_CHUNK` 1,877 ❌ ·
+  `HAS_CHILD` (clause hierarchy) 765 ❌ · `GOVERNS` 327 ❌ · `REQUIRES` 323 ❌ ·
+  `APPLIES_TO` 169 ❌ · `RESPONSIBLE_FOR` 32 ❌ · `NEXT_CHUNK` 214 ❌ ·
+  `IN_SCOPE_ONLY_IF` 11 ❌ · `PROVIDES` 7 ❌ · `VIOLATES` 4 ❌. Verified:
+  chunk→ontology-relation edges reachable from `RETRIEVAL_QUERY` = **0**. The node
+  that "wins" is always a `:Chunk` found by the vector+fulltext index search —
+  the SAME retrieval mechanism as the `hybrid` baseline. So `graphrag-ontology`
+  retrieval = **hybrid chunk retrieval + a noisy clause-label + a small scope
+  boost**; the ontology governs EXTRACTION but is never QUERIED.
+  B01-001 worked example: winning node = 7,922-char "SCOPE OF CCOP" chunk whose
+  `FROM_DOCUMENT` → "CCoP Response to Feedback"; fanned out over its 67
+  `LINKED_TO` clauses (exactly 1 is `ScopeClause` → ×1.5 → the `1` label; the
+  rest stay 1.0 → `10`,`11`). No clause→clause, entity, or relation traversal
+  occurs. **Implication:** this SUPERSEDES F1 — even after giving clauses text
+  (F1) and fixing linking/dedup (F2/F3/F8), retrieval would still not use the
+  ontology's relational structure; it would just fetch better chunks with
+  cleaner labels. Using the graph for reasoning (e.g. a scope question →
+  traverse `APPLIES_TO`/`IN_SCOPE_ONLY_IF` from the CII entity to the governing
+  clauses) is a DIFFERENT, additional design. Consequence for the deliverable:
+  the A/B as built does NOT test "ontology graph retrieval vs hybrid" — it tests
+  "hybrid + clause-label decoration vs hybrid." (Research into the correct
+  ontology-graph retrieval design is being conducted as follow-up.)
+
 - **FINDING 1 — The `:Clause` retrieval unit carries NO text (the core defect).**
   0 of 500 sampled `:Clause` nodes have a `.text` property — they are pure
   structural anchors (`clause_id`, `chapter`, `source_doc`, `function_type`).
