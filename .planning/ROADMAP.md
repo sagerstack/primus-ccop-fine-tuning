@@ -572,10 +572,19 @@ Plans:
 **Goal:** Re-architect the ontology graph-RAG retrieval+reasoning to match the GraphCompliance reference (arXiv 2510.26309, WWW'26), because Phase-10 triage proved `--mode graphrag-ontology` does no real graph reasoning — it is dense chunk retrieval + a decorative clause label (retrieval-only-graph), the exact config GraphCompliance's ablations show adds nothing over vanilla RAG. **This phase STARTS WITH DISCUSSION/DESIGN — do not pre-commit the design** (see phase-10 `deferred-items.md` Findings 0–8 + the GraphCompliance comparison, and `docs/project_notes/research/2026-07-04-ontology-graph-retrieval-design.md`). Align to the four GraphCompliance levers, ablation-ranked: (1) **model the question-scenario as a graph/anchors** (their S2 = −10.2pp, biggest lever) — we currently embed the query as a bare string; (2) **retrieve over structured obligation-units** (Compliance-Unit ⟨subject,constraint,context,conditions⟩) instead of coarse 3k–128k-char chunks, and make the leaf clause a **text-carrying, source-namespaced, citable node** (fixes F1/F2/F3); (3) **deterministic typed-relationship traversal outside the LLM** (REFERS_TO / APPLIES_TO / RESPONSIBLE_FOR / cross-reference closure — fixes F0); (4) **reserve the LLM for final judgment** over pre-structured evidence, citations constrained to the retrieved set. Also in scope: dedup/LIMIT the retrieval fan-out (F8) and fix the RAGAs rate-limit corruption + per-case score instability (F4/F5) so the A/B is measured with a reliable ruler. **Success:** a graphrag mode that actually uses the ontology for reasoning and beats the hybrid baseline on clause-hit@3 + citation grounding on the 18-case fixed GT (`bdc4927d`).
 **Requirements**: TBD (set during discuss/plan)
 **Depends on:** Phase 10 (reuses the Neo4j engine, locked ontology, clause backbone, and eval harness). NOTE: Phase 10's A/B should NOT be reported as a fair result until this phase lands — its ontology leg is retrieval-only-graph.
-**Plans:** 0 plans
+**Plans:** 10 plans (Wave 0 fixed first + BLOCKING per D-25)
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 11 to break down)
+- [ ] 11-01-PLAN.md — Wave 0 (BLOCKING): fix clause-aware chunker (5.2->5.3) + re-ingest 7 PDFs w/ per-doc provenance + fail-loud clause-completeness gate (D-19/D-20/D-25)
+- [ ] 11-02-PLAN.md — step-0 clause-text alignment + :ComplianceUnit seeding (namespaced ids, operative-leaf-only candidacy) (D-06/07/08/13-payload)
+- [ ] 11-03-PLAN.md — D-22 gold clause-set validation (18-case) + D-24 build/eval hygiene (gitignore models/, corrupted B04 baseline test_id)
+- [ ] 11-04-PLAN.md — Policy Graph Stage 1 CU classification (premise/meta-CU/actor-CU, warm-start) + Stage 2 4-tuple extraction (D-03/04/09)
+- [ ] 11-05-PLAN.md — Policy Graph Stage 3 REFERS_TO linking + PolicyGraphBuilder orchestrator + `graph build-compliance` CLI (D-01/02/05)
+- [ ] 11-06-PLAN.md — Context Graph extraction + anchors + hypernym mapping (STRONG/WEAK, beta=0.3) + state trace fields (D-05-ctx/D-09/D-10)
+- [ ] 11-07-PLAN.md — Compliance Gate anchor->CU two-channel retrieval adapter + CU Plan rerank + 3rd DI provider (D-11/13-recall/18/23/9)
+- [ ] 11-08-PLAN.md — meta-CU gating + listwise judgment (verbatim text in prompt) + REFERS_TO exception closure + violation-first aggregation (D-12/13-payload)
+- [ ] 11-09-PLAN.md — `--mode graph-compliance` 8-allowlist wiring + D-21 trace propagation + D-17 verbose-io trace + B01-001 E2E slice (D-15.3/16/17/21)
+- [ ] 11-10-PLAN.md — eval-ruler reliability (temp0, RAGAs demote F4/F5) + acceptance gates (D-15) + 18-case A/B vs hybrid w/ caveats (D-14/15/16/22)
 
 ---
 *Roadmap created: 2026-02-05*
