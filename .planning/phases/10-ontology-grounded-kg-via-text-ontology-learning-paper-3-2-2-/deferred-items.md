@@ -264,3 +264,58 @@ reliability bug. Reporting the A/B now would measure a mislabelled, coarse
 retrieval layer with a corrupted metric — understating the approach's real
 capability (B04, the one case with a specific clause anchor, was the only real
 answer). Recommend a fast-follow fix plan before the full 18-case A/B.
+
+## GraphCompliance — reference-architecture comparison (design target)
+
+GraphCompliance (arXiv 2510.26309, **accepted at WWW'26** — peer-reviewed, not a
+mere preprint) is a near-perfect reference architecture for our task: its
+compliance-check task ("is this scenario compliant with the rules?") matches our
+scenario-based benchmark questions almost exactly (e.g. B02 "does pwd+SMS-OTP
+satisfy §5.7.2?" IS a compliance check). Full analysis:
+`docs/project_notes/research/2026-07-04-ontology-graph-retrieval-design.md`.
+
+**What GraphCompliance does:** builds TWO graphs and aligns them —
+- **Policy Graph:** the regulation formalized into **Compliance Units (CUs)** —
+  each obligation a structured tuple ⟨subject, constraint, context, conditions⟩,
+  typed (Premise / Actor-CU / Meta-CU), with `CONTAIN` + `REFERS_TO` edges.
+- **Context Graph:** the *scenario being assessed*, extracted to entity triples,
+  from which **anchors** (actor/data/system) are pulled.
+- Pipeline: anchor extraction → CU retrieval (bi-encoder + cross-encoder → "CU
+  Plan") → LLM listwise judgment over the plan → **deterministic `REFERS_TO`
+  reference-closure traversal** for exceptions → 2nd LLM call for exception
+  validity → violation-first aggregation.
+- Retrieval is embedding-based (text-embedding-3-large) over **CUs** (NOT chunks)
+  with structured hypernym/subject scoring; **no Cypher**. The graph earns its
+  keep in REASONING (reference closure, actor-scoping, aggregation), not the
+  retrieval index.
+
+**Head-to-head (ours ← vs → theirs):**
+| Dimension | GraphCompliance | Ours (`graphrag-ontology`) |
+|---|---|---|
+| Retrieval unit | structured CU (atomic obligation) | coarse `:Chunk` (3k–128k chars) |
+| Question modeled? | Yes — scenario → Context Graph → anchors | No — query is an embedded string |
+| Policy↔scenario alignment | hypernym mapping | none (raw vector similarity) |
+| Graph traversal in loop | Yes — `REFERS_TO` closure, actor-scope, aggregation | No — 1 `chunk→clause` label hop |
+| Structural vs LLM split | explicit; LLM only final judgment | none; LLM does everything on raw chunks |
+| Cross-references | regex+LLM → `REFERS_TO` → traversed | not modeled/used |
+
+**Ablations (what actually drives the gains — GCS-300 GDPR, GPT-4.1):**
+- S2 (no Context Graph / no scenario anchoring) = **–10.2 pp** ← biggest lever
+- S4 (no reference traversal) = **–9.6 pp**
+- S3 (graphs as flat text, no anchoring) = **–8.1 pp** (having a graph ≠ enough;
+  the *anchoring* is the lever)
+- S1 (no Policy Graph) = –4.0 pp
+- Results: GraphCompliance **+5.9 pp micro-F1 over vanilla RAG, +7.9 over
+  community-summary GraphRAG, +19.6 pp F2**. Crucially, **retrieval-only GraphRAG
+  UNDERPERFORMED vanilla RAG (47.5 vs 49.5 micro-F1)** — graph-flavoured
+  *retrieval* adds nothing; the uplift is the reasoning architecture.
+
+**Implication for us (corrects the earlier "traverse the ontology in retrieval"
+framing):** the four levers are (1) model the question-scenario as anchors, (2)
+retrieve structured obligation-units not chunks, (3) deterministic
+reference/relationship traversal outside the LLM, (4) reserve the LLM for
+judgment over pre-structured evidence. **Our system has NONE of the four** — it
+is exactly the retrieval-only-graph config the paper shows adds nothing. Our
+Phase-10 entity ontology (24 types, `GOVERNS`/`REQUIRES`/`APPLIES_TO`) is the raw
+material for lever 3 but is never queried. Aligning to GraphCompliance is a
+new-phase-sized effort, not a patch (tracked as a new roadmap phase).
