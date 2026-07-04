@@ -575,15 +575,41 @@ Plans:
 **Plans:** 10 plans (Wave 0 fixed first + BLOCKING per D-25)
 
 Plans:
+**Wave 1**
+
 - [ ] 11-01-PLAN.md — Wave 0 (BLOCKING): fix clause-aware chunker (5.2->5.3) + re-ingest 7 PDFs w/ per-doc provenance + fail-loud clause-completeness gate (D-19/D-20/D-25)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 11-02-PLAN.md — step-0 clause-text alignment + :ComplianceUnit seeding (namespaced ids, operative-leaf-only candidacy) (D-06/07/08/13-payload)
 - [ ] 11-03-PLAN.md — D-22 gold clause-set validation (18-case) + D-24 build/eval hygiene (gitignore models/, corrupted B04 baseline test_id)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 11-04-PLAN.md — Policy Graph Stage 1 CU classification (premise/meta-CU/actor-CU, warm-start) + Stage 2 4-tuple extraction (D-03/04/09)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 11-05-PLAN.md — Policy Graph Stage 3 REFERS_TO linking + PolicyGraphBuilder orchestrator + `graph build-compliance` CLI (D-01/02/05)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 11-06-PLAN.md — Context Graph extraction + anchors + hypernym mapping (STRONG/WEAK, beta=0.3) + state trace fields (D-05-ctx/D-09/D-10)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 11-07-PLAN.md — Compliance Gate anchor->CU two-channel retrieval adapter + CU Plan rerank + 3rd DI provider (D-11/13-recall/18/23/9)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 11-08-PLAN.md — meta-CU gating + listwise judgment (verbatim text in prompt) + REFERS_TO exception closure + violation-first aggregation (D-12/13-payload)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 11-09-PLAN.md — `--mode graph-compliance` 8-allowlist wiring + D-21 trace propagation + D-17 verbose-io trace + B01-001 E2E slice (D-15.3/16/17/21)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 11-10-PLAN.md — eval-ruler reliability (temp0, RAGAs demote F4/F5) + acceptance gates (D-15) + 18-case A/B vs hybrid w/ caveats (D-14/15/16/22)
 
 ---
