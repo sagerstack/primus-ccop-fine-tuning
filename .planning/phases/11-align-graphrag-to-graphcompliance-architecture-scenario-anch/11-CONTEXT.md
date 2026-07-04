@@ -213,6 +213,28 @@ encode each as an acceptance criterion / task. Sources: `docs/project_notes/bugs
   (`eval-run-hybrid-tests-18-bdc4927d-20260430-0232`) has a **corrupted B04 `test_id`** (`"\n  "`) —
   verify/restore before using it as the A/B comparison leg.
 
+### Build sequence — Wave 0 is mandatory and comes first (user directive)
+- **D-25 (WAVE 0 — re-ingest from source PDFs + verify complete clause coverage):** Before ANY
+  Policy Graph / CU work, **redo ingestion from the source PDFs** (`ccop-official/` — all 7 docs)
+  and **verify that every clause is present with its verbatim body**. This is the concrete
+  realization of D-19/D-20 and the hard precondition for step-0 clause-text alignment (a CU cannot
+  carry text the corpus doesn't contain). Scope of Wave 0:
+  1. **Fix the clause-aware chunker** (`src/rag/ingestion/`) that failed to split the 5.2→5.3
+     boundary (bug 2026-04-21) — clause bodies incl. lettered sub-items `(a)(b)(c)` must each be
+     emitted, not glued onto a neighbor's tail.
+  2. **Re-ingest** all 7 source PDFs with **correct per-doc provenance** (D-20 — no `document.txt`).
+  3. **Completeness gate (fail loudly):** for every clause id in `clause_inventory.json` (883 /
+     7 docs; 415 CCoP), assert a resolvable verbatim body exists; assert TOC/inventory section
+     count == extracted-with-text count. Spot-check the known-missing sections (5.3, 5.4) return
+     content. **No downstream wave proceeds until this passes.**
+  4. Output = the clause-text-complete corpus feeding both the retrieval index (D-13 channel ii)
+     and the CU/clause nodes (step-0 alignment). Rebuild the graph (`graph build --drop`).
+  - Suggested wave order after Wave 0: (0) re-ingest+verify → (1) step-0 clause-text alignment +
+    Policy Graph build (classify → 4-tuple → REFERS_TO) → (2) Context Graph/anchors/hypernym →
+    (3) Compliance Gate (retrieve→gate→judge→closure) → (4) `--mode` + verbose-io trace wiring
+    (D-21 pipeline) → (5) eval-ruler + acceptance gates (D-15) + gold validation (D-22). Final
+    order is the planner's, but **Wave 0 is fixed as first**.
+
 ### Claude's Discretion
 - Exact CU-node schema on Neo4j (new `:ComplianceUnit` layer vs upgrading `:Clause`); leaning new
   additive layer (a clause can spawn multiple CUs) — confirm at plan.
