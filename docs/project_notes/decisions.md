@@ -210,6 +210,51 @@ Each decision should include:
 
 ---
 
+### ADR-008: Backward compatibility MUST be maintained per pipeline `mode` (2026-07-04)
+
+**Context:**
+- The RAG pipeline exposes multiple `mode`s that grow over time: `llm-only`, `hybrid`,
+  `rag-only`, `graphrag`, `graphrag-retrieval`, `graphrag-ontology`, and the incoming
+  `graph-compliance` (Phase 11-09). Modes share downstream LangGraph nodes (retrieval →
+  reranking → grade → generate) and shared config/DI/allowlists.
+- This creates a standing regression risk: wiring a NEW mode can silently alter an EXISTING
+  mode's behavior. This is the exact "multi-allowlist" class the project keeps re-hitting
+  (see D-16/D-19/D-20 decision tokens; the `~/.claude/rules/e2e-testing.md` Phase 9 example
+  where a new `graphrag` mode passed mocked tests but a second `RunId._VALID_MODES` allowlist
+  was missed).
+- User directive (2026-07-04): each mode must stay backward-compatible going forward.
+
+**Decision:**
+- Any change that adds or modifies a `mode` MUST be **strictly additive** with respect to every
+  other mode. Existing modes' routing outcomes, retrieval semantics, node behavior, and output
+  contracts must be preserved unchanged.
+- New behavior lives behind the new mode's own routing branch (mirroring `route_by_mode`'s
+  additive `graphrag`/`graphrag-ontology` branches, where `hybrid` falls through to the
+  unchanged default `retrieval` node). Shared nodes may only be changed in ways that are
+  provably behavior-preserving for pre-existing modes.
+- Every mode-touching change carries a backward-compat verification: diff the shared-path files
+  and confirm pre-existing modes are behavior-identical, plus a smallest-slice E2E per affected
+  mode. Reference precedent: the Phase 11 Wave-1 audit confirmed phases 9/10/11 left the shared
+  hybrid code path byte-identical to pre-phase-9 (only additive early-return branches added).
+
+**Alternatives Considered:**
+- Refactor the shared retrieval path per-mode as needed → Rejected ✗: reintroduces exactly the
+  silent cross-mode regression class this ADR exists to prevent.
+- Rely on tests without a formal rule → Rejected ✗: mocked unit tests already missed a second
+  allowlist once (the e2e-testing rule's own cautionary example).
+
+**Consequences:**
+- Mode wiring must update ALL allowlist/gating sites in one change (routing, `RunId._VALID_MODES`,
+  DI container, settings, CLI, adapter validation) — never a subset.
+- ⚠️ **Data caveat (separate compat surface):** shared retrieval indices (e.g. the
+  `ccop_clauses_hybrid` Qdrant collection) are NOT covered by code-level backward compat. Every
+  mode reading a collection is affected when that collection is re-ingested (e.g. Phase 11 Wave 0
+  rebuilt `ccop_clauses_hybrid`, changing hybrid retrieval vs the frozen canonical baseline).
+  Corpus/index changes must be treated as explicit, announced decisions — not silent — and any
+  frozen baseline they invalidate must be re-noted or regenerated.
+
+---
+
 ## Tips
 
 - Number decisions sequentially (ADR-001, ADR-002, etc.)
