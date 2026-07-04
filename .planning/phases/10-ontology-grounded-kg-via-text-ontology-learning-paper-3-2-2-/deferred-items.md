@@ -110,3 +110,84 @@ task's own changes).
   `src/rag/graph/ontology/` and `src/rag/graph/cli/` files this plan
   modifies. Needs its own investigation (likely an `mlflow` version bump or
   pin) outside Phase 10 scope.
+
+## 10-11 (A/B interpretation — ROOT-CAUSE FINDINGS)
+
+These surfaced while manually triaging the graphrag-ontology eval leg
+(B01–B04 of the `bdc4927d` set) before the full A/B run. They are not minor
+deferrals — collectively they mean the ontology leg's "clause-grounded
+retrieval" was not actually clause-grounded, so the phase's headline metric
+(clause-hit@3) is being measured on a broken layer. Evidence gathered by direct
+Cypher against the built graph (`graph build-ontology`, 221 chunks / 2751 nodes).
+
+- **FINDING 1 — The `:Clause` retrieval unit carries NO text (the core defect).**
+  0 of 500 sampled `:Clause` nodes have a `.text` property — they are pure
+  structural anchors (`clause_id`, `chapter`, `source_doc`, `function_type`).
+  The only nodes with retrievable text are `:Chunk` nodes: **221 chunks, avg
+  3,010 chars (~750 words = a section, many clauses), max 127,793 chars (~an
+  entire document)**, each `LINKED_TO` ~30 clauses on average (max 217). So the
+  D-11 promise — *coarse chunks for extraction, fine `:Clause` nodes as the
+  retrieval/citation unit* — is broken: there is nothing clause-sized to
+  retrieve, so the adapter (`neo4j_ontology_graph_retrieval_adapter.py`
+  `RETRIEVAL_QUERY` returns `chunk.text`) always returns the coarse chunk and
+  bolts a clause-id *label* onto it. **Retrieval returns sections/documents, not
+  clauses.** Fix options: (1) attach each clause's own provision text to the
+  `:Clause` node and retrieve/rank those; or (2) split chunks to clause size and
+  cite the leaf (re-opens the extraction-recall tension D-11 tried to resolve).
+
+- **FINDING 2 — `clause_id` is not unique; it collides across all 6 source
+  documents.** `clause_id="1"` returns **6 nodes** (one per doc: Risk Assessment
+  Guide, Security By Design, Threat Modelling Guide, CCoP 2.0, Audit Guide,
+  Response-to-Feedback); same for `"2"`, `"5"`, etc. `clause_seeder.py` assigned
+  `clause_id` = the raw section number without namespacing by `source_doc`, so a
+  citation of "clause 5" is ambiguous across six chapter-5s. Fix: namespace
+  `clause_id` (e.g. `{source_doc}::{clause_id}`) or include `source_doc` in the
+  citation.
+
+- **FINDING 3 — Short-id substring over-linking floods the coarse anchors.**
+  `ClauseLinker` links via substring-ish matching, so short chapter ids act as
+  magnets: `clause "1"` ← **1,471 chunks**, `"2"` ← 1,383, `"5"` ← 1,087, while
+  the specific leaf `"10.1.1"` ← only 12. Average **45.9 clauses linked per
+  chunk, max 217**; 85,269 `LINKED_TO` edges total. Consequence: the leaf clause
+  the answer needs (e.g. `5.7.2`, which *does* exist in the graph) is buried
+  under the content-empty chapter anchor (`5`) it shares a prefix with. This
+  also inflates retrieval pools to 1,880–2,391 docs/case (→ ~20 min/case rerank
+  latency). Fix: exact/boundary clause-id match only, link to the most specific
+  clause, drop/de-prioritize chapter-level anchors as citation targets.
+
+- **FINDING 4 — The RAGAs metrics in these runs are rate-limit-corrupted and
+  must not be trusted as-is.** RAGAs LLM calls hit OpenRouter 429s (2 of 3 jobs
+  failed on B01). Tell-tale: `context_precision` = `0.9999999999666667` appears
+  BYTE-IDENTICAL across B01 and B02 in the killed multi-case run (a degenerate
+  default), whereas the completed single-case B01 rerun computed precision =
+  0.00. So `context_recall`/`precision`/`faithfulness` from the multi-case run
+  are unreliable; only the deterministic citation-id evidence and the rubric
+  judge are trustworthy. Fix: throttle/batch RAGAs judge calls (or add backoff)
+  before the A/B, else the A/B is measured with a broken ruler.
+
+- **FINDING 5 — Per-case score instability.** B01-001 scored 0.111 (killed
+  multi-case run) vs 0.44 (single-case rerun) — same case, same mode. Generation
+  temperature + judge variance (compounded by Finding 4). The ontology-vs-
+  baseline delta may sit inside this noise band. Fix: temp 0 for the A/B or
+  multi-seed averaging.
+
+- **FINDING 6 — Systematic "hedge instead of decide" in the generator.** Across
+  B01–B03 (scenario questions) the model gave a verdict in 0/3 — it emits a
+  canned "Summary of Key Points" of CCoP admin trivia instead of answering
+  yes/no/it-depends. Every GT expected answer gives a crisp verdict. This is a
+  generation/prompt failure independent of retrieval (B02 had a real question,
+  no verdict). Fix: prompt guard — answer the verdict first, grounded in
+  retrieved clauses; say "insufficient context" rather than dumping general
+  knowledge.
+
+- **FINDING 7 (GT quality) — B02-001 question/GT clause mismatch.** The question
+  asks about "Clause 5.1.5 multi-factor authentication" but the GT expected
+  answer cites §5.7.2(b) for MFA. Flag for the ground-truth audit (`/gt-audit`).
+
+**Net implication for the A/B:** the ontology leg should NOT be reported as a
+fair result until Findings 1–4 are addressed. Findings 1–3 are upstream data-
+model bugs (`clause_seeder.py` + `clause_linker.py`), Finding 4 is a harness
+reliability bug. Reporting the A/B now would measure a mislabelled, coarse
+retrieval layer with a corrupted metric — understating the approach's real
+capability (B04, the one case with a specific clause anchor, was the only real
+answer). Recommend a fast-follow fix plan before the full 18-case A/B.
