@@ -567,6 +567,16 @@ Plans:
 
 - [ ] 10-11-PLAN.md — Wave 7: three-way A/B report (graphrag-ontology vs basic graphrag vs hybrid) + per-benchmark gap analysis (D-16, EVAL-02/03)
 
+### Phase 11: Align GraphRAG to GraphCompliance architecture (scenario-anchored, reasoning-first)
+
+**Goal:** Re-architect the ontology graph-RAG retrieval+reasoning to match the GraphCompliance reference (arXiv 2510.26309, WWW'26), because Phase-10 triage proved `--mode graphrag-ontology` does no real graph reasoning — it is dense chunk retrieval + a decorative clause label (retrieval-only-graph), the exact config GraphCompliance's ablations show adds nothing over vanilla RAG. **This phase STARTS WITH DISCUSSION/DESIGN — do not pre-commit the design** (see phase-10 `deferred-items.md` Findings 0–8 + the GraphCompliance comparison, and `docs/project_notes/research/2026-07-04-ontology-graph-retrieval-design.md`). Align to the four GraphCompliance levers, ablation-ranked: (1) **model the question-scenario as a graph/anchors** (their S2 = −10.2pp, biggest lever) — we currently embed the query as a bare string; (2) **retrieve over structured obligation-units** (Compliance-Unit ⟨subject,constraint,context,conditions⟩) instead of coarse 3k–128k-char chunks, and make the leaf clause a **text-carrying, source-namespaced, citable node** (fixes F1/F2/F3); (3) **deterministic typed-relationship traversal outside the LLM** (REFERS_TO / APPLIES_TO / RESPONSIBLE_FOR / cross-reference closure — fixes F0); (4) **reserve the LLM for final judgment** over pre-structured evidence, citations constrained to the retrieved set. Also in scope: dedup/LIMIT the retrieval fan-out (F8) and fix the RAGAs rate-limit corruption + per-case score instability (F4/F5) so the A/B is measured with a reliable ruler. **Success:** a graphrag mode that actually uses the ontology for reasoning and beats the hybrid baseline on clause-hit@3 + citation grounding on the 18-case fixed GT (`bdc4927d`).
+**Requirements**: TBD (set during discuss/plan)
+**Depends on:** Phase 10 (reuses the Neo4j engine, locked ontology, clause backbone, and eval harness). NOTE: Phase 10's A/B should NOT be reported as a fair result until this phase lands — its ontology leg is retrieval-only-graph.
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 11 to break down)
+
 ---
 *Roadmap created: 2026-02-05*
 *Last updated: 2026-04-21 (Phase 3.1 Eval Run Traceability & I/O Capture complete — 9/9 success criteria verified; former Phases 3.2 and 3.3 merged into single Phase 3.2 "Corpus and Ground Truth Correctness")*
