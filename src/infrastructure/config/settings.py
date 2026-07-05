@@ -35,7 +35,7 @@ class Settings(BaseSettings):
         description="Claude CLI request timeout in seconds"
     )
     cu_extraction_model: str = Field(
-        default="anthropic/claude-sonnet-4.5",
+        default="anthropic/claude-sonnet-4",
         description=(
             "OpenRouter model id for Phase-11 Compliance-Unit classification "
             "(Stage 1, `cu_classifier.py`) and 4-tuple extraction (Stage 2, "
