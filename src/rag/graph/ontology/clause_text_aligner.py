@@ -62,7 +62,7 @@ import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
 import neo4j
 from qdrant_client import QdrantClient
@@ -150,6 +150,79 @@ def _body_starts_with_number(text: str, bare_number: str) -> bool:
         return False
     pattern = re.compile(r"^" + re.escape(bare_number) + r"\.")
     return bool(pattern.match(body))
+
+
+_CYBERSECURITY_ACT_DOC = "Cybersecurity Act 2018"
+
+# 11-04b fix: the Cybersecurity Act's real section bodies render as
+# "## <Marginal Title>  \n<N>. -(1) ..." (subsectioned) or "<N>. <Capital>"
+# (no-subsection) -- the section number lives ON / just after the heading line,
+# so the old `_body_starts_with_number` (which strips heading lines first)
+# never matched and fell back to a shared TOC/catch-all blob (13 Act clauses
+# collided onto identical wrong text). These markers SLICE each section's body
+# at its boundaries instead. STRICT (requires a `##` heading) disambiguates
+# section numbers from the Schedule's own item numbers; RELAXED (any preceding
+# line, but only the unambiguous first-subsection "(1)" opener) is a fallback
+# for the few sections whose title is not a markdown heading.
+_ACT_SECTION_STRICT = re.compile(
+    r"(?m)(?P<title>^#{1,6}[^\n]*)\n?\s*(?<!\d)(?P<num>\d+)\.\s*(?:[-—]\s*\(1\)|[A-Z][a-z])"
+)
+_ACT_SECTION_RELAXED = re.compile(
+    r"(?m)(?P<title>^#{0,6}[^\n]*)\n?\s*(?<!\d)(?P<num>\d+)\.\s*(?:[-—]\s*\(1\))"
+)
+
+
+def _slice_act_sections(doc_chunks: list[dict[str, str]]) -> dict[str, str]:
+    """
+    Build a {section_number -> verbatim body} map by slicing every Act chunk at
+    its section-start markers (two-pass: strict `##`-headed first, then a
+    relaxed fallback only for numbers strict missed). Each section's body runs
+    from its marker to the next marker in the same chunk; the LONGEST slice
+    wins when a number appears more than once. Pure -- no Neo4j/Qdrant.
+    """
+
+    def _slice_with(marker: "re.Pattern[str]") -> dict[str, str]:
+        out: dict[str, str] = {}
+        for chunk in (c["text"] for c in doc_chunks):
+            marks = list(marker.finditer(chunk))
+            for i, m in enumerate(marks):
+                num = m.group("num")
+                start = m.start("title")
+                end = marks[i + 1].start("title") if i + 1 < len(marks) else len(chunk)
+                body = chunk[start:end].strip()
+                if num not in out or len(body) > len(out[num]):
+                    out[num] = body
+        return out
+
+    sections = _slice_with(_ACT_SECTION_STRICT)
+    for num, text in _slice_with(_ACT_SECTION_RELAXED).items():
+        sections.setdefault(num, text)  # fill gaps only -- strict wins
+    return sections
+
+
+def _resolve_act_text(
+    clause_id: str, act_sections: dict[str, str], doc_chunks: list[dict[str, str]]
+) -> Optional[str]:
+    """
+    Resolve one Cybersecurity Act clause. Uses ONLY the section-slice map +
+    Part-heading match -- NEVER the generic longest-bare-number fallback (the
+    collision source that assigned 13 clauses the same TOC blob). Prefers a
+    correct-but-missing (None) result over a wrong shared blob (D-13: wrong
+    verbatim text corrupts both CU extraction and the citation payload).
+    """
+    section_match = _SECTION_PREFIX_RE.match(clause_id)
+    if section_match:
+        return act_sections.get(section_match.group("num"))
+    if clause_id.lower().startswith("part "):
+        n = clause_id.split()[1]
+        pattern = re.compile(r"^#+\s*part\s+" + re.escape(n) + r"\b", re.IGNORECASE)
+        hits = [
+            c["text"]
+            for c in doc_chunks
+            if pattern.match("\n".join(c["text"].split("\n")[:2]))
+        ]
+        return min(hits, key=len) if hits else None
+    return act_sections.get(clause_id)
 
 
 class ClauseTextAligner:
@@ -298,17 +371,31 @@ class ClauseTextAligner:
         stats = AlignStats(entries_total=len(entries))
         to_write: list[dict[str, str]] = []
 
+        # 11-04b: precompute the Act's section-slice map ONCE (isolated Act
+        # path -- the general tier-1-5 resolver is left untouched for the
+        # clause-aware / clean docs, zero regression risk there).
+        act_sections = _slice_act_sections(chunks_by_doc.get(_CYBERSECURITY_ACT_DOC, []))
+
         for entry in entries:
             clause_id = entry["clause_id"]
             source_doc = entry["source_doc"]
             doc_chunks = chunks_by_doc.get(source_doc, [])
-            text = self._resolve_text(clause_id, doc_chunks)
+            if source_doc == _CYBERSECURITY_ACT_DOC:
+                text = _resolve_act_text(clause_id, act_sections, doc_chunks)
+            else:
+                text = self._resolve_text(clause_id, doc_chunks)
             if text:
                 to_write.append(
                     {"clause_id": clause_id, "source_doc": source_doc, "text": text}
                 )
                 stats.aligned += 1
             else:
+                # 11-04b: CLEAR any stale text on an unaligned clause (a re-run
+                # must never leave a previously-resolved WRONG blob in place --
+                # e.g. the Act Parts' shared TOC blob). Textless > wrong-text.
+                to_write.append(
+                    {"clause_id": clause_id, "source_doc": source_doc, "text": ""}
+                )
                 stats.unaligned.append(
                     UnalignedClause(clause_id=clause_id, source_doc=source_doc)
                 )

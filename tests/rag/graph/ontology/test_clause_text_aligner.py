@@ -25,7 +25,52 @@ from rag.graph.ontology.clause_text_aligner import (
     ClauseTextAligner,
     _body_starts_with_number,
     _heading_starts_with,
+    _resolve_act_text,
+    _slice_act_sections,
 )
+
+
+class TestActSectionSlicingUnit:
+    """
+    11-04b fix: the Act's section bodies live on/after their `##` heading line,
+    so the old heading-stripping resolver collided them onto a shared TOC blob.
+    These verify the section-slicer + Act resolver on synthetic chunks modeled
+    on the real corpus (subsectioned, no-subsection, and mid-chunk sections).
+    """
+
+    def _chunks(self):
+        return [
+            {"text": "## Designation of critical information infrastructure   7. -(1)  The Commissioner may designate ..."},
+            # a chunk with a preceding section's tail then a mid-chunk section 13
+            {"text": "... appointed under section 4.\n\n## Change in ownership of critical information infrastructure  \n13. -(1)  Where there is any change ..."},
+            # the shared TOC blob the old resolver wrongly assigned everywhere
+            {"text": "## Cybersecurity Act 2018\nTable of Contents\n- 7 Designation\n- 13 Change in ownership\n- 25 Licensing officer"},
+        ]
+
+    def test_slices_subsectioned_and_midchunk_sections(self):
+        sections = _slice_act_sections(self._chunks())
+        assert "7" in sections and sections["7"].startswith("## Designation")
+        assert "13" in sections and "Where there is any change" in sections["13"]
+
+    def test_section_never_gets_the_toc_blob(self):
+        sections = _slice_act_sections(self._chunks())
+        assert "Table of Contents" not in sections.get("7", "")
+        assert "Table of Contents" not in sections.get("13", "")
+
+    def test_resolver_returns_none_over_wrong_blob(self):
+        sections = _slice_act_sections(self._chunks())
+        # an unknown section resolves to None (textless), never a shared blob
+        assert _resolve_act_text("section 99", sections, self._chunks()) is None
+
+    def test_resolver_resolves_known_section(self):
+        sections = _slice_act_sections(self._chunks())
+        assert _resolve_act_text("section 13", sections, self._chunks()).count("Table of Contents") == 0
+        assert "change" in _resolve_act_text("section 13", sections, self._chunks()).lower()
+
+    def test_part_heading_resolves_not_toc(self):
+        chunks = [{"text": "## PART 4  ## RESPONSES TO CYBERSECURITY THREATS AND INCIDENTS"},
+                  {"text": "## Cybersecurity Act 2018\nTable of Contents\n- Part 4 ..."}]
+        assert _resolve_act_text("Part 4", {}, chunks) == chunks[0]["text"]
 
 
 class TestClauseTextAlignerResolutionUnit:

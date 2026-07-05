@@ -69,6 +69,15 @@ class TestRouteCandidates:
         assert cands[0].doc_class == "binding"
         assert isinstance(cands[0], Candidate)
 
+    def test_textless_clause_is_skipped(self):
+        clauses = [
+            _clause("Part 1", "Cybersecurity Act 2018", text=""),
+            _clause("Part 2", "Cybersecurity Act 2018", text="   "),
+            _clause("7", "Cybersecurity Act 2018", text="7. -(1) The Commissioner may designate ..."),
+        ]
+        cands = route_candidates(clauses)
+        assert [c.clause_id for c in cands] == ["7"]
+
     def test_unregistered_source_doc_raises(self):
         with pytest.raises(ValueError, match="No D-08 citation-namespace prefix"):
             route_candidates([_clause("1", "Some Unknown Doc")])

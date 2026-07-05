@@ -74,6 +74,9 @@ def route_candidates(clauses: list[dict[str, Any]]) -> list[Candidate]:
         if clause.get("is_structural_header"):
             continue  # ToC / skeleton -- never a CU
 
+        if not (clause.get("text") or "").strip():
+            continue  # textless (unaligned/mis-aligned source) -- nothing to classify
+
         route = (
             ROUTE_FORCE_PREMISE_INTERPRETATION
             if source_doc == RESPONSE_TO_FEEDBACK_SOURCE_DOC
