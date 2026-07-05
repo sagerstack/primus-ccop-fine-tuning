@@ -101,6 +101,11 @@ _FORCED_INTERPRETATION_CLASSIFICATION = {
 # keep this symbol name stable.
 OBLIGATION_CU_TYPES = frozenset({"meta-CU", "actor-CU"})
 
+# Backstop against runaway multi-CU over-decomposition of a long provision
+# (a full statutory section with many subsections). A clause legitimately
+# spawning an applicability gate + a couple of obligations is fine; 5-6 is not.
+MAX_UNITS_PER_CLAUSE = 3
+
 CU_CLASSIFICATION_PROMPT = """You are classifying ONE regulatory provision into one or more Compliance Units, following the GraphCompliance schema.
 
 Definitions (use these exactly):
@@ -186,7 +191,14 @@ def _parse_classifications(raw: str) -> list[dict[str, str]]:
             continue
         seen.add(key)
         out.append(normalized)
-    return out
+
+    # A provision is either DEONTIC or DEFINITIONAL, not both: if any
+    # obligation is present, drop premise entries (the LLM sometimes tacks a
+    # spurious definition/interpretation premise onto an obligation clause).
+    if any(c["cu_type"] in OBLIGATION_CU_TYPES for c in out):
+        out = [c for c in out if c["cu_type"] in OBLIGATION_CU_TYPES]
+    # Backstop cap against long-section over-decomposition.
+    return out[:MAX_UNITS_PER_CLAUSE]
 
 
 async def _classify_candidate(

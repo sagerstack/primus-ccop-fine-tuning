@@ -108,6 +108,21 @@ class TestParseClassifications:
         out = _parse_classifications('[{"type":"meta-CU"},{"type":"actor-CU","modality":"obligation"}]')
         assert len(out) == 2
 
+    def test_premise_dropped_when_obligation_present(self):
+        # A long section wrongly split into obligation + spurious premises.
+        raw = ('[{"type":"actor-CU","modality":"obligation"},'
+               '{"type":"premise","premise_kind":"definition"},'
+               '{"type":"premise","premise_kind":"interpretation"}]')
+        out = _parse_classifications(raw)
+        assert out == [{"cu_type": "actor-CU", "modality": "obligation", "premise_kind": ""}]
+
+    def test_units_capped(self):
+        raw = ('[{"type":"meta-CU"},{"type":"actor-CU","modality":"obligation"},'
+               '{"type":"actor-CU","modality":"permission"},'
+               '{"type":"actor-CU","modality":"prohibition"}]')
+        out = _parse_classifications(raw)
+        assert len(out) == 3  # MAX_UNITS_PER_CLAUSE
+
     def test_meta_cu_carries_no_modality_or_premise_kind(self):
         out = _normalize_classification({"type": "meta-CU", "modality": "obligation"})
         assert out == {"cu_type": "meta-CU", "modality": "", "premise_kind": ""}
