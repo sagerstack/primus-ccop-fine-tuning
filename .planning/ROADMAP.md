@@ -582,7 +582,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [ ] 11-02-PLAN.md — step-0 clause-text alignment + :ComplianceUnit seeding (namespaced ids, operative-leaf-only candidacy) (D-06/07/08/13-payload)
-- [ ] 11-03-PLAN.md — D-22 gold clause-set validation (18-case) + D-24 build/eval hygiene (gitignore models/, corrupted B04 baseline test_id)
+- [ ] 11-03-PLAN.md — D-22 gold clause-set validation (18-case) + D-24 build/eval hygiene (gitignore models/, corrupted B04 baseline test_id)  [SKIPPED — D-28: gold validation superseded by adopting corrected June-29 GT]
 
 **Wave 3** *(blocked on Wave 2 completion)*
 

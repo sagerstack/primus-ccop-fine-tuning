@@ -257,6 +257,23 @@ encode each as an acceptance criterion / task. Sources: `docs/project_notes/bugs
   cadence. (Especially important given Wave 0's fail-loud gate and the LLM-extraction waves whose
   output quality the user wants to eyeball before building on top.)
 
+### GT source — use the corrected 18-case tree (user directive, 2026-07-05)
+- **D-27:** The active ground truth for Phase 11 is **`ground-truth/test-suite/audit-20260629-1245/`**
+  (the 2026-06-29 gt-audit corrected output — 18 stratified records = `FIXED_18`). The canonical
+  `ground-truth/test-suite/*.jsonl` is **STALE**: the June-29 corrections (17/18 records) were never
+  applied back, so it must NOT be used for scoring. Repoint via `CCOP_TEST_CASES_DIR`
+  (`.env.local` + `.env.example`); **do NOT apply corrections back** into the canonical tree (user
+  directive — treat the audit folder as the GT). Wave 9 (11-10) clause-hit@3 A/B reads GT via
+  `clause_hit_harness → test_case_repository → settings.test_cases_dir`, so it inherits this repoint;
+  the 11-10 executor MUST verify `test_cases_dir` resolves to `audit-20260629-1245` before scoring.
+- **D-28:** **11-03 gold validation is SKIPPED** — the adopted June-29 GT is already
+  validated/corrected, so re-validating the stale gold is moot. (The `/gt-audit` cross-check on the 6
+  flagged records independently reproduced the June-29 fixes, confirming the corrected GT.) The
+  D-24 hygiene sub-items 11-03 also carried (`.gitignore models/` un-ignore for graph-compliance
+  adapter files; corrupted B04 baseline `test_id`) are NOT done — fold the `.gitignore` fix into
+  Wave 8 (11-09, which adds the adapter files); the B04 baseline fix is moot (that baseline is stale
+  + gitignored under `results/`).
+
 ### Claude's Discretion
 - Exact CU-node schema on Neo4j (new `:ComplianceUnit` layer vs upgrading `:Clause`); leaning new
   additive layer (a clause can spawn multiple CUs) — confirm at plan.
