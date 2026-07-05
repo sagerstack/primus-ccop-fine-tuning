@@ -34,6 +34,17 @@ class Settings(BaseSettings):
         default=120,
         description="Claude CLI request timeout in seconds"
     )
+    cu_extraction_model: str = Field(
+        default="claude-opus-4-8",
+        description=(
+            "Model used for Phase-11 Compliance-Unit classification (Stage 1, "
+            "`cu_classifier.py`) and 4-tuple extraction (Stage 2, `cu_extractor.py`), "
+            "routed through the LOCAL `ClaudeCliGateway` (`claude -p --model ...`), "
+            "NOT OpenRouter/gpt-4o-mini (user directive 2026-07-05 — proper CUs "
+            "matter more than Phase-9/10 extraction-model parity). Reuses "
+            "`claude_cli_timeout` for the per-call timeout bound."
+        )
+    )
 
     # LLM Judge Configuration
     llm_judge_model: str = Field(
