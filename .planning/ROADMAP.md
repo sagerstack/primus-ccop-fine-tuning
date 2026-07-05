@@ -572,7 +572,7 @@ Plans:
 **Goal:** Re-architect the ontology graph-RAG retrieval+reasoning to match the GraphCompliance reference (arXiv 2510.26309, WWW'26), because Phase-10 triage proved `--mode graphrag-ontology` does no real graph reasoning — it is dense chunk retrieval + a decorative clause label (retrieval-only-graph), the exact config GraphCompliance's ablations show adds nothing over vanilla RAG. **This phase STARTS WITH DISCUSSION/DESIGN — do not pre-commit the design** (see phase-10 `deferred-items.md` Findings 0–8 + the GraphCompliance comparison, and `docs/project_notes/research/2026-07-04-ontology-graph-retrieval-design.md`). Align to the four GraphCompliance levers, ablation-ranked: (1) **model the question-scenario as a graph/anchors** (their S2 = −10.2pp, biggest lever) — we currently embed the query as a bare string; (2) **retrieve over structured obligation-units** (Compliance-Unit ⟨subject,constraint,context,conditions⟩) instead of coarse 3k–128k-char chunks, and make the leaf clause a **text-carrying, source-namespaced, citable node** (fixes F1/F2/F3); (3) **deterministic typed-relationship traversal outside the LLM** (REFERS_TO / APPLIES_TO / RESPONSIBLE_FOR / cross-reference closure — fixes F0); (4) **reserve the LLM for final judgment** over pre-structured evidence, citations constrained to the retrieved set. Also in scope: dedup/LIMIT the retrieval fan-out (F8) and fix the RAGAs rate-limit corruption + per-case score instability (F4/F5) so the A/B is measured with a reliable ruler. **Success:** a graphrag mode that actually uses the ontology for reasoning and beats the hybrid baseline on clause-hit@3 + citation grounding on the 18-case fixed GT (`bdc4927d`).
 **Requirements**: TBD (set during discuss/plan)
 **Depends on:** Phase 10 (reuses the Neo4j engine, locked ontology, clause backbone, and eval harness). NOTE: Phase 10's A/B should NOT be reported as a fair result until this phase lands — its ontology leg is retrieval-only-graph.
-**Plans:** 1/10 plans executed
+**Plans:** 2/10 plans executed
 
 Plans:
 **Wave 1**
@@ -581,7 +581,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 11-02-PLAN.md — step-0 clause-text alignment + :ComplianceUnit seeding (namespaced ids, operative-leaf-only candidacy) (D-06/07/08/13-payload)
+- [x] 11-02-PLAN.md — step-0 clause-text alignment + :ComplianceUnit seeding (namespaced ids, operative-leaf-only candidacy) (D-06/07/08/13-payload)
 - [ ] 11-03-PLAN.md — D-22 gold clause-set validation (18-case) + D-24 build/eval hygiene (gitignore models/, corrupted B04 baseline test_id)  [SKIPPED — D-28: gold validation superseded by adopting corrected June-29 GT]
 
 **Wave 3** *(blocked on Wave 2 completion)*
