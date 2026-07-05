@@ -43,6 +43,9 @@ from rag.graph.ontology.clause_seeder import (
     DEFAULT_CLAUSE_INVENTORY_PATH as DEFAULT_SEED_INVENTORY_PATH,
 )
 from rag.graph.ontology.clause_seeder import ClauseSeeder, SeedStats
+from rag.graph.ontology.cu_classifier import CUClassifier, CUMintStats
+from rag.graph.ontology.cu_extractor import CUExtractor, ExtractionStats
+from rag.graph.ontology.cu_teardown import CUTeardown, TeardownStats
 from rag.graph.ontology.shacl_validator import (
     DEFAULT_REPORT_PATH,
     DEFAULT_SHAPES_PATH,
@@ -352,6 +355,194 @@ def _print_seed_summary(stats: SeedStats) -> None:
     for function_type, count in stats.function_type_distribution.items():
         dist_table.add_row(function_type, str(count))
     console.print(dist_table)
+
+
+@graph_app.command(name="reset-cus")
+def reset_cus_command(
+    snapshot_dir: str = typer.Option(
+        ".",
+        "--snapshot-dir",
+        help="Directory to write the pre-teardown CU snapshot JSON (D-38 rollback/diff baseline)",
+    ),
+    yes: bool = typer.Option(
+        False,
+        "--yes/--no-yes",
+        help=(
+            "Skip the interactive confirmation. Teardown DETACH DELETEs every "
+            ":ComplianceUnit node (the :Clause backbone is preserved). Default: "
+            "off -- the destructive path is explicit opt-in."
+        ),
+    ),
+) -> None:
+    """
+    Snapshot then DETACH DELETE the :ComplianceUnit layer (11-04b / D-38).
+
+    Captures every CU (props + FROM_CLAUSE clause id) to a timestamp-free
+    `cu-snapshot.json` under --snapshot-dir first, then deletes all CU nodes
+    so the corrected 11-04b pipeline regenerates from a clean slate. The
+    883-node :Clause backbone is NEVER touched -- teardown fails loud if the
+    clause count changes.
+
+    Example:
+        ccop-eval graph reset-cus --snapshot-dir .planning/phases/11-.../snapshots --yes
+    """
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        teardown = CUTeardown(settings=settings, driver=driver)
+        cu_before = _count_cus(driver, settings)
+        if cu_before and not yes:
+            console.print(
+                f"[yellow]About to DETACH DELETE {cu_before} :ComplianceUnit node(s).[/yellow] "
+                f"Re-run with --yes to proceed (the :Clause backbone is preserved)."
+            )
+            raise typer.Exit(code=1)
+        snapshot_path = Path(snapshot_dir) / "cu-snapshot.json"
+        Path(snapshot_dir).mkdir(parents=True, exist_ok=True)
+        with console.status("[bold yellow]Snapshotting + tearing down the CU layer..."):
+            stats = teardown.teardown(snapshot_path=snapshot_path)
+        _print_teardown_summary(stats)
+    except typer.Exit:
+        raise
+    except Exception as e:
+        console.print(f"[red]CU teardown failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+    finally:
+        driver.close()
+
+
+def _count_cus(driver: neo4j.Driver, settings) -> int:
+    with driver.session(database=settings.neo4j_database) as session:
+        return session.run("MATCH (cu:ComplianceUnit) RETURN count(cu) AS c").single()["c"]
+
+
+def _print_teardown_summary(stats: TeardownStats) -> None:
+    table = Table(title="CU Teardown Summary (D-38)", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("CUs before", str(stats.cu_count_before))
+    table.add_row("CUs after", str(stats.cu_count_after))
+    table.add_row(":Clause backbone (before -> after)", f"{stats.clause_count_before} -> {stats.clause_count_after}")
+    table.add_row("Snapshot records", str(stats.snapshot_records))
+    table.add_row("Snapshot path", str(stats.snapshot_path))
+    console.print(table)
+    if stats.type_distribution_before:
+        dist = Table(title="Pre-teardown CU type distribution", show_header=True)
+        dist.add_column("cu_type", style="cyan")
+        dist.add_column("count", justify="right", style="bold")
+        for cu_type, count in stats.type_distribution_before.items():
+            dist.add_row(cu_type, str(count))
+        console.print(dist)
+
+
+@graph_app.command(name="build-cus")
+def build_cus_command(
+    reset: bool = typer.Option(
+        False,
+        "--reset/--no-reset",
+        help=(
+            "Snapshot + DETACH DELETE the existing CU layer before rebuilding "
+            "(11-04b full regen, D-38). Default: off. The :Clause backbone is "
+            "always preserved."
+        ),
+    ),
+    snapshot_dir: str = typer.Option(
+        ".",
+        "--snapshot-dir",
+        help="Directory for the pre-reset CU snapshot (only used with --reset)",
+    ),
+    resume: bool = typer.Option(
+        True,
+        "--resume/--no-resume",
+        help="Skip obligation CUs that already carry a 4-tuple (crash-safe re-invoke). Default: on.",
+    ),
+    stage: str = typer.Option(
+        "all",
+        "--stage",
+        help="Which stage(s) to run: 'classify' | 'extract' | 'all'. Default: all.",
+    ),
+) -> None:
+    """
+    Regenerate the Policy-Graph CU layer (11-04b): classify + mint typed
+    :ComplianceUnit nodes (pure-LLM, D-30), then extract the 4-tuple on every
+    obligation CU (retry-on-empty, D-36).
+
+    WARNING: this is a real-Opus, multi-hour offline build via the local
+    Claude CLI (`claude -p --model claude-opus-4-8`). With --reset it first
+    deletes the existing CU layer. Run `graph seed-clauses` + the 11-02
+    source-annotation pass FIRST.
+
+    Examples:
+        ccop-eval graph build-cus --reset --snapshot-dir .planning/.../snapshots
+        ccop-eval graph build-cus --stage extract --resume
+    """
+    if stage not in {"classify", "extract", "all"}:
+        console.print(f"[red]--stage must be one of classify|extract|all (got {stage!r})[/red]")
+        raise typer.Exit(code=1)
+    try:
+        asyncio.run(_run_build_cus(reset, snapshot_dir, resume, stage))
+    except Exception as e:
+        console.print(f"[red]CU build failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+
+
+async def _run_build_cus(reset: bool, snapshot_dir: str, resume: bool, stage: str) -> None:
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        if reset:
+            Path(snapshot_dir).mkdir(parents=True, exist_ok=True)
+            teardown = CUTeardown(settings=settings, driver=driver)
+            with console.status("[bold yellow]Snapshot + teardown of existing CU layer (D-38)..."):
+                _print_teardown_summary(
+                    teardown.teardown(snapshot_path=Path(snapshot_dir) / "cu-snapshot.json")
+                )
+
+        if stage in {"classify", "all"}:
+            classifier = CUClassifier(settings=settings, driver=driver)
+            console.print("[bold green]Stage 1: classify + mint CUs (pure-LLM, claude-opus-4-8)...[/bold green]")
+            _print_cu_mint_summary(await classifier.classify_and_mint())
+
+        if stage in {"extract", "all"}:
+            extractor = CUExtractor(settings=settings, driver=driver)
+            console.print("[bold green]Stage 2: 4-tuple extraction (retry-on-empty)...[/bold green]")
+            _print_cu_extract_summary(await extractor.extract(resume=resume))
+    finally:
+        driver.close()
+
+
+def _print_cu_mint_summary(stats: CUMintStats) -> None:
+    table = Table(title="CU Classify + Mint Summary (11-04b / emergent)", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("Candidates considered", str(stats.candidates_considered))
+    table.add_row("LLM classification calls", str(stats.llm_classification_calls))
+    table.add_row("Forced-premise (RtF)", str(stats.forced_premise_count))
+    table.add_row("actor-CU", str(stats.actor_cu_count))
+    table.add_row("meta-CU", str(stats.meta_cu_count))
+    table.add_row("premise", str(stats.premise_count))
+    table.add_row("CUs without source text", str(stats.cu_without_source_text_count))
+    table.add_row("CUs without source link", str(stats.cu_without_source_link_count))
+    console.print(table)
+    if stats.modality_distribution:
+        console.print(f"[bold]actor-CU modality:[/bold] {stats.modality_distribution}")
+    if stats.premise_kind_distribution:
+        console.print(f"[bold]premise_kind:[/bold] {stats.premise_kind_distribution}")
+
+
+def _print_cu_extract_summary(stats: ExtractionStats) -> None:
+    table = Table(title="CU 4-Tuple Extraction Summary (11-04b / D-36)", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("Obligation CUs considered", str(stats.cus_considered))
+    table.add_row("Extracted (non-empty)", str(stats.cus_extracted))
+    table.add_row("Degraded empty", str(stats.cus_degraded_empty))
+    table.add_row("Retried on empty", str(stats.cus_retried))
+    table.add_row("Still empty after retry", str(stats.cus_still_empty_after_retry))
+    table.add_row("Obligation CUs missing tuple (NULL)", str(stats.obligation_cu_missing_tuple_count))
+    table.add_row("Obligation CUs ALL-EMPTY (gate)", str(stats.obligation_cu_all_empty_count))
+    table.add_row("Premises with a tuple (must be 0)", str(stats.premise_with_tuple_count))
+    console.print(table)
 
 
 @graph_app.command(name="inspect")
