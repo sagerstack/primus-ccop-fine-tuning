@@ -46,7 +46,11 @@ from pydantic import BaseModel, ValidationError, field_validator
 from application.ports.output.i_model_gateway import IModelGateway
 from infrastructure.config.settings import Settings
 from rag.graph.ontology.clause_seeder import _ITEM_SUFFIX_RE
-from rag.graph.ontology.cu_classifier import OBLIGATION_CU_TYPES, GatewayUnavailableError
+from rag.graph.ontology.cu_classifier import (
+    OBLIGATION_CU_TYPES,
+    GatewayUnavailableError,
+    _default_cu_gateway,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -270,16 +274,7 @@ class CUExtractor:
             settings.neo4j_uri,
             auth=(settings.neo4j_user, settings.neo4j_password),
         )
-        if gateway is not None:
-            self.gateway = gateway
-        else:
-            from infrastructure.adapters.logging.console_logger import ConsoleLogger
-            from infrastructure.adapters.models.claude_cli_gateway import ClaudeCliGateway
-
-            self.gateway = ClaudeCliGateway(
-                logger=ConsoleLogger(log_level=settings.log_level),
-                timeout=settings.claude_cli_timeout,
-            )
+        self.gateway = gateway if gateway is not None else _default_cu_gateway(settings)
 
     def _fetch_obligation_cus(self, resume: bool = True) -> list[dict[str, Any]]:
         query = (

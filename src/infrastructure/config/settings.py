@@ -35,14 +35,16 @@ class Settings(BaseSettings):
         description="Claude CLI request timeout in seconds"
     )
     cu_extraction_model: str = Field(
-        default="claude-opus-4-8",
+        default="anthropic/claude-sonnet-4.5",
         description=(
-            "Model used for Phase-11 Compliance-Unit classification (Stage 1, "
-            "`cu_classifier.py`) and 4-tuple extraction (Stage 2, `cu_extractor.py`), "
-            "routed through the LOCAL `ClaudeCliGateway` (`claude -p --model ...`), "
-            "NOT OpenRouter/gpt-4o-mini (user directive 2026-07-05 — proper CUs "
-            "matter more than Phase-9/10 extraction-model parity). Reuses "
-            "`claude_cli_timeout` for the per-call timeout bound."
+            "OpenRouter model id for Phase-11 Compliance-Unit classification "
+            "(Stage 1, `cu_classifier.py`) and 4-tuple extraction (Stage 2, "
+            "`cu_extractor.py`), routed through `OpenRouterGateway` "
+            "(OpenRouter credits, decoupled from the `claude -p` Claude "
+            "subscription that hit daily token limits mid-build, 2026-07-05). "
+            "Must be an OpenRouter model id (verify on openrouter.ai/models). "
+            "Override via CCOP_CU_EXTRACTION_MODEL. Reuses `claude_cli_timeout` "
+            "as the per-call timeout bound and `judge_max_retries` for retries."
         )
     )
 

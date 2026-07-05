@@ -355,6 +355,30 @@ class CUMintStats:
     cu_without_source_link_count: int = 0
 
 
+def _default_cu_gateway(settings: Settings) -> IModelGateway:
+    """
+    Build the default CU-build gateway: OpenRouter (billed on OpenRouter
+    credits, decoupled from the `claude -p` Claude-subscription daily limits
+    that were exhausted mid-build, 2026-07-05). The model is
+    `settings.cu_extraction_model` (an OpenRouter model id). Lazy imports keep
+    the OpenRouter deps optional for callers that always inject a gateway
+    (unit tests use a fake).
+    """
+    from infrastructure.adapters.logging.console_logger import ConsoleLogger
+    from infrastructure.adapters.models.openrouter_gateway import OpenRouterGateway
+    from infrastructure.external.openrouter_client import OpenRouterClient
+
+    client = OpenRouterClient(
+        api_key=settings.openrouter_api_key or "",
+        base_url=settings.openrouter_base_url,
+        timeout=settings.claude_cli_timeout,
+        max_retries=settings.judge_max_retries,
+    )
+    return OpenRouterGateway(
+        client=client, logger=ConsoleLogger(log_level=settings.log_level)
+    )
+
+
 class CUClassifier:
     """
     Stage 1 (11-04b): route + classify + mint typed `:ComplianceUnit` nodes.
@@ -375,16 +399,7 @@ class CUClassifier:
             settings.neo4j_uri,
             auth=(settings.neo4j_user, settings.neo4j_password),
         )
-        if gateway is not None:
-            self.gateway = gateway
-        else:
-            from infrastructure.adapters.logging.console_logger import ConsoleLogger
-            from infrastructure.adapters.models.claude_cli_gateway import ClaudeCliGateway
-
-            self.gateway = ClaudeCliGateway(
-                logger=ConsoleLogger(log_level=settings.log_level),
-                timeout=settings.claude_cli_timeout,
-            )
+        self.gateway = gateway if gateway is not None else _default_cu_gateway(settings)
         self._ensure_constraint()
 
     def _ensure_constraint(self) -> None:
