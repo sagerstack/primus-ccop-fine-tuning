@@ -24,6 +24,7 @@ from rag.graph.ontology.cu_classifier import (
     DEFAULT_MODALITY,
     OBLIGATION_CU_TYPES,
     VALID_CU_TYPES,
+    GatewayUnavailableError,
     _build_cu_units,
     _classify_candidate,
     _normalize_classification,
@@ -152,10 +153,12 @@ class TestClassifyCandidate:
         assert out == [{"cu_type": "premise", "modality": "", "premise_kind": "definition"}]
 
     @pytest.mark.asyncio
-    async def test_gateway_exception_degrades_never_raises(self):
+    async def test_gateway_infra_error_raises_for_resume_skip(self):
+        # An infra/CLI failure must RAISE (caller skips + resumes), NOT degrade
+        # to a wrong type -- the 11-04b corruption fix.
         cand = _candidate()
-        out = await _classify_candidate(cand, RaisingGateway(), get_settings())
-        assert out == [{"cu_type": "premise", "modality": "", "premise_kind": "definition"}]
+        with pytest.raises(GatewayUnavailableError):
+            await _classify_candidate(cand, RaisingGateway(), get_settings())
 
 
 class TestBuildCUUnits:

@@ -60,6 +60,18 @@ from rag.graph.ontology.cu_candidate_gate import (
 
 logger = logging.getLogger(__name__)
 
+
+class GatewayUnavailableError(Exception):
+    """
+    Raised when the LLM gateway (Claude CLI) itself FAILS -- a systemic/infra
+    error (spend limit, timeout, dead subprocess), NOT a bad-but-valid LLM
+    answer. The caller SKIPS the candidate (leaves it un-minted) so a later
+    resume pass retries it, rather than silently minting a wrong-type CU
+    (11-04b hardening: the 2026-07-05 mid-run CLI death corrupted ~400 clauses
+    to premise/definition via the old degrade-on-infra-error path).
+    """
+
+
 # LOCKED 3-value type enum (GraphCompliance §3.1) -- never invented/expanded.
 VALID_CU_TYPES = frozenset({"premise", "meta-CU", "actor-CU"})
 
@@ -206,11 +218,11 @@ async def _classify_candidate(
             max_tokens=200,
         )
     except Exception as e:
-        logger.warning(
-            f"CU classification gateway call failed for {cu_ref}: {e}; "
-            f"degrading to premise({DEFAULT_PREMISE_KIND})"
-        )
-        return [{"cu_type": DEFAULT_CU_TYPE, "modality": "", "premise_kind": DEFAULT_PREMISE_KIND}]
+        # Infra failure (CLI dead / spend limit / timeout) -- do NOT degrade to
+        # a wrong type. Signal the caller to SKIP + retry on resume (D-36 harden).
+        raise GatewayUnavailableError(
+            f"CU classification gateway call failed for {cu_ref}: {e}"
+        ) from e
 
     classifications = _parse_classifications(response.content)
     if not classifications:
@@ -253,6 +265,18 @@ def _build_cu_units(
 _FETCH_CANDIDATE_CLAUSES_QUERY = """
 MATCH (c:Clause)
 WHERE coalesce(c.is_structural_header, false) = false
+RETURN c.clause_id AS clause_id, c.source_doc AS source_doc,
+       c.citation_id AS citation_id, c.function_type AS function_type,
+       c.doc_class AS doc_class, c.text AS text,
+       coalesce(c.is_structural_header, false) AS is_structural_header
+""".strip()
+
+# Resume fetch: only clauses that have NO minted CU yet -- a re-run after a
+# CLI death re-processes ONLY the un-minted candidates (11-04b harden).
+_FETCH_UNMINTED_CANDIDATE_CLAUSES_QUERY = """
+MATCH (c:Clause)
+WHERE coalesce(c.is_structural_header, false) = false
+  AND NOT (c)<-[:FROM_CLAUSE]-(:ComplianceUnit)
 RETURN c.clause_id AS clause_id, c.source_doc AS source_doc,
        c.citation_id AS citation_id, c.function_type AS function_type,
        c.doc_class AS doc_class, c.text AS text,
@@ -308,6 +332,8 @@ class CUMintStats:
     candidates_considered: int = 0
     forced_premise_count: int = 0
     llm_classification_calls: int = 0
+    skipped_gateway_error: int = 0
+    aborted_incomplete: bool = False
     actor_cu_count: int = 0
     meta_cu_count: int = 0
     premise_count: int = 0
@@ -362,27 +388,52 @@ class CUClassifier:
             else:
                 logger.warning(f"Could not create ComplianceUnit uniqueness constraint (non-fatal): {e}")
 
-    def _fetch_candidate_clauses(self) -> list[dict[str, Any]]:
+    def _fetch_candidate_clauses(self, resume: bool = True) -> list[dict[str, Any]]:
+        query = (
+            _FETCH_UNMINTED_CANDIDATE_CLAUSES_QUERY if resume else _FETCH_CANDIDATE_CLAUSES_QUERY
+        )
         with self.driver.session(database=self.settings.neo4j_database) as session:
-            return [dict(record) for record in session.run(_FETCH_CANDIDATE_CLAUSES_QUERY)]
+            return [dict(record) for record in session.run(query)]
 
-    async def classify_and_mint(self, batch_size: int = 20) -> CUMintStats:
+    async def classify_and_mint(
+        self, resume: bool = True, batch_size: int = 20, max_consecutive_errors: int = 8
+    ) -> CUMintStats:
         """
         Route + classify every candidate clause and mint its CU(s), then
-        report authoritative post-write counts (T-09-08). Writes incrementally
-        every `batch_size` candidates so a crash mid-run (this is a ~770-call
-        real-Opus batch) never loses more than one batch of work.
+        report authoritative post-write counts (T-09-08).
+
+        Death-resilient (11-04b harden): a gateway/CLI failure SKIPS the
+        candidate (leaves it un-minted, retried on the next `resume=True` pass)
+        rather than minting a wrong-type CU. After `max_consecutive_errors`
+        consecutive gateway failures the pass aborts early (the CLI is down --
+        no point hammering it) and flags `aborted_incomplete`; re-invoke later
+        to resume. `resume=True` (default) processes ONLY un-minted clauses.
         """
-        candidates = route_candidates(self._fetch_candidate_clauses())
+        candidates = route_candidates(self._fetch_candidate_clauses(resume=resume))
         stats = CUMintStats(candidates_considered=len(candidates))
 
         batch: list[dict[str, Any]] = []
+        consecutive_errors = 0
         for i, candidate in enumerate(candidates, start=1):
+            try:
+                classifications = await _classify_candidate(candidate, self.gateway, self.settings)
+            except GatewayUnavailableError as e:
+                stats.skipped_gateway_error += 1
+                consecutive_errors += 1
+                logger.warning(f"{e}; skipping (will retry on resume)")
+                if consecutive_errors >= max_consecutive_errors:
+                    stats.aborted_incomplete = True
+                    logger.error(
+                        f"Gateway unavailable for {consecutive_errors} consecutive candidates "
+                        f"-- aborting classify pass at {i}/{len(candidates)}; resume later"
+                    )
+                    break
+                continue
+            consecutive_errors = 0
             if candidate.route == ROUTE_FORCE_PREMISE_INTERPRETATION:
                 stats.forced_premise_count += 1
             else:
                 stats.llm_classification_calls += 1
-            classifications = await _classify_candidate(candidate, self.gateway, self.settings)
             batch.extend(_build_cu_units(candidate, classifications))
             if len(batch) >= batch_size:
                 self._mint_batch(batch)
@@ -430,6 +481,7 @@ class CUClassifier:
 __all__: list[str] = [
     "CUClassifier",
     "CUMintStats",
+    "GatewayUnavailableError",
     "VALID_CU_TYPES",
     "VALID_MODALITIES",
     "VALID_PREMISE_KINDS",

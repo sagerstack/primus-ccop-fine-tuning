@@ -16,7 +16,7 @@ import pytest
 
 from domain.entities.model_response import ModelResponse
 from infrastructure.config.settings import get_settings
-from rag.graph.ontology.cu_classifier import OBLIGATION_CU_TYPES
+from rag.graph.ontology.cu_classifier import OBLIGATION_CU_TYPES, GatewayUnavailableError
 from rag.graph.ontology.cu_extractor import (
     CU_TUPLE_EXTRACTION_PROMPT,
     CUExtractor,
@@ -125,8 +125,17 @@ class TestCallAndParse:
         assert (await _call_and_parse("p", "ref", gw, get_settings())).is_empty()
 
     @pytest.mark.asyncio
-    async def test_gateway_exception_degrades_to_empty(self):
-        assert (await _call_and_parse("p", "ref", RaisingGateway(), get_settings())).is_empty()
+    async def test_gateway_infra_error_raises_for_resume_skip(self):
+        # Infra failure must RAISE (caller leaves subject NULL, retries on
+        # resume) rather than writing an empty tuple resume would skip forever.
+        with pytest.raises(GatewayUnavailableError):
+            await _call_and_parse("p", "ref", RaisingGateway(), get_settings())
+
+    @pytest.mark.asyncio
+    async def test_extract_one_propagates_gateway_error(self):
+        stats = ExtractionStats()
+        with pytest.raises(GatewayUnavailableError):
+            await _extractor(RaisingGateway())._extract_one(_cu(), stats)
 
 
 class TestRetryOnEmpty:

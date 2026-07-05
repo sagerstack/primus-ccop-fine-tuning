@@ -46,7 +46,7 @@ from pydantic import BaseModel, ValidationError, field_validator
 from application.ports.output.i_model_gateway import IModelGateway
 from infrastructure.config.settings import Settings
 from rag.graph.ontology.clause_seeder import _ITEM_SUFFIX_RE
-from rag.graph.ontology.cu_classifier import OBLIGATION_CU_TYPES
+from rag.graph.ontology.cu_classifier import OBLIGATION_CU_TYPES, GatewayUnavailableError
 
 logger = logging.getLogger(__name__)
 
@@ -161,8 +161,12 @@ async def _call_and_parse(
             max_tokens=512,
         )
     except Exception as e:
-        logger.warning(f"4-tuple extraction gateway call failed for {cu_ref}: {e}; empty tuple")
-        return CUTuple()
+        # Infra failure (CLI dead / spend limit / timeout) -- do NOT write an
+        # empty tuple (which resume would then skip forever). Signal the caller
+        # to SKIP + retry on resume (11-04b harden).
+        raise GatewayUnavailableError(
+            f"4-tuple extraction gateway call failed for {cu_ref}: {e}"
+        ) from e
 
     try:
         result = json.loads(fix_invalid_json(response.content))
@@ -239,6 +243,8 @@ class ExtractionStats:
     cus_degraded_empty: int = 0
     cus_retried: int = 0
     cus_still_empty_after_retry: int = 0
+    cus_skipped_gateway_error: int = 0
+    aborted_incomplete: bool = False
     obligation_cu_missing_tuple_count: int = 0
     obligation_cu_all_empty_count: int = 0
     premise_with_tuple_count: int = 0
@@ -306,18 +312,44 @@ class CUExtractor:
                 logger.warning(f"Still empty after retry for {cu_ref} (text present) -- flagged")
         return tup
 
-    async def extract(self, resume: bool = True, batch_size: int = 20) -> ExtractionStats:
+    async def extract(
+        self, resume: bool = True, batch_size: int = 20, max_consecutive_errors: int = 8
+    ) -> ExtractionStats:
         """
         Extract + write the 4-tuple for every obligation CU. Writes
         incrementally every `batch_size` CUs (crash-safe); `resume=True` skips
-        CUs that already carry a tuple.
+        CUs that already carry a tuple (`subject IS NOT NULL`).
+
+        Death-resilient (11-04b harden): a gateway/CLI failure SKIPS the CU
+        (leaves `subject` NULL so the next resume pass retries it) rather than
+        writing an empty tuple that resume would then skip forever. A genuinely
+        empty extraction (valid response, no obligation found) IS written
+        (flagged by the all-empty gate). After `max_consecutive_errors`
+        consecutive gateway failures the pass aborts early and flags
+        `aborted_incomplete`; re-invoke to resume.
         """
         cus = self._fetch_obligation_cus(resume=resume)
         stats = ExtractionStats(cus_considered=len(cus))
 
         batch: list[dict[str, Any]] = []
+        consecutive_errors = 0
         for i, cu in enumerate(cus, start=1):
-            tup = await self._extract_one(cu, stats)
+            try:
+                tup = await self._extract_one(cu, stats)
+            except GatewayUnavailableError as e:
+                stats.cus_skipped_gateway_error += 1
+                consecutive_errors += 1
+                logger.warning(f"{e}; skipping (will retry on resume)")
+                if consecutive_errors >= max_consecutive_errors:
+                    stats.aborted_incomplete = True
+                    self._write_tuple_batch(batch)
+                    logger.error(
+                        f"Gateway unavailable for {consecutive_errors} consecutive CUs "
+                        f"-- aborting extract pass at {i}/{len(cus)}; resume later"
+                    )
+                    return self._finalize(stats)
+                continue
+            consecutive_errors = 0
             if tup.is_empty():
                 stats.cus_degraded_empty += 1
             else:
@@ -331,6 +363,9 @@ class CUExtractor:
                 batch = []
         self._write_tuple_batch(batch)
 
+        return self._finalize(stats)
+
+    def _finalize(self, stats: ExtractionStats) -> ExtractionStats:
         self._accumulate_stats(stats)
         return stats
 
