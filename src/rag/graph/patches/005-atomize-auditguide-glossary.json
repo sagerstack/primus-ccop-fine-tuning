@@ -1,0 +1,17 @@
+{
+  "_comment": "Patch 005 content — the 10 Auditing Guidelines glossary terms (section 8), atomized under AuditGuide-8 (the genuine glossary section). Reframed as \"'term' means ...\" (patch-002 style). Editorial changes flagged in the .md: (1) dropped internal cross-ref markers like '(SN 8.3)'; (2) stripped redundant term-repetition where a cell restated the term ('Audit evidence refers to ...' -> 'means ...'); (3) Compensating-control sub-points a/b/c kept inline. Also de-premises the 5 DUPLICATE copies (AuditGuide-1..5 = sections 1-5 that wrongly hold this same glossary text via the chunking bug) to remove pool noise; their real section content is lost and awaits the source re-chunk (#1).",
+  "parent_citation_id": "AuditGuide-8",
+  "extra_depremise": ["AuditGuide-1", "AuditGuide-2", "AuditGuide-3", "AuditGuide-4", "AuditGuide-5"],
+  "terms": [
+    {"slug": "Audit", "text": "'Audit' means the systematic, independent and documented process for obtaining audit evidence and evaluating objectively to determine the extent to which the audit criteria are fulfilled."},
+    {"slug": "Audit-criteria", "text": "'Audit criteria' means a set of requirements used as a reference against which audit evidence is compared."},
+    {"slug": "Audit-evidence", "text": "'Audit evidence' means records, statements of fact or other information which are relevant to the audit criteria and verifiable."},
+    {"slug": "Audit-finding", "text": "'Audit finding' means an audit criteria not being met."},
+    {"slug": "Audit-period", "text": "'Audit period' means the period of time to which the audit work relates and from which audit evidence is obtained."},
+    {"slug": "Audit-subject", "text": "'Audit subject' means the CII system that is to be audited."},
+    {"slug": "Adequacy-of-control", "text": "'Adequacy of control' means whether the control in place is fit for the purpose."},
+    {"slug": "Compensating-control", "text": "'Compensating control' (also called an alternative control) means a control that may be considered when an entity cannot meet a requirement explicitly as stated, due to legitimate technical or documented business constraints, but has sufficiently mitigated the risk associated with the requirement through implementation of other controls. A compensating control must: (a) meet the intent and rigour of the original requirement; (b) provide a similar level of defence as the original requirement; and (c) be commensurate with the additional risk imposed by not adhering to the requirement."},
+    {"slug": "Effectiveness-of-control", "text": "'Effectiveness of control' means whether the control in place has the desired effect of mitigating the risk."},
+    {"slug": "Interim-control", "text": "'Interim control' means a set of measures designed to reduce the risk temporarily while the recommended control is being implemented."}
+  ]
+}
