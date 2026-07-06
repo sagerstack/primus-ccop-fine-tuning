@@ -30,6 +30,14 @@ def route_by_mode(state: GraphState) -> str:
         logger.info("Routing: mode=llm-only -> fallback node")
         return "fallback"
 
+    if mode == "graphcpl":
+        # GraphCompliance Compliance Gate (Phase 11): query_analysis routes into
+        # the Context Graph chain (context_graph_extraction -> anchor_hypernym_mapping
+        # -> compliance_gate_retrieval -> compliance_judgment), which terminates at
+        # END with the grounded verdict/answer. Distinct branch (D-16 additivity).
+        logger.info("Routing: mode=graphcpl -> context_graph_extraction node")
+        return "context_graph_extraction"
+
     if mode in ("graphrag", "graphrag-retrieval"):
         # Graph retrieval (Phase 9): swaps ONLY the retrieval node — the
         # graph provides contexts. For `graphrag` the unchanged primus

@@ -8,7 +8,7 @@ Task 1) and hypernym-maps each anchor to policy vocabulary via
 `HypernymScoringService` (Task 2, D-09 STRONG/WEAK + beta=0.3 premise bonus).
 
 Mirrors `function_type_routing.py::classify_function_type`'s mode-gated,
-state-writing node shape: gated on `state.get("mode") == "graph-compliance"`,
+state-writing node shape: gated on `state.get("mode") == "graphcpl"`,
 a no-op for every other mode, writing the resolved `anchors` +
 `hypernym_mappings` into state for the D-17.2 verbose-io trace.
 
@@ -484,14 +484,14 @@ def map_anchors_to_hypernyms(
     elicitation (normalized labels + confidence + premise support), (3)
     `HypernymScoringService` aggregation (eqs. 1-2, unchanged).
 
-    Gated on `mode == "graph-compliance"` — a no-op for every other mode.
+    Gated on `mode == "graphcpl"` — a no-op for every other mode.
     `fragment_retriever`/`scoring_service` are optional injection seams
     (default to the real Neo4j-backed retriever + `HypernymScoringService()`)
     used by tests to avoid touching live infrastructure. The LLM elicitation
     call (`elicit_hypernyms`) is exercised in tests by patching
     `openai.OpenAI`, mirroring `context_graph_extraction.py`'s testing shape.
     """
-    if state.get("mode") != "graph-compliance":
+    if state.get("mode") != "graphcpl":
         state["anchors"] = state.get("anchors", [])
         state["hypernym_mappings"] = state.get("hypernym_mappings", [])
         return state

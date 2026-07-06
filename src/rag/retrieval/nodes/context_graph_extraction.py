@@ -20,7 +20,7 @@ deterministically from the extracted triples without a second LLM call
 (ER-triple / anchor extraction prompt design is Claude's discretion per
 11-CONTEXT.md).
 
-Gated on `state.get("mode") == "graph-compliance"` — a no-op for every other
+Gated on `state.get("mode") == "graphcpl"` — a no-op for every other
 mode (`hybrid`/`llm-only`/`graphrag`/`graphrag-ontology` requests are
 entirely unaffected), never fails the whole request on an LLM error, and
 degrades to an empty triple list on any classification/parsing failure
@@ -181,7 +181,7 @@ def extract_context_graph(state: GraphState) -> GraphState:
     Extract the per-query Context Graph (ER/SAO triples) from the scenario
     (D-10, GraphCompliance §3.2).
 
-    Gated on `mode == "graph-compliance"` (mirrors `classify_function_type`'s
+    Gated on `mode == "graphcpl"` (mirrors `classify_function_type`'s
     mode-gating) — a no-op for every other mode, so `hybrid`/`llm-only`/
     `graphrag`/`graphrag-ontology` requests are entirely unaffected. Runs
     early in the pipeline so `state["context_graph_triples"]` is populated
@@ -190,7 +190,7 @@ def extract_context_graph(state: GraphState) -> GraphState:
     settings = get_settings()
     query = state.get("query", "")
 
-    if state.get("mode") != "graph-compliance":
+    if state.get("mode") != "graphcpl":
         state["context_graph_triples"] = state.get("context_graph_triples", [])
         return state
 

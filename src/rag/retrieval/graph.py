@@ -23,6 +23,10 @@ from rag.retrieval.nodes.query_analysis import analyze_query
 from rag.retrieval.nodes.rag_response import rag_only_response
 from rag.retrieval.nodes.reranking import rerank_documents
 from rag.retrieval.nodes.retrieval import retrieve_documents
+from rag.retrieval.nodes.context_graph_extraction import extract_context_graph
+from rag.retrieval.nodes.anchor_hypernym_mapping import map_anchors_to_hypernyms
+from rag.retrieval.nodes.compliance_gate_retrieval import compliance_gate_retrieval
+from rag.retrieval.nodes.compliance_judgment import compliance_judgment
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -82,6 +86,11 @@ def build_rag_graph(settings: "Settings"):
     workflow.add_node("generate", generate_response)
     workflow.add_node("fallback", fallback_generation)
     workflow.add_node("rag_response", rag_only_response)
+    # GraphCompliance (--mode graphcpl) chain
+    workflow.add_node("context_graph_extraction", extract_context_graph)
+    workflow.add_node("anchor_hypernym_mapping", map_anchors_to_hypernyms)
+    workflow.add_node("compliance_gate_retrieval", compliance_gate_retrieval)
+    workflow.add_node("compliance_judgment", compliance_judgment)
 
     # Entry point
     workflow.set_entry_point("query_analysis")
@@ -104,9 +113,16 @@ def build_rag_graph(settings: "Settings"):
             # this MUST be a real node, not a side effect inside
             # `route_by_mode` itself.
             "graph_retrieval_ontology": "function_type_routing",
+            "context_graph_extraction": "context_graph_extraction",
             "fallback": "fallback",
         },
     )
+
+    # GraphCompliance chain (--mode graphcpl): Context Graph -> Gate -> judgment -> END
+    workflow.add_edge("context_graph_extraction", "anchor_hypernym_mapping")
+    workflow.add_edge("anchor_hypernym_mapping", "compliance_gate_retrieval")
+    workflow.add_edge("compliance_gate_retrieval", "compliance_judgment")
+    workflow.add_edge("compliance_judgment", END)
 
     # Retrieval → reranking → grading (always)
     workflow.add_edge("retrieval", "reranking")

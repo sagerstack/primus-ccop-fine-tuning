@@ -37,7 +37,7 @@ from domain.value_objects.quality_group import QualityGroup
 # "graphrag-ontology". (This mirrors the run_id._VALID_MODES lesson: a new
 # retrieval mode added in one place but missed here silently N/As its
 # retrieval metrics in the summary/report.)
-_RETRIEVAL_EVAL_MODES = {"hybrid", "graphrag", "graphrag-ontology"}
+_RETRIEVAL_EVAL_MODES = {"hybrid", "graphrag", "graphrag-ontology", "graphcpl"}
 
 
 class EvaluateModelUseCase(IEvaluateModelUseCase):
