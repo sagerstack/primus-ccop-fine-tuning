@@ -1,0 +1,5 @@
+# Patch-content JSON files (read at apply-time by the .py appliers) MUST be
+# tracked, despite the repo-root blanket `*.json` ignore. Without them a patch
+# is not reproducible. The snapshots/ subdir keeps its own .gitignore (which
+# still ignores intermediate *-after.json exports).
+!*.json
