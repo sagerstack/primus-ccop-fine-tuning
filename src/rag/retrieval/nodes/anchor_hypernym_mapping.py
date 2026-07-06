@@ -75,6 +75,11 @@ RETURN cu.cu_id AS cu_id, cu.cu_type AS cu_type, cu.premise_kind AS premise_kind
 # Type alias for the injectable fragment-retriever seam.
 FragmentRetriever = Callable[[str, int, Any], List[Dict[str, Any]]]
 
+# Separate locks for the embedder singleton and the fragment-pool cache
+# (never nested/acquired-while-held — `_get_fragment_pool_with_embeddings`
+# calls `_get_embedder` while NOT holding `_pool_lock`, so a single thread
+# never attempts to re-enter a non-reentrant `Lock`, which would deadlock).
+_embedder_lock = threading.Lock()
 _pool_lock = threading.Lock()
 _pool_cache: Optional[Dict[str, Any]] = None  # {"fragments": [...], "embeddings": [...]}
 _embedder_cache: Optional[object] = None
@@ -100,10 +105,17 @@ def _derive_anchors(triples: List[Dict[str, Any]]) -> List[Dict[str, str]]:
 
 
 def _get_embedder(settings):
-    """Lazy, thread-safe singleton embedder (mirrors reranking.py's cross-encoder cache)."""
+    """
+    Lazy, thread-safe singleton embedder (mirrors reranking.py's cross-encoder
+    cache). Uses its OWN lock (`_embedder_lock`), never `_pool_lock` — this
+    function is called BOTH standalone and from inside
+    `_get_fragment_pool_with_embeddings` while that function holds
+    `_pool_lock`; sharing a lock would deadlock a non-reentrant `Lock` on
+    re-entry from the same thread.
+    """
     global _embedder_cache
     if _embedder_cache is None:
-        with _pool_lock:
+        with _embedder_lock:
             if _embedder_cache is None:
                 from neo4j_graphrag.embeddings import SentenceTransformerEmbeddings
 
