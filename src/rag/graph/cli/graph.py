@@ -42,6 +42,7 @@ from rag.graph.ontology.clause_linker import ClauseLinker, LinkStats
 from rag.graph.ontology.clause_seeder import (
     DEFAULT_CLAUSE_INVENTORY_PATH as DEFAULT_SEED_INVENTORY_PATH,
 )
+from rag.graph.build.policy_graph_builder import PolicyBuildStats, PolicyGraphBuilder
 from rag.graph.ontology.clause_seeder import ClauseSeeder, SeedStats
 from rag.graph.ontology.cu_classifier import CUClassifier, CUMintStats
 from rag.graph.ontology.cu_extractor import CUExtractor, ExtractionStats
@@ -543,6 +544,58 @@ def _print_cu_extract_summary(stats: ExtractionStats) -> None:
     table.add_row("Obligation CUs ALL-EMPTY (gate)", str(stats.obligation_cu_all_empty_count))
     table.add_row("Premises with a tuple (must be 0)", str(stats.premise_with_tuple_count))
     console.print(table)
+
+
+@graph_app.command(name="build-compliance")
+def build_compliance_command(
+    drop: bool = typer.Option(
+        False,
+        "--drop/--no-drop",
+        help=(
+            "SCOPED drop: delete ONLY :ComplianceUnit + REFERS_TO before rebuilding "
+            "(the :Clause source layer is ALWAYS preserved). Default: off."
+        ),
+    ),
+) -> None:
+    """
+    Build the full offline Policy Graph reproducibly (11-05): classify+mint CUs
+    -> 4-tuple extract -> subject-finalize -> REFERS_TO link, on the persisted
+    11-02 source layer. Fails loud if the source layer (883 :Clause with text)
+    is absent. Real-Opus/OpenRouter build.
+    """
+    try:
+        asyncio.run(_run_build_compliance(drop))
+    except Exception as e:
+        console.print(f"[red]Policy Graph build failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+
+
+async def _run_build_compliance(drop: bool) -> None:
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        builder = PolicyGraphBuilder(settings=settings, driver=driver)
+        console.print("[bold green]Building offline Policy Graph (classify -> extract -> finalize -> link)...[/bold green]")
+        stats = await builder.build(drop=drop)
+        _print_policy_build_summary(stats)
+    finally:
+        driver.close()
+
+
+def _print_policy_build_summary(stats: PolicyBuildStats) -> None:
+    table = Table(title="Policy Graph Build Summary (11-05)", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("actor-CU", str(stats.actor_cu_count))
+    table.add_row("meta-CU", str(stats.meta_cu_count))
+    table.add_row("premise", str(stats.premise_count))
+    table.add_row("REFERS_TO edges", str(stats.refers_to_edges))
+    table.add_row("obligation CUs missing tuple", str(stats.obligation_cu_missing_tuple))
+    table.add_row("subjects inherited / doc-defaulted", f"{stats.subjects_inherited} / {stats.subjects_doc_defaulted}")
+    table.add_row("stage failures", str(len(stats.failures)))
+    console.print(table)
+    for f in stats.failures:
+        console.print(f"  [red]- {f}[/red]")
 
 
 @graph_app.command(name="inspect")
