@@ -321,10 +321,10 @@ ENTITY CONTEXT (relations extracted from the scenario, may be empty): {entity_co
 RETRIEVED POLICY FRAGMENTS (candidate grounding — "premise" fragments are definitional/interpretive clauses; "actor-CU"/"meta-CU" fragments are formalized obligations/designation rules):
 {fragments}
 
-Propose up to 3 NORMALIZED policy-vocabulary hypernym labels for this entity — a clean policy term such as "critical information infrastructure", "computer system", or "controller", NEVER a raw fragment excerpt or enumeration item such as "(a) Operating systems;". For each proposal, give your own confidence in [0.0, 1.0] that the label correctly generalizes the entity (this confidence, not any retrieval similarity score, is the proposal's strength), and cite the citation_id of the single retrieved fragment above that most directly supports this label (or "" if none of the fragments support it).
+Propose up to 3 NORMALIZED policy-vocabulary hypernym labels for this entity — a clean policy term such as "critical information infrastructure", "computer system", or "controller", NEVER a raw fragment excerpt or enumeration item such as "(a) Operating systems;". For each proposal, give your own confidence in [0.0, 1.0] that the label correctly generalizes the entity (this confidence, not any retrieval similarity score, is the proposal's strength), and cite the supporting fragment by copying its citation_id EXACTLY as shown inside the [square brackets] above — verbatim, including any "#..." suffix — for the single retrieved fragment that most directly supports this label (or "" if none of the fragments support it).
 
-Return ONLY a JSON array of objects, e.g.:
-[{{"hypernym": "critical information infrastructure", "confidence": 0.92, "supporting_frag_id": "CCoP-1.2.1"}}]
+Return ONLY a JSON array of objects, e.g. (note the supporting_frag_id is the exact bracketed id):
+[{{"hypernym": "critical information infrastructure", "confidence": 0.92, "supporting_frag_id": "CCoP-1.2.1#CII"}}]
 
 No prose, no backticks, no explanation — JSON array only. If no reasonable hypernym can be proposed from the fragments above, return [].
 
