@@ -62,9 +62,12 @@ _SUBJECT_CANONICAL = [
     {"variant": "ciio", "canonical": "CIIO"},
     {"variant": "project manager", "canonical": "Project Manager"},
     {"variant": "steering committee", "canonical": "Steering Committee"},
+    {"variant": "project steering committee", "canonical": "Steering Committee"},
     {"variant": "senior management", "canonical": "Senior Management"},
     {"variant": "the commissioner", "canonical": "Commissioner"},
     {"variant": "commissioner", "canonical": "Commissioner"},
+    {"variant": "auditor", "canonical": "the auditor"},
+    {"variant": "auditors", "canonical": "the auditor"},
 ]
 
 _NORMALIZE_SUBJECT_QUERY = """
@@ -72,6 +75,32 @@ UNWIND $map AS m
 MATCH (cu:ComplianceUnit {cu_type:'actor-CU'})
 WHERE toLower(trim(cu.subject)) = m.variant AND cu.subject <> m.canonical
 SET cu.subject = m.canonical
+RETURN count(cu) AS n
+""".strip()
+
+# Object-as-subject extraction slips: a handful of clauses where the extractor
+# put the grammatical subject (a document/object -- "the CII", "a licence", "the
+# audit finding remediation plan") into the subject slot instead of the deontic
+# actor. Corrected to the role-bearing actor named IN the clause. Keyed by cu_id
+# (a TARGETED correction, deliberately NOT a general toLower(subject) string fold
+# -- "CII"/"licence" can never be role-bearing actors, but the correct actor is
+# clause-specific, so we pin each rather than blanket-map the surface string).
+_SUBJECT_OVERRIDE = [
+    # CCoP 2.1.2: "...remediation actions which the CIIO will take..."
+    {"cu_id": "CCoP-2.1.2", "subject": "CIIO"},
+    {"cu_id": "CCoP-2.1.2(a)", "subject": "CIIO"},
+    # CCoP 3.8.3: CII is infrastructure; the owner (CIIO) contracts the external party.
+    {"cu_id": "CCoP-3.8.3", "subject": "CIIO"},
+    {"cu_id": "CCoP-3.8.3(c)", "subject": "CIIO"},
+    # Act 28: "...in such form as the licensing officer may determine..."
+    {"cu_id": "Act-28", "subject": "licensing officer"},
+]
+
+_OVERRIDE_SUBJECT_QUERY = """
+UNWIND $overrides AS o
+MATCH (cu:ComplianceUnit {cu_type:'actor-CU', cu_id: o.cu_id})
+WHERE cu.subject <> o.subject
+SET cu.subject = o.subject
 RETURN count(cu) AS n
 """.strip()
 
@@ -125,6 +154,7 @@ class PolicyBuildStats:
     obligation_cu_missing_tuple: int = 0
     subjects_inherited: int = 0
     subjects_doc_defaulted: int = 0
+    subjects_overridden: int = 0
     subjects_normalized: int = 0
     failures: list[str] = field(default_factory=list)
 
@@ -187,6 +217,11 @@ class PolicyGraphBuilder:
             stats.subjects_inherited = s.run(_INHERIT_PARENT_SUBJECT_QUERY).single()["n"]
             stats.subjects_doc_defaulted = s.run(
                 _DOC_DEFAULT_SUBJECT_QUERY, defaults=_DOC_DEFAULT_ACTOR
+            ).single()["n"]
+            # Correct object-as-subject slips BEFORE canonicalization so an
+            # overridden value still folds through the variant map if needed.
+            stats.subjects_overridden = s.run(
+                _OVERRIDE_SUBJECT_QUERY, overrides=_SUBJECT_OVERRIDE
             ).single()["n"]
             stats.subjects_normalized = s.run(
                 _NORMALIZE_SUBJECT_QUERY, map=_SUBJECT_CANONICAL

@@ -592,6 +592,7 @@ def _print_policy_build_summary(stats: PolicyBuildStats) -> None:
     table.add_row("REFERS_TO edges", str(stats.refers_to_edges))
     table.add_row("obligation CUs missing tuple", str(stats.obligation_cu_missing_tuple))
     table.add_row("subjects inherited / doc-defaulted", f"{stats.subjects_inherited} / {stats.subjects_doc_defaulted}")
+    table.add_row("subjects overridden / normalized", f"{stats.subjects_overridden} / {stats.subjects_normalized}")
     table.add_row("stage failures", str(len(stats.failures)))
     console.print(table)
     for f in stats.failures:
