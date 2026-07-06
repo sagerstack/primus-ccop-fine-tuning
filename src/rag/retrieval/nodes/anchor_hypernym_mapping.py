@@ -81,17 +81,27 @@ logger = logging.getLogger(__name__)
 # never become anchors.
 _ANCHOR_ENTITY_TYPES = frozenset({"actor", "system", "data"})
 
-# Compliance Unit types eligible as hypernym candidate fragments (D-09/D-10):
-# premises (definitional/interpretive — the STRONG-bonus source) plus the two
-# judged obligation types, whose formalized `subject` is the paper's anchor
-# vocabulary (D-37: "paper aligns anchors to subject roles").
-_FRAGMENT_CU_TYPES = ("premise", "actor-CU", "meta-CU")
+# Obligation CU types eligible as hypernym candidate fragments (D-09/D-10):
+# the two judged obligation types, whose formalized `subject` is the paper's
+# anchor vocabulary (D-37: "paper aligns anchors to subject roles"). Premises —
+# the STRONG-bonus source — are NO LONGER CUs: patch 001 aligned the graph to
+# GraphCompliance Alg. 1, where a premise is a `:Premise`-marked Clause, not a
+# ComplianceUnit. So the pool query has a second leg over `:Premise` clauses.
+_FRAGMENT_CU_TYPES = ("actor-CU", "meta-CU")
 
+# Two-leg pool (patch 001): obligation CUs keyed on `subject`, UNION premises
+# keyed on their `:Premise` clause text. Both legs return the SAME record shape;
+# the premise leg synthesises `cu_type='premise'` so every downstream check
+# (`_fragment_representative_text`, `is_premise`) works unchanged.
 _FETCH_FRAGMENT_POOL_QUERY = """
 MATCH (cu:ComplianceUnit)-[:FROM_CLAUSE]->(c:Clause)
 WHERE cu.cu_type IN $cu_types
 RETURN cu.cu_id AS cu_id, cu.cu_type AS cu_type, cu.premise_kind AS premise_kind,
        cu.subject AS subject, c.citation_id AS citation_id, c.text AS clause_text
+UNION
+MATCH (c:Clause:Premise)
+RETURN c.premise_cu_id AS cu_id, 'premise' AS cu_type, c.premise_kind AS premise_kind,
+       null AS subject, c.citation_id AS citation_id, c.text AS clause_text
 """.strip()
 
 # Type alias for the injectable fragment-retriever seam.
@@ -214,7 +224,7 @@ def _cosine_similarity(a: List[float], b: List[float]) -> float:
 
 
 def _fetch_fragment_pool(settings) -> List[Dict[str, Any]]:
-    """Fetch every premise/actor-CU/meta-CU fragment from Neo4j (T-09-12: static, parameterized Cypher)."""
+    """Fetch obligation CUs (actor-CU/meta-CU) + `:Premise` clauses as the candidate pool (T-09-12: static, parameterized Cypher)."""
     import neo4j
 
     driver = neo4j.GraphDatabase.driver(

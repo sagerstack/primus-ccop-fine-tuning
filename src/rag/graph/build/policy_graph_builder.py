@@ -1,6 +1,13 @@
 """
 Policy Graph Builder (Phase 11, 11-05 / D-01/D-02).
 
+LEGACY / FROZEN (2026-07-06): the graph is no longer rebuilt from this code.
+The live Neo4j graph is the artifact of record and is maintained by ordered
+patches under `rag/graph/patches/` (see its README). This builder still models
+premises as `ComplianceUnit{cu_type:'premise'}` nodes, which patch 001 replaced
+with `:Premise`-marked clauses — so running it would REGRESS the graph. Do not
+run or edit for graph fixes; apply a patch instead.
+
 The reproducible orchestrator for the offline Policy Graph -- runs the four
 Compliance-Unit stages in sequence ON THE PERSISTED 11-02 source layer, reusing
 11-04's minter directly (never a divergent second copy):
