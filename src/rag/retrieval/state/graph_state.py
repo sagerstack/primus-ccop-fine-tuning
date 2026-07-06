@@ -64,5 +64,35 @@ class GraphState(TypedDict):
     latency_ms: int
     retrieved_contexts_detailed: List[Dict]  # One entry per filtered doc with full metadata
 
+    # Context Graph (Phase 11, D-10): per-query ER/SAO triples extracted from
+    # the scenario. Each entry: {subject, subject_type, predicate, object,
+    # object_type} where *_type in {actor, data, system, other}. Populated by
+    # `extract_context_graph` (plan 11-06 Task 1); consumed by anchor
+    # derivation (`map_anchors_to_hypernyms`, plan 11-06 Task 3).
+    context_graph_triples: List[Dict]
+
+    # Context Graph (Phase 11, D-10): actor/data/system anchors derived from
+    # `context_graph_triples`. Each entry: {label, type}. Populated by
+    # `map_anchors_to_hypernyms` (plan 11-06 Task 3); consumed by anchor->CU
+    # retrieval (D-11, a future plan).
+    anchors: List[Dict]
+
+    # Context Graph (Phase 11, D-09/D-10): hypernym mappings normalizing each
+    # anchor to policy vocabulary. Each entry: {anchor, label, strong_weak,
+    # supporting_premise, score} — the D-17.2 verbose-io trace payload.
+    # Populated by `map_anchors_to_hypernyms` (plan 11-06 Task 3).
+    hypernym_mappings: List[Dict]
+
+    # Compliance Gate (Phase 11, D-11): the CU Plan — matched CUs by type
+    # (premise / meta-CU / actor-CU) with retrieval scores. Reserved here;
+    # populated by a future plan's anchor->CU retrieval node.
+    cu_plan: List[Dict]
+
+    # Compliance Gate (Phase 11, D-13/D-17.4): verbatim clause texts actually
+    # embedded in the judgment prompt (the citation payload), namespaced by
+    # clause id. Reserved here; populated by a future plan's structured
+    # judgment prompt-assembly node.
+    verbatim_clause_texts: List[Dict]
+
     # Error handling
     error: str
