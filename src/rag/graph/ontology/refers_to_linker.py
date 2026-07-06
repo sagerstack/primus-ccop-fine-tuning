@@ -36,6 +36,7 @@ import neo4j
 
 from application.ports.output.i_model_gateway import IModelGateway
 from infrastructure.config.settings import Settings
+from rag.graph.ontology.cu_classifier import OBLIGATION_CU_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +83,7 @@ MERGE (src)-[:REFERS_TO]->(tgt)
 
 _FETCH_CUS_QUERY = """
 MATCH (cu:ComplianceUnit)-[:FROM_CLAUSE]->(c:Clause)
-RETURN cu.cu_id AS cu_id, cu.source_doc AS source_doc,
+RETURN cu.cu_id AS cu_id, cu.source_doc AS source_doc, cu.cu_type AS cu_type,
        c.clause_id AS clause_id, c.text AS text
 """.strip()
 
@@ -125,6 +126,7 @@ class RefersToLinker:
                 {
                     "cu_id": r["cu_id"],
                     "source_doc": r["source_doc"],
+                    "cu_type": r["cu_type"],
                     "clause_id": r["clause_id"],
                     "text": r["text"] or "",
                 }
@@ -147,6 +149,11 @@ class RefersToLinker:
         pairs: list[dict[str, Any]] = []
         seen: set[tuple[str, str, str]] = set()
         for src in cus:
+            # Only OBLIGATION CUs are reference-closure sources (11-08 traverses
+            # REFERS_TO from judged CUs); edges emanating from premises (e.g. the
+            # RtF interpretive block) are noise, not exception structure.
+            if src.get("cu_type") not in OBLIGATION_CU_TYPES:
+                continue
             haystack = src["text"].lower()
             if not haystack:
                 continue

@@ -27,8 +27,8 @@ class RaisingGateway:
         raise RuntimeError("simulated LLM failure")
 
 
-def _cu(cu_id, clause_id, text, doc="CCoP 2.0"):
-    return {"cu_id": cu_id, "source_doc": doc, "clause_id": clause_id, "text": text}
+def _cu(cu_id, clause_id, text, doc="CCoP 2.0", cu_type="actor-CU"):
+    return {"cu_id": cu_id, "source_doc": doc, "cu_type": cu_type, "clause_id": clause_id, "text": text}
 
 
 class TestReferenceAppears:
@@ -80,6 +80,16 @@ class TestComputeExplicitPairs:
         tgt_ids = {p["tgt_cu_id"] for p in pairs if p["src_cu_id"] == "CCoP-5.9.1"}
         assert "CCoP-5.3.10" in tgt_ids
         assert "CCoP-5.3" not in tgt_ids  # Finding 3 guard
+
+    def test_premise_source_not_linked(self):
+        # REFERS_TO sources are obligation CUs only; a premise never emits edges.
+        cus = [
+            _cu("RtF-11.6", "11.6", "see 5.7.2 and 5.7.1", cu_type="premise"),
+            _cu("CCoP-5.7.2", "5.7.2", "..."),
+            _cu("CCoP-5.7.1", "5.7.1", "..."),
+        ]
+        pairs = RefersToLinker._compute_explicit_pairs(cus)
+        assert all(p["src_cu_id"] != "RtF-11.6" for p in pairs)
 
     def test_self_reference_skipped(self):
         cus = [_cu("CCoP-5.7.1", "5.7.1", "this clause 5.7.1 is self-referential")]
