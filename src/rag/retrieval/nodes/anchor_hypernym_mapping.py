@@ -1,6 +1,6 @@
 """
-Anchor Extraction + Hypernym Mapping Node (Phase 11, plan 11-06 Task 3,
-D-09/D-10)
+Anchor Extraction + Hypernym Mapping Node (Phase 11, plan 11-06 Task 3 +
+11-06b addendum, D-09/D-10)
 
 Derives actor/data/system anchors from the per-query Context Graph
 (`state["context_graph_triples"]`, populated by `context_graph_extraction.py`
@@ -15,36 +15,58 @@ a no-op for every other mode, writing the resolved `anchors` +
 Anchor derivation is DETERMINISTIC (no second LLM call): Task 1's extraction
 prompt already tags each triple's subject/object with a coarse entity type
 (`actor` / `system` / `data` / `other`); this node simply collects the unique
-(label, type) pairs whose type is one of the three anchor types.
+(label, type) pairs whose type is one of the three anchor types. Each anchor
+also carries its `context` — the (predicate, other-entity-label) relations
+from every triple that mentions it (11-06b: enriches step-1 retrieval so the
+right definitional premise, e.g. a "designated as CII" system's CII
+definition, lands in the candidate pool).
+
+GraphCompliance §3.2's hypernym mapping is THREE steps (Alg. 2 line 3; 11-06b
+closes the fidelity gap the D-26 checkpoint surfaced, where 11-06 Task 3
+collapsed steps 2+3 into "raw fragment as label, cosine as confidence"):
+  1. Retrieve top-M policy fragments per anchor (`_default_fragment_retriever`)
+     — grounding only, narrower than the full anchor->CU-Plan retrieval
+     (D-11, bi-encoder K1 + cross-encoder rerank over eqs. 3-4; that
+     two-channel retriever is out of this plan's scope — a later
+     Compliance-Gate wave builds `neo4j_compliance_gate_adapter.py`).
+  2. `ctx.hypernym` LLM elicitation (`elicit_hypernyms`) — given the anchor
+     (+ its triple context) and the retrieved fragments, the LLM proposes
+     NORMALIZED policy-vocabulary hypernym labels with its own confidence
+     s(r) in [0,1] and the citation_id of the single fragment that supports
+     each proposal. Mirrors `context_graph_extraction.py`'s LLM-call shape
+     exactly (openai client, `fix_invalid_json` parse, degrade-to-empty).
+  3. Aggregate via `HypernymScoringService` (eqs. 1-2, max-pool + beta=0.3
+     premise bonus + top-N=5) — UNCHANGED from 11-06 Task 2. It is fed the
+     LLM's (label, confidence, is_premise) proposals, not raw fragments.
 
 Candidate hypernym fragment retrieval (top-M policy fragments per anchor,
-D-10) is a NARROWER, hypernym-mapping-scoped retrieval than the full
-anchor->CU-Plan retrieval (D-11, bi-encoder K1 + cross-encoder rerank over
-eqs. 3-4) — that two-channel retriever is out of this plan's scope (a later
-Compliance-Gate wave builds `neo4j_compliance_gate_adapter.py`, per
-11-PATTERNS.md's file classification). Here, the default retriever embeds
-every `premise` / `meta-CU` / `actor-CU` fragment's representative text
-(clause verbatim text for premises, the formalized `subject` for CUs) with
-the SAME embedder as the existing graph adapters
-(`SentenceTransformerEmbeddings(model=settings.graph_embedding_model)`,
+D-10): the default retriever embeds every `premise` / `meta-CU` / `actor-CU`
+fragment's representative text (clause verbatim text for premises, the
+formalized `subject` for CUs) with the SAME embedder as the existing graph
+adapters (`SentenceTransformerEmbeddings(model=settings.graph_embedding_model)`,
 `neo4j_ontology_graph_retrieval_adapter.py`'s reuse precedent) and ranks by
-cosine similarity against the anchor label, in-process — no new Neo4j vector
-index is required for this candidate pool size (~800 CUs). The fragment
-pool + its embeddings are lazily cached at module scope (mirrors
-`reranking.py::_get_cross_encoder`'s thread-safe lazy singleton) since the
-Policy Graph is static across queries within a process.
+cosine similarity against an anchor's triple-context-enriched query text
+(11-06b), in-process — no new Neo4j vector index is required for this
+candidate pool size (~800 CUs). The fragment pool + its embeddings are
+lazily cached at module scope (mirrors `reranking.py::_get_cross_encoder`'s
+thread-safe lazy singleton) since the Policy Graph is static across queries
+within a process.
 
-Degrade-safe: the node NEVER raises. Any Neo4j/embedding failure during
-fragment retrieval is caught, logged, and degrades that anchor's mapping list
-to empty (T-11-15-style graceful degradation, generalized here from LLM
-calls to the retrieval call).
+Degrade-safe: the node NEVER raises. Any Neo4j/embedding/LLM failure during
+fragment retrieval or hypernym elicitation is caught, logged, and degrades
+that anchor's mapping list to empty (T-11-15-style graceful degradation).
 
 The `fragment_retriever` / `scoring_service` constructor-injection seam
 (callable/instance kwargs on `map_anchors_to_hypernyms`) exists so unit tests
 never touch a live Neo4j instance — mirrors the constructor-injection
-convention used throughout `rag/graph/retrieval/*_adapter.py`.
+convention used throughout `rag/graph/retrieval/*_adapter.py`. The LLM
+elicitation call itself is exercised in tests by patching `openai.OpenAI`
+(mirrors `test_context_graph_extraction.py`'s testing shape), not by an
+extra injection parameter, so the real settings-gated call path is covered.
 """
 
+import hashlib
+import json
 import logging
 import threading
 from typing import Any, Callable, Dict, List, Optional
@@ -85,23 +107,67 @@ _pool_cache: Optional[Dict[str, Any]] = None  # {"fragments": [...], "embeddings
 _embedder_cache: Optional[object] = None
 
 
-def _derive_anchors(triples: List[Dict[str, Any]]) -> List[Dict[str, str]]:
+def _derive_anchors(triples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Collect unique actor/data/system anchors from Context Graph triples
     (D-10). Both the subject and object slot of each triple can yield an
     anchor. Order-preserving de-duplication on (label.lower(), type).
+
+    11-06b: each anchor also accumulates `context` — the
+    `(predicate, other_entity_label)` relation(s) from every triple that
+    mentions it, from whichever side (subject or object) it appears on. This
+    is the triple context used to enrich the step-1 retrieval query (e.g. a
+    "Patient monitoring systems" anchor that is the subject of `("Patient
+    monitoring systems", "designated as", "CII")` carries
+    `context=[("designated as", "CII")]`), so the retriever surfaces the
+    CII-definition premise instead of matching on the bare label alone.
     """
-    seen: Dict[tuple, Dict[str, str]] = {}
+    seen: Dict[tuple, Dict[str, Any]] = {}
+
+    def _anchor(label: str, entity_type: str) -> Dict[str, Any]:
+        key = (label.lower(), entity_type)
+        if key not in seen:
+            seen[key] = {"label": label, "type": entity_type, "context": []}
+        return seen[key]
+
     for triple in triples:
-        for role in ("subject", "object"):
-            label = str(triple.get(role, "")).strip()
-            entity_type = str(triple.get(f"{role}_type", "")).strip().lower()
-            if not label or entity_type not in _ANCHOR_ENTITY_TYPES:
-                continue
-            key = (label.lower(), entity_type)
-            if key not in seen:
-                seen[key] = {"label": label, "type": entity_type}
+        subject = str(triple.get("subject", "")).strip()
+        subject_type = str(triple.get("subject_type", "")).strip().lower()
+        predicate = str(triple.get("predicate", "")).strip()
+        obj = str(triple.get("object", "")).strip()
+        object_type = str(triple.get("object_type", "")).strip().lower()
+
+        if subject and subject_type in _ANCHOR_ENTITY_TYPES:
+            anchor = _anchor(subject, subject_type)
+            if predicate or obj:
+                anchor["context"].append((predicate, obj))
+
+        if obj and object_type in _ANCHOR_ENTITY_TYPES:
+            anchor = _anchor(obj, object_type)
+            if predicate or subject:
+                anchor["context"].append((predicate, subject))
+
     return list(seen.values())
+
+
+def _render_anchor_context(anchor: Dict[str, Any]) -> str:
+    """Render an anchor's accumulated triple context as a compact string (11-06b)."""
+    context = anchor.get("context") or []
+    parts = [f"{predicate} {other}".strip() for predicate, other in context if predicate or other]
+    return "; ".join(part for part in parts if part)
+
+
+def _render_anchor_query(anchor: Dict[str, Any]) -> str:
+    """
+    Triple-context-enriched retrieval query text for an anchor (11-06b step-1
+    fix): `"<label> | <predicate> <object>; ..."`. Falls back to the bare
+    label when the anchor carries no context (e.g. a stub anchor built for
+    unit tests). Keeps the retriever's dense mechanism unchanged — only the
+    query text changes.
+    """
+    label = anchor.get("label", "")
+    rendered_context = _render_anchor_context(anchor)
+    return f"{label} | {rendered_context}" if rendered_context else label
 
 
 def _get_embedder(settings):
@@ -224,6 +290,178 @@ def _default_fragment_retriever(anchor_label: str, top_m: int, settings) -> List
         return []
 
 
+# --- ctx.hypernym LLM elicitation (11-06b step 2, Alg. 2 line 3) ----------
+#
+# Mirrors `context_graph_extraction.py`'s LLM-call shape exactly: `openai`
+# client with api_key=settings.openrouter_api_key,
+# base_url=settings.openrouter_base_url, model=settings.ontology_discovery_
+# model; parse via neo4j_graphrag's `fix_invalid_json`; degrade-to-empty on
+# unset api key or any exception; per-(entity, context, fragment-set) cache
+# with a lock — the fragments already carry the query-scoping (they were
+# retrieved with the anchor's triple-context-enriched query, 11-06b step 1),
+# so keying the cache on entity + rendered context + the fragment set's
+# citation_ids is equivalent to "cache per (query, entity-label)" without
+# threading a separate query-id through this node.
+
+CTX_HYPERNYM_ELICITATION_PROMPT = """You are mapping a specific entity from a Critical Information Infrastructure (CII) cybersecurity compliance scenario to the correct policy-vocabulary term(s) used by a Codes-of-Practice policy corpus.
+
+ENTITY: {entity}
+ENTITY CONTEXT (relations extracted from the scenario, may be empty): {entity_context}
+
+RETRIEVED POLICY FRAGMENTS (candidate grounding — "premise" fragments are definitional/interpretive clauses; "actor-CU"/"meta-CU" fragments are formalized obligations/designation rules):
+{fragments}
+
+Propose up to 3 NORMALIZED policy-vocabulary hypernym labels for this entity — a clean policy term such as "critical information infrastructure", "computer system", or "controller", NEVER a raw fragment excerpt or enumeration item such as "(a) Operating systems;". For each proposal, give your own confidence in [0.0, 1.0] that the label correctly generalizes the entity (this confidence, not any retrieval similarity score, is the proposal's strength), and cite the citation_id of the single retrieved fragment above that most directly supports this label (or "" if none of the fragments support it).
+
+Return ONLY a JSON array of objects, e.g.:
+[{{"hypernym": "critical information infrastructure", "confidence": 0.92, "supporting_frag_id": "CCoP-1.2.1"}}]
+
+No prose, no backticks, no explanation — JSON array only. If no reasonable hypernym can be proposed from the fragments above, return [].
+
+PROPOSALS (JSON array):"""
+
+# Per-(entity, entity_context, fragment-set) elicitation cache (mirrors
+# `context_graph_extraction.py`'s `_extraction_cache` shape).
+_hypernym_cache: Dict[str, List[Dict[str, Any]]] = {}
+_hypernym_cache_lock = threading.Lock()
+
+
+def _hypernym_cache_key(entity: str, entity_context: str, fragments: List[Dict[str, Any]]) -> str:
+    fragment_sig = "|".join(
+        f"{frag.get('citation_id') or frag.get('cu_id', '')}:{frag.get('cu_type', '')}"
+        for frag in fragments
+    )
+    raw = f"{entity.strip().lower()}::{entity_context.strip().lower()}::{fragment_sig}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def _render_fragment_block(fragments: List[Dict[str, Any]]) -> str:
+    return "\n".join(
+        f"[{frag.get('citation_id') or frag.get('cu_id', '')}] "
+        f"({frag.get('cu_type', '')}) {frag.get('text', '')}"
+        for frag in fragments
+    )
+
+
+def _parse_hypernym_proposals(raw: str) -> List[Dict[str, Any]]:
+    """
+    Parse + validate the LLM's JSON array response into a list of hypernym
+    proposal dicts (`{hypernym, confidence, supporting_frag_id}`). Reuses
+    `neo4j_graphrag`'s `fix_invalid_json` repair helper (same reuse
+    discipline as `context_graph_extraction.py::_parse_triples`). Never
+    raises — returns [] on total parse failure or malformed entries.
+    """
+    if not raw:
+        return []
+    try:
+        from neo4j_graphrag.experimental.components.entity_relation_extractor import (
+            fix_invalid_json,
+        )
+        from neo4j_graphrag.experimental.pipeline.exceptions import InvalidJSONError
+
+        try:
+            repaired = fix_invalid_json(raw)
+            parsed = json.loads(repaired)
+        except (json.JSONDecodeError, InvalidJSONError):
+            parsed = json.loads(raw)
+    except Exception as e:
+        logger.warning(f"Hypernym elicitation JSON parse failed: {e}")
+        return []
+
+    if not isinstance(parsed, list):
+        logger.warning("Hypernym elicitation did not return a JSON array; discarding")
+        return []
+
+    proposals: List[Dict[str, Any]] = []
+    for entry in parsed:
+        if not isinstance(entry, dict):
+            continue
+        hypernym = str(entry.get("hypernym", "")).strip()
+        if not hypernym:
+            continue
+        try:
+            confidence = float(entry.get("confidence", 0.0))
+        except (TypeError, ValueError):
+            confidence = 0.0
+        confidence = max(0.0, min(1.0, confidence))
+        proposals.append(
+            {
+                "hypernym": hypernym,
+                "confidence": confidence,
+                "supporting_frag_id": str(entry.get("supporting_frag_id", "")).strip(),
+            }
+        )
+    return proposals
+
+
+def _elicit_hypernyms_llm(
+    entity: str, entity_context: str, fragments: List[Dict[str, Any]], settings
+) -> List[Dict[str, Any]]:
+    """
+    Call OpenRouter for the `ctx.hypernym` elicitation (Alg. 2 line 3).
+
+    Mirrors `context_graph_extraction.py::_extract_context_graph_triples`'s
+    settings-gated call + try/except-log-return degradation pattern exactly:
+    returns [] (no hypernym proposals for this anchor) on any missing-key or
+    LLM-call failure, never raises.
+    """
+    if not settings.openrouter_api_key:
+        logger.warning("Hypernym elicitation enabled but OPENROUTER_API_KEY not set; skipping")
+        return []
+    try:
+        from openai import OpenAI
+
+        client = OpenAI(
+            api_key=settings.openrouter_api_key,
+            base_url=settings.openrouter_base_url,
+            timeout=60,
+        )
+        prompt = CTX_HYPERNYM_ELICITATION_PROMPT.format(
+            entity=entity,
+            entity_context=entity_context or "(none)",
+            fragments=_render_fragment_block(fragments),
+        )
+        resp = client.chat.completions.create(
+            model=settings.ontology_discovery_model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0,
+            max_tokens=500,
+        )
+        raw = (resp.choices[0].message.content or "").strip()
+        return _parse_hypernym_proposals(raw)
+    except Exception as e:
+        logger.warning(f"Hypernym elicitation failed for entity {entity!r}: {e}")
+        return []
+
+
+def elicit_hypernyms(
+    entity: str, entity_context: str, fragments: List[Dict[str, Any]], settings
+) -> List[Dict[str, Any]]:
+    """
+    Cached `ctx.hypernym` elicitation (11-06b step 2, Alg. 2 line 3): given an
+    entity (+ its triple context) and the top-M retrieved policy fragments,
+    return LLM-proposed NORMALIZED hypernym labels, each with its own
+    confidence s(r) in [0,1] and the citation_id of its supporting fragment.
+
+    No fragments -> nothing to ground an elicitation in -> []  (never calls
+    the LLM). Degrade-safe: unset api key or any exception -> [].
+    """
+    if not fragments:
+        return []
+
+    key = _hypernym_cache_key(entity, entity_context, fragments)
+    with _hypernym_cache_lock:
+        cached = _hypernym_cache.get(key)
+    if cached is not None:
+        return cached
+
+    proposals = _elicit_hypernyms_llm(entity, entity_context, fragments, settings)
+
+    with _hypernym_cache_lock:
+        _hypernym_cache[key] = proposals
+    return proposals
+
+
 def map_anchors_to_hypernyms(
     state: GraphState,
     fragment_retriever: Optional[FragmentRetriever] = None,
@@ -231,12 +469,17 @@ def map_anchors_to_hypernyms(
 ) -> GraphState:
     """
     Derive actor/data/system anchors from the Context Graph and hypernym-map
-    each to policy vocabulary (D-09/D-10).
+    each to policy vocabulary via the §3.2-faithful 3-step pipeline (11-06b):
+    (1) triple-context-enriched retrieval (grounding), (2) `ctx.hypernym` LLM
+    elicitation (normalized labels + confidence + premise support), (3)
+    `HypernymScoringService` aggregation (eqs. 1-2, unchanged).
 
     Gated on `mode == "graph-compliance"` — a no-op for every other mode.
     `fragment_retriever`/`scoring_service` are optional injection seams
     (default to the real Neo4j-backed retriever + `HypernymScoringService()`)
-    used by tests to avoid touching live infrastructure.
+    used by tests to avoid touching live infrastructure. The LLM elicitation
+    call (`elicit_hypernyms`) is exercised in tests by patching
+    `openai.OpenAI`, mirroring `context_graph_extraction.py`'s testing shape.
     """
     if state.get("mode") != "graph-compliance":
         state["anchors"] = state.get("anchors", [])
@@ -254,26 +497,53 @@ def map_anchors_to_hypernyms(
 
     all_mappings: List[Dict[str, Any]] = []
     for anchor in anchors:
+        query_text = _render_anchor_query(anchor)
+        entity_context = _render_anchor_context(anchor)
+
         try:
-            fragments = retriever(anchor["label"], top_m, settings)
+            fragments = retriever(query_text, top_m, settings)
         except Exception as e:
             logger.warning(f"Fragment retriever raised for anchor {anchor['label']!r}: {e}")
             fragments = []
 
+        try:
+            proposals = elicit_hypernyms(anchor["label"], entity_context, fragments, settings)
+        except Exception as e:
+            logger.warning(f"Hypernym elicitation raised for anchor {anchor['label']!r}: {e}")
+            proposals = []
+
+        fragments_by_id = {
+            (frag.get("citation_id") or frag.get("cu_id", "")): frag for frag in fragments
+        }
+
         candidates: Dict[str, List[ScoredFragment]] = {}
-        for frag in fragments:
-            label = (
-                frag.get("subject")
-                or frag.get("text", "")[:80]
-                or frag.get("citation_id", "")
-                or frag.get("cu_id", "")
+        for proposal in proposals:
+            hypernym_label = proposal["hypernym"]
+            supporting_frag_id = proposal.get("supporting_frag_id", "")
+            supporting_frag = fragments_by_id.get(supporting_frag_id)
+            is_premise = bool(supporting_frag.get("is_premise", False)) if supporting_frag else False
+            source_id = (
+                (supporting_frag.get("citation_id") or supporting_frag.get("cu_id", ""))
+                if supporting_frag
+                else supporting_frag_id
             )
-            candidates.setdefault(label, []).append(
+            # `text` is the SUPPORTING FRAGMENT's own text (e.g. the CII
+            # definitional premise's verbatim clause text), not the hypernym
+            # label — `ScoredFragment` (unmodified, hypernym_scoring_service.py)
+            # is documented as "a single retrieved policy fragment... with its
+            # raw retrieval/similarity score", and `HypernymMapping.
+            # supporting_premise` is documented as "supporting premise
+            # fragment text" (the D-17.2 evidence trail, e.g. "CII means...").
+            # Falls back to the hypernym label only if the LLM cited a
+            # `supporting_frag_id` that doesn't resolve to a retrieved
+            # fragment, so a STRONG/WEAK mapping is never traced to "".
+            fragment_text = supporting_frag.get("text", "") if supporting_frag else ""
+            candidates.setdefault(hypernym_label, []).append(
                 ScoredFragment(
-                    text=frag.get("text", ""),
-                    score=float(frag.get("score", 0.0)),
-                    is_premise=bool(frag.get("is_premise", False)),
-                    source_id=frag.get("citation_id") or frag.get("cu_id", ""),
+                    text=fragment_text or hypernym_label,
+                    score=float(proposal.get("confidence", 0.0)),
+                    is_premise=is_premise,
+                    source_id=source_id,
                 )
             )
 
@@ -297,5 +567,6 @@ def map_anchors_to_hypernyms(
 
 __all__: List[str] = [
     "map_anchors_to_hypernyms",
+    "elicit_hypernyms",
     "FragmentRetriever",
 ]
