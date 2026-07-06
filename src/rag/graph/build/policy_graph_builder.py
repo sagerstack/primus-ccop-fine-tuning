@@ -49,6 +49,32 @@ _DOC_DEFAULT_ACTOR = [
     {"doc": "Cybersecurity Act 2018", "actor": "the relevant party"},
 ]
 
+# Deterministic subject canonicalization: fold spelling/case variants of the
+# same actor to one string so the Compliance-Gate anchor->subject match doesn't
+# fragment (matched on toLower(trim(subject))).
+_SUBJECT_CANONICAL = [
+    {"variant": "organisations", "canonical": "the organisation"},
+    {"variant": "organisation", "canonical": "the organisation"},
+    {"variant": "owner of a critical information infrastructure", "canonical": "CIIO"},
+    {"variant": "owner of the critical information infrastructure", "canonical": "CIIO"},
+    {"variant": "the owner of a critical information infrastructure", "canonical": "CIIO"},
+    {"variant": "the ciio", "canonical": "CIIO"},
+    {"variant": "ciio", "canonical": "CIIO"},
+    {"variant": "project manager", "canonical": "Project Manager"},
+    {"variant": "steering committee", "canonical": "Steering Committee"},
+    {"variant": "senior management", "canonical": "Senior Management"},
+    {"variant": "the commissioner", "canonical": "Commissioner"},
+    {"variant": "commissioner", "canonical": "Commissioner"},
+]
+
+_NORMALIZE_SUBJECT_QUERY = """
+UNWIND $map AS m
+MATCH (cu:ComplianceUnit {cu_type:'actor-CU'})
+WHERE toLower(trim(cu.subject)) = m.variant AND cu.subject <> m.canonical
+SET cu.subject = m.canonical
+RETURN count(cu) AS n
+""".strip()
+
 _COUNT_CLAUSES_QUERY = "MATCH (c:Clause) RETURN count(c) AS c"
 _COUNT_TEXTLESS_NONHEADER_QUERY = (
     "MATCH (c:Clause) WHERE coalesce(c.is_structural_header,false)=false "
@@ -99,6 +125,7 @@ class PolicyBuildStats:
     obligation_cu_missing_tuple: int = 0
     subjects_inherited: int = 0
     subjects_doc_defaulted: int = 0
+    subjects_normalized: int = 0
     failures: list[str] = field(default_factory=list)
 
 
@@ -160,6 +187,9 @@ class PolicyGraphBuilder:
             stats.subjects_inherited = s.run(_INHERIT_PARENT_SUBJECT_QUERY).single()["n"]
             stats.subjects_doc_defaulted = s.run(
                 _DOC_DEFAULT_SUBJECT_QUERY, defaults=_DOC_DEFAULT_ACTOR
+            ).single()["n"]
+            stats.subjects_normalized = s.run(
+                _NORMALIZE_SUBJECT_QUERY, map=_SUBJECT_CANONICAL
             ).single()["n"]
 
     async def build(self, drop: bool = True, resolve_implicit: bool = False) -> PolicyBuildStats:
