@@ -1,0 +1,114 @@
+{
+ "_comment": "Patch 006 content — the 27 Cybersecurity Act 2018 section 2(1) definitions, atomized under Act-2 (currently a truncated blob holding only 3 terms). Extracted programmatically from ccop-official/references/Cybersecurity Act 2018.pdf s.2 (curly quotes normalized). NOTE: Act-2#critical-information-infrastructure is the AUTHORITATIVE thin s.2 wording (points to s.7(1)); it coexists with the resolved CCoP-1.2.1#CII (s.2+s.7(1) inlined) from patch 002.",
+ "parent_citation_id": "Act-2",
+ "terms": [
+  {
+   "slug": "Assistant-Commissioner",
+   "text": "'Assistant Commissioner' means any Assistant Commissioner of Cybersecurity appointed under section 4(1)(b)."
+  },
+  {
+   "slug": "assistant-licensing-officer",
+   "text": "'assistant licensing officer' means any assistant licensing officer appointed under section 25(2)."
+  },
+  {
+   "slug": "business-entity",
+   "text": "'business entity' means — (a) a corporation as defined in section 4(1) of the Companies Act (Cap. 50); (b) an unincorporated association; (c) a partnership; or (d) a limited liability partnership registered under the Limited Liability Partnerships Act (Cap. 163A)."
+  },
+  {
+   "slug": "code-of-practice",
+   "text": "'code of practice' means any code of practice issued or approved under section 11(1), and includes such a code of practice as may be amended from time to time."
+  },
+  {
+   "slug": "Commissioner",
+   "text": "'Commissioner' means the Commissioner of Cybersecurity appointed under section 4(1)(a)."
+  },
+  {
+   "slug": "computer",
+   "text": "'computer' means an electronic, magnetic, optical, electrochemical, or other data processing device performing logical, arithmetic, or storage functions, and includes any data storage facility or communications facility directly related to or operating in conjunction with such device, but does not include such device as the Minister may, by notification in the Gazette, prescribe."
+  },
+  {
+   "slug": "computer-program",
+   "text": "'computer program' means data representing instructions or statements that, when executed in a computer, causes the computer to perform a function."
+  },
+  {
+   "slug": "computer-service",
+   "text": "'computer service' includes computer time, data processing and the storage or retrieval of data."
+  },
+  {
+   "slug": "computer-system",
+   "text": "'computer system' means an arrangement of interconnected computers that is designed to perform one or more specific functions, and includes — (a) an information technology system; and (b) an operational technology system such as an industrial control system, a programmable logic controller, a supervisory control and data acquisition system, or a distributed control system."
+  },
+  {
+   "slug": "critical-information-infrastructure",
+   "text": "'critical information infrastructure' means a computer or a computer system in respect of which a designation under section 7(1) is in effect."
+  },
+  {
+   "slug": "cybersecurity",
+   "text": "'cybersecurity' means the state in which a computer or computer system is protected from unauthorised access or attack, and because of that state — (a) the computer or computer system continues to be available and operational; (b) the integrity of the computer or computer system is maintained; and (c) the integrity and confidentiality of information stored in, processed by or transmitted through the computer or computer system is maintained."
+  },
+  {
+   "slug": "cybersecurity-incident",
+   "text": "'cybersecurity incident' means an act or activity carried out without lawful authority on or through a computer or computer system that jeopardises or adversely affects its cybersecurity or the cybersecurity of another computer or computer system."
+  },
+  {
+   "slug": "cybersecurity-officer",
+   "text": "'cybersecurity officer' means any cybersecurity officer appointed under section 4(3)."
+  },
+  {
+   "slug": "cybersecurity-program",
+   "text": "'cybersecurity program' means any computer program designed for, or purported to be designed for, ensuring or enhancing the cybersecurity of a computer or computer system."
+  },
+  {
+   "slug": "cybersecurity-service",
+   "text": "'cybersecurity service' means a service provided by a person for reward that is intended primarily for or aimed at ensuring or safeguarding the cybersecurity of a computer or computer system belonging to another person (A), and includes the following: (a) assessing, testing or evaluating the cybersecurity of A's computer or computer system by searching for vulnerabilities in, and compromising, the cybersecurity defences of the computer or computer system; (b) conducting a forensic examination of A's computer or computer system; (c) investigating and responding to a cybersecurity incident that has affected A's computer or computer system by conducting a thorough scan and examination of the computer or computer system to identify and remove elements relating to, and identify the root cause of, the cybersecurity incident, and which involves circumventing the controls implemented in the computer or computer system; (d) conducting a thorough examination of A's computer or computer system to detect any cybersecurity threat or incident that may have already penetrated the cybersecurity defences of the computer or computer system, and that may have evaded detection by conventional cybersecurity solutions; (e) designing, selling, importing, exporting, installing, maintaining, repairing or servicing of one or more cybersecurity solutions; (f) monitoring of the cybersecurity of A's computer or computer system by acquiring, identifying and scanning information that is stored in, processed by, or transmitted through the computer or computer system for the purpose of identifying cybersecurity threats to the computer or computer system; (g) maintaining control of the cybersecurity of A's computer or computer system by effecting management, operational and technical controls for the purpose of protecting the computer or computer system against any unauthorised effort to adversely affect its cybersecurity; (h) assessing or monitoring the compliance of an organisation with the organisation's cybersecurity policy; (i) providing advice in relation to cybersecurity solutions, including — (i) providing advice on a cybersecurity program; or (ii) identifying and analysing cybersecurity threats and providing advice on solutions or management strategies to minimise the risk posed by cybersecurity threats; (j) providing advice in relation to any practices that can enhance cybersecurity; (k) providing training or instruction in relation to any cybersecurity service, including the assessment of the training, instruction or competencies of another person in relation to any such activity."
+  },
+  {
+   "slug": "cybersecurity-service-provider",
+   "text": "'cybersecurity service provider' means a person who provides a cybersecurity service."
+  },
+  {
+   "slug": "cybersecurity-solution",
+   "text": "'cybersecurity solution' means any computer, computer system, computer program or computer service designed for, or purported to be designed for, ensuring or enhancing the cybersecurity of another computer or computer system."
+  },
+  {
+   "slug": "cybersecurity-threat",
+   "text": "'cybersecurity threat' means an act or activity (whether known or suspected) carried out on or through a computer or computer system, that may imminently jeopardise or affect adversely, without lawful authority, the cybersecurity of that or another computer or computer system."
+  },
+  {
+   "slug": "cybersecurity-vulnerability",
+   "text": "'cybersecurity vulnerability' means any vulnerability in a computer or computer system that can be exploited by one or more cybersecurity threats."
+  },
+  {
+   "slug": "Deputy-Commissioner",
+   "text": "'Deputy Commissioner' means the Deputy Commissioner of Cybersecurity appointed under section 4(1)(b)."
+  },
+  {
+   "slug": "essential-service",
+   "text": "'essential service' means any service essential to the national security, defence, foreign relations, economy, public health, public safety or public order of Singapore, and specified in the First Schedule."
+  },
+  {
+   "slug": "full-time-national-serviceman",
+   "text": "'full-time national serviceman' means a person who is liable to render full-time national service under section 12 of the Enlistment Act (Cap. 93)."
+  },
+  {
+   "slug": "licence",
+   "text": "'licence' means a licence granted or renewed under section 26."
+  },
+  {
+   "slug": "licensable-cybersecurity-service",
+   "text": "'licensable cybersecurity service' means any cybersecurity service specified as a licensable cybersecurity service in the Second Schedule."
+  },
+  {
+   "slug": "licensee",
+   "text": "'licensee' means the holder of a licence."
+  },
+  {
+   "slug": "owner",
+   "text": "'owner', in relation to a critical information infrastructure, means the legal owner of the critical information infrastructure and, where the critical information infrastructure is jointly owned by more than one person, includes every joint owner."
+  },
+  {
+   "slug": "standard-of-performance",
+   "text": "'standard of performance' means any standard of performance issued or approved under section 11(1), and includes such a standard of performance as may be amended from time to time."
+  }
+ ]
+}
