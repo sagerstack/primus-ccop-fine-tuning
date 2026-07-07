@@ -52,3 +52,27 @@ prompt, and a judge score. Then review.
 ## Decision (route through primus, 2026-07-07)
 - graphcpl routes through the `generate` (primus) node; the Gate assembles graph content as context documents.
 - Context = ALL of: (1) ER/SAO triples + scenario summary, (2) anchor->hypernym classifications, (3) definitions/premises, (4) obligations (CU Plan, ALL CUs, 4-tuple + verbatim) + REFERS_TO references. Verbatim clause text + citations throughout. "Try all first, reduce later."
+
+## RESUME STATE (2026-07-07, pause point)
+
+**Built + committed:** full graphcpl Compliance Gate, E2E runnable via
+`poetry run ccop-eval evaluate run --model primus-reasoning --mode graphcpl --test-ids B01-001`.
+Commits: ab07aa7 (gate), ca35a37 (context-graph in prompt), 4438735 (route through primus).
+
+**Two working paths + the tradeoff we hit:**
+- Judgment-LLM path (compliance_judgment.py, in graph history) — correct verdict, Bench **0.39**, but bypasses primus.
+- Primus path (option a, CURRENT) — routes through `generate` (primus) with full graph context; Bench **0.06 FAIL**. Primus SUMMARIZED the policy instead of answering, because:
+  1. **Context overflow** — prompt hit 4096 tokens (CCOP_CONTEXT_LENGTH); all 14 CUs + verbatim clauses + refs blew past the window → truncated + diluted.
+  2. **No reasoning guidance** — the `generate` node's generic RAG prompt lacks the applicability instructions ("decide scope first; forbid inference from silence; shared network ≠ CII") that made the judgment LLM succeed.
+
+**NEXT (make option (a) work — reduce + guide):**
+1. Reduce context in `compliance_context_assembly.py`: cap CU Plan to top-K (~5-6); trim/drop verbatim clause text for long CUs (4-tuple summary often enough); keep definitions.
+2. Add applicability guidance to the graphcpl generation path — either a graphcpl-specific system/user prompt in `generation.py` (branch on mode) or a leading instruction document. Same instructions that worked in the judgment prompt.
+3. Re-run B01-001; iterate on context size (measure, don't guess).
+
+**Other follow-ups (independent, not started):**
+- Fix the 2 node-gate unit tests (graph-compliance -> graphcpl; 17 refs each in tests/rag/retrieval/nodes/test_{context_graph_extraction,anchor_hypernym_mapping}.py).
+- Cross-encoder scores display ~0.00 (small logits) — verify ranking is meaningful.
+- Paper-exact `judge.refs` exception-override call (separate 2nd LLM call for NON_COMPLIANT) — currently folded in.
+- D4b generalization to non-verdict benchmarks (B07/B14…) — untested beyond B01.
+- CLI: `--model` required but nominal in graphcpl (now real under option a).
