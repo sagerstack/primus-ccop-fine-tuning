@@ -42,6 +42,9 @@ JUDGE_PROMPT = """You are a Singapore CCoP 2.0 (Cybersecurity Code of Practice f
 SCENARIO:
 {question}
 
+CONTEXT GRAPH (entity-relation triples extracted from the scenario):
+{triples}
+
 SCENARIO ENTITIES (from the context graph) and how each maps to policy vocabulary:
 {anchors}
 
@@ -76,6 +79,13 @@ def _fetch_references(settings, cu_ids: List[str]) -> List[Dict[str, Any]]:
             return [dict(r) for r in s.run(_FETCH_REFS_QUERY, cu_ids=cu_ids)]
     finally:
         drv.close()
+
+
+def _render_triples(state) -> str:
+    lines = []
+    for t in state.get("context_graph_triples", []):
+        lines.append(f"- ({t.get('subject','')}) --[{t.get('predicate','')}]--> ({t.get('object','')})")
+    return "\n".join(lines) or "(none)"
 
 
 def _render_anchors(state) -> str:
@@ -164,6 +174,7 @@ def compliance_judgment(state: GraphState) -> GraphState:
 
     prompt = JUDGE_PROMPT.format(
         question=state.get("query", ""),
+        triples=_render_triples(state),
         anchors=_render_anchors(state),
         premises=_render_premises(state),
         obligations=_render_obligations(cu_plan),
