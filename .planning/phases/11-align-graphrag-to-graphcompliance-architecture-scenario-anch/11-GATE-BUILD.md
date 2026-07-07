@@ -76,3 +76,52 @@ Commits: ab07aa7 (gate), ca35a37 (context-graph in prompt), 4438735 (route throu
 - Paper-exact `judge.refs` exception-override call (separate 2nd LLM call for NON_COMPLIANT) — currently folded in.
 - D4b generalization to non-verdict benchmarks (B07/B14…) — untested beyond B01.
 - CLI: `--model` required but nominal in graphcpl (now real under option a).
+
+## RESUME — B01-001 diagnostic (2026-07-07, session 2 end)
+
+**Latest run (primus, option a):** Bench **0.28 PASS** (up from 0.06 after context+prompt were
+inspected, but still weak). primus SUMMARIZED the CII designation process instead of answering
+"is the admin system in scope?". verdict_accuracy 0/3.
+
+**GT for B01-001 (label=not-applicable):** the answer hinges on ONE rule —
+> CCoP applies to the **designated CII's digital boundary / cyber operating environment**, NOT
+> every system on the shared enterprise network.
+Critical sources: **CCoP §1.4.1**, **Act §7**, **RESPONSE-TO-FEEDBACK 2.2/2.3** (digital boundary
+jointly determined by CSA/CIIO/Sector Lead; systems outside it not subject to mandatory audits).
+
+**KEY FINDING (reframes the fix): it's a RANKING gap, not context size.**
+1. `CCoP-1.4.1` — the scope clause — IS in the graph and IS retrievable: minted as BOTH an
+   actor-CU AND a **meta-CU**, subject CIIO ("...the provisions of this Code shall apply to..."). It
+   was in the 381-CU pool but NOT in our top-K — out-ranked by generic CIIO duties (audit Act-15,
+   incident Act-14, exercise Act-16). We retrieved CCoP-1.4.4 (wrong clause), not 1.4.1.
+2. `CCoP-1.4.1#2` is a **meta-CU = applicability/scope gate**. The 16 meta-CUs (Act-3 "Application
+   of Act", CCoP-10.1.1/11.1.1 "this section shall apply to...", CCoP-1.4.1#2, Act-46 exemption)
+   are exactly the "is this in scope?" rules. Applicability questions (B01) TURN on them. Our
+   retrieval treats meta-CU == actor-CU, so the scope gate got out-ranked.
+3. The RtF "digital boundary" premises are NOT cleanly retrievable (buried in the patch-007a
+   deduped RtF blobs) — but §1.4.1's scope sentence carries the core rule.
+4. Secondary: primus prompt overflowed 4096 tokens (all 14 CUs + verbatim) + the generic RAG
+   prompt has no applicability guidance.
+
+**NEXT (in priority order):**
+1. **Prioritize meta-CUs** in `compliance_gate_retrieval.py`: always include the 16 meta-CUs (or
+   strongly boost them) in the CU Plan — paper's meta-CU-gating-first. Highest-value fix; directly
+   surfaces §1.4.1 for B01.
+2. **Reduce context** in `compliance_context_assembly.py`: cap actor-CUs to top-K (~5-6), trim
+   verbatim for long CUs (4-tuple often enough) — fix the 4096 overflow.
+3. **Add applicability guidance** to the graphcpl generation prompt (branch generation.py on
+   mode, or a leading instruction doc): "decide scope first; shared network != in-scope; forbid
+   inference from silence" — the instructions that made the judgment LLM score 0.39.
+4. Re-run B01-001, measure; iterate.
+
+**Two working paths (both committed):** judgment-LLM (compliance_judgment.py, git history) = 0.39
+but bypasses primus; primus (option a, current) = 0.28 but comparable to hybrid. Decision earlier:
+keep option a (evaluate primus).
+
+**Independent follow-ups (unstarted):** node-gate unit tests (graph-compliance->graphcpl, 17 refs
+each); cross-encoder scores display ~0.00 (verify ranking meaningful); paper-exact judge.refs
+exception call; D4b non-verdict benchmarks; --model nominal-but-required.
+
+**How to inspect:** `scripts/show_context_graph.py <test-id>` (G_C); Neo4j pool query
+`MATCH (cu:ComplianceUnit) WHERE cu.cu_type IN ['actor-CU','meta-CU'] RETURN cu.cu_id,cu.cu_type,cu.subject`;
+contexts sidecar `results/evaluations/2026-07/eval-run-...-contexts.json` (what was actually retrieved).
