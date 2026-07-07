@@ -26,7 +26,7 @@ from rag.retrieval.nodes.retrieval import retrieve_documents
 from rag.retrieval.nodes.context_graph_extraction import extract_context_graph
 from rag.retrieval.nodes.anchor_hypernym_mapping import map_anchors_to_hypernyms
 from rag.retrieval.nodes.compliance_gate_retrieval import compliance_gate_retrieval
-from rag.retrieval.nodes.compliance_judgment import compliance_judgment
+from rag.retrieval.nodes.compliance_context_assembly import compliance_context_assembly
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ def build_rag_graph(settings: "Settings"):
     workflow.add_node("context_graph_extraction", extract_context_graph)
     workflow.add_node("anchor_hypernym_mapping", map_anchors_to_hypernyms)
     workflow.add_node("compliance_gate_retrieval", compliance_gate_retrieval)
-    workflow.add_node("compliance_judgment", compliance_judgment)
+    workflow.add_node("compliance_context_assembly", compliance_context_assembly)
 
     # Entry point
     workflow.set_entry_point("query_analysis")
@@ -121,8 +121,10 @@ def build_rag_graph(settings: "Settings"):
     # GraphCompliance chain (--mode graphcpl): Context Graph -> Gate -> judgment -> END
     workflow.add_edge("context_graph_extraction", "anchor_hypernym_mapping")
     workflow.add_edge("anchor_hypernym_mapping", "compliance_gate_retrieval")
-    workflow.add_edge("compliance_gate_retrieval", "compliance_judgment")
-    workflow.add_edge("compliance_judgment", END)
+    # Option (a): route through the primus `generate` node — the Gate assembles
+    # graph content into filtered_documents; primus reasons + cites (comparable to hybrid).
+    workflow.add_edge("compliance_gate_retrieval", "compliance_context_assembly")
+    workflow.add_edge("compliance_context_assembly", "generate")
 
     # Retrieval → reranking → grading (always)
     workflow.add_edge("retrieval", "reranking")

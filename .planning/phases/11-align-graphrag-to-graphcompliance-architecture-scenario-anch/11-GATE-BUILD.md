@@ -48,3 +48,7 @@ plans are reference only (pre-patch, may have drifted). No GSD subagents — bui
 `evaluate run --mode graphcpl --test-ids B01-001` completes end-to-end, produces a
 response with a verdict (expect not-applicable), retrieved CU Plan + verbatim clauses in the
 prompt, and a judge score. Then review.
+
+## Decision (route through primus, 2026-07-07)
+- graphcpl routes through the `generate` (primus) node; the Gate assembles graph content as context documents.
+- Context = ALL of: (1) ER/SAO triples + scenario summary, (2) anchor->hypernym classifications, (3) definitions/premises, (4) obligations (CU Plan, ALL CUs, 4-tuple + verbatim) + REFERS_TO references. Verbatim clause text + citations throughout. "Try all first, reduce later."
