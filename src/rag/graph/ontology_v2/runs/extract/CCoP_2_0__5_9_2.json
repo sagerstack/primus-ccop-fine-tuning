@@ -1,0 +1,52 @@
+{
+  "citation_id": "CCoP 2.0::5.9.2",
+  "concepts": [
+    "Account",
+    "DefaultCredential",
+    "HashStorage",
+    "Password",
+    "Port",
+    "SecurityConfigurationBaseline",
+    "Service"
+  ],
+  "triples": [
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "MUST_CHANGE",
+      "o": "DefaultCredential",
+      "o_type": "DefaultCredential"
+    },
+    {
+      "s": "Password",
+      "s_type": "Password",
+      "rel": "STORED_AS",
+      "o": "HashStorage",
+      "o_type": "HashStorage"
+    },
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "DISABLES",
+      "o": "Account",
+      "o_type": "Account"
+    },
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "DISABLES",
+      "o": "Service",
+      "o_type": "Service"
+    },
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "DISABLES",
+      "o": "Port",
+      "o_type": "Port"
+    }
+  ],
+  "proposed": [],
+  "extractor": "claude-opus",
+  "n_raw": 5
+}

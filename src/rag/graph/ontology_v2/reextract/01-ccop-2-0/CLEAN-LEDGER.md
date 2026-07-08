@@ -1,0 +1,61 @@
+# Clean ledger — CCoP 2.0
+
+- input chunks: **433**
+- kept clauses: **385**
+- dropped: **48**
+- definitions extracted: **56** (1 flagged incomplete)
+
+## Drop reasons
+- heading/list-item (content in parent or child): 39
+- glossary -> definitions file: 7
+- front-matter (cover/history/TOC): 2
+
+## Dropped citation_ids
+- `CCoP 2.0::preamble::1` — front-matter (cover/history/TOC)
+- `CCoP 2.0::preamble::2` — front-matter (cover/history/TOC)
+- `CCoP 2.0::1.1` — heading/list-item (content in parent or child)
+- `CCoP 2.0::1.2` — heading/list-item (content in parent or child)
+- `CCoP 2.0::1.2.1` — glossary -> definitions file
+- `CCoP 2.0::1.2.1::table::0` — glossary -> definitions file
+- `CCoP 2.0::1.2.1::table::1` — glossary -> definitions file
+- `CCoP 2.0::1.2.1::table::2` — glossary -> definitions file
+- `CCoP 2.0::1.2.1::table::3` — glossary -> definitions file
+- `CCoP 2.0::1.2.1::table::4` — glossary -> definitions file
+- `CCoP 2.0::1.2.1::table::5` — glossary -> definitions file
+- `CCoP 2.0::1.3` — heading/list-item (content in parent or child)
+- `CCoP 2.0::1.4` — heading/list-item (content in parent or child)
+- `CCoP 2.0::1.5` — heading/list-item (content in parent or child)
+- `CCoP 2.0::1.6` — heading/list-item (content in parent or child)
+- `CCoP 2.0::1.7` — heading/list-item (content in parent or child)
+- `CCoP 2.0::3.2.4(a)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::3.2.4(d)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::3.2.4(e)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::3.2.4(g)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::3.2.4(h)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::5.1.3(a)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::5.1.3(b)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::5.1.3(c)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::5.9.1(a)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::5.9.1(b)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::5.9.1(d)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::5.9.1(f)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::5.13.3(a)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::5.13.3(b)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::5.16.1(a)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::5.16.1(f)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::6.1.1(c)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::6.1.1(d)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::6.1.2(a)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::6.1.2(b)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::6.1.2(c)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::6.1.4(a)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::7.3.1(b)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::7.3.1(c)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::7.3.1(d)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::7.3.4(a)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::7.3.4(b)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::7.3.4(d)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::7.3.4(e)` — heading/list-item (content in parent or child)
+- `CCoP 2.0::10.1` — heading/list-item (content in parent or child)
+- `CCoP 2.0::11` — heading/list-item (content in parent or child)
+- `CCoP 2.0::11.1` — heading/list-item (content in parent or child)

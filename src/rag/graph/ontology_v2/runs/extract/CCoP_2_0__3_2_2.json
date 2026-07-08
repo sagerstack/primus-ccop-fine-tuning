@@ -1,0 +1,51 @@
+{
+  "citation_id": "CCoP 2.0::3.2.2",
+  "concepts": [
+    "CIIAsset",
+    "CybersecurityRisk",
+    "CybersecurityThreat",
+    "Impact",
+    "Likelihood",
+    "RiskAssessment"
+  ],
+  "triples": [
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "HAS_LIKELIHOOD",
+      "o": "Likelihood",
+      "o_type": "Likelihood"
+    },
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "HAS_IMPACT",
+      "o": "Impact",
+      "o_type": "Impact"
+    }
+  ],
+  "proposed": [],
+  "extractor": "claude-opus",
+  "n_raw": 5
+}

@@ -1,0 +1,76 @@
+{
+  "citation_id": "CCoP 2.0::3.2.4",
+  "concepts": [
+    "RiskRegister",
+    "RiskScenario",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "RiskRegister",
+      "s_type": "RiskRegister",
+      "rel": "CONTAINS",
+      "o": "RiskScenario",
+      "o_type": "RiskScenario"
+    },
+    {
+      "s": "RiskRegister",
+      "s_type": "RiskRegister",
+      "rel": "CONTAINS",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLIES",
+      "o": "RiskRegister",
+      "o_type": "RiskRegister"
+    },
+    {
+      "s": "RiskRegister",
+      "s_type": "RiskRegister",
+      "rel": "CONTAINS",
+      "o": "Date",
+      "o_type": "__literal__"
+    },
+    {
+      "s": "RiskRegister",
+      "s_type": "RiskRegister",
+      "rel": "CONTAINS",
+      "o": "CurrentRiskRating",
+      "o_type": "__literal__"
+    },
+    {
+      "s": "RiskRegister",
+      "s_type": "RiskRegister",
+      "rel": "CONTAINS",
+      "o": "RiskTreatmentPlan",
+      "o_type": "__literal__"
+    },
+    {
+      "s": "RiskRegister",
+      "s_type": "RiskRegister",
+      "rel": "CONTAINS",
+      "o": "ProgressStatus",
+      "o_type": "__literal__"
+    },
+    {
+      "s": "RiskRegister",
+      "s_type": "RiskRegister",
+      "rel": "CONTAINS",
+      "o": "ResidualRiskRating",
+      "o_type": "__literal__"
+    },
+    {
+      "s": "RiskRegister",
+      "s_type": "RiskRegister",
+      "rel": "CONTAINS",
+      "o": "RiskOwner",
+      "o_type": "__literal__"
+    }
+  ],
+  "n_raw": 9
+}

@@ -1,0 +1,394 @@
+[
+  {
+    "term": "Act",
+    "abbr": "",
+    "definition": "The Cybersecurity Act 2018.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "business continuity plan",
+    "abbr": "BCP",
+    "definition": "Documented procedures that guide organisations to respond, recover, resume and restore businesses to a pre-defined level of operation following disruption and cover the resources, services and activities required to ensure the continuity of essential services.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "Commissioner",
+    "abbr": "",
+    "definition": "The Commissioner of Cybersecurity appointed under section 4(1)(a) of the Act, and includes the Deputy Commissioner and Assistant Commissioners of Cybersecurity appointed under section 4(1)(b) of the Act.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "critical information infrastructure",
+    "abbr": "CII",
+    "definition": "As defined in section 2 of the Act.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "CII asset",
+    "abbr": "",
+    "definition": "The components of an IT or OT system and/or network infrastructure of a CII and includes physical devices and systems, software platforms and applications of the CII.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "CII Designation Date",
+    "abbr": "",
+    "definition": "Refers to the date on which a computer or computer system was designated as a CII under section 7(1) of the Act.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "CIIO",
+    "abbr": "",
+    "definition": "The owner of a CII; 'owner' in this respect, means 'owner' as defined in section 2 of the Act.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "Code",
+    "abbr": "",
+    "definition": "This Cybersecurity Code of Practice for Critical Information Infrastructure.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "Compliance Date",
+    "abbr": "",
+    "definition": "Means:",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": true
+  },
+  {
+    "term": "cyber operating environment",
+    "abbr": "",
+    "definition": "The operating environment that includes systems, applications, networks, physical sites, external interfaces and access activities.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "cybersecurity",
+    "abbr": "",
+    "definition": "As defined in section 2 of the Act.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "cybersecurity event",
+    "abbr": "",
+    "definition": "An observable occurrence of an activity in or through a computer or computer system that may affect the cybersecurity of that or another computer or computer system and includes a cybersecurity incident.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "cybersecurity incident",
+    "abbr": "",
+    "definition": "As defined in section 2 of the Act.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "cybersecurity risk",
+    "abbr": "",
+    "definition": "As defined in regulation 6 of the Cybersecurity (Critical Information Infrastructure) Regulations 2018.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "cybersecurity risk profile",
+    "abbr": "",
+    "definition": "A profile that outlines a CII's known cybersecurity risks, policy constraints and regulatory obligations for the determination of level risk mitigating controls required.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "cybersecurity threat",
+    "abbr": "",
+    "definition": "As defined in section 2 of the Act.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "disaster recovery plan",
+    "abbr": "DRP",
+    "definition": "A documented procedure which guides organisations on the steps to recover IT and/or OT capability when a disruption occurs.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "Effective Date",
+    "abbr": "",
+    "definition": "Means the date this version of the Code takes effect.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "essential service",
+    "abbr": "",
+    "definition": "As defined in section 2 of the Act.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "Existing CII",
+    "abbr": "",
+    "definition": "Refers to a computer or computer system that is designated as a CII under section 7(1) of the Act as at the Effective Date and includes such a computer or computer system that becomes a Redesignated CII within 12 months from the Effective Date. Illustration A computer or computer system was designated as a CII on 1 November 2018 and remains designated as such at the Effective Date. This is an Existing CII. The designation of the same computer or computer system is withdrawn on 1 November 2022, and a new designation takes effect from the same day. This computer or computer system",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "indicators of compromise",
+    "abbr": "IOC",
+    "definition": "Traces of security breach which can include IP addresses, Uniform Resource Locator (URL), domain, hashes, registry, filename, etc.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "information technology",
+    "abbr": "IT",
+    "definition": "An arrangement of interconnected computers that is used in the storing, accessing, processing, analysing and sending of information, for example: computing and telecommunications equipment.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "Kerberos Ticket Granting Ticket account",
+    "abbr": "",
+    "definition": "The account is a special hidden account that encrypts all other authentication tokens in the Kerberos authentication protocol. An attacker who has compromised the account can forge a ticket to gain complete access to the entire domain.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "malware",
+    "abbr": "",
+    "definition": "Malicious software or firmware intended to perform unauthorised processes that will have adverse impact on the confidentiality, integrity, or availability of a computer system, for example: virus, worm, Trojan horse, spyware and some forms of adware or other code-based entity that infects a host.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "mechanism",
+    "abbr": "",
+    "definition": "An automated process that performs a series of activities.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "operational technology",
+    "abbr": "OT",
+    "definition": "An arrangement of interconnected computers that is used in the monitoring and/or control of physical processes, that includes: (a) Supervisory control and data acquisition systems, distributed control systems, and other control system configuration such as programmable logic controllers; (b) A combination of control components, for example electrical, mechanical, hydraulic, pneumatic, that act together to achieve an industrial objective, for example manufacturing, transportation of matter or energy.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "organisational structure",
+    "abbr": "",
+    "definition": "The hierarchical arrangement of roles, lines of authority, and communications of an organisation.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "patch",
+    "abbr": "",
+    "definition": "A set of changes to a software or firmware that addresses its cybersecurity vulnerabilities, or other updates to its functionality, usability or performance.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "patch management",
+    "abbr": "",
+    "definition": "The process involving one or more of the following actions of acquiring, testing and installing patches or updates on existing software or firmware, enabling systems to stay updated, addressing vulnerabilities and includes patching applications, anti-malware, and firmware.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "penetration testing",
+    "abbr": "",
+    "definition": "An authorised process of evaluating the security of a computer system, network or application by finding vulnerabilities attackers could exploit and includes the process of: (a) gathering information about the target; (b) identifying possible entry points; (c) attempting to break in (either virtually or for real); and (d) reporting the findings.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "periodic",
+    "abbr": "",
+    "definition": "To perform an activity at a predefined interval.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "physical sites",
+    "abbr": "",
+    "definition": "Primary and secondary locations hosting the CII.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "purple teaming",
+    "abbr": "",
+    "definition": "In the context of an attack simulation means an exercise where the attack activity is revealed and explained to the blue team, and the red and blue teams work together and openly in real time to discuss each attack technique and the corresponding defensive measures, to improve people, process and technologies.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "Previous Version",
+    "abbr": "",
+    "definition": "Means the version of the Cybersecurity Code of Practice for Critical Information Infrastructure issued by the Commissioner on 1 September 2018 and amended on 20 December 2019.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "privilege",
+    "abbr": "",
+    "definition": "The rights assigned to any account including any user, application, service or system account.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "privileged account",
+    "abbr": "",
+    "definition": "Any account including any user, application, service or system account, that has administrative access privileges.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "recovery point objective",
+    "abbr": "",
+    "definition": "The amount of data that can be lost within a period most relevant to a business, before significant harm occurs, from the point of a critical event to the most preceding backup.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "recovery time objective",
+    "abbr": "",
+    "definition": "The quantity of time that an application, system and/or process, can be down for without causing significant damage to the business as well as the time spent restoring the application and its data.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "Redesignated CII",
+    "abbr": "",
+    "definition": "Means a computer or computer system which is designated as a CII under section 7(1) no later than 3 months after the expiry or withdrawal of a previous designation.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "remote access",
+    "abbr": "",
+    "definition": "Access to a CII by a user, or a process acting on behalf of a user, communicating through an external network.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "remote facilities",
+    "abbr": "",
+    "definition": "Computer or computer system that has remote access capability.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "residual risk",
+    "abbr": "",
+    "definition": "The risk exposure after risk mitigating controls is considered or applied.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "risk appetite",
+    "abbr": "",
+    "definition": "The amount of risk, on a broad level, that CIIO is willing to accept in pursuit of its strategic objectives.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "scenario-based cybersecurity exercise",
+    "abbr": "",
+    "definition": "An activity to assess and validate an organisation's plans and capabilities relating to the handling of simulated cybersecurity incidents (the 'scenario') affecting the organisation. The exercise scenario should be based on relevant threats. Depending on the nature of the threats, CIIO may include social engineering and cyber range components in these scenarios.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "security architecture",
+    "abbr": "",
+    "definition": "A set of physical and logical cybersecurity representations that addresses potential cybersecurity risks and gaps in the environment.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "secured intermediary mechanism",
+    "abbr": "",
+    "definition": "Asecurity hardened agent or device that is used to access and manage a system that resides in a different security zone. Examples include a jump server and bastion host.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "sensitive data",
+    "abbr": "",
+    "definition": "Sensitive data include production data and system configuration information.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "shall",
+    "abbr": "",
+    "definition": "In this Code, means that the statement mentioned is a mandatory requirement for compliance.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "shared user account",
+    "abbr": "",
+    "definition": "Accounts that are shared by one or more users and includes shared administrative user accounts.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "should",
+    "abbr": "",
+    "definition": "In this Code, means that the statement mentioned is a recommended requirement.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "strong encryption",
+    "abbr": "",
+    "definition": "Industry-accepted standard algorithms to scramble data and encrypts/decrypts with key to achieve data confidentiality.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "system development lifecycle",
+    "abbr": "",
+    "definition": "The process of planning, analysis, design, development, testing, implementation, maintenance and retirement of a computer system.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "threat hunting",
+    "abbr": "",
+    "definition": "The proactive effort to search for signs of malicious activity that has evaded security defences within the CII. It can be triggered by threat intelligence report, security monitoring, incident response, crown jewel analysis, domain expertise and analysis against MITRE ATT&CK, a globally accessible knowledge base of adversary tactics and techniques based on real-world observations.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "test environment",
+    "abbr": "",
+    "definition": "A setup of computer or computer systems to support test use cases.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "timely manner",
+    "abbr": "",
+    "definition": "To perform an activity as soon as possible.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  },
+  {
+    "term": "vendor",
+    "abbr": "",
+    "definition": "Includes both technology suppliers and service providers.",
+    "citation_id": "CCoP 2.0::1.2.1",
+    "incomplete": false
+  }
+]

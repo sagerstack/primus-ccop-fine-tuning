@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP 2.0::2.1.2",
+  "concepts": [
+    "AuditFinding",
+    "ComplianceGap",
+    "RemediationPlan"
+  ],
+  "triples": [
+    {
+      "s": "AuditFinding",
+      "s_type": "AuditFinding",
+      "rel": "REMEDIATED_BY",
+      "o": "RemediationPlan",
+      "o_type": "RemediationPlan"
+    },
+    {
+      "s": "ComplianceGap",
+      "s_type": "ComplianceGap",
+      "rel": "REMEDIATED_BY",
+      "o": "RemediationPlan",
+      "o_type": "RemediationPlan"
+    }
+  ],
+  "proposed": [],
+  "extractor": "claude-opus",
+  "n_raw": 2
+}

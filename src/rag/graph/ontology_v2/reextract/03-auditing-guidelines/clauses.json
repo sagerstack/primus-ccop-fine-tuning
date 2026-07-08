@@ -1,0 +1,214 @@
+[
+  {
+    "citation_id": "Auditing Guidelines::1",
+    "clause": "1",
+    "title": "INTRODUCTION",
+    "is_glossary": false,
+    "chars": 658,
+    "words": 104,
+    "flags": [],
+    "text": "1 INTRODUCTION\n\nUnder  section  15(1)(a)  of  the  Cybersecurity  Act  2018  ('The  Act'),  the  owner  of  a  Critical Information Infrastructure ('CIIO') must, starting from the date of the notice issued under section 7 (Designation of CII), cause a cybersecurity audit of the compliance of the CII with the Act and applicable codes of practice ('CoPs') and standards of performance ('SoPs').\n\nThe cybersecurity audit must be carried out at least once every two years (or at such higher frequency as may be directed by the Commissioner of Cybersecurity in any particular case), and to be carried out by an auditor approved or appointed by the Commissioner."
+  },
+  {
+    "citation_id": "Auditing Guidelines::2",
+    "clause": "2",
+    "title": "PURPOSE",
+    "is_glossary": false,
+    "chars": 560,
+    "words": 87,
+    "flags": [],
+    "text": "2 PURPOSE\n\nThe purpose of this document is to set the audit expectations, and to serve as a guide for approved or appointed auditors to conduct cybersecurity audit and COI audit (Implementation of SingHealth's Committee of Inquiry ('COI') recommendations) of CIIs.\n\nThis document is not meant to be an exhaustive source of information for conducting a CII cybersecurity audit.  In the absence of any cybersecurity audit topics not covered in this guide, the auditor should exercise their professional judgement and highlight such situation in the audit report."
+  },
+  {
+    "citation_id": "Auditing Guidelines::3",
+    "clause": "3",
+    "title": "AUDIENCE",
+    "is_glossary": false,
+    "chars": 394,
+    "words": 61,
+    "flags": [],
+    "text": "3 AUDIENCE\n\nThe intended audience of this document includes, but not limited to, the following:\n\n- a. Auditors who have been formally approved or appointed by the Commissioner; and\n- b. Stakeholders (E.g. business unit heads, system owners and vendor, Chief Information Security Officers, etc.) who need to know about the cybersecurity audit expectations for auditing their CII.\n\n<!-- image -->"
+  },
+  {
+    "citation_id": "Auditing Guidelines::4",
+    "clause": "4",
+    "title": "SCOPE",
+    "is_glossary": false,
+    "chars": 234,
+    "words": 39,
+    "flags": [],
+    "text": "4 SCOPE\n\nThis document covers the following cybersecurity audits:\n\n- a. The cybersecurity audit under the Act. Refer to Section 6: AUDIT EXPECTATIONS; and\n- b. An additional audit covering the COI audit. Refer to Section 7: COI AUDIT."
+  },
+  {
+    "citation_id": "Auditing Guidelines::5",
+    "clause": "5",
+    "title": "AUDITOR APPROVAL",
+    "is_glossary": false,
+    "chars": 1269,
+    "words": 190,
+    "flags": [],
+    "text": "5 AUDITOR APPROVAL\n\nAuditors have to be approved or appointed by the Commissioner to conduct cybersecurity audit on the CII. To complete the application for Commissioner's approval, both the CIIOs and auditors are required to submit the relevant forms 1 as specified by CSA. While the auditors can directly submit the applicable form to CSA, the application would only be deemed complete after all the relevant forms and accompanying documents submitted by the CIIOs and auditors are complete and in order.\n\nThere  are  two  main  criteria,  i.e.  independence  and  competency,  that  the  proposed  audit firm/team and auditors need to fulfil. The appointed audit firm/team and auditors:\n\n- a. Should not be in a position of any conflict of interest, whether actual, potential or perceived. A conflict of interest refers to any circumstance where the auditor's interests may potentially interfere with the independent and objective performance of his/her duties as an auditor; and\n- b. Should possess the necessary technical competencies (i.e. professional qualifications/ certifications, skills, knowledge and relevant experiences) to perform the audits.\n\n1 The auditor approval forms can be obtained from the CIIOs.\n\n<!-- image -->\n\nIndependence\n\nFair\n\nPresentation"
+  },
+  {
+    "citation_id": "Auditing Guidelines::6",
+    "clause": "6",
+    "title": "AUDIT EXPECTATIONS",
+    "is_glossary": false,
+    "chars": 291,
+    "words": 45,
+    "flags": [],
+    "text": "6 AUDIT EXPECTATIONS\n\nProfessional\n\nThis section sets out CSA's audit expectations. It is intended to help the reader understand how cybersecurity audit should be conducted and reported.\n\nCSA has listed down seven areas of audit expectations in sections 6.1 to 6.7.\n\nAuditing\n\n<!-- image -->"
+  },
+  {
+    "citation_id": "Auditing Guidelines::6.1",
+    "clause": "6.1",
+    "title": "Principles of Auditing",
+    "is_glossary": false,
+    "chars": 2040,
+    "words": 323,
+    "flags": [],
+    "text": "6.1 Principles of Auditing\n\nAudits should adhere to the following principles for providing relevant and sufficient audit conclusion. This is to enable auditors, working independently, to reach similar conclusions in similar circumstances.\n\n- a. Integrity : The foundation of professionalism.\n2. \uf0b7 Perform audits with honesty and responsibility.\n3. \uf0b7 Ensure competence while performing audits.\n4. \uf0b7 Perform audits in an impartial manner.\n5. \uf0b7 Ensure fair and unbiased in all dealings. Be sensitive to any influences that may be exerted on auditor's judgement during an audit.\n- b. Fair Presentation : The obligation to report truthfully and accurately.\n7. \uf0b7 Ensure audit findings, audit conclusions and audit reports reflect truthfully and accurately the audit activities.\n\n<!-- image -->\n\n<!-- image -->\n\n- \uf0b7 Report significant obstacles encountered during audit and unresolved diverging opinions between the audit team and the auditee.\n- \uf0b7 Ensure  the  communication  is  truthful,  accurate,  objective,  timely,  clear  and complete.\n- c. Due Professional Care : the application of diligence and judgement in auditing.\n- \uf0b7 Exercise  due  care  in  accordance  with  the  importance  of  the  task  and  the confidence placed in auditor by the audit client and other interested parties.\n- \uf0b7 Make reasoned judgements in all audit situations.\n- d. Confidentiality : Security of information.\n- \uf0b7 Exercise discretion in the use and protection of information obtained during audit.\n- \uf0b7 Do not use the audit information for personal gain or in detrimental way to the legitimate interests of the auditee.\n- \uf0b7 Handle sensitive or confidential information properly.\n- e. Independence : The basis for the impartiality of the audit and objectivity of the audit conclusions.\n- \uf0b7 Ensure independence of the activity being audited.\n- \uf0b7 Act in a manner that is free from bias and conflict of interest in all cases.\n- \uf0b7 Maintain objectivity throughout the audit process.\n- \uf0b7 Ensure the audit findings and conclusions are based only on the audit evidence."
+  },
+  {
+    "citation_id": "Auditing Guidelines::6.2",
+    "clause": "6.2",
+    "title": "Audit Objective",
+    "is_glossary": false,
+    "chars": 474,
+    "words": 70,
+    "flags": [],
+    "text": "6.2 Audit Objective\n\nThe objective of the audit is to:\n\n- a. Verify  the  compliance  of  CII  against  requirements  stipulated  in  Part  3  of  the  Act, including the subsidiary legislation, applicable written directions, CoPs and SoPs; and\n- b. Assess the adequacy and effectiveness of controls/measures put in place to meet the requirements  stipulated  in  Part  3  of  the  Act,  including  the  subsidiary  legislation, applicable written directions, CoPs and SoPs."
+  },
+  {
+    "citation_id": "Auditing Guidelines::6.3",
+    "clause": "6.3",
+    "title": "Audit Scope",
+    "is_glossary": false,
+    "chars": 2099,
+    "words": 122,
+    "flags": [
+      "table"
+    ],
+    "text": "6.3 Audit Scope\n\nThe audit shall cover the following:\n\n| Scope          | Description                                                                                                                                                                                                                                                                                                                                                                                         |\n|----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Audit Subject  | The audit subject should cover all CII that has been designated under the Act.                                                                                                                                                                                                                                                                                                                      |\n| Audit Period   | The audit period should minimally be 12 months and there should be no gap between the audit periods for each CII.                                                                                                                                                                                                                                                                                   |\n| Audit Criteria | The audit criteria should include compliance with the Act, subsidiary legislation, applicable written directions, CoPs, and SoPs. If a waiver is granted, the CoP clause remains subjected for cybersecurity audit as pursuant to section 15(1)(a) of the Act. The auditor should check the validity of the justification, the waiver condition and the effectiveness of the compensating controls. |"
+  },
+  {
+    "citation_id": "Auditing Guidelines::6.4",
+    "clause": "6.4",
+    "title": "Audit Approach",
+    "is_glossary": false,
+    "chars": 496,
+    "words": 79,
+    "flags": [],
+    "text": "6.4 Audit Approach\n\nThe audit should adopt both a compliance and risk-based approach.\n\n## a.\n\n- Compliance-based\n\nCarry out compliance test to ascertain the adequacy and effectiveness of the controls applied in the CII to comply with the Act, subsidiary legislations, applicable written directions, CoP, and SoP.\n\n- b. Risk-based\n\nIdentify the risks and threats that the CII faces and ascertain if the controls put in place are appropriate to mitigate the known risks and threats.\n\n<!-- image -->"
+  },
+  {
+    "citation_id": "Auditing Guidelines::6.5",
+    "clause": "6.5",
+    "title": "Audit Finding",
+    "is_glossary": false,
+    "chars": 3659,
+    "words": 241,
+    "flags": [
+      "table"
+    ],
+    "text": "6.5 Audit Finding\n\nThe auditor should highlight the following:\n\n- a. Any audit finding identified during the course of the audit;\n- b. Highlight systemic finding, where the finding is spread throughout the CII, which could likely be a weakness in the design of the control;\n- c. Highlight  recurring  finding,  i.e.  finding  brought  up  from  past  audits  that  have  reoccurred in the current audit even after implementing the corrective action; and\n- d. Highlight good practices, in areas of governance and controls, noted during the course of the audit.\n\nWhen raising an audit finding, the auditor should clearly articulate the following attributes of the audit finding.\n\n| Attributes     | Description                                                                                                                                                                                                                                                                                                                                                                                                          |\n|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Condition      | Statement that describes the results of the audit finding.                                                                                                                                                                                                                                                                                                                                                           |\n| Criteria       | Standards/ Rules/ Benchmarks (e.g. Cybersecurity Act, policies and best practices) used to measure against the condition.                                                                                                                                                                                                                                                                                            |\n| Cause          | The root cause and contributory reason(s) for the condition.                                                                                                                                                                                                                                                                                                                                                         |\n| Effect         | The effect and significance of the condition (Immediate, future or potential). The auditor should associate the audit finding to the impact on CII's essential services in which the management is familiar with, i.e. quantitative effect (e.g. cost, time and production) and qualitative effect (e.g. service and poor decision-making). This helps to convince the management on the need for corrective action. |\n| Recommendation | Recommend action(s) to correct the cause to prevent the reoccurrence of the audit finding.                                                                                                                                                                                                                                                                                                                           |"
+  },
+  {
+    "citation_id": "Auditing Guidelines::6.6",
+    "clause": "6.6",
+    "title": "Audit Conclusion",
+    "is_glossary": false,
+    "chars": 384,
+    "words": 62,
+    "flags": [],
+    "text": "6.6 Audit Conclusion\n\nThe auditor should give their opinion and conclusion on the following areas:\n\n- a. Appropriateness of the management comments in response to the audit finding;\n- b. Adequacy  and  effectiveness  of  the  controls  put  in  place  by  the  CIIO  to  address cybersecurity risks to the CII; and\n- c. Opportunities for improvement to secure the CII.\n\n<!-- image -->"
+  },
+  {
+    "citation_id": "Auditing Guidelines::6.7",
+    "clause": "6.7",
+    "title": "Audit Report Format",
+    "is_glossary": false,
+    "chars": 5808,
+    "words": 290,
+    "flags": [
+      "table"
+    ],
+    "text": "6.7 Audit Report Format\n\nThe audit report should minimally contain the following:\n\n| Content                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |\n|--------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Executive Summary              | The report should provide an overall evaluation of the findings noted, with a description of the issues, cybersecurity risks and potential implications on the CII, recommendations, management comments, and the auditor's assessment of the appropriateness of the management comments. The executive summary should also include the auditor's conclusion on the overall adequacy and effectiveness of controls in addressing the cybersecurity risks to the CII.                                                                                  |\n| Purpose                        | The report should describe the purpose of conducting the cybersecurity audit (e.g. to fulfil obligations under Cybersecurity Act, to fulfil ad-hoc directions given by Commissioner, etc).                                                                                                                                                                                                                                                                                                                                                            |\n| Audit Objective                | Audit objective is defined in section 6.2 of this document.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |\n| Audit Scope                    | Audit scope is defined in section 6.3 of this document.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |\n| Stakeholders                   | The stakeholders involved in the cybersecurity audit and their roles and responsibilities should be clearly stated in the report.                                                                                                                                                                                                                                                                                                                                                                                                                     |\n| Audit Methodology and Approach | The report should provide an explanation of how the cybersecurity audit was performed to meet the audit objectives. Specifically, the explanation should state: a. Whether the work of other auditors (e.g. past audits) or cybersecurity assurance practitioner was relied upon and the extent to which such reliance was made; b. The types of analysis and techniques used to perform the audit (e.g. interviews, walkthroughs, document inspection); and c. Sampling methods adopted (if samples are chosen to assess effectiveness of controls). |\n| Audit Finding                  | Audit finding is defined in section 6.5 of this document.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |\n| Audit Conclusion               | Audit conclusion is defined in section 6.6 of this document.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |\n\n<!-- image -->"
+  },
+  {
+    "citation_id": "Auditing Guidelines::7",
+    "clause": "7",
+    "title": "COI AUDIT",
+    "is_glossary": false,
+    "chars": 11,
+    "words": 3,
+    "flags": [
+      "tiny"
+    ],
+    "text": "7 COI AUDIT"
+  },
+  {
+    "citation_id": "Auditing Guidelines::7.1",
+    "clause": "7.1",
+    "title": "Background",
+    "is_glossary": false,
+    "chars": 603,
+    "words": 89,
+    "flags": [],
+    "text": "7.1 Background\n\nFollowing the cyber-attack on SingHealth, a COI was convened to inquire into the events and contributing factors leading to the cyber-attack. The COI had made 16 recommendations to enhance organisations' capability to deter, detect, respond to and recover from cybersecurity incidents and the Government accepted all of the recommendations.\n\nThe aim of the recommendations are to:\n\n- a. Strengthen organisational structure\n- b. Raise staff cybersecurity competencies\n- c. Improve system and data protection\n- d. Enhance security checks on systems\n- e. Improve incident response processes"
+  },
+  {
+    "citation_id": "Auditing Guidelines::7.2",
+    "clause": "7.2",
+    "title": "Purpose",
+    "is_glossary": false,
+    "chars": 218,
+    "words": 31,
+    "flags": [],
+    "text": "7.2 Purpose\n\nIn October 2019, Minister-in-charge of Cybersecurity, S. Iswaran instructed that an independent audit should be carried out to validate the implementation of SingHealth COI recommendations on all the CIIs."
+  },
+  {
+    "citation_id": "Auditing Guidelines::7.3",
+    "clause": "7.3",
+    "title": "COI Audit Expectations",
+    "is_glossary": false,
+    "chars": 2723,
+    "words": 228,
+    "flags": [
+      "table"
+    ],
+    "text": "7.3 COI Audit Expectations\n\nThe COI audit expectations are listed in the table below.\n\n| Audit Expectations   | Description                                                                                                                                                                                                                                                                                     |\n|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Audit Objective      | The objective of the audit is to: a. Validate the implementation status of the COI recommendations; and b. Ascertain the adequacy and effectiveness of the implemented controls, including the interim and compensating controls put in place to address the risks mentioned in the COI report. |\n| Audit Scope          | Audit Subject & Audit Period Audit subject and audit period are defined in section 6.3 of this document. Audit Criteria The audit criteria should cover the latest submission 2 to CSA by the CIIO on the follow-up status of COI recommendations.                                              |\n\n<!-- image -->\n\n<!-- image -->\n\n| Audit Expectations        | Description                                                                                                                                                     |\n|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Audit Completion Timeline | The COI audit should be completed by 31 December 2020 and the audit report should be submitted to CSA not later than 30 days after the completion of the audit. |\n| Audit Approach            | Audit approach is defined in section 6.4 of this document.                                                                                                      |\n| Audit Finding             | Audit finding is defined in section 6.5 of this document.                                                                                                       |\n| Audit Conclusion          | Audit conclusion is defined in section 6.6 of this document.                                                                                                    |\n| Audit Report Format       | Audit report format is defined in section 6.7 of this document.                                                                                                 |"
+  },
+  {
+    "citation_id": "Auditing Guidelines::7.4",
+    "clause": "7.4",
+    "title": "COI Audit Deliverables",
+    "is_glossary": false,
+    "chars": 360,
+    "words": 57,
+    "flags": [],
+    "text": "7.4 COI Audit Deliverables\n\nApart  from  delivering  the  COI  audit  report  in  the  format  defined  in  section  6.7  of  this document, the auditor should also complete an audit worksheet titled ' Implementation of COI Recommendations -Audit Template ' 3 and submit it together with the audit report.\n\n3 The audit worksheet can be obtained from the CIIOs."
+  },
+  {
+    "citation_id": "Auditing Guidelines::8",
+    "clause": "8",
+    "title": "TERMS AND DEFINITIONS",
+    "is_glossary": true,
+    "chars": 7108,
+    "words": 337,
+    "flags": [
+      "table"
+    ],
+    "text": "8 TERMS AND DEFINITIONS\n\nFor the purpose of this document, the following terms and definitions apply.\n\n|   SN | Term                     | Definition                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |\n|------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n|  8.1 | Audit                    | The systematic, independent and documented process for obtaining audit evidence (SN 8.3) and evaluating objectively to determine the extent to which the audit criteria (SN 8.2) are fulfilled.                                                                                                                                                                                                                                                                                                                                                                               |\n|  8.2 | Audit criteria           | A set of requirements used as a reference against which audit evidence (SN 8.3) is compared.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |\n|  8.3 | Audit evidence           | Audit evidence refers to records, statements of fact or other information, which are relevant to the audit criteria (SN 8.2) and verifiable.                                                                                                                                                                                                                                                                                                                                                                                                                                  |\n|  8.4 | Audit finding            | An audit criteria not being met.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |\n|  8.5 | Audit period             | The period of time to which the audit work relates and from which audit evidence is obtained.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |\n|  8.6 | Audit subject            | Audit subject refers to the CII system that is to be audited.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |\n|  8.7 | Adequacy of control      | Adequacy refers to whether the control in place is fit for the purpose.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |\n|  8.8 | Compensating control     | Compensating control, also called an alternative control, may be considered when an entity cannot meet a requirement explicitly as stated, due to legitimate technical or documented business constraints, but has sufficiently mitigated the risk associated with the requirement through implementation of other controls. Compensating control must: a. Meet the intent and rigor of the original requirement; b. Provide a similar level of defence as the original requirement; and c. Commensurate with the additional risk imposed by not adhering to the requirement. |\n|  8.9 | Effectiveness of control | Effectiveness refers to whether the control in place has the desired effect of mitigating the risk.                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |\n\n<!-- image -->\n\n<!-- image -->\n\n|   SN | Term            | Definition                                                                                                    |\n|------|-----------------|---------------------------------------------------------------------------------------------------------------|\n|  8.1 | Interim control | A set of measures designed to reduce the risk temporarily while the recommended control is being implemented. |"
+  },
+  {
+    "citation_id": "Auditing Guidelines::9",
+    "clause": "9",
+    "title": "REFERENCES",
+    "is_glossary": false,
+    "chars": 776,
+    "words": 93,
+    "flags": [],
+    "text": "9 REFERENCES\n\n- [1]   ISO 19011:2018(E), 'Guidelines for auditing management systems,' ISO, 2018.\n- [2]   PCI Security Standards Council, 'PCI DSS and PA-DSS Glossary of Terms, Abbreviations, and Acronyms,' April 2016. [Online]. Available: https://www.pcisecuritystandards.org/documents/PCI\\_DSS\\_Glossary\\_v3-2.pdf?agreement=true&amp;time=1577691345202. [Accessed 30 December 2019].\n- [3]   ISACA IT Standards, Guidelines, and Tools and Techniques for Audit and Assurance and Control Professionalism, ISACA, 2010.\n- [4]   ISACA  Information  Systems  Auditing:  Tools  and  Techniques  -  Creating Audit Program, ISACA, 2016.\n\n<!-- image -->\n\n<!-- image -->\n\n## QUERIES &amp; FEEDBACK\n\nQuestions and feedback on this document may be submitted to:\n\nCII\\_Supervision@csa.gov.sg"
+  }
+]

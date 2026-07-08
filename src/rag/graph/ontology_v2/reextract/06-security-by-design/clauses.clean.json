@@ -1,0 +1,835 @@
+[
+  {
+    "citation_id": "Security By Design::1.1",
+    "clause": "1.1",
+    "chars": 299,
+    "words": 41,
+    "flags": [],
+    "text": "1.1 Most organisations adopt a Systems Development Lifecycle (SDLC) methodology for the development and implementation of computer systems. SDLC is a multi-step lifecycle process to deliver computer systems to ensure good-quality systems that meet specifications and, within time and cost estimates."
+  },
+  {
+    "citation_id": "Security By Design::1.2",
+    "clause": "1.2",
+    "chars": 452,
+    "words": 64,
+    "flags": [],
+    "text": "1.2 While most organisations acknowledge that security is an important consideration in developing computer systems, costs and business performance often take precedence over security. Even though awareness has been elevated on security issues, most organisations focus on applying security only at the commissioning stage of the system development and try to forced fit security into the final design, resulting in ineffective application of security."
+  },
+  {
+    "citation_id": "Security By Design::1.3",
+    "clause": "1.3",
+    "chars": 289,
+    "words": 40,
+    "flags": [],
+    "text": "1.3 An  effective  way  to  protect  computer  systems  against  cyber  threats  is  to  integrate security  into  every  step  of  the  SDLC,  from  initiation,  to  development,  to  deployment  and eventual disposal of the system. This approach is the Security-by-Design (SBD) approach."
+  },
+  {
+    "citation_id": "Security By Design::1.4",
+    "clause": "1.4",
+    "chars": 1055,
+    "words": 146,
+    "flags": [],
+    "text": "1.4 Security-by-Design is an approach to software and hardware development that seeks to minimise  systems  vulnerabilities  and  reduce  the  attack  surface  through  designing  and building security in every phase of the SDLC. This includes incorporating security specifications in the design, continuous security evaluation at each phase and adherence to best practices. The values of integrating security into SDLC include:\n\n- \uf0b7 Early identification and mitigation of security vulnerabilities and misconfigurations of systems.\n- \uf0b7 Identification  of  shared  security  services  and  tools  to  reduce  cost,  while improving security posture through proven methods and techniques.\n- \uf0b7 Facilitation of informed key stakeholder decisions through comprehensive risk management in a timely manner.\n- \uf0b7 Documentation of important security decisions throughout the lifecycle of the system, ensuring that security was full considered during all phases.\n- \uf0b7 Improved systems operability that  would otherwise  be  hampered  by  isolated security of systems."
+  },
+  {
+    "citation_id": "Security By Design::1.5",
+    "clause": "1.5",
+    "chars": 303,
+    "words": 36,
+    "flags": [],
+    "text": "1.5 Specific to cybersecurity, Security-by-Design addresses the cyber protection considerations throughout a system's lifecycle. This includes security design specifically for the identification, protection, detection, response and recovery capabilities to strengthen the cyber resiliency of the system."
+  },
+  {
+    "citation_id": "Security By Design::2.1",
+    "clause": "2.1",
+    "chars": 910,
+    "words": 131,
+    "flags": [],
+    "text": "2.1 This document establishes a framework to guide organisations in building security into their  SDLC,  through  the  alignment  of  security-related  processes/activities  alongside  SDLC processes. This would result in more cost-effective and risk-appropriate security considerations and controls in all phases of the SDLC.\n\nThe objectives of this document are to:\n\n- (a) Establish a  Security-by-Design framework that stakeholders can take reference where Security-by-Design approach is mandated.\n- (b) Establish SBD processes to ensure that security risks are managed from the start, and continuously assessed during the SDLC through a lifecycle approach.\n- (c) Establish activities to support the SBD processes to manage security risks during the SDLC.\n- (d) Provide control gates and decision point considerations at phases to ensure that no decision is made without an assessment of the security risks."
+  },
+  {
+    "citation_id": "Security By Design::2.1(a)",
+    "clause": "2.1(a)",
+    "chars": 129,
+    "words": 15,
+    "flags": [],
+    "text": "(a) Establish a  Security-by-Design framework that stakeholders can take reference where Security-by-Design approach is mandated."
+  },
+  {
+    "citation_id": "Security By Design::2.1(b)",
+    "clause": "2.1(b)",
+    "chars": 157,
+    "words": 24,
+    "flags": [],
+    "text": "(b) Establish SBD processes to ensure that security risks are managed from the start, and continuously assessed during the SDLC through a lifecycle approach."
+  },
+  {
+    "citation_id": "Security By Design::2.1(c)",
+    "clause": "2.1(c)",
+    "chars": 95,
+    "words": 15,
+    "flags": [],
+    "text": "(c) Establish activities to support the SBD processes to manage security risks during the SDLC."
+  },
+  {
+    "citation_id": "Security By Design::2.1(d)",
+    "clause": "2.1(d)",
+    "chars": 179,
+    "words": 29,
+    "flags": [],
+    "text": "(d) Provide control gates and decision point considerations at phases to ensure that no decision is made without an assessment of the security risks. ## 3. Scope and Applicability"
+  },
+  {
+    "citation_id": "Security By Design::3.1",
+    "clause": "3.1",
+    "chars": 165,
+    "words": 23,
+    "flags": [],
+    "text": "3.1 This document covers the framework overview and provides approaches and guidelines to processes and activities for the Security-by-Design approach within a SDLC."
+  },
+  {
+    "citation_id": "Security By Design::3.2",
+    "clause": "3.2",
+    "chars": 307,
+    "words": 39,
+    "flags": [],
+    "text": "3.2 The framework, processes, activities and control gates described in this document are applicable to  all  computer  system development projects.  'Computer system' refers to all systems and network infrastructures including: Infocomm  Technologies, Operational Technologies and Internet of Things (IoT)."
+  },
+  {
+    "citation_id": "Security By Design::3.3",
+    "clause": "3.3",
+    "chars": 222,
+    "words": 28,
+    "flags": [],
+    "text": "3.3 The  framework  is  intended  to  be  used  in  conjunction  with  any  existing  SDLC methodologies adopted  by  organisations,  as  well  as  complementing  government  policies, standards, guidelines and directives."
+  },
+  {
+    "citation_id": "Security By Design::3.4",
+    "clause": "3.4",
+    "chars": 206,
+    "words": 27,
+    "flags": [],
+    "text": "3.4 Detailed  technical  implementation  of  the  security  activities  described  under  the framework can be adopted from relevant organisation standards or IT standards bodies (e.g. NIST, ISO/IEC, IEEE)."
+  },
+  {
+    "citation_id": "Security By Design::4.1",
+    "clause": "4.1",
+    "chars": 288,
+    "words": 40,
+    "flags": [],
+    "text": "4.1 This document covers details specific to secure systems development. The reader of this document should be acquainted with general systems development lifecycle and security concepts; however, the document provides the necessary background to understand the topics that are discussed."
+  },
+  {
+    "citation_id": "Security By Design::4.2",
+    "clause": "4.2",
+    "chars": 866,
+    "words": 112,
+    "flags": [],
+    "text": "4.2 The intended audience of this document is varied and includes the following:\n\n- \uf0b7 Critical  Information  Infrastructure  (CII)  and  government  systems  development projects that requires the adoption of Security-by-Design development process.\n- \uf0b7 Security professionals, systems developers,  systems administrators, and others who  are  responsible  for  planning,  implementing,  maintaining,  monitoring  and disposal  of  the  systems  in  their  organization  that  wants  to  adopt  Security-byDesign into their development process.\n- \uf0b7 Senior  management  who  are  trying  to  understand  the  benefits  of  applying Security-by-Design to the systems in their organization.\n- \uf0b7 Vendors, external consultants that are developing solutions and products that will be deployed to systems that requires the adoption of Security-by-Design development process."
+  },
+  {
+    "citation_id": "Security By Design::5.1",
+    "clause": "5.1",
+    "chars": 40,
+    "words": 5,
+    "flags": [],
+    "text": "5.1 Systems Development Lifecycle (SDLC)"
+  },
+  {
+    "citation_id": "Security By Design::5.1.1",
+    "clause": "5.1.1",
+    "chars": 118,
+    "words": 20,
+    "flags": [],
+    "text": "5.1.1 It is important to understand the basics of the SDLC in order to appreciate how this framework complements SDLC."
+  },
+  {
+    "citation_id": "Security By Design::5.1.2",
+    "clause": "5.1.2",
+    "chars": 410,
+    "words": 60,
+    "flags": [],
+    "text": "5.1.2 SDLC  is the overall  process  for  developing  systems  from initiation  through implementation to disposal.  There are many activities associated with each phase of the SLDC. While the activities performed in each systems development project may vary, a typical SDLC  begins  with  a  business  need  and  ends  when  the  maintenance  costs  outweigh  the benefits of the system, hence, a 'lifecycle'."
+  },
+  {
+    "citation_id": "Security By Design::5.1.3",
+    "clause": "5.1.3",
+    "chars": 987,
+    "words": 135,
+    "flags": [],
+    "text": "5.1.3 SDLC comprises of six phases:\n\n\n\n\n\n\n\n\n1. Initiation - The need for a system is expressed and the functional specifications of the system are documented.\n2. Acquisition - The system is purchased through the procurement process.\n3. Design/Development -  The  system  is  designed,  programmed,  developed,  or otherwise constructed.\n4. Implementation/Assessment -  The  system  is  installed,  tested,  accepted  for release and commissioned.\n5. Operation/Maintenance - The system is operational and producing the work as per specification. Modifications and enhancements are managed through change management  process.  Maintenance  of  the  hardware,  software  and  system upgrades.\n6. Disposal -  When  the  system  is  redundant  or  obsolete,  the  system  will  be disposed. Orderly termination of the system, safeguarding vital systems information, and migrating data to a new system, or preserving it in accordance with applicable records management regulation and policies."
+  },
+  {
+    "citation_id": "Security By Design::5.1.4",
+    "clause": "5.1.4",
+    "chars": 478,
+    "words": 71,
+    "flags": [],
+    "text": "5.1.4 Different SDLC methodologies may be adopted by organisations. For example, the Whole-of-Government  (WoG)  adopts  the  IM8's  IT  Project  Lifecycle 1 ,  while  in  MINDEF,  a similar lifecycle approach called the Defence Capability Management (DCM) Framework 2 , is adopted. A mapping of these SDLC methodologies against SDLC phases is shown in Figure A3  of  ANNEX  A.  Regardless,  the  six  phases  of  the  SDLC  should  be  generic  across  all  SDLC methodologies."
+  },
+  {
+    "citation_id": "Security By Design::5.2",
+    "clause": "5.2",
+    "chars": 40,
+    "words": 6,
+    "flags": [],
+    "text": "5.2 Notes on Agile Development Lifecycle"
+  },
+  {
+    "citation_id": "Security By Design::5.2.1",
+    "clause": "5.2.1",
+    "chars": 502,
+    "words": 69,
+    "flags": [],
+    "text": "5.2.1 Section 5.1 above describes a conventional SDLC model (Waterfall model). More and more, organisations are adopting another SDLC model called Agile Development Lifecycle.  Agile Development Lifecycle describes a set of principles for systems development under which requirements and solutions evolve through the collaborative effort of selforganising cross-functional teams. It arises as a need to develop quick iterations of working systems to users who have changing requirements and priorities."
+  },
+  {
+    "citation_id": "Security By Design::1",
+    "clause": "1",
+    "chars": 41,
+    "words": 8,
+    "flags": [],
+    "text": "1 Figure A-1 - IT Project Lifecycle (IM8)"
+  },
+  {
+    "citation_id": "Security By Design::2",
+    "clause": "2",
+    "chars": 46,
+    "words": 9,
+    "flags": [],
+    "text": "2 Figure A-2 - DCM Framework\n\n\n(Iteration - 1)"
+  },
+  {
+    "citation_id": "Security By Design::5.2.2",
+    "clause": "5.2.2",
+    "chars": 1368,
+    "words": 205,
+    "flags": [],
+    "text": "5.2.2 Agile development lifecycle comprises of six phases:\n\n1. Concept - This is a pre-iteration phase where the need for a system is expressed and the functional specifications of the system are documented.\n2. Inception/Warmup -  The first week of an agile project is often referred to as Iteration 0 and is used to setup the environment, and gather support and funding for the project.\n3. Construction Iterations - The system is incrementally and iteratively delivered which meets the changing needs of the stakeholders. Continual testing is also performed during this phase.\n4. Transition - Final testing and rework are performed on the system before it is released into production. Finalised documentation  and  training are also performed at this phase.\n5. Production -  The  system  is  operational  and  producing  the  work  as  per specification.  Modifications  and  enhancements  are  managed  through  change management  process.  Maintenance  of  the  hardware,  software  and  system upgrades are also performed at this phase.\n6. Retirement -  When  the  system  is  redundant  or  obsolete,  the  system  will  be disposed. Orderly termination of the system, safeguarding vital systems information, and migrating data to a new system, or preserving it in accordance with applicable records management regulation and policies are performed at this phase."
+  },
+  {
+    "citation_id": "Security By Design::5.2.3",
+    "clause": "5.2.3",
+    "chars": 230,
+    "words": 34,
+    "flags": [],
+    "text": "5.2.3 The SBD Framework, described in this document, is adaptable to the Agile development lifecycle. Refer to Figure A-4 of ANNEX A for the mapping of Security-byDesign lifecycle processes against the Agile development lifecycle."
+  },
+  {
+    "citation_id": "Security By Design::5.3.1",
+    "clause": "5.3.1",
+    "chars": 346,
+    "words": 56,
+    "flags": [],
+    "text": "5.3.1 The emphasis of the SDLC is to ensure effective development of a system and often security becomes an afterthought in the development. Addressing inherent vulnerabilities and patching security holes as they are found can be a hit-and-miss process and costly; and, will never be as effective as designing systems to be secure from the start."
+  },
+  {
+    "citation_id": "Security By Design::5.3.2",
+    "clause": "5.3.2",
+    "chars": 716,
+    "words": 109,
+    "flags": [],
+    "text": "5.3.2 The SBD lifecycle parallels the SDLC phases by incorporating security considerations into processes at every phase. It spans across all the phases as security risks will need to be identified as early as the planning phase and addressed accordingly throughout the phases. At a broad level, security risks can be addressed through:\n\n- (a) Changing the requirements or deployment to avoid the security risk\n- (b) Implementing alternative or mitigating controls\n- (c) Accepting the risk through proper risk management process\n- (d) Iterative processes where security are evaluated at each phase and determined whether  the  security  processes  are  required  to  be  repeated  to  produce  a satisfactory output."
+  },
+  {
+    "citation_id": "Security By Design::5.3.2(a)",
+    "clause": "5.3.2(a)",
+    "chars": 70,
+    "words": 11,
+    "flags": [],
+    "text": "(a) Changing the requirements or deployment to avoid the security risk"
+  },
+  {
+    "citation_id": "Security By Design::5.3.2(b)",
+    "clause": "5.3.2(b)",
+    "chars": 51,
+    "words": 6,
+    "flags": [],
+    "text": "(b) Implementing alternative or mitigating controls"
+  },
+  {
+    "citation_id": "Security By Design::5.3.2(c)",
+    "clause": "5.3.2(c)",
+    "chars": 61,
+    "words": 9,
+    "flags": [],
+    "text": "(c) Accepting the risk through proper risk management process"
+  },
+  {
+    "citation_id": "Security By Design::5.3.2(d)",
+    "clause": "5.3.2(d)",
+    "chars": 185,
+    "words": 26,
+    "flags": [],
+    "text": "(d) Iterative processes where security are evaluated at each phase and determined whether  the  security  processes  are  required  to  be  repeated  to  produce  a satisfactory output."
+  },
+  {
+    "citation_id": "Security By Design::5.3.3",
+    "clause": "5.3.3",
+    "chars": 402,
+    "words": 57,
+    "flags": [],
+    "text": "5.3.3 The advantage of introducing security alongside each SDLC phase is to ensure that security  risks  are  visible,  well  understood  by  senior  management  and  key  personnel,  and appropriate decisions are taken timely to reduce risk to an acceptable level.\n\n\n\n\n\n- .\n\n\n\n\n\n\n- \u2022\n\n\n\n\n\n\n\n\nSecurity Planning &amp;\n\n\n\n## System Development Lifecycle\n\n## Security By Design Lifecycle\n\n\n\nPlanning &amp;"
+  },
+  {
+    "citation_id": "Security By Design::5.4.1",
+    "clause": "5.4.1",
+    "chars": 1202,
+    "words": 176,
+    "flags": [],
+    "text": "5.4.1 The SBD approach consists of three components, namely,\n\n\n- a. Lifecycle -  Aligning security-related processes with SDLC to guide projects to meet Security-by-Design objectives\n\n\n- b. Activities -  Security-related  activities  that  support  the  security  lifecycle processes\n- c. Control Gates - A point in time when the system development effort will be evaluated  for  security  and  when  management  will  determine  whether  the project should continue as is, change direction or be discontinued\n3. 5.4.2 Figure 4 below, shows the hierarchical relationship of the processes, activities and control gates.\n4. 5.4.3 The  SBD  approach  ensures  security  considerations  are  addressed  at  every  phase through the security lifecycle processes. Activities within these security processes focus on adding security elements that should be present in any SDLC methodologies.\n5. 5.4.4 SBD  processes  begin  early  in  the  SDLC  phase  and  are  important  in  shaping  the security capabilities and posture of the computer system throughout the SDLC phases. If these processes are not performed adequately at each phase of the SDLC, they may be costlier to implement later.\n\n\n\n\n\n- SBD Phases"
+  },
+  {
+    "citation_id": "Security By Design::5.5.1",
+    "clause": "5.5.1",
+    "chars": 163,
+    "words": 22,
+    "flags": [],
+    "text": "5.5.1 The  SBD  Framework  (illustrated  in  Figure  5  below)  provides  a  disciplined  and structured approach that integrates security processes into the SDLC."
+  },
+  {
+    "citation_id": "Security By Design::5.5.2",
+    "clause": "5.5.2",
+    "chars": 217,
+    "words": 31,
+    "flags": [],
+    "text": "5.5.2 While  the  approach  diagram  in  Figure  4  shows  a  hierarchical  relationship  of  the processes, activities and control gates, Figure 5 below maps the framework processes and activities against the phases."
+  },
+  {
+    "citation_id": "Security By Design::5.5.3",
+    "clause": "5.5.3",
+    "chars": 210,
+    "words": 32,
+    "flags": [],
+    "text": "5.5.3 Each  process  can  be  repeated  if  the  output  is  unsatisfactory  and  if  there  are significant changes to the project, the security of the project should be re-evaluated from the initiation phase."
+  },
+  {
+    "citation_id": "Security By Design::5.5.4",
+    "clause": "5.5.4",
+    "chars": 257,
+    "words": 36,
+    "flags": [],
+    "text": "5.5.4 In addition, the framework requires that risks be continually managed through a risk management  framework.  For  SBD  approach  to  be  effective,  organisations  must  have  a consistent and effective risk approach applied to all security processes."
+  },
+  {
+    "citation_id": "Security By Design::5.5.5",
+    "clause": "5.5.5",
+    "chars": 238,
+    "words": 35,
+    "flags": [],
+    "text": "5.5.5 The risk management framework can be part of an organisation-wide risk program that  involves  the  management  of  organisation  risk;  that  is,  the  risk  to  the  organisation associated with the operation of a computer system."
+  },
+  {
+    "citation_id": "Security By Design::5.6.1",
+    "clause": "5.6.1",
+    "chars": 241,
+    "words": 37,
+    "flags": [],
+    "text": "5.6.1 In Figure 5 above, nine security processes are identified within the lifecycle, each corresponding to a SDLC process. These processes map into the six distinct phases to provide security guidance throughout the lifecycle of the system."
+  },
+  {
+    "citation_id": "Security By Design::5.6.2",
+    "clause": "5.6.2",
+    "chars": 490,
+    "words": 79,
+    "flags": [],
+    "text": "5.6.2 At  the  end  of  each  security  process,  one  or  more  deliverables  are  produced  as outputs and could be fed as inputs to the subsequent process. Key processes (depicted with red outline), under Figure 3, have key milestones / deliverables that must be approved and accepted by the appropriate approving authority, e.g. steering committee, before a project can proceed to the next phase. The lifecycle of a system ends when it has been securely disposed of and formally closed."
+  },
+  {
+    "citation_id": "Security By Design::5.6.3",
+    "clause": "5.6.3",
+    "chars": 181,
+    "words": 29,
+    "flags": [],
+    "text": "5.6.3 The security processes can be iterative if, at the control gates, the security activities are found to be inadequate and need to be re-performed to meet security requirements."
+  },
+  {
+    "citation_id": "Security By Design::5.7.1",
+    "clause": "5.7.1",
+    "chars": 238,
+    "words": 37,
+    "flags": [],
+    "text": "5.7.1 Under each security process is a set of security-focused activities that describes the key security actions to be taken. Figure 6 below, highlights how the activities are aligned with, and performed within each SBD Security Process."
+  },
+  {
+    "citation_id": "Security By Design::5.7.2",
+    "clause": "5.7.2",
+    "chars": 637,
+    "words": 97,
+    "flags": [],
+    "text": "5.7.2 Each activity will minimally cover the following:\n\n- (a) Description - Describe the actions to be taken in parallel with SBD processes and activities.\n- (b) Roles and Responsibilities - Describe key roles and responsibilities within each activity and the actions that they are responsible for.\n- (c) Expected  Outputs  -  Describe  the  required  security-related  artefacts  that  are expected from this activity, which may be inputs into other related activities.\n- (d) Inter-dependencies - Describe the Inter-dependencies with other SDLC / SBD activities and outputs and how they work together to enhance security of the system."
+  },
+  {
+    "citation_id": "Security By Design::5.7.2(a)",
+    "clause": "5.7.2(a)",
+    "chars": 97,
+    "words": 16,
+    "flags": [],
+    "text": "(a) Description - Describe the actions to be taken in parallel with SBD processes and activities."
+  },
+  {
+    "citation_id": "Security By Design::5.7.2(b)",
+    "clause": "5.7.2(b)",
+    "chars": 140,
+    "words": 21,
+    "flags": [],
+    "text": "(b) Roles and Responsibilities - Describe key roles and responsibilities within each activity and the actions that they are responsible for."
+  },
+  {
+    "citation_id": "Security By Design::5.7.2(c)",
+    "clause": "5.7.2(c)",
+    "chars": 169,
+    "words": 23,
+    "flags": [],
+    "text": "(c) Expected  Outputs  -  Describe  the  required  security-related  artefacts  that  are expected from this activity, which may be inputs into other related activities."
+  },
+  {
+    "citation_id": "Security By Design::5.7.2(d)",
+    "clause": "5.7.2(d)",
+    "chars": 163,
+    "words": 25,
+    "flags": [],
+    "text": "(d) Inter-dependencies - Describe the Inter-dependencies with other SDLC / SBD activities and outputs and how they work together to enhance security of the system."
+  },
+  {
+    "citation_id": "Security By Design::5.7.3",
+    "clause": "5.7.3",
+    "chars": 369,
+    "words": 53,
+    "flags": [],
+    "text": "5.7.3 The  level  of  details  of  each  activity  shall  provide  sufficient  guidance  on  (a)  the objective of the activity,  (b)  key  roles  and  responsibilities,  (c)  expected outputs  to  ensure adequate security has been performed, and (d) shows inter-dependencies with SBD processes and activities in order to enhance the security development of the system."
+  },
+  {
+    "citation_id": "Security By Design::5.8.1",
+    "clause": "5.8.1",
+    "chars": 430,
+    "words": 57,
+    "flags": [],
+    "text": "5.8.1 Control Gates or decision points are specific milestones of the SBD phases where the security implementations are evaluated. They provide the organisation with an opportunity to verify that security considerations are addressed, adequate security controls are built in, and identified risks are clearly understood before the system development advances to the next lifecycle phase.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nAudit &amp;"
+  },
+  {
+    "citation_id": "Security By Design::5.8.2",
+    "clause": "5.8.2",
+    "chars": 366,
+    "words": 47,
+    "flags": [],
+    "text": "5.8.2 At  these  milestones,  the  project  manager  should  present  the  pre-determined deliverables to approving authority (i.e. project steering committee and system owner). The approving  authority  should  be  briefed  on  the  status  of  the  security  implementation  and validation results, and approved any changes to security implementations or schedule."
+  },
+  {
+    "citation_id": "Security By Design::5.8.3",
+    "clause": "5.8.3",
+    "chars": 257,
+    "words": 37,
+    "flags": [],
+    "text": "5.8.3 Approving authority, for example the project steering committee, shall ensure that they are adequately advised on security control matters. For example, having independent security subject matter expert in the committee or as advisor to the committee."
+  },
+  {
+    "citation_id": "Security By Design::6.1",
+    "clause": "6.1",
+    "chars": 729,
+    "words": 91,
+    "flags": [
+      "table"
+    ],
+    "text": "At  the  Initiation  phase,  early  integration  of  security  considerations  is  key  to  the success of the implementing a secured system. Threats, security requirements and potential constraints of functionality and integration are considered at this phase. Security is looked at from the perspective of business risks with inputs from the security team.\n\n| Security Process                    | Activities                      |\n|-------------------------------------|---------------------------------|\n| Security Planning & Risk Assessment | Security Planning               |\n| Security Planning & Risk Assessment | Systems Security Classification |\n| Security Planning & Risk Assessment | Threat & Risk Assessment        |"
+  },
+  {
+    "citation_id": "Security By Design::6.1.1",
+    "clause": "6.1.1",
+    "chars": 787,
+    "words": 107,
+    "flags": [],
+    "text": "6.1.1 Security Process: Security Planning and Risk Assessment\n\nThe  Security  Planning  and  Risk  Assessment  process  within  the  Initiation phase aims to integrate security considerations at the start of SDLC. Activities under this process include:\n\n- \uf0b7 Security planning to set common understanding of security goals and objectives, identify key security roles and develop high level security schedule.\n- \uf0b7 Classify system to the appropriate security classification.\n- \uf0b7 Threat  and  Risk  Assessment  to  ensure  threats,  risk,  and  security decisions are documented, assessed, and approved by key stakeholders.\n\nThrough proper security threat identification and risk  management planning early in the lifecycle, cost-effective security can be established.\n\n\n\n\n\n\n\n\n\n\nThreat &amp;"
+  },
+  {
+    "citation_id": "Security By Design::6.1.1.1",
+    "clause": "6.1.1.1",
+    "chars": 6226,
+    "words": 333,
+    "flags": [
+      "table"
+    ],
+    "text": "| Description:                   | Security planning is to be conducted as part of the initiation and planning phase. It includes: \uf0b7 Identifying and confirming key security roles in the system development project \uf0b7 Ensuring all key stakeholders have a commonunderstanding of the goals, implications, considerations and requirements of performing security \uf0b7 Outlining key security milestones and activities for the system development. \uf0b7 Identifying the use of secure design, architecture and coding standards. This planning activity is crucial as it highlights to key stakeholders that as the systems development progress, decisions made will have security implications.   |\n|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities 3 : | Project Manager The Project Manager is responsible to identify and confirm the key security roles that must be present in this project. This may                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |\n\n|                      | include whether the security assessment is performed in-house or outsourced. The Project Manager is also responsible to outline key security milestones and activities with inputs from the Security Officer / Consultant. Developer The Developer is consulted as part of security planning to ensure that key security milestones and activities is aligned with the system development. The Developer is also consulted on the design, architecture and coding standards so as to be aligned against secure practices. Security Officer / Consultant The Security Officer, or Consultant if the security assessment is outsourced, is responsible to ensure that all key stakeholders have a common understanding of security concepts and that everyone is speaking the 'same language'. System Administrator The System Administrator's role in this activity is to understand the current standards and practices. This activity provides the System Administrator a common understanding of security expectations required for this development. Users   |\n|----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Expected Outputs:    | \uf0b7 Key security roles and resources for the system development \uf0b7 Common understanding of security expectations \uf0b7 High level schedule of security milestones and activities                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |\n| Inter- dependencies: | The security milestones and activities should be integrated into the project schedule to ensure proper security planning is performed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |"
+  },
+  {
+    "citation_id": "Security By Design::6.1.1.2",
+    "clause": "6.1.1.2",
+    "chars": 4228,
+    "words": 232,
+    "flags": [
+      "table"
+    ],
+    "text": "| Description:   | In order to perform threat and risk assessment, it is important to first determine the security classification of the system. The security classification will be used in conjunction with the threats and vulnerability information in assessing the risks.   |\n|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n\n| Roles and Responsibilities:   | Project Manager The Project Manager is responsible to ensure that the system is appropriately classified and hence its information will be protected accordingly throughout the systems development project. Developer The Developer provides input to the high-level security requirements that needs to be fulfilled as per the security classification. Security Officer / Consultant The Security Officer / Consultant is responsible to classify the security classification of the system based on the protection of classified information and provide the high-level security requirements that needs to be fulfilled as per the security classification. System Administrator The Systems Administrator provides input to the high-level security requirements that needs to be fulfilled as per the security classification. Users The Users provide input to the types and security classification of   |\n|-------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Expected Outputs:             | \uf0b7 Security classification of the system \uf0b7 High-level Security Requirements that needs to be fulfilled as per the security classification                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |\n| Inter- dependencies:          | The security classification of the proposed system should be communicated to the system architect team so that the teamput in appropriate level of security in the architecture design.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |"
+  },
+  {
+    "citation_id": "Security By Design::6.1.1.3",
+    "clause": "6.1.1.3",
+    "chars": 3898,
+    "words": 271,
+    "flags": [
+      "table"
+    ],
+    "text": "6.1.1.3 Activity: Threat and Risk Assessment\n\n| Description:   | Threat and Risk Assessment (TRA) is the systematic process of identifying the various threats and vulnerabilities to systems, determining the level of risk these systems are exposed to, and recommending the appropriate level of protection.   |\n|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n\n\n|                             | The objective of TRA is to maximise the protection of confidentiality, integrity and availability while minimising risk. A typical TRA includes: \uf0b7 Review of functional requirements specification \uf0b7 Threats and vulnerabilities identification \uf0b7 Risk identification, analysis and evaluation \uf0b7 Recommendations of appropriate security controls TRA must take into consideration to all relevant regulatory practices and standards.                                                                                                                                                                                                                 |\n|-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager The Project Manager is responsible to ensure that the TRA is performed adequately and completed and all inputs from stakeholders are considered. Developer The developer provides input to the TRA on threats and risk pertaining to systems development. Security Officer / Consultant The Security Officer / Consultant is responsible to perform the TRA to determine the level of risk these systems are exposed to, and recommending the appropriate level of protection. System Administrator The Systems Administrator provides input to the TRA on threats and risk pertaining to operations and systems administration. Users |\n| Expected Outputs:           | \uf0b7 TRA report detailing the potential threats and risks that could impact the organisation business and the security controls needed to be put in place to reduce the risks to an acceptable level. \uf0b7 Updated Project Risk Register addressing cyber risks.                                                                                                                                                                                                                                                                                                                                                                                             |\n| Inter- dependencies:        | The security classification of the proposed system has to be considered when performing TRA.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |"
+  },
+  {
+    "citation_id": "Security By Design::6.1.2",
+    "clause": "6.1.2",
+    "chars": 721,
+    "words": 115,
+    "flags": [],
+    "text": "The approving authority for this phase is the Steering Committee. Recommended control validations for this phase include:\n\n- \uf0b7 Threat and Risk Assessment Report that is approved by steering committee. This is the main deliverable for this phase. It will be used extensively to develop the security requirements, controls and design of the system.\n- \uf0b7 Checking if all high level security requirements been included or expressed as a set of security controls in the Threat and Risk Assessment Report.\n- \uf0b7 Checking if the security team roles and responsibilities been established.\n- \uf0b7 Evaluate if the project is supported with the security resources currently available or projected to be available in the timeframe desired."
+  },
+  {
+    "citation_id": "Security By Design::6.1.3",
+    "clause": "6.1.3",
+    "chars": 141,
+    "words": 24,
+    "flags": [],
+    "text": "The TRA report is a key milestone that needs to be approved by the project steering committee prior to the submission of tender requirements."
+  },
+  {
+    "citation_id": "Security By Design::6.2",
+    "clause": "6.2",
+    "chars": 837,
+    "words": 98,
+    "flags": [
+      "table"
+    ],
+    "text": "The  Acquisition  phase  of  the  development  lifecycle  is  concerned  primarily  with  the identification  of  security  requirements,  evaluation  of  proposed  security  controls,  and reviewing  and  finalising  security  design  prior  to  acquiring  or  developing  the  system.  Key security processes for this phase looks at:\n\n- \uf0b7 Deriving security design objectives and specifications for tenders\n- \uf0b7 Evaluating and assessing adequacy of proposed security controls of submitted proposals in meeting requirements in the tender\n\n| Security Process             | Activities                              |\n|------------------------------|-----------------------------------------|\n| Tender Security Requirements | Define Security Requirements for Tender |\n| Tender Security Evaluation   | Evaluate Security Specification         |"
+  },
+  {
+    "citation_id": "Security By Design::6.2.1",
+    "clause": "6.2.1",
+    "chars": 361,
+    "words": 50,
+    "flags": [],
+    "text": "6.2.1 Security Process: Tender Security Requirements\n\nThe purpose of the Tender Security Requirements process is to determine and produce  a  set  of  security  specifications  for  the  purpose  of  the  tender.  The  security\n\n\n\n\n\n\n\nSecurity Requirements requirements are part of the overall system requirements that need to be approved for tender submission."
+  },
+  {
+    "citation_id": "Security By Design::6.2.1.1",
+    "clause": "6.2.1.1",
+    "chars": 3656,
+    "words": 310,
+    "flags": [
+      "table"
+    ],
+    "text": "6.2.1.1 Activity: Define Security Requirements for Tender\n\n| Description:                | Security Requirements are defined and refined as part of the overall tender requirements submission. Security requirements should be clearly articulated, its purpose and objective clearly stated, so that tenderers are able to provide adequate measures or controls to meet the requirements. Security requirements should also include organisation security standards or references from International Standards (e.g. ISO2700X standards), which are minimum security controls that must be put in place to protect systems in the area of Confidentiality, Integrity and Availability.   |\n|-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager The Project Manager is responsible to ensure that the defined security requirements are aligned with the main tender requirements so that security integration activities will be not negatively impacted by other IT processes. Developer The Developer provides input to the Security Officer / Consultant to define the security requirements. Security Officer / Consultant The Security Officer / Consultant is responsible to define and refine security requirements as part of the overall tender requirements submission. The security requirements should be           |\n\n|                      | clearly articulated, its purpose and objective clearly stated and aligned with the main tender requirements. System Administrator The Systems Administrator provides input to the Security Officer / Consultant to define the security requirements. Users Users are consulted on the security requirements that will be defined, against the business requirements under the main tender.                                    |\n|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Expected Outputs:    | \uf0b7 Approved Security Requirements for Tender                                                                                                                                                                                                                                                                                                                                                                                   |\n| Inter- dependencies: | This activity feeds security requirements directly into the main tender requirements and should be performed alongside the SDLC requirements gathering activity to ensure that security integration activities are not negatively impacted by other IT processes. The Threat and Risk Assessment Report is a primary tool to identify if the security requirements are effective to address an organisation's risk tolerance. |"
+  },
+  {
+    "citation_id": "Security By Design::6.2.2",
+    "clause": "6.2.2",
+    "chars": 239,
+    "words": 33,
+    "flags": [],
+    "text": "6.2.2 Security Process: Tender Security Evaluation\n\nThe process of Tender Security Evaluation occurs after the tender submissions have  been  received  and  is  an  integral  part  of  the  overall  evaluation  of  the  tender submissions."
+  },
+  {
+    "citation_id": "Security By Design::6.2.2.1",
+    "clause": "6.2.2.1",
+    "chars": 3564,
+    "words": 227,
+    "flags": [
+      "table"
+    ],
+    "text": "| Description:                | This activity focuses on the assessing of security control specifications proposed by the vendors. The activity includes a series of documentation review, proposal evaluation and clarifications, assessment of security controls proposed. It may include software/hardware demonstrations and testing which the controls involve software and/or hardware solutions. Recommendations are incorporated into the Tender Evaluation Report.   |\n|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager The Project Manager is responsible to ensure that security evaluation recommendations are completed and incorporated into the Tender Evaluation Report. Developer The Developer is responsible to review the vendor's security controls proposal and to provide recommendations to the security evaluation recommendations. Security Officer / Consultant                                                                     |\n\n|                      | The Security Officer / Consultant is responsible to review the vendor's security controls proposal and complete the security evaluation recommendations based on the compliance and deviations of security requirements. The Security Officer / Consultant should also take inputs from other stakeholders' recommendations. System Administrator The System Administrator is responsible to review the vendor's security controls proposal and to provide recommendations to the security evaluation recommendations. Users N.A.   |\n|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Expected Outputs:    | \uf0b7 Assessment and Recommendations for incorporation into the Tender Evaluation Report                                                                                                                                                                                                                                                                                                                                                                                                                                                |\n| Inter- dependencies: | This activity should be performed closely with the overall system tender evaluation to ensure that the security requirements are reviewed and assessed appropriately.                                                                                                                                                                                                                                                                                                                                                               |"
+  },
+  {
+    "citation_id": "Security By Design::6.2.3",
+    "clause": "6.2.3",
+    "chars": 617,
+    "words": 92,
+    "flags": [],
+    "text": "The objective of this control gate is to match the security requirements expressed against the security functionality defined by the vendors. All security controls should be included  in  the  vendor  proposal.  The  approving  authority  of  the  control  gate  is  the Steering Committee.\n\nRecommended control validations for this phase include:\n\n- \uf0b7 All the agreed upon security controls been included in the vendor proposal.\n- \uf0b7 Vendor's planned activities and outcome are compliant with organisation security policy and procedures.\n- \uf0b7 Formal key stakeholder acceptance of the risks based on the vendor proposal."
+  },
+  {
+    "citation_id": "Security By Design::6.3",
+    "clause": "6.3",
+    "chars": 566,
+    "words": 76,
+    "flags": [
+      "table"
+    ],
+    "text": "The design / development phase begins after the tender has been awarded. As part of the design of the system, critical security design review shall be conducted to check that the system architecture is secured and appropriate security controls are put in place in the design of the system.\n\n\n\n\n\n\n\n\n\n| Security Process                | Activities                   |\n|---------------------------------|------------------------------|\n| Critical Security Design Review | Review Security Architecture |\n| Critical Security Design Review | Review Security Controls     |"
+  },
+  {
+    "citation_id": "Security By Design::6.3.1",
+    "clause": "6.3.1",
+    "chars": 323,
+    "words": 44,
+    "flags": [],
+    "text": "6.3.1 Security Process: Critical Security Design Review\n\nThe Critical Security Design Review focuses on the review of security systems architecture and controls. This process ensures that security requirements and controls are  met  through  the  systems  design  and  can  be  implemented  to  meet  security requirements."
+  },
+  {
+    "citation_id": "Security By Design::6.3.1.1",
+    "clause": "6.3.1.1",
+    "chars": 3205,
+    "words": 211,
+    "flags": [
+      "table"
+    ],
+    "text": "## Description:\n\nThis activity focuses on the security review of system architecture.  The  systems  architecture  should  be  decomposed into finer components and its inner workings must be documented.  This  is  to  identify  trust  boundaries,  information entry and exit points and data flows.\n\nIt  includes  a  series  of  architecture  documentation  reviews, design vulnerability assessments and security recommendations.\n\n| Roles and Responsibilities:   | Project Manager The Project Manager is responsible to ensure that the Security Officer / Consultant has the resources and documentation required in order to perform adequate security review of the system architecture. Developer The Developer provides inputs to the security review of the system architecture. Security Officer / Consultant The Security Officer / Consultant is responsible to perform a security review of the system architecture with inputs from stakeholders. System Administrator The System Administrator provides inputs to the security review of the system architecture. Users The User provides inputs to the security review of the system   |\n|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Expected Outputs:             | \uf0b7 Approved Security Architecture                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |\n| Inter- dependencies:          | The activity should be performed with systems architecture review to ensure that the security design is congruent with the functions of the proposed architecture. This activity should also be iteratively performed whenever changes are made to the architecture.                                                                                                                                                                                                                                                                                                                                                                                                              |"
+  },
+  {
+    "citation_id": "Security By Design::6.3.1.2",
+    "clause": "6.3.1.2",
+    "chars": 4368,
+    "words": 238,
+    "flags": [
+      "table"
+    ],
+    "text": "| Description:   | This activity focuses on the review of security controls put in place as part of the systems design. The activity includes a series of documentation review of security controls proposed in the system design, assessment of its effectiveness and recommendations. Security Controls must be justified and documented based on the TRA and security requirements. Security Controls must be sufficiently documented to enable verification of the controls'   |\n|----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n\n|                             | adherence to security requirements. An analysis of the cost of implementing a potential security control should also be documented.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |\n|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager The Project Manager ensures that selected Security Controls are justified and sufficiently documented for the Steering Committee to make appropriate decisions. Developer The Developer provides input to the Security Officer / Consultant to the review of security controls. Security Officer / Consultant The Security Officer / Consultant, in consultation with the Developer and System Administrator, is responsible to document security controls that must be put in place as part of systems design. System Administrator The System Administrator provides input to the Security Officer / Consultant to the review of security controls. Users |\n| Expected Outputs:           | \uf0b7 Approved Security Controls                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |\n| Inter- dependencies:        | Security Controls should be matched against the approved security requirements. The security controls selected should mitigate security risk adequately for all business processes and the systems that support these processes.                                                                                                                                                                                                                                                                                                                                                                                                                                            |"
+  },
+  {
+    "citation_id": "Security By Design::6.3.2",
+    "clause": "6.3.2",
+    "chars": 821,
+    "words": 121,
+    "flags": [],
+    "text": "Prior  to  the  development  of  the  system,  the  proposed  security  design  and controls must be validated and accepted by key stakeholders. Updates and changes to the initial risk assessment must be updated to reflect changes to security requirements and design.\n\nRecommended control validations for this phase include:\n\n- \uf0b7 The system design is consistent with the enterprise architecture, including the security components of that architecture.\n- \uf0b7 The system design addresses the agreed upon security requirements.\n- \uf0b7 The  TRA  Report  reflects  the  updated  risks  after  consideration  of  the  security architecture, security controls that has been put in place.\n- \uf0b7 The key stakeholders formally accepted the proposed system design taking into consideration of the updated Threat and Risk Assessment Report."
+  },
+  {
+    "citation_id": "Security By Design::6.3.2.1",
+    "clause": "6.3.2.1",
+    "chars": 184,
+    "words": 23,
+    "flags": [],
+    "text": "An  updated  TRA,  including  updated  risk,  assessments  and  recommendations must  be  approved  by  the  steering  committee  before  the  system  can  proceed  for implementation."
+  },
+  {
+    "citation_id": "Security By Design::6.4",
+    "clause": "6.4",
+    "chars": 1150,
+    "words": 151,
+    "flags": [
+      "table"
+    ],
+    "text": "The Implementation / Assessment phase begins after the architecture design of the system has been approved. As the system is being implemented, security source code reviews and application testing should be conducted to ensure that security has been properly built from a bottom-up. A final round of security source code review and application testing shall be part of acceptance testing, the system should be tested against a set of security test cases.\n\nPrior to the deployment of the system, penetration testing shall be performed on the system  to  check  for  and  address  any  vulnerabilities  that  are  not  identified  or  addressed adequately during the previous phases.\n\n| Security Process                   | Activities                           |\n|------------------------------------|--------------------------------------|\n| Application Security Testing       | Perform Source Code Review           |\n| Application Security Testing       | Perform Application Security Testing |\n| System Security Acceptance Testing | Perform System Security Testing      |\n| Penetration Testing                | Perform Penetration Testing          |"
+  },
+  {
+    "citation_id": "Security By Design::6.4.1",
+    "clause": "6.4.1",
+    "chars": 371,
+    "words": 50,
+    "flags": [],
+    "text": "6.4.1 Security Process: Application Security Testing\n\nThe process of Application Security Testing is to ensure that, through a bottomup approach, vulnerabilities are surfaced and addressed. Bottom-up approach allows problems to  be  detected  early  during  the  development  of  the  system  components, which would be costlier to fix during systems integration testing."
+  },
+  {
+    "citation_id": "Security By Design::6.4.1.1",
+    "clause": "6.4.1.1",
+    "chars": 4852,
+    "words": 374,
+    "flags": [
+      "table"
+    ],
+    "text": "6.4.1.1 Activity: Perform Security Source Code Review\n\n| Description:   | Source code review is a systematic examination of the source code of an application with the intent of finding security issues due to insecure coding practices or malicious intent or coding errors. A secure code review should examine the codes for the following: \uf0b7 Common application vulnerabilities 4 (e.g. input validation, authentication and access control) \uf0b7 Weak implementation of security functions (e.g. encryption, access control) \uf0b7 Backdoors, logic bombs, and malware \uf0b7 Undocumented/unnecessary functions \uf0b7 Known language-specific vulnerabilities \uf0b7 Application logic vulnerabilities For outsourced or turnkey projects, the secure coding standards should be incorporated into the requirement specifications for vendors' compliance. Adherence to secure coding standards should also be one of the user acceptance criteria. Organisations should take utmost diligence to obtain the rights to review   |\n|----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n\n|                             | vendor's application source code for projects which they do not own the source codes. After every source code review, a mitigation plan has to be put in place to address all vulnerabilities found. Follow-up review has to be conducted to validate the effectiveness of the mitigation actions and needs to be approved or risk accepted prior to performing application testing.                                                                                                                                                                                       |\n|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager The Project Manager is responsible to prepare the source code review report, the mitigation plan and follow-up review report. Developer The Developer provides inputs to the Security Officer / Consultant for the source code review. Security Officer / Consultant The Security Officer / Consultant is responsible for the source code review report with inputs from the Developer and System Administrator. System Administrator The System Administrator provides inputs to the Security Officer / Consultant for the source code review. Users N.A. |\n| Expected Outputs:           | \uf0b7 Source Code Review Report on vulnerabilities and recommendations \uf0b7 Mitigation action plan \uf0b7 Follow-up review report                                                                                                                                                                                                                                                                                                                                                                                                                                                      |\n| Inter- dependencies:        | Source Code Review should be performed on each system module prior to application testing. This ensures that common vulnerabilities are addressed at the source code level which otherwise would be costlier to fix later during the Operations / Maintenance Phase of the SDLC. Systems should not proceed to application testing prior to fixing major source code defects.                                                                                                                                                                                              |"
+  },
+  {
+    "citation_id": "Security By Design::6.4.1.2",
+    "clause": "6.4.1.2",
+    "chars": 3114,
+    "words": 235,
+    "flags": [
+      "table"
+    ],
+    "text": "| Description:                | Application testing must be performed on systems to determine if modules are fit for use. The goal of unit testing is to isolate each part of the system and show that the individual parts are correct. Proper Application testing ensures that: \uf0b7 Problems can be detected early in the development lifecycle especially prior to an acceptance test. \uf0b7 Simplifies integration by testing the parts of a system first and then testing the sum of its parts. After every test, a mitigation plan has to be put in place to address all vulnerabilities found. Follow-up regression test has to be conducted to validate the effectiveness of the mitigation actions and needs to be approved or risk accepted prior to performing systems acceptance testing.   |\n|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager The Project Manager is responsible to ensure that Application Testing is performed adequately and approved, mitigation plan is put in place to address all vulnerabilities and all follow up test is conducted. Developer The Developer is responsible to perform application testing of the system. Security Officer / Consultant The Security Officer / Consultant is responsible to perform mitigation action plans on the application testing results to address all vulnerabilities and follow up on all follow up tests. System Administrator N.A.                                                                                                                                                                                          |\n| Expected Outputs:           | \uf0b7 Approved Application Testing Results \uf0b7 Mitigation action plan \uf0b7 Follow-up regression test report                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |\n\n\n\n\n\n\n\n\nInterdependencies:"
+  },
+  {
+    "citation_id": "Security By Design::6.4.2",
+    "clause": "6.4.2",
+    "chars": 342,
+    "words": 46,
+    "flags": [],
+    "text": "6.4.2 Security Process: Systems Security Acceptance Testing\n\nSystems Acceptance Testing is to verify that the complete system satisfies the specified requirements and is acceptable to end users.  Systems Security Acceptance Testing  is  a  subset  of  Systems  Acceptance  Testing  where  the  focus  is  on  satisfying security requirements."
+  },
+  {
+    "citation_id": "Security By Design::6.4.2.1",
+    "clause": "6.4.2.1",
+    "chars": 3531,
+    "words": 270,
+    "flags": [
+      "table"
+    ],
+    "text": "6.4.2.1 Activity: Perform Systems Security Acceptance Testing\n\n## Description:\n\nThis  activity  focuses  on  the  acceptance  testing  of  the  security requirements and controls that has been approved as part of the systems design and is acceptable to be deployed.\n\n## Activities include:\n\n- \uf0b7 Checking of system configuration against security specifications and baseline standards (if any)\n- \uf0b7 Test Case Review (focusing on testing the security controls)\n- \uf0b7 Validation of the Acceptance Test\n- \uf0b7 Assessment and Recommendations\n\nSystems  Security  Acceptance  Testing  should  be  performed  by independent third party assessors and thoroughly performed in a test environment that are identical to the production environment.\n\n\n- \u2022\n\n\nAll major application defects that are detected should be remediated through the application change management process. Systems should not proceed to acceptance testing prior to fixing major defects.\n\n|                             | All test results must be accepted or mitigated by the Steering Committee prior to the completion of the Systems Security Acceptance Testing.                                                                                                                                                                                                                                                                                                                                                         |\n|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager The Project Manager is responsible to ensure that Systems Security Testing is performed adequately by the independent Security Officer / Consultant, mitigation plan is put in place to address all vulnerabilities, and all follow up test is conducted. Developer N.A. Security Officer / Consultant The Security Officer / Consultant, who should be an independent third party assessor, should perform the Systems Security Acceptance Testing. System Administrator N.A. Users |\n| Expected Outputs:           | \uf0b7 Approved Systems Acceptance Test (with Security Requirements and Controls in place)                                                                                                                                                                                                                                                                                                                                                                                                                |\n| Inter- dependencies:        | Systems Security Acceptance Testing is performed together with overall Systems Acceptance Testing.                                                                                                                                                                                                                                                                                                                                                                                                   |"
+  },
+  {
+    "citation_id": "Security By Design::6.4.3",
+    "clause": "6.4.3",
+    "chars": 180,
+    "words": 26,
+    "flags": [],
+    "text": "The  objective  of  the  Penetration  Testing  is  to  evaluate  the  security  of  the accepted system and validate the efficacy of the implemented security controls and policies."
+  },
+  {
+    "citation_id": "Security By Design::6.4.3.1",
+    "clause": "6.4.3.1",
+    "chars": 6008,
+    "words": 330,
+    "flags": [
+      "table"
+    ],
+    "text": "| Description:                | Penetration Testing, also called pen testing, is the practice of testing a computer system, network or Web application to find vulnerabilities that an attacker could exploit. These vulnerabilities may exist in operating systems, service and application flaws, improper configurations, or risky end-user behaviour. Pen tests can either be performed manually or with the assistance of automated software tools. The pen test also includes gathering information about the target to identify entry points for penetration. The pen test should include a follow-up regression testing to validate that the mitigating actions are implemented effectively. All test results must be accepted or mitigated by the Steering Committee prior to the completion of this activity. The main objective of performing penetration testing is to determine security weaknesses from an organisation policy posture, to its systems, the employee's security awareness and the organisation's ability to identify and respond to security incidents. Penetration testing should be performed by independent third party assessors.   |\n|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |\n\n|                      | The Project Manager is responsible to ensure that Penetration Testing is performed adequately by the independent Security Officer / Consultant, mitigation plan is put in place to address all vulnerabilities and all follow up test is conducted. Developer N.A. Security Officer / Consultant The Security Officer / Consultant, who should be an independent third party assessor, should perform the Penetration Testing to find vulnerabilities that an attacker could exploit. The Security Officer / Consultant is responsible to prepare the results and recommendations and perform follow up test. System Administrator N.A. Users N.A.   |\n|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Expected Outputs:    | \uf0b7 Penetration Testing results and recommendations \uf0b7 Mitigation action plan \uf0b7 Regression testing report to validate the effectiveness of the mitigation actions                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |\n| Inter- dependencies: | The activities performed here should be taken with consideration to the Systems Security Acceptance Testing Process so as to ensure that security controls tested under the Systems Security Acceptance Testing Process is effective.                                                                                                                                                                                                                                                                                                                                                                                                                |"
+  },
+  {
+    "citation_id": "Security By Design::6.4.4",
+    "clause": "6.4.4",
+    "chars": 711,
+    "words": 106,
+    "flags": [],
+    "text": "In the implementation  phase,  the  system  is  built  and tested.  The  key stakeholders  rely  on  the  outcome  of  security  tests  to  assess  whether  the  security controls put in place are effective. The approving authority for this control gate is the Steering Committee.\n\nRecommended control validations for this phase include:\n\n- \uf0b7 Security controls defined by the agreed upon requirements are implemented in the system correctly.\n\n- \uf0b7 Mitigation actions arising from source code review reports, security test reports and penetration test reports are addressed, risk accepted and formally approved by the Steering Committee.\n- \uf0b7 Users are adequately trained in the security components of the systems."
+  },
+  {
+    "citation_id": "Security By Design::6.4.4.1",
+    "clause": "6.4.4.1",
+    "chars": 464,
+    "words": 63,
+    "flags": [],
+    "text": "Both  System  Security  Acceptance  Testing  and  Penetration  Testing  must  be performed. Results from both tests including mitigation actions should be reported to the Steering Committee and approved prior to the commissioning of the system. All project  documentation  (outputs  from  current  and  previous  SBD  phases)  must  be handed over and accepted by the operations team (e.g. Systems Administrator) prior to entering the Operations/Maintenance phase."
+  },
+  {
+    "citation_id": "Security By Design::6.5",
+    "clause": "6.5",
+    "chars": 637,
+    "words": 79,
+    "flags": [
+      "table"
+    ],
+    "text": "Operations and Maintenance is the phase where systems are in place and operating. Enhancements  and/or  modifications  to  the  system,  from  a  software  and  hardware perspective, are developed and tested in this phase.\n\n| Security Process              | Activities                       |\n|-------------------------------|----------------------------------|\n| Audit & Continuous Monitoring | Perform Security Review          |\n| Audit & Continuous Monitoring | Perform Change Management        |\n| Audit & Continuous Monitoring | Perform Configuration Management |\n| Audit & Continuous Monitoring | Perform Continuous Monitoring    |"
+  },
+  {
+    "citation_id": "Security By Design::6.5.1",
+    "clause": "6.5.1",
+    "chars": 893,
+    "words": 127,
+    "flags": [],
+    "text": "6.5.1 Security Process: Audit and Continuous Monitoring\n\nThe purpose of the Audit and Continuous Monitoring process is to ensure that the operational system is periodically assessed to check the effectiveness of the security controls against current threats. Key activities of this phase include:\n\n- \uf0b7 Performing  regular  general  and  technical  security  controls  reviews  to determine  if  the  security  controls  in  place  continue  to  be  effective  over time.\n- \uf0b7 Performing proper change management to prevent unintended consequences to the security baseline and to reduce the security risks posed by changes to the systems.\n- \uf0b7 Performing  proper  configuration  management  to  ensure  that  security baseline of the system remains effective.\n\n\n\n\n\n- \uf0b7 Performing  continuous  monitoring  such  as  vulnerability  assessment  to determine the current state of the system security."
+  },
+  {
+    "citation_id": "Security By Design::6.5.1.1",
+    "clause": "6.5.1.1",
+    "chars": 3849,
+    "words": 226,
+    "flags": [
+      "table"
+    ],
+    "text": "| Description:   | Security Review is an essential function to determine if the security controls in place continue to be effective over time, in light of system and environmental changes. In addition to assessing technology assets and technical security controls, security policies addressing issue such as acceptable use, network rights should be reviewed to determine if administrative security controls are effective.   |\n|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n\n\n\n|                             | Security Review must be performed after all system and application changes to ensure that security controls continue to be effective. Security Review should be performed by independent third party assessors.                                                                                                                                                                                                                                                                                                                                                                      |\n|-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager N.A. Developer N.A. Security Officer / Consultant The Security Officer / Consultant, who should be an independent third party assessor, should perform the Security Review at appropriate intervals to ensure that security controls in place continue to be effective over time, in light of system and environmental changes. System Administrator The Systems Administrator is responsible to provide inputs (e.g. configuration settings, documentation, operating procedures, etc.) to the Security Officer / Consultant during the Security Review. Users N.A. |\n| Expected Outputs:           | \uf0b7 Documented results of the security review \uf0b7 Security decisions arising from the security review findings \uf0b7 Mitigation plan                                                                                                                                                                                                                                                                                                                                                                                                                                                         |\n| Inter- dependencies:        | Security review results should be used to improve and ensure that security controls are effective.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |"
+  },
+  {
+    "citation_id": "Security By Design::6.5.1.2",
+    "clause": "6.5.1.2",
+    "chars": 277,
+    "words": 21,
+    "flags": [],
+    "text": "| Description:   | Change Management is critical to identifying significant changes and impact that alter a system's security posture.   |\n|----------------|-----------------------------------------------------------------------------------------------------------------------|"
+  },
+  {
+    "citation_id": "Security By Design::6.5.1.3",
+    "clause": "6.5.1.3",
+    "chars": 8590,
+    "words": 426,
+    "flags": [
+      "table"
+    ],
+    "text": "|                             | environment, including changes from the development to production phases, can impact on the security posture of the system.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |\n|-----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager N.A. Developer The Developer is responsible to initiate the change management and consult the Security Officer / Consultant on potential impact to the security of the system. Security Officer / Consultant The Security Officer / Consultant should be consulted on any changes that can have significant security impact. The Security Officer / Consultant is responsible to perform assessment of potential impact on the security of the system (with inputs from the Developer and System Administrator) arising from the system/application change. The Security Officer / Consultant is responsible to update the TRA report arising from changes to the systems. System Administrator The System Administrator is responsible to execute the system/application changes to the production environment upon approval of the change. Users |\n| Expected Outputs:           | \uf0b7 Change Control decisions \uf0b7 Updated security documentation \uf0b7 Updated TRA report                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |\n| Inter- dependencies:        | The security architecture and documentation should be referenced when performing change management as they provide a benchmark to evaluate the impact of the planned change.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |\n\n| Description:               | Configuration Management is critical to establishing an initial baseline of the system and subsequently for controlling and maintaining an accurate inventory of any changes to the system. Changes to the system configuration can have significant security impact, therefore configuration management must include assessment of potential impact on the security of the system.                                                                                                                                                                                                                                                                                                                                                                                                                                                             |\n|----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Role and Responsibilities: | Project Manager N.A. Developer The Developer is responsible to initiate the configuration management and consult the Security Officer / Consultant on potential impact to the security of the system. Security Officer / Consultant The Security Officer / Consultant should be consulted on any changes that can have significant security impact. The Security Officer / Consultant is responsible to perform assessment of potential impact on the security of the system (with inputs from the Developer and System Administrator) arising from the configuration change. The Security Officer / Consultant is responsible to update the TRA report arising from changes to the systems. System Administrator The System Administrator is responsible to execute the configuration changes upon approval of the configuration change. Users |\n| Expected Outputs:          | \uf0b7 Change Control decisions \uf0b7 Updated security documentation \uf0b7 Updated TRA report                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |\n| Inter- dependencies:       | The security architecture and documentation should be referenced when performing configuration management as they provide a benchmark to evaluate the impact of the planned change.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |"
+  },
+  {
+    "citation_id": "Security By Design::6.5.1.4",
+    "clause": "6.5.1.4",
+    "chars": 3390,
+    "words": 287,
+    "flags": [
+      "table"
+    ],
+    "text": "| Description:                | The objective of continuous monitoring is to determine if the security controls in place continue to be effective over time, in light of system and environmental changes. It can include security reviews, self-assessments, vulnerability assessments and patch and end-point management. Continuous Monitoring may also be in a form of automated software that uses the baseline security controls as comparison to generate results. Automation should be leveraged where possible to reduce level of effort and ensure repeatability. For example, vulnerability assessment is necessary due to the discovery of new vulnerabilities every day. A vulnerability assessment report can be used to take appropriate risk mitigation actions andmakerisk-based decisions regarding the continued operations of the systemand the explicit acceptance of risk that results from that decision.   |\n|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager N.A. Developer N.A. Security Officer / Consultant The Security Officer / Consultant is responsible to review security results arising from continuous monitoring and provides inputs to mitigate threats and risks. The Security Officer / Consultant is responsible to perform vulnerability assessment to take appropriate risk mitigation actions make risk-based decisions regarding the continued operations of the systemand the explicit acceptance of risk that results from that decision. System Administrator The System Administrator is responsible to conduct continuous monitoring such as vulnerability scanning and perform security review/ self- assessments. Users N.A.                                                                                                                                                                                        |\n\n| Expected Outputs:    | \uf0b7 Documented results of continuous monitoring such as vulnerability assessment reports \uf0b7 Security review / self-assessments reports \uf0b7 Security decisions arising from continuous monitoring               |\n|----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Inter- dependencies: | Continuous monitoring results and decisions provides System Owners the tools to continually prioritise security risk and update/implement the necessary security controls needed to keep systems secured. |"
+  },
+  {
+    "citation_id": "Security By Design::6.5.2",
+    "clause": "6.5.2",
+    "chars": 698,
+    "words": 105,
+    "flags": [],
+    "text": "In this phase, while using the system, we are reassessing its status based on user feedback, technology changes, policy changes, new threats and vulnerabilities and other business-related issues. The approving authority for this control gate is the System Owners.\n\nRecommended control validations for this phase include:\n\n- \uf0b7 Validation of security reviews to ensure that built-in controls remain effective and reporting the results to the steering committee.\n- \uf0b7 Validation of security assessment and reviews reports to ensure that systems and environmental changes are addressed.\n- \uf0b7 Regular review of TRA reports and risk register to ensure that risks remain valid and are continually addressed."
+  },
+  {
+    "citation_id": "Security By Design::6.6",
+    "clause": "6.6",
+    "chars": 676,
+    "words": 93,
+    "flags": [
+      "table"
+    ],
+    "text": "This final phase is the disposal of a system and close out current contracts. Information and system disposal will be addressed explicitly in this phase. The process and activities in this phase ensure the orderly termination of the system, while preserving the vital information about the system so that the relevant information may be reactivated, migrated or archived in accordance with regulations and policies.\n\n| Security Process   | Activities                 |\n|--------------------|----------------------------|\n| Secure Disposal    | Preserve Information       |\n| Secure Disposal    | Sanitise Media             |\n| Secure Disposal    | Dispose Hardware &Software |"
+  },
+  {
+    "citation_id": "Security By Design::6.6.1",
+    "clause": "6.6.1",
+    "chars": 318,
+    "words": 46,
+    "flags": [],
+    "text": "The process addresses the proper disposal of the information, hardware, and software in a manner that prevents any possibility of unauthorised leakage of sensitive data. This also includes the proper preservation and archival of data processed by the system in accordance with the organisation's security requirements."
+  },
+  {
+    "citation_id": "Security By Design::6.6.1.1",
+    "clause": "6.6.1.1",
+    "chars": 3624,
+    "words": 187,
+    "flags": [
+      "table"
+    ],
+    "text": "| Description:                | Organisation should select the archival method that would facilitate information retrieval in the future. This should take into consideration that the following: \uf0b7 Obsolescence or unavailability of the archival technology in the future \uf0b7 Legal and regulatory obligations for minimum records retention periods The archived information should also be marked and handled in compliance with its security classification.   |\n|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager                                                                                                                                                                                                                                                                                                                                                                                                                   |\n\n|                      | N.A. Developer N.A. Security Officer / Consultant The Security Officer / Consultant is consulted on the appropriate controls required to be in compliance with information security classification. System Administrator The System Administrator is responsible create the Disposal Plan, which includes the selection of the archival method to archive important and classified information. The System Administrator is also responsible to ensure that archived information is marked and handled according to its information classification. Users   |\n|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Expected Outputs:    | \uf0b7 Disposal Plan \uf0b7 Index of preserved information and its location.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |\n| Inter- dependencies: | Security classification of the information and the respective legal and regulatory obligations for the retention of the information                                                                                                                                                                                                                                                                                                                                                                                                                         |"
+  },
+  {
+    "citation_id": "Security By Design::6.6.1.2",
+    "clause": "6.6.1.2",
+    "chars": 3677,
+    "words": 195,
+    "flags": [
+      "table"
+    ],
+    "text": "| Description:                | Based on the security classification of the system and its information, the System Owners shall sanitise the system's digital media using approved equipment, techniques and procedures according to relevant policies and regulations. Systems owner should categorise the information, assess the nature of the medium on which it is recorded, assess the risk to confidentiality, and determined the appropriate sanitisation process. NIST SP 800-88 r1, Guidelines for Media Sanitisation provides details on media sanitisation best practices.   |\n|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager N.A. Developer                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |\n\n|                      | N.A. Security Officer / Consultant The Security Officer / Consultant is consulted on the appropriate sanitisation process, accorded to the security classification of the system. System Administrator The System Administrator, with the approval from System Owners, is responsible to sanitise the system's digital media that is to be disposed. The System Administrator is responsible to keep appropriate Media sanitisation records for future references. Users N.A.   |\n|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Expected Outputs:    | \uf0b7 Media sanitised according to policy and regulatory requirements \uf0b7 Media sanitisation records                                                                                                                                                                                                                                                                                                                                                                                  |\n| Inter- dependencies: | Organisation security classification provides the identification and associated risk level of system information.                                                                                                                                                                                                                                                                                                                                                               |"
+  },
+  {
+    "citation_id": "Security By Design::6.6.1.3",
+    "clause": "6.6.1.3",
+    "chars": 1774,
+    "words": 161,
+    "flags": [
+      "table"
+    ],
+    "text": "6.6.1.3 Activity: Dispose of Hardware and Software\n\n| Description:                | Depending on relevant policies and regulation, hardware can be sold, discarded or given away. The disposal of software should comply with licence agreements.                                                       |\n|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Roles and Responsibilities: | Project Manager N.A. Developer N.A. Security Officer / Consultant N.A System Administrator The System Administrator is responsible disposed the hardware according to the disposal plan and updates the disposition |\n\n|                      | records and asset inventory accordingly. The System Administrator is responsible to keep disposition records for future references and also update the asset inventory to reflect the disposed assets. Users N.A.          |\n|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Expected Outputs:    | \uf0b7 Disposition records for hardware and software, including redeployment. Records should be retained according to relevant polices and regulation. \uf0b7 Updated inventory of assets to reflect disposed hardware and software. |\n| Inter- dependencies: | Hardware and software inventory under the System Owner's charge should be updated accordingly after disposal is completed.                                                                                                 |"
+  },
+  {
+    "citation_id": "Security By Design::6.6.2",
+    "clause": "6.6.2",
+    "chars": 1560,
+    "words": 206,
+    "flags": [],
+    "text": "In the disposal phase, the key concern is that the system is terminated in an orderly manner, and that vital information about the system is preserved according to  applicable  records  management  regulations  and  policies  for  future  access.  All media  is  accorded  the  correct  sanitisation  method  and  finally  the  hardware  and software are disposed according to policy. The approving authority of this gate is the System Owners.\n\nRecommended control validations for this phase include:\n\n- \uf0b7 Validating  information  of  the  system  has  been  correctly  preserved  and accorded with the right security classification.\n- \uf0b7 Validating  that  media  sanitisation  records  has  been  properly  recorded  and filed.\n- \uf0b7 Validating the disposition records against actual hardware/software inventory.\n\n## References\n\n1. National  Institute  of  Standards  and  Technology.  (2008).  Special  Publication  800-64 Revision 2 - Security Considerations in the System Development Life Cycle.\n2. National  Institute  of  Standards  and  Technology.  (2010).  Special  Publication  800-37 Revision  1  -  Guide  for  Applying  the  Risk  Management  Framework  to  Federal Information Systems.\n3. National  Institute  of  Standards  and  Technology.  (2014).  Special  Publication  800-88 Revision 1 - Guide for Media Sanitisation.\n4. Scott  W.  Ambler.  (2012).  The  Agile  System  Development  Life  Cycle.  Retrieved  from http://www.ambysoft.com/essays/agileLifecycle.html\n\n\n\n\n\n(IM8)\n\n\n\n\n\n\n\n\n\n\n\n\n## ANNEX A - Diagrams and Mappings of SDLC Methodologies"
+  },
+  {
+    "citation_id": "Security By Design::5",
+    "clause": "5",
+    "chars": 49,
+    "words": 8,
+    "flags": [],
+    "text": "5 Government Instruction Manual 8 - IT Management"
+  },
+  {
+    "citation_id": "Security By Design::6",
+    "clause": "6",
+    "chars": 501,
+    "words": 81,
+    "flags": [
+      "table"
+    ],
+    "text": "This section describes in detail how to implement the SBD Framework using the lifecycle approach. Each phase will be described and organised in the manner below:\n\n- \uf0b7 The Phase within the context of Security-by-Design.\n- \uf0b7 The Security Process and its objective.\n- \uf0b7 The  Activities  underpinning  the  Security  Process  and  defining  the  expected outputs.\n- \uf0b7 The Control Gate for validation of activities. The objectives of the control gate and check points at the control gate will be described."
+  },
+  {
+    "citation_id": "Security By Design::AnnexB",
+    "clause": "AnnexB",
+    "title": "Roles and Responsibilities",
+    "text": "## ANNEX B - Roles and Responsibilities\n\n\n| Roles                         | Responsibilities                                                                                                                                                                                                                                                                                                                      |\n|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Steering Committee            | The Steering Committee provides project leadership to ensure the successful delivery of the project and is accountable for approval of key security deliverables and milestones.                                                                                                                                                      |\n| System Owner                  | The System Owner is responsible for the system and its operations and maintenance.                                                                                                                                                                                                                                                    |\n| Project Manager               | The Project Manager has the authority to run the project on a day-to- day basis and is responsible to ensure that all project activities are delivered within the agreed constraints of cost, time, risk, resource, quality and scope.                                                                                                |\n| Developer                     | The Developer is responsible to develop the system and is often consulted on the technical feasibility of a system requirement. This role may be performed by the vendor if the project is outsourced.                                                                                                                                |\n| Security Officer / Consultant | The Security Officer / Consultant is the subject matter expert on all security tasks. This role may be performed in-house or externally if the project team does not have the necessary security expertise. Security Consultant, in the context of this framework, refers to external resources such as vendors or external agencies. |\n| System Administrator          | The System Administrator is responsible for the day to day operations of the commissioned system.                                                                                                                                                                                                                                     |\n| User                          | The Systems User represents the users who will interact with the system, typically through an interface, to extract some functional benefit.                                                                                                                                                                                          |",
+    "chars": 3299,
+    "words": 244,
+    "flags": []
+  }
+]

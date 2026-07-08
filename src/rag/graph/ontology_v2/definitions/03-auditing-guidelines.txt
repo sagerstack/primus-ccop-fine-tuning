@@ -1,0 +1,12 @@
+# Definitions — Auditing Guidelines (§1.2.1)  [10 terms]
+
+- Audit: The systematic, independent and documented process for obtaining audit evidence (SN 8.3) and evaluating objectively to determine the extent to which the audit criteria (SN 8.2) are fulfilled.
+- Audit criteria: A set of requirements used as a reference against which audit evidence (SN 8.3) is compared.
+- Audit evidence: Audit evidence refers to records, statements of fact or other information, which are relevant to the audit criteria (SN 8.2) and verifiable.
+- Audit finding: An audit criteria not being met.
+- Audit period: The period of time to which the audit work relates and from which audit evidence is obtained.
+- Audit subject: Audit subject refers to the CII system that is to be audited.
+- Adequacy of control: Adequacy refers to whether the control in place is fit for the purpose.
+- Compensating control: Compensating control, also called an alternative control, may be considered when an entity cannot meet a requirement explicitly as stated, due to legitimate technical or documented business constraints, but has sufficiently mitigated the risk associated with the requirement through implementation of other controls. Compensating control must: a. Meet the intent and rigor of the original requirement; b. Provide a similar level of defence as the original requirement; and c. Commensurate with the additional risk imposed by not adhering to the requirement.
+- Effectiveness of control: Effectiveness refers to whether the control in place has the desired effect of mitigating the risk.
+- Interim control: A set of measures designed to reduce the risk temporarily while the recommended control is being implemented.

@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP 2.0::5.9.2(b)",
+  "concepts": [
+    "DefaultCredential",
+    "HashStorage",
+    "Password",
+    "SecurityConfigurationBaseline"
+  ],
+  "triples": [
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "MUST_CHANGE",
+      "o": "DefaultCredential",
+      "o_type": "DefaultCredential"
+    },
+    {
+      "s": "Password",
+      "s_type": "Password",
+      "rel": "STORED_AS",
+      "o": "HashStorage",
+      "o_type": "HashStorage"
+    },
+    {
+      "s": "DefaultCredential",
+      "s_type": "DefaultCredential",
+      "rel": "STORED_AS",
+      "o": "HashStorage",
+      "o_type": "HashStorage"
+    }
+  ],
+  "proposed": [],
+  "extractor": "claude-opus",
+  "n_raw": 3
+}
