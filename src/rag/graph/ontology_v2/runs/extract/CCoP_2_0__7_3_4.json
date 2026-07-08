@@ -1,0 +1,53 @@
+{
+  "citation_id": "CCoP 2.0::7.3.4",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "CybersecurityExercise",
+    "CybersecurityIncident",
+    "IncidentResponsePlan",
+    "IncidentResponseTeam",
+    "SeniorManagement",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "CybersecurityExercise",
+      "s_type": "CybersecurityExercise",
+      "rel": "VALIDATES",
+      "o": "IncidentResponsePlan",
+      "o_type": "IncidentResponsePlan"
+    },
+    {
+      "s": "SeniorManagement",
+      "s_type": "SeniorManagement",
+      "rel": "OVERSEES",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "IncidentResponseTeam",
+      "s_type": "IncidentResponseTeam",
+      "rel": "RESPONDS_TO",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "CybersecurityExercise",
+      "o_type": "CybersecurityExercise"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

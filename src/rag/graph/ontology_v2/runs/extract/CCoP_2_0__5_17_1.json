@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP 2.0::5.17.1",
+  "concepts": [
+    "CII",
+    "Cryptography",
+    "Provision",
+    "authorisation"
+  ],
+  "triples": [
+    {
+      "s": "Cryptography",
+      "s_type": "Cryptography",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "authorisation",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "Cryptography",
+      "o_type": "Cryptography"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

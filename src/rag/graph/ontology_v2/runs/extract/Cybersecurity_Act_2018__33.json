@@ -1,0 +1,19 @@
+{
+  "citation_id": "Cybersecurity Act 2018::33",
+  "concepts": [
+    "Condition",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "CONDITIONED_ON",
+      "o": "Condition",
+      "o_type": "Condition"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

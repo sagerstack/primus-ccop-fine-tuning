@@ -1,0 +1,61 @@
+{
+  "citation_id": "CCoP 2.0::5.12",
+  "concepts": [
+    "CIIO",
+    "CodeOfPractice",
+    "CyberThreatActor",
+    "ExternalStandard",
+    "Provision",
+    "SecurityArchitecture",
+    "Vulnerability",
+    "firewall",
+    "web-application-firewall"
+  ],
+  "triples": [
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "EXPLOITS",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "CodeOfPractice",
+      "s_type": "CodeOfPractice",
+      "rel": "DEFERS_TO",
+      "o": "ExternalStandard",
+      "o_type": "ExternalStandard"
+    },
+    {
+      "s": "web-application-firewall",
+      "s_type": "NetworkControl",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "firewall",
+      "s_type": "NetworkControl",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "SecurityArchitecture",
+      "o_type": "SecurityArchitecture"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "SecurityArchitecture",
+      "o_type": "SecurityArchitecture"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

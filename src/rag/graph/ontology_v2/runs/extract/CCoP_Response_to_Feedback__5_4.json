@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::5.4",
+  "concepts": [
+    "CII",
+    "CybersecurityThreat",
+    "DigitalBoundary",
+    "ThreatModel",
+    "ThreatModelling"
+  ],
+  "triples": [
+    {
+      "s": "ThreatModelling",
+      "s_type": "ThreatModelling",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "ThreatModelling",
+      "s_type": "ThreatModelling",
+      "rel": "PRODUCES",
+      "o": "ThreatModel",
+      "o_type": "ThreatModel"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "WITHIN_BOUNDARY",
+      "o": "DigitalBoundary",
+      "o_type": "DigitalBoundary"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

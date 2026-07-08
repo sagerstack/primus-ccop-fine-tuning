@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::8.12",
+  "concepts": [
+    "CIIO",
+    "ComplianceGap",
+    "Regulator",
+    "RemediationPlan",
+    "RiskAssessmentReport"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    },
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "APPROVES",
+      "o": "RiskAssessmentReport",
+      "o_type": "RiskAssessmentReport"
+    },
+    {
+      "s": "ComplianceGap",
+      "s_type": "ComplianceGap",
+      "rel": "REMEDIATED_BY",
+      "o": "RemediationPlan",
+      "o_type": "RemediationPlan"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

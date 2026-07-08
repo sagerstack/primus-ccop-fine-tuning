@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::5.6.2(b)",
+  "concepts": [
+    "CII",
+    "unidirectional-gateway"
+  ],
+  "triples": [
+    {
+      "s": "unidirectional-gateway",
+      "s_type": "NetworkControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

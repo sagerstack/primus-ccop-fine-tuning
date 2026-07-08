@@ -1,0 +1,45 @@
+{
+  "citation_id": "CCoP 2.0::11.2.2::table::0",
+  "concepts": [
+    "Audit",
+    "CIIO",
+    "ComputerSystem",
+    "ExternalStandard",
+    "Policy",
+    "Provision",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "Policy",
+      "o_type": "Policy"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DEFERS_TO",
+      "o": "ExternalStandard",
+      "o_type": "ExternalStandard"
+    },
+    {
+      "s": "ComputerSystem",
+      "s_type": "ComputerSystem",
+      "rel": "EXCLUDED_FROM_SCOPE",
+      "o": "Audit",
+      "o_type": "Audit"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

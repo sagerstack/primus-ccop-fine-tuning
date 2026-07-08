@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::3.3.2",
+  "concepts": [
+    "Policy",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "Policy",
+      "o_type": "Policy"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

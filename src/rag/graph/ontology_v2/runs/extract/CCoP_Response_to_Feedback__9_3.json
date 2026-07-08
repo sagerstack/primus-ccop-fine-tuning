@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::9.3",
+  "concepts": [
+    "CIIO",
+    "CybersecurityRisk",
+    "RiskAssessment",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

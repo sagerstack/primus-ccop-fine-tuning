@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.3",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "CyberThreatActor",
+    "Monitoring",
+    "unidirectional-gateway"
+  ],
+  "triples": [
+    {
+      "s": "unidirectional-gateway",
+      "s_type": "NetworkControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

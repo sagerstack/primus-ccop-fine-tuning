@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.9",
+  "concepts": [
+    "CII",
+    "OTSystem",
+    "PhysicalProcess",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "PhysicalProcess",
+      "o_type": "PhysicalProcess"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.58",
+  "concepts": [
+    "CII",
+    "DNSSEC",
+    "Network"
+  ],
+  "triples": [
+    {
+      "s": "DNSSEC",
+      "s_type": "Cryptography",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CONNECTED_TO",
+      "o": "Network",
+      "o_type": "Network"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

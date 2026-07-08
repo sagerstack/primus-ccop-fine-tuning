@@ -1,0 +1,116 @@
+
+[CCoP 2.0::5.7.2(b)]  concepts=['AccessControlMechanism', 'Provision']
+    KEPT     (Provision:Provision) -[MANDATES]-> (AccessControlMechanism:AccessControlMechanism)
+
+[CCoP 2.0::5.2.1]  concepts=[]
+    PROPOSED (CIIO:CIIO) -[HAS_OBLIGATION]-> (Account:Account)  phi_type_mismatch
+    PROPOSED (CIIO:CIIO) -[IMPLEMENTS]-> (Account:Account)  phi_type_mismatch
+    PROPOSED (Account:Account) -[MUST_CHANGE]-> (PrivilegedAccount:PrivilegedAccount)  phi_type_mismatch
+    PROPOSED (Account:Account) -[MUST_CHANGE]-> (Service:Service)  phi_type_mismatch
+    PROPOSED (Account:Account) -[MUST_CHANGE]-> (Application:Application)  phi_type_mismatch
+    PROPOSED (Account:Account) -[MUST_CHANGE]-> (SystemAccount:Account)  phi_type_mismatch
+    PROPOSED (Account:Account) -[MUST_CHANGE]-> (DefaultCredential:DefaultCredential)  phi_type_mismatch
+    PROPOSED (Account:Account) -[MUST_CHANGE]-> (Password:Password)  phi_type_mismatch
+
+[CCoP 2.0::5.12.4]  concepts=['CII', 'CIIO', 'ITSystem', 'SecurityControl']
+    KEPT     (CIIO:CIIO) -[IMPLEMENTS]-> (SecurityControl:SecurityControl)
+    KEPT     (CII:CII) -[CLASSIFIED_AS]-> (ITSystem:ITSystem)
+    PROPOSED (CIIO:CIIO) -[IMPLEMENTS]-> (SecurityArchitecture:SecurityArchitecture)  phi_type_mismatch
+
+[CCoP 2.0::5.2.2]  concepts=['CIIO', 'ReviewAccounts']
+    KEPT     (CIIO:CIIO) -[HAS_OBLIGATION]-> (ReviewAccounts:Obligation)
+    PROPOSED (CIIO:CIIO) -[IMPLEMENTS]-> (ReviewAccounts:Obligation)  phi_type_mismatch
+    PROPOSED (ReviewAccounts:Obligation) -[MANDATES]-> (Account:Account)  phi_type_mismatch
+
+[CCoP 2.0::3.2.1]  concepts=['CIIO', 'RiskManagement', 'cybersecurity risk appetite', 'cybersecurity risk assessment methodology', 'monitoring processes', 'process hazard analysis methodology', 'risk culture', 'roles and responsibilities']
+    KEPT     (CIIO:CIIO) -[IMPLEMENTS]-> (RiskManagement:RiskManagement)
+    KEPT     (CIIO:CIIO) -[HAS_OBLIGATION]-> (risk culture:Obligation)
+    KEPT     (CIIO:CIIO) -[HAS_OBLIGATION]-> (roles and responsibilities:Obligation)
+    KEPT     (CIIO:CIIO) -[HAS_OBLIGATION]-> (cybersecurity risk assessment methodology:Obligation)
+    KEPT     (CIIO:CIIO) -[HAS_OBLIGATION]-> (monitoring processes:Obligation)
+    KEPT     (CIIO:CIIO) -[HAS_OBLIGATION]-> (cybersecurity risk appetite:Obligation)
+    KEPT     (CIIO:CIIO) -[HAS_OBLIGATION]-> (process hazard analysis methodology:Obligation)
+    PROPOSED (CIIO:CIIO) -[RESPONSIBLE_FOR]-> (CybersecurityRisk:CybersecurityRisk)  phi_type_mismatch
+    PROPOSED (SeniorManagement:SeniorManagement) -[RESPONSIBLE_FOR]-> (CybersecurityRisk:CybersecurityRisk)  phi_type_mismatch
+
+[CCoP 2.0::3.2.2]  concepts=['CIIAsset', 'CybersecurityThreat', 'RiskAssessment']
+    KEPT     (RiskAssessment:RiskAssessment) -[IDENTIFIES]-> (CybersecurityThreat:CybersecurityThreat)
+    KEPT     (RiskAssessment:RiskAssessment) -[IDENTIFIES]-> (CIIAsset:CIIAsset)
+    PROPOSED (CIIO:CIIO) -[MANDATES]-> (RiskAssessment:RiskAssessment)  phi_type_mismatch
+    PROPOSED (RiskAssessment:RiskAssessment) -[HAS_LIKELIHOOD]-> (Likelihood:Likelihood)  phi_type_mismatch
+    PROPOSED (RiskAssessment:RiskAssessment) -[HAS_IMPACT]-> (Impact:Impact)  phi_type_mismatch
+    PROPOSED (RiskAssessment:RiskAssessment) -[RECORDED_IN]-> (RiskRegister:RiskRegister)  phi_type_mismatch
+    PROPOSED (RiskAssessment:RiskAssessment) -[COVERS]-> (RiskScenario:RiskScenario)  phi_type_mismatch
+
+[CCoP 2.0::4.1.1]  concepts=['CII', 'CIIAsset', 'DigitalBoundary']
+    KEPT     (CII:CII) -[HAS_ASSET]-> (CIIAsset:CIIAsset)
+    KEPT     (CIIAsset:CIIAsset) -[DEPENDS_ON]-> (CIIAsset:CIIAsset)
+    KEPT     (CII:CII) -[WITHIN_BOUNDARY]-> (DigitalBoundary:DigitalBoundary)
+    PROPOSED (CIIO:CIIO) -[MANDATES]-> (AssetInventory:AssetInventory)  phi_type_mismatch
+    PROPOSED (CIIAsset:CIIAsset) -[CONNECTED_TO]-> (Network:Network)  phi_type_mismatch
+    PROPOSED (CIIAsset:CIIAsset) -[HAS_OBLIGATION]-> (Owner:OrganisationalRole)  phi_type_mismatch
+    PROPOSED (CIIAsset:CIIAsset) -[HAS_OBLIGATION]-> (Operator:OrganisationalRole)  phi_type_mismatch
+    PROPOSED (CIIAsset:CIIAsset) -[HAS_OBLIGATION]-> (CriticalFunctions:Provision)  phi_type_mismatch
+    PROPOSED (CIIAsset:CIIAsset) -[HAS_OBLIGATION]-> (KeyPerson:OrganisationalRole)  phi_type_mismatch
+    PROPOSED (CIIAsset:CIIAsset) -[HAS_OBLIGATION]-> (PhysicalLocation:PhysicalSite)  phi_type_mismatch
+    PROPOSED (CIIAsset:CIIAsset) -[HAS_OBLIGATION]-> (OutsourcedServiceProvider:ThirdParty)  phi_type_mismatch
+    PROPOSED (CIIAsset:CIIAsset) -[HAS_OBLIGATION]-> (CloudService:CloudServiceProvider)  phi_type_mismatch
+    PROPOSED (CII:CII) -[CONNECTED_TO]-> (ComputerSystem:ComputerSystem)  phi_type_mismatch
+
+[CCoP 2.0::5.3.1]  concepts=['CIIO', 'Multi-factor authentication', 'privileged access']
+    KEPT     (CIIO:CIIO) -[HAS_OBLIGATION]-> (privileged access:Obligation)
+    KEPT     (CIIO:CIIO) -[IMPLEMENTS]-> (Multi-factor authentication:SecurityControl)
+    PROPOSED (CIIO:CIIO) -[IMPLEMENTS]-> (Account:Account)  phi_type_mismatch
+    PROPOSED (CIIO:CIIO) -[IMPLEMENTS]-> (Password:Password)  phi_type_mismatch
+    PROPOSED (CIIO:CIIO) -[IMPLEMENTS]-> (Service:Service)  phi_type_mismatch
+    PROPOSED (CIIO:CIIO) -[IMPLEMENTS]-> (Port:Port)  phi_type_mismatch
+    PROPOSED (Account:Account) -[HAS_OBLIGATION]-> (permissions and privileges:Obligation)  phi_type_mismatch
+    PROPOSED (Account:Account) -[HAS_OBLIGATION]-> (updated inventory:Obligation)  phi_type_mismatch
+
+[CCoP 2.0::3.1.2]  concepts=['Board', 'CIIO', 'CybersecurityRisk', 'Oversight of cybersecurity risks']
+    KEPT     (CIIO:CIIO) -[HAS_OBLIGATION]-> (Oversight of cybersecurity risks:Obligation)
+    KEPT     (Board:Board) -[OVERSEES]-> (CybersecurityRisk:CybersecurityRisk)
+    PROPOSED (Board:Board) -[RESPONSIBLE_FOR]-> (CybersecurityRisk:CybersecurityRisk)  phi_type_mismatch
+    PROPOSED (SeniorManagement:SeniorManagement) -[RECOMMENDS]-> (CybersecurityRisk:CybersecurityRisk)  phi_type_mismatch
+
+[CCoP 2.0::2.1.2]  concepts=[]
+    PROPOSED (AuditFinding:AuditFinding) -[MANDATES]-> (RemediationPlan:RemediationPlan)  phi_type_mismatch
+    PROPOSED (CIIO:CIIO) -[IMPLEMENTS]-> (RemediationPlan:RemediationPlan)  phi_type_mismatch
+
+[CCoP 2.0::3.1.1]  concepts=['CIIO', 'OrganisationalStructure']
+    KEPT     (CIIO:CIIO) -[RESPONSIBLE_FOR]-> (OrganisationalStructure:OrganisationalStructure)
+    PROPOSED (CIIO:CIIO) -[HAS_OBLIGATION]-> (OrganisationalStructure:OrganisationalStructure)  phi_type_mismatch
+    PROPOSED (OrganisationalStructure:OrganisationalStructure) -[CLASSIFIED_AS]-> (OrganisationalRole:OrganisationalRole)  phi_type_mismatch
+
+[CCoP 2.0::5.9.2]  concepts=['HashStorage', 'Password']
+    KEPT     (Password:Password) -[STORED_AS]-> (HashStorage:HashStorage)
+    PROPOSED (SecurityConfigurationBaseline:SecurityConfigurationBaseline) -[MANDATES]-> (Account:Account)  phi_type_mismatch
+    PROPOSED (SecurityConfigurationBaseline:SecurityConfigurationBaseline) -[MANDATES]-> (Password:Password)  phi_type_mismatch
+    PROPOSED (DefaultCredential:DefaultCredential) -[MUST_CHANGE]-> (DefaultCredential:DefaultCredential)  phi_type_mismatch
+    PROPOSED (SecurityConfigurationBaseline:SecurityConfigurationBaseline) -[MANDATES]-> (Application:Application)  phi_type_mismatch
+    PROPOSED (SecurityConfigurationBaseline:SecurityConfigurationBaseline) -[MANDATES]-> (Port:Port)  phi_type_mismatch
+    PROPOSED (SecurityConfigurationBaseline:SecurityConfigurationBaseline) -[MANDATES]-> (Service:Service)  phi_type_mismatch
+    PROPOSED (SecurityConfigurationBaseline:SecurityConfigurationBaseline) -[MANDATES]-> (PhysicalConnection:__literal__)  out-of-schema
+    PROPOSED (SecurityConfigurationBaseline:SecurityConfigurationBaseline) -[MANDATES]-> (MalwareProtection:MalwareProtection)  phi_type_mismatch
+    PROPOSED (SecurityConfigurationBaseline:SecurityConfigurationBaseline) -[MANDATES]-> (Patch:Patch)  phi_type_mismatch
+
+[CCoP 2.0::1.6.2]  concepts=['Provision', 'Waiver']
+    KEPT     (Waiver:Waiver) -[WAIVES]-> (Provision:Provision)
+    PROPOSED (CIIO:CIIO) -[DELEGATES_TO]-> (Waiver:Waiver)  phi_type_mismatch
+    PROPOSED (Regulator:Regulator) -[APPOINTS]-> (Waiver:Waiver)  phi_type_mismatch
+
+[CCoP 2.0::7.1.1]  concepts=[]
+    PROPOSED (CIIO:CIIO) -[MANDATES]-> (IncidentResponsePlan:IncidentResponsePlan)  phi_type_mismatch
+    PROPOSED (IncidentResponsePlan:IncidentResponsePlan) -[HAS_OBLIGATION]-> (IncidentResponseTeam:IncidentResponseTeam)  phi_type_mismatch
+    PROPOSED (IncidentResponsePlan:IncidentResponsePlan) -[HAS_OBLIGATION]-> (incident reporting structure:Obligation)  phi_type_mismatch
+    PROPOSED (IncidentResponsePlan:IncidentResponsePlan) -[HAS_OBLIGATION]-> (communication and coordination structures:Obligation)  phi_type_mismatch
+    PROPOSED (IncidentResponsePlan:IncidentResponsePlan) -[HAS_OBLIGATION]-> (thresholds and procedures:Obligation)  phi_type_mismatch
+    PROPOSED (IncidentResponsePlan:IncidentResponsePlan) -[HAS_OBLIGATION]-> (engagement protocols:Obligation)  phi_type_mismatch
+    PROPOSED (IncidentResponsePlan:IncidentResponsePlan) -[HAS_OBLIGATION]-> (communication plan:Obligation)  phi_type_mismatch
+    PROPOSED (IncidentResponsePlan:IncidentResponsePlan) -[HAS_OBLIGATION]-> (processes and procedures to contain a cybersecurity incident:Obligation)  free_text_not_concept
+    PROPOSED (IncidentResponsePlan:IncidentResponsePlan) -[HAS_OBLIGATION]-> (processes and procedures to collect and preserve digital forensic evidence:Obligation)  free_text_not_concept
+    PROPOSED (IncidentResponsePlan:IncidentResponsePlan) -[HAS_OBLIGATION]-> (post-incident review process:Obligation)  phi_type_mismatch
+
+[CCoP 2.0::7.1.2]  concepts=[]
+    PROPOSED (CIIO:CIIO) -[HAS_OBLIGATION]-> (ensure that the CIRT is trained and equipped with the necessary resources to respond to cybersecurity incidents:Obligation)  free_text_not_concept
+    PROPOSED (CIIO:CIIO) -[IMPLEMENTS]-> (IncidentResponseTeam:IncidentResponseTeam)  phi_type_mismatch

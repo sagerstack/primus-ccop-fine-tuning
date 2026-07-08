@@ -1,0 +1,19 @@
+{
+  "citation_id": "Security By Design::5.1",
+  "concepts": [
+    "CIIO",
+    "SecurityByDesign"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "SecurityByDesign",
+      "o_type": "SecurityByDesign"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

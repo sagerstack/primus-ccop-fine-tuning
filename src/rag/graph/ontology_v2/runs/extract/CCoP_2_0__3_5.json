@@ -1,0 +1,37 @@
+{
+  "citation_id": "CCoP 2.0::3.5",
+  "concepts": [
+    "AttackConcept",
+    "CII",
+    "CIIO",
+    "CyberThreatActor",
+    "DesignPrinciple",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "APPLIES_PRINCIPLE",
+      "o": "DesignPrinciple",
+      "o_type": "DesignPrinciple"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "REDUCES",
+      "o": "AttackConcept",
+      "o_type": "AttackConcept"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

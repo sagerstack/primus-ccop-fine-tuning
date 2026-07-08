@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP 2.0::7.1.3",
+  "concepts": [
+    "CII",
+    "Condition",
+    "Provision",
+    "authentication"
+  ],
+  "triples": [
+    {
+      "s": "authentication",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "CONDITIONED_ON",
+      "o": "Condition",
+      "o_type": "Condition"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "authentication",
+      "o_type": "AccessControlMechanism"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

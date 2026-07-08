@@ -1,0 +1,28 @@
+{
+  "citation_id": "Security By Design::6.6.1.3",
+  "concepts": [
+    "CIIAsset",
+    "Policy",
+    "Provision",
+    "SystemActor"
+  ],
+  "triples": [
+    {
+      "s": "SystemActor",
+      "s_type": "SystemActor",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "Policy",
+      "o_type": "Policy"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,67 @@
+{
+  "citation_id": "CCoP 2.0::5.7.2",
+  "concepts": [
+    "CII",
+    "Condition",
+    "Cryptography",
+    "Malware",
+    "MalwareProtection",
+    "Provision",
+    "authentication",
+    "multi-factor-authentication"
+  ],
+  "triples": [
+    {
+      "s": "multi-factor-authentication",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "authentication",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Cryptography",
+      "s_type": "Cryptography",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "MalwareProtection",
+      "s_type": "MalwareProtection",
+      "rel": "MITIGATES",
+      "o": "Malware",
+      "o_type": "Malware"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "CONDITIONED_ON",
+      "o": "Condition",
+      "o_type": "Condition"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "multi-factor-authentication",
+      "o_type": "AccessControlMechanism"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "authentication",
+      "o_type": "AccessControlMechanism"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

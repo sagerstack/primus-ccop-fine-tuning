@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.13",
+  "concepts": [
+    "CII",
+    "CyberThreatActor",
+    "EnterpriseNetwork",
+    "NetworkControl",
+    "OTSystem"
+  ],
+  "triples": [
+    {
+      "s": "OTSystem",
+      "s_type": "OTSystem",
+      "rel": "CONNECTED_TO",
+      "o": "EnterpriseNetwork",
+      "o_type": "EnterpriseNetwork"
+    },
+    {
+      "s": "NetworkControl",
+      "s_type": "NetworkControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

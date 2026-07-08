@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.59",
+  "concepts": [
+    "CII",
+    "DNSSEC",
+    "DigitalBoundary"
+  ],
+  "triples": [
+    {
+      "s": "DNSSEC",
+      "s_type": "Cryptography",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "WITHIN_BOUNDARY",
+      "o": "DigitalBoundary",
+      "o_type": "DigitalBoundary"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

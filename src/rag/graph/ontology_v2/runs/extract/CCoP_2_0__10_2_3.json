@@ -1,0 +1,44 @@
+{
+  "citation_id": "CCoP 2.0::10.2.3",
+  "concepts": [
+    "CII",
+    "CyberThreatActor",
+    "EnterpriseNetwork",
+    "OTSystem",
+    "Provision",
+    "authentication"
+  ],
+  "triples": [
+    {
+      "s": "authentication",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "OTSystem",
+      "s_type": "OTSystem",
+      "rel": "CONNECTED_TO",
+      "o": "EnterpriseNetwork",
+      "o_type": "EnterpriseNetwork"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "authentication",
+      "o_type": "AccessControlMechanism"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

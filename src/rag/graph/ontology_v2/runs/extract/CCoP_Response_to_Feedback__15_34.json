@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.34",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "NetworkControl",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "NetworkControl",
+      "s_type": "NetworkControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

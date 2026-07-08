@@ -1,0 +1,26 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.11",
+  "concepts": [
+    "CybersecurityIncident",
+    "IncidentResponsePlan"
+  ],
+  "triples": [
+    {
+      "s": "IncidentResponsePlan",
+      "s_type": "IncidentResponsePlan",
+      "rel": "RESPONDS_TO",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "IncidentResponsePlan",
+      "o_type": "IncidentResponsePlan"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

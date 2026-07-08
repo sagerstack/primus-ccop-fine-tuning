@@ -1,0 +1,27 @@
+{
+  "citation_id": "Auditing Guidelines::6.5",
+  "concepts": [
+    "Audit",
+    "AuditFinding",
+    "RemediationPlan"
+  ],
+  "triples": [
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "PRODUCES",
+      "o": "AuditFinding",
+      "o_type": "AuditFinding"
+    },
+    {
+      "s": "AuditFinding",
+      "s_type": "AuditFinding",
+      "rel": "REMEDIATED_BY",
+      "o": "RemediationPlan",
+      "o_type": "RemediationPlan"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

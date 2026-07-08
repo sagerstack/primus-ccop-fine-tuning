@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP 2.0::5.9",
+  "concepts": [
+    "CIIAsset",
+    "CyberThreatActor",
+    "SecurityConfigurationBaseline",
+    "Service",
+    "Vulnerability"
+  ],
+  "triples": [
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "APPLIES_BASELINE",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "DISABLES",
+      "o": "Service",
+      "o_type": "Service"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "EXPLOITS",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

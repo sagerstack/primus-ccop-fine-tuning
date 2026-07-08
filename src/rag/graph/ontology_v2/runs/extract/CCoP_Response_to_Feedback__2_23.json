@@ -1,0 +1,37 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.23",
+  "concepts": [
+    "CIIO",
+    "CompensatingControl",
+    "CybersecurityRisk",
+    "Monitoring",
+    "Regulator",
+    "Waiver"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "GRANTS",
+      "o": "Waiver",
+      "o_type": "Waiver"
+    },
+    {
+      "s": "CompensatingControl",
+      "s_type": "CompensatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

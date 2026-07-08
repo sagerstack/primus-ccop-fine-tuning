@@ -127,16 +127,20 @@ def _parse(raw: str) -> List[Dict[str, Any]]:
     return data if isinstance(data, list) else []
 
 
-def extract(citation_id: str, text: str, force: bool = False) -> Dict[str, Any]:
-    _RUNS.mkdir(parents=True, exist_ok=True)
-    cache = _RUNS / (re.sub(r"[^A-Za-z0-9]", "_", citation_id) + ".json")
-    if cache.exists() and not force:
-        return json.loads(cache.read_text())
+def _cache_path(citation_id: str) -> Path:
+    return _RUNS / (re.sub(r"[^A-Za-z0-9]", "_", citation_id) + ".json")
 
-    raw = _call_llm(text)
+
+def _validate_and_cache(citation_id: str, raw_triples: List[Dict[str, Any]],
+                        extractor: str | None = None) -> Dict[str, Any]:
+    """Shared Φ-validation + cache loop. `raw_triples` is a list of
+    {subject, subject_type, relation, object, object_type, [proposed]} — from
+    either _call_llm (gpt-4o-mini) or hand-authored (Opus). No LLM call here.
+    """
+    _RUNS.mkdir(parents=True, exist_ok=True)
     kept, proposed = [], []
     concepts = set()
-    for t in _parse(raw):
+    for t in raw_triples:
         rel = str(t.get("relation", "")).strip()
         se, st = canon(t.get("subject"), t.get("subject_type", ""))
         oe, ot = canon(t.get("object"), t.get("object_type", ""))
@@ -160,9 +164,28 @@ def extract(citation_id: str, text: str, force: bool = False) -> Dict[str, Any]:
             seen.add(k); deduped.append(t)
     kept = deduped
     result = {"citation_id": citation_id, "concepts": sorted(concepts),
-              "triples": kept, "proposed": proposed, "n_raw": len(_parse(raw))}
-    cache.write_text(json.dumps(result, indent=2))
+              "triples": kept, "proposed": proposed, "n_raw": len(raw_triples)}
+    if extractor:
+        result["extractor"] = extractor
+    _cache_path(citation_id).write_text(json.dumps(result, indent=2))
     return result
+
+
+def apply_authored(citation_id: str, triples: List[Dict[str, Any]],
+                   force: bool = True) -> Dict[str, Any]:
+    """Persist Opus-authored triples: Φ-validate + cache, tagged claude-opus.
+    The reasoning (clause -> triples) is done by hand; this only validates."""
+    cache = _cache_path(citation_id)
+    if cache.exists() and not force:
+        return json.loads(cache.read_text())
+    return _validate_and_cache(citation_id, triples, extractor="claude-opus")
+
+
+def extract(citation_id: str, text: str, force: bool = False) -> Dict[str, Any]:
+    cache = _cache_path(citation_id)
+    if cache.exists() and not force:
+        return json.loads(cache.read_text())
+    return _validate_and_cache(citation_id, _parse(_call_llm(text)))
 
 
 def _clauses_for_doc(idx: int) -> List[Dict[str, Any]]:

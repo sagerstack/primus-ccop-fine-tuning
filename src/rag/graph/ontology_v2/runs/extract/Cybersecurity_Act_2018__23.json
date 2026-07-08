@@ -1,0 +1,44 @@
+{
+  "citation_id": "Cybersecurity Act 2018::23",
+  "concepts": [
+    "CII",
+    "CybersecurityThreat",
+    "Direction",
+    "EssentialService",
+    "Regulator",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "DELIVERS",
+      "o": "EssentialService",
+      "o_type": "EssentialService"
+    },
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "ISSUES",
+      "o": "Direction",
+      "o_type": "Direction"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

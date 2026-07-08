@@ -1,0 +1,42 @@
+{
+  "citation_id": "Risk Assessment Guide::5.2",
+  "concepts": [
+    "CII",
+    "CyberThreatActor",
+    "CybersecurityRisk",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "MITIGATED_BY",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,28 @@
+{
+  "citation_id": "Security By Design::6.5.2",
+  "concepts": [
+    "CII",
+    "CybersecurityThreat",
+    "RiskAssessment",
+    "SystemActor"
+  ],
+  "triples": [
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "SystemActor",
+      "s_type": "SystemActor",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

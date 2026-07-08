@@ -19,6 +19,13 @@
       "rel": "ACCOUNTABLE_FOR",
       "o": "CybersecurityRisk",
       "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "RiskManagement",
+      "o_type": "RiskManagement"
     }
   ],
   "proposed": [],

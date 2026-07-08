@@ -1,0 +1,43 @@
+{
+  "citation_id": "Auditing Guidelines::6.3",
+  "concepts": [
+    "Audit",
+    "AuditScope",
+    "CompensatingControl",
+    "Provision",
+    "Waiver"
+  ],
+  "triples": [
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "COVERS",
+      "o": "AuditScope",
+      "o_type": "AuditScope"
+    },
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "COVERS",
+      "o": "Provision",
+      "o_type": "Provision"
+    },
+    {
+      "s": "Waiver",
+      "s_type": "Waiver",
+      "rel": "WAIVES",
+      "o": "Provision",
+      "o_type": "Provision"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "COMPENSATED_BY",
+      "o": "CompensatingControl",
+      "o_type": "CompensatingControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

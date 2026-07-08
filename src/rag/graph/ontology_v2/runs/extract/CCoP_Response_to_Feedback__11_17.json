@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.17",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "DigitalBoundary",
+    "NetworkControl"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "NetworkControl",
+      "o_type": "NetworkControl"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "WITHIN_BOUNDARY",
+      "o": "DigitalBoundary",
+      "o_type": "DigitalBoundary"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

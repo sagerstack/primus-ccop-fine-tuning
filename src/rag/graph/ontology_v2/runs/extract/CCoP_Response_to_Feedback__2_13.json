@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.13",
+  "concepts": [
+    "CompensatingControl",
+    "Provision",
+    "Regulator",
+    "Waiver"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "GRANTS",
+      "o": "Waiver",
+      "o_type": "Waiver"
+    },
+    {
+      "s": "Waiver",
+      "s_type": "Waiver",
+      "rel": "WAIVES",
+      "o": "Provision",
+      "o_type": "Provision"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "COMPENSATED_BY",
+      "o": "CompensatingControl",
+      "o_type": "CompensatingControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

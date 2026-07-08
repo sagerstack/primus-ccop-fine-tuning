@@ -11,8 +11,32 @@ Corpus-wide OMD-GraphRAG KG build. **Strictly the POC (`poc_reference/omd_b01.py
 | **0 — corpus re-extraction** | ✅ DONE | `reextract/<doc>/clauses.clean.json` — **869 clauses**, 7 docs, fresh from source PDFs (nothing reused from old Neo4j) |
 | **0 — definitions** | ✅ DONE | `definitions/*.json` — **68 terms** (CCoP glossary, Auditing §8, SBD Annex C) |
 | **1 — ontology S=(E,R,Φ)** | ✅ LOCKED | `corpus_ontology.json` — **~123 entity types, ~64 relations, Φ domain/range, 30 subsumptions, IT⊥OT** + `ONTOLOGY-P1a-entities.md`, `ONTOLOGY-P1b-relations.md` |
-| **2 — extraction** | 🟡 VALIDATED + 18 benchmark clauses done | `runs/extract/*.json` per-clause cache |
-| 3 critic / 4 resolution / 5 Neo4j / 6 coverage | ⬜ not started | — |
+| **1.1 — ontology extension** | ✅ APPLIED (2026-07-08) | `corpus_ontology.json` **v1.1** — additive: 8 reparents + 8 new relations (CONDUCTS, APPLIES_PRINCIPLE, USES_TECHNIQUE, REDUCES, HAS_DEADLINE, HAS_STATUS, BOUNDED_BY, BINDS) + 6 relation dom/range extensions. Removed 26 orphan entity types (6 intentional orphans left). Approved after self-critique. `.pre-extend-*.bak` backup kept. |
+| **2 — extraction (Opus, by hand)** | ✅ **ALL 7 DOCS DONE** | **869/869 clauses, 1672 triples, 0 Φ-fails, 107 concepts, 71/72 relations used, 69% ≥2 triples, 2% empty.** Per-doc: d1 385/729, d2 280/564, d3 17/36, d4 12/29, d5 15/35, d6 98/178, d7 62/92. Method: hand-author → `apply_extract.py` Φ-validates + caches tagged `claude-opus`. |
+| **3 — per-doc critic** | ✅ d1–d6 done+fixed, d7 running | Critic subagent reviewed each doc (`runs/critic/doc{1,2,3to6,7}-findings.md`). All type-clean, no fabrications. Fixes applied: d1 (Annex A modality+scope, DEFERS_TO, W2/W3/O3), d2 (6 fixes: inverted COVERS, clause-merge, DISABLES mis-reads), d3–d6 (5 fixes: waiver/compensating in audit scope, STRIDE-LM mitigations, DEFERS_TO). |
+| **4 — entity resolution** | ✅ DONE (2026-07-09) | Verify+register pass (hand-authoring already canonical): 0 multi-type nodes, 0 dupes, cross-doc bridges confirmed (7-doc hubs), wrong-merge guard clean (IT⊥OT, Malware≠MalwareProtection, Password family, Cryptography≠DNSSEC). `concept_aliases.json` = 137 canonical nodes + surface forms for retrieval query→concept mapping. |
+| **5 — Neo4j persist** | ✅ DONE (2026-07-09) | Loaded `build_id=omd-v1-20260709`: **863 :Clause** (869 records − 6 footnote citation_id collisions) + **122 :Concept** + **3135 :INVOKES** (Clause→Concept) + **1935 :REL** (Concept→Concept). Loader `build_omd_graph.py`. **Old Phase-11 CU graph (1320 nodes) was backed up to `../complianceunit/cu_graph_backup.json` (+`restore.py`), then DETACH DELETE'd** (per user; it backed live graphcpl retrieval — REWIRE those 7 retrieval nodes or `restore.py` before using graphcpl). |
+| **6 — coverage/linkage** | 🟡 bridges verified | POC bridges reproduce in Neo4j: B05 5.9.2(b)↔11.28 via Password/PasswordLength ✓; B01 CII hub spans 7 docs (296 clauses) ✓; leaf bridge defence-in-depth spans CCoP↔RtF ✓. TODO: full coverage report + close residual gaps (footnote re-key, REQUIRES_EVIDENCE) + E2E omd_run retrieval. |
+
+### Both design forks RESOLVED (2026-07-09, see memory `ontology-v2-pending-critic-forks`)
+1. **Modality (B02)** ✅ — ontology **v1.2** broadened MANDATES/RECOMMENDS range; `modality_pass.py`
+   added 187 MANDATES + 62 RECOMMENDS (248 clauses carry shall/should modality).
+2. **Umbrella leaf granularity** ✅ — `specialize_leaves.py` split 4 umbrella types into distinct
+   leaf nodes (defence-in-depth, zero-trust, MFA, DNSSEC, network-segmentation, …); 95 clauses.
+- **FINAL corpus: 1935 triples, 0 Φ-invalid, 122 concept nodes, 869/869 clauses.**
+- New helpers: `apply_extract.py` (author→validate→cache), `modality_pass.py`, `specialize_leaves.py`.
+- Backups: `corpus_ontology.json.{pre-extend,pre-modality}-*.bak`.
+
+### Residual gaps for Phase 6
+- **Phase-0 footnote-collision bug** (doc 1 `::1..::6` share ids with §1..6 headers): re-key footnotes; only doc 1 affected (docs 3–7 footnotes clean per critics).
+- **Unused relation:** `REQUIRES_EVIDENCE` (B13 AuditEvidence never a triple endpoint) — minor.
+
+## Extraction workflow (LOCKED this session)
+- **Opus authors every triple by hand, per clause** (NO gpt-4o-mini `_call_llm`, NO subagent/script doing the reasoning). Code only Φ-validates + caches.
+- Batch ~30 clauses/turn: read clauses → write `batch.json` (list of `{citation_id, triples:[{subject,subject_type,relation,object,object_type,[proposed]}]}`) → `poetry run python -m rag.graph.ontology_v2.apply_extract --file batch.json` → review PROPOSED/dropped, fix, continue.
+- Empty administrative/interpretation/header clauses are cached with `triples:[]` (marks them done; Phase-6 flags thin clauses) — never force noise.
+- **Per-doc critic gate** (user instruction): finish a doc → spawn critic subagent (background) → move to next doc → fold critic findings back when it returns. See memory `ontology-v2-per-doc-critic-gate`.
+- Remaining worklist / stale (gpt-4o-mini) recompute: a clause is "done" only if its cache has `extractor=="claude-opus"`. Stale to redo: `CCoP 2.0::1.2.5` ✅done, `CCoP 2.0::3.2.4` ✅done, `CCoP Response to Feedback::11.28` ⬜.
 
 ## The KEY decision (this session): Opus does the extraction, not gpt-4o-mini
 

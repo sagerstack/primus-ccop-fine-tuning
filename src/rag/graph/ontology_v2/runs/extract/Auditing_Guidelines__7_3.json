@@ -1,0 +1,28 @@
+{
+  "citation_id": "Auditing Guidelines::7.3",
+  "concepts": [
+    "Audit",
+    "AuditScope",
+    "Auditor",
+    "CII"
+  ],
+  "triples": [
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "COVERS",
+      "o": "AuditScope",
+      "o_type": "AuditScope"
+    },
+    {
+      "s": "Auditor",
+      "s_type": "Auditor",
+      "rel": "AUDITS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

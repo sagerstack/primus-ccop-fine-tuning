@@ -1,0 +1,28 @@
+{
+  "citation_id": "Cybersecurity Act 2018::20",
+  "concepts": [
+    "CybersecurityIncident",
+    "IncidentResponsePlan",
+    "OrganisationalRole",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "CybersecurityIncident",
+      "s_type": "CybersecurityIncident",
+      "rel": "ACTIVATES",
+      "o": "IncidentResponsePlan",
+      "o_type": "IncidentResponsePlan"
+    },
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "APPOINTS",
+      "o": "OrganisationalRole",
+      "o_type": "OrganisationalRole"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

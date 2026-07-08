@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.30",
+  "concepts": [
+    "CIIAsset",
+    "CIIO",
+    "ExternalStandard",
+    "SecurityConfigurationBaseline"
+  ],
+  "triples": [
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "APPLIES_BASELINE",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DEFERS_TO",
+      "o": "ExternalStandard",
+      "o_type": "ExternalStandard"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "SecurityConfigurationBaseline",
+      "o_type": "SecurityConfigurationBaseline"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

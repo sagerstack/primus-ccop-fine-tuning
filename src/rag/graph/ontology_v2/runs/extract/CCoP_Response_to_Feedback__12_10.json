@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::12.10",
+  "concepts": [
+    "CybersecurityIncident",
+    "Log",
+    "Monitoring"
+  ],
+  "triples": [
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    },
+    {
+      "s": "Log",
+      "s_type": "Log",
+      "rel": "DETECTS",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,43 @@
+{
+  "citation_id": "Cybersecurity Act 2018::11",
+  "concepts": [
+    "CII",
+    "CodeOfPractice",
+    "Provision",
+    "Regulator",
+    "Waiver"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "ISSUES",
+      "o": "CodeOfPractice",
+      "o_type": "CodeOfPractice"
+    },
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "GRANTS",
+      "o": "Waiver",
+      "o_type": "Waiver"
+    },
+    {
+      "s": "Waiver",
+      "s_type": "Waiver",
+      "rel": "WAIVES",
+      "o": "Provision",
+      "o_type": "Provision"
+    },
+    {
+      "s": "CodeOfPractice",
+      "s_type": "CodeOfPractice",
+      "rel": "APPLIES_TO",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

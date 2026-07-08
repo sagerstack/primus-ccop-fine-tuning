@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::6.1.4(b)",
+  "concepts": [
+    "CII",
+    "authorisation"
+  ],
+  "triples": [
+    {
+      "s": "authorisation",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,45 @@
+{
+  "citation_id": "Risk Assessment Guide::4.2",
+  "concepts": [
+    "CIIO",
+    "CybersecurityRisk",
+    "ExternalStandard",
+    "Impact",
+    "Likelihood",
+    "RiskRegister",
+    "RiskScenario"
+  ],
+  "triples": [
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "HAS_LIKELIHOOD",
+      "o": "Likelihood",
+      "o_type": "Likelihood"
+    },
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "HAS_IMPACT",
+      "o": "Impact",
+      "o_type": "Impact"
+    },
+    {
+      "s": "RiskScenario",
+      "s_type": "RiskScenario",
+      "rel": "RECORDED_IN",
+      "o": "RiskRegister",
+      "o_type": "RiskRegister"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DEFERS_TO",
+      "o": "ExternalStandard",
+      "o_type": "ExternalStandard"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

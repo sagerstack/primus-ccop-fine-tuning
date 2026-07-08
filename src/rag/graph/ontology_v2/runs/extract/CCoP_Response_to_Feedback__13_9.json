@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.9",
+  "concepts": [
+    "CIIO",
+    "ChangeManagement",
+    "CybersecurityIncident",
+    "IncidentResponsePlan"
+  ],
+  "triples": [
+    {
+      "s": "IncidentResponsePlan",
+      "s_type": "IncidentResponsePlan",
+      "rel": "RESPONDS_TO",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "ChangeManagement",
+      "o_type": "ChangeManagement"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

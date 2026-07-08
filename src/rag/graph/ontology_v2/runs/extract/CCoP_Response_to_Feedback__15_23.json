@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.23",
+  "concepts": [
+    "CII",
+    "Cryptography",
+    "Malware",
+    "Monitoring"
+  ],
+  "triples": [
+    {
+      "s": "Cryptography",
+      "s_type": "Cryptography",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "Malware",
+      "o_type": "Malware"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

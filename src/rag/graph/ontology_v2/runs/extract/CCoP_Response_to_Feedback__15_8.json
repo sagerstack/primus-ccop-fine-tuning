@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.8",
+  "concepts": [
+    "AccessControlMechanism",
+    "CII",
+    "SafetyMechanism"
+  ],
+  "triples": [
+    {
+      "s": "SafetyMechanism",
+      "s_type": "SafetyMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "AccessControlMechanism",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

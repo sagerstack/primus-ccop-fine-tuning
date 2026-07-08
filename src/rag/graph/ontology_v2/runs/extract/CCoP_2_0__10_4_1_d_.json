@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP 2.0::10.4.1(d)",
+  "concepts": [
+    "CII",
+    "Condition",
+    "Provision",
+    "SafetyMechanism"
+  ],
+  "triples": [
+    {
+      "s": "SafetyMechanism",
+      "s_type": "SafetyMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "CONDITIONED_ON",
+      "o": "Condition",
+      "o_type": "Condition"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

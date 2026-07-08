@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.15",
+  "concepts": [
+    "Auditor",
+    "CII",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "Auditor",
+      "s_type": "Auditor",
+      "rel": "AUDITS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "APPROVES",
+      "o": "Auditor",
+      "o_type": "Auditor"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

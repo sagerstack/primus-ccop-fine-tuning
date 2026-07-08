@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::10.5",
+  "concepts": [
+    "AssetInventory",
+    "CIIAsset",
+    "CIIO",
+    "CloudServiceProvider",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "AssetInventory",
+      "s_type": "AssetInventory",
+      "rel": "CONTAINS",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "CloudServiceProvider",
+      "o_type": "CloudServiceProvider"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

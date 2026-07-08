@@ -43,6 +43,13 @@
       "rel": "HAS_IMPACT",
       "o": "Impact",
       "o_type": "Impact"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
     }
   ],
   "proposed": [],

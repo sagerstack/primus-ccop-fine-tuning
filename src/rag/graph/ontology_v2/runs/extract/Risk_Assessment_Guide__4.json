@@ -1,0 +1,27 @@
+{
+  "citation_id": "Risk Assessment Guide::4",
+  "concepts": [
+    "CybersecurityRisk",
+    "Likelihood",
+    "RiskAssessment"
+  ],
+  "triples": [
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "HAS_LIKELIHOOD",
+      "o": "Likelihood",
+      "o_type": "Likelihood"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP 2.0::4.1.1(e)",
+  "concepts": [
+    "AssetInventory",
+    "CII",
+    "CIIAsset",
+    "Network"
+  ],
+  "triples": [
+    {
+      "s": "CIIAsset",
+      "s_type": "CIIAsset",
+      "rel": "DEPENDS_ON",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CONNECTED_TO",
+      "o": "Network",
+      "o_type": "Network"
+    },
+    {
+      "s": "AssetInventory",
+      "s_type": "AssetInventory",
+      "rel": "CONTAINS",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

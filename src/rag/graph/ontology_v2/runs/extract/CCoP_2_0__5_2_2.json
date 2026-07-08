@@ -19,6 +19,13 @@
       "rel": "PROTECTS",
       "o": "CII",
       "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "AccessControlMechanism",
+      "o_type": "AccessControlMechanism"
     }
   ],
   "proposed": [],

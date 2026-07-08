@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::5.5.3(b)",
+  "concepts": [
+    "CII",
+    "network-segmentation"
+  ],
+  "triples": [
+    {
+      "s": "network-segmentation",
+      "s_type": "NetworkControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

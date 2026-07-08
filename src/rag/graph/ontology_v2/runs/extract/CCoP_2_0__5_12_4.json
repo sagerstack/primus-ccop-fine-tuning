@@ -20,6 +20,13 @@
       "rel": "IMPLEMENTS",
       "o": "SecurityControl",
       "o_type": "SecurityControl"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
     }
   ],
   "proposed": [],

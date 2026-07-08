@@ -1,0 +1,28 @@
+{
+  "citation_id": "Security By Design::6.1.3",
+  "concepts": [
+    "CybersecurityRisk",
+    "ProjectRole",
+    "RiskAssessment",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "ProjectRole",
+      "s_type": "ProjectRole",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

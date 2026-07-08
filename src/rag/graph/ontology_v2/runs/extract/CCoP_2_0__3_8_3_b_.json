@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::3.8.3(b)",
+  "concepts": [
+    "Obligation",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "ThirdParty",
+      "s_type": "ThirdParty",
+      "rel": "HAS_OBLIGATION",
+      "o": "Obligation",
+      "o_type": "Obligation"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

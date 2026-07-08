@@ -2,226 +2,1629 @@
   "meta": {
     "name": "CCoP corpus-wide ontology",
     "model": "OMD-GraphRAG S=(E,R,Phi) (Wang et al. 2026) + POC omd_b01/b05",
-    "version": "1.0-draft",
-    "note": "E=entity types, R=relation types, Phi=per-relation (domain,range) type constraint checked post-hoc (POC type_ok). No Compliance Units. Entity resolution folds aliases to the canonical type/name (POC canon/SYN).",
-    "sources": ["ONTOLOGY-P1a-entities.md", "ONTOLOGY-P1b-relations.md"],
+    "version": "1.2",
+    "note": "E=entity types, R=relation types, Phi=per-relation (domain,range) type constraint checked post-hoc (POC type_ok). No Compliance Units. Entity resolution folds aliases to the canonical type/name (POC canon/SYN). | v1.1 (2026-07-08): additive orphan-coverage extension applied mid-Phase-2 (8 reparents, 6 relation dom/range extensions, 8 new relations: CONDUCTS, APPLIES_PRINCIPLE, USES_TECHNIQUE, REDUCES, HAS_DEADLINE, HAS_STATUS, BOUNDED_BY, BINDS). Supersedes the P1a/P1b lock; strictly additive so all pre-v1.1 triples stay valid. Intentional orphans: Designation, Exemption, PhysicalProcess, PhysicalSite, Remediation, AttackSimulationPlan. | v1.2 (2026-07-08): additive \u2014 broadened MANDATES/RECOMMENDS range to all control/process/plan/artifact obligation-object types, to encode shall(MANDATES)/should(RECOMMENDS) modality (B02) on obligation clauses.",
+    "sources": [
+      "ONTOLOGY-P1a-entities.md",
+      "ONTOLOGY-P1b-relations.md"
+    ],
     "locked": true,
     "locked_at": "2026-07-08",
-    "totals": {"entity_types": 114, "relations": 60, "subsumptions": 29, "disjoint": 1}
+    "totals": {
+      "entity_types": 122,
+      "relations": 72,
+      "subsumptions": 37,
+      "disjoint": 1
+    }
   },
-
   "entity_types": [
-    {"name": "Actor", "cat": "actor", "abstract": true, "desc": "abstract superclass of all duty-bearing/acting parties"},
-
-    {"name": "Regulator", "cat": "regulatory", "desc": "CSA, Commissioner, Deputy/Assistant Commissioner, Sector Lead, licensing officer", "aliases": ["CSA", "Commissioner", "Cyber Security Agency", "Sector Lead"]},
-    {"name": "Legislation", "cat": "regulatory", "desc": "Cybersecurity Act 2018; CII Regulations 2018", "aliases": ["the Act", "Cybersecurity Act 2018"]},
-    {"name": "CodeOfPractice", "cat": "regulatory", "desc": "CCoP 2.0 (this Code); standards of performance", "aliases": ["the Code", "CCoP", "CCoP 2.0"]},
-    {"name": "Provision", "cat": "regulatory", "desc": "a clause/section - the regulatory unit itself"},
-    {"name": "Obligation", "cat": "regulatory", "desc": "a duty a clause imposes (plain entity, per POC)"},
-    {"name": "Waiver", "cat": "regulatory", "desc": "s11(7) waiver - a granted instrument"},
-    {"name": "Direction", "cat": "regulatory", "desc": "written direction under s12(1)"},
-    {"name": "Designation", "cat": "regulatory", "desc": "s7 CII designation act"},
-    {"name": "Exemption", "cat": "regulatory", "desc": "Act s46 exemption"},
-    {"name": "ExternalStandard", "cat": "regulatory", "desc": "reference frameworks: NIST, ISO/IEC 27001, OWASP, MITRE ATT&CK, Purdue Model", "aliases": ["NIST", "ISO", "OWASP", "industry standard", "best practice"]},
-    {"name": "Certification", "cat": "regulatory", "desc": "professional/accreditation credentials: CISA, CRISC, CREST", "aliases": ["CISA", "CRISC", "CREST"]},
-    {"name": "RegulatoryFramework", "cat": "regulatory", "desc": "MAS-TRM, IM8 (multi-regulator overlap)"},
-
-    {"name": "CIIO", "cat": "actor", "subtype_of": "Actor", "desc": "owner of the CII (primary duty-holder)", "aliases": ["owner of a critical information infrastructure", "CII owner", "the organisation"]},
-    {"name": "Board", "cat": "actor", "subtype_of": "Actor", "desc": "board of directors / equivalent body"},
-    {"name": "SeniorManagement", "cat": "actor", "subtype_of": "Actor", "desc": "senior/accountable management"},
-    {"name": "OrganisationalRole", "cat": "actor", "subtype_of": "Actor", "desc": "a named role with assigned responsibility (fillers = personnel/employee)"},
-    {"name": "CISO", "cat": "actor", "subtype_of": "OrganisationalRole", "desc": "Chief Information Security Officer"},
-    {"name": "IncidentResponseTeam", "cat": "actor", "subtype_of": "Actor", "desc": "CIRT", "aliases": ["CIRT"]},
-    {"name": "CrisisTeam", "cat": "actor", "subtype_of": "Actor", "desc": "crisis communication / crisis management team"},
-    {"name": "AttackSimTeam", "cat": "actor", "subtype_of": "Actor", "desc": "red team, blue team, purple team"},
-    {"name": "ThirdParty", "cat": "actor", "subtype_of": "Actor", "desc": "vendor, external party, service provider, outsourced provider", "aliases": ["vendor", "external party", "service provider"]},
-    {"name": "CloudServiceProvider", "cat": "actor", "subtype_of": "ThirdParty", "desc": "cloud computing service provider"},
-    {"name": "Auditor", "cat": "actor", "subtype_of": "Actor", "desc": "CSA-approved cybersecurity auditor"},
-    {"name": "PenetrationTester", "cat": "actor", "subtype_of": "Actor", "desc": "certified pen-tester / accredited provider"},
-    {"name": "SystemActor", "cat": "actor", "subtype_of": "OrganisationalRole", "desc": "System Owner, System Administrator, Database Administrator, System Custodian"},
-    {"name": "ProjectRole", "cat": "actor", "subtype_of": "OrganisationalRole", "desc": "SBD roles: Steering Committee, Project Manager, Developer, Security Officer"},
-    {"name": "RiskRole", "cat": "actor", "subtype_of": "OrganisationalRole", "desc": "Head of Organisation, Business Owner, Risk Management Function, Risk Owner, Cybersecurity Function"},
-    {"name": "LawEnforcement", "cat": "actor", "subtype_of": "Actor", "desc": "law enforcement agency"},
-    {"name": "CyberThreatActor", "cat": "actor", "subtype_of": "Actor", "desc": "adversary / attacker", "aliases": ["adversary", "attacker", "threat actor"]},
-
-    {"name": "ComputerSystem", "cat": "system", "desc": "generic computer/computer system", "aliases": ["computer system", "computer"]},
-    {"name": "CII", "cat": "system", "desc": "critical information infrastructure", "aliases": ["critical information infrastructure", "cii system", "cii asset", "the CII", "a CII"]},
-    {"name": "CIIAsset", "cat": "system", "desc": "components: hardware, software, network infra"},
-    {"name": "ITSystem", "cat": "system", "subtype_of": "ComputerSystem", "desc": "IT CII", "aliases": ["information technology", "IT system"]},
-    {"name": "OTSystem", "cat": "system", "subtype_of": "ComputerSystem", "desc": "OT CII", "aliases": ["operational technology", "OT system", "OT CII"]},
-    {"name": "Network", "cat": "system", "desc": "network / network segment"},
-    {"name": "EnterpriseNetwork", "cat": "system", "desc": "shared corporate network (not in-scope by default)", "aliases": ["enterprise network", "corporate network"]},
-    {"name": "CloudSystem", "cat": "system", "desc": "cloud computing system (public/private/hybrid)"},
-    {"name": "Database", "cat": "system", "desc": "database, database tier"},
-    {"name": "Application", "cat": "system", "desc": "software application, web application, firmware, programme code"},
-    {"name": "Server", "cat": "system", "subtype_of": "ComputerSystem", "desc": "domain controller, DNS server, alarm server, OT historian, management server"},
-    {"name": "Endpoint", "cat": "system", "desc": "workstation, console, HMI, portable computing device, removable storage media"},
-    {"name": "NetworkDevice", "cat": "system", "desc": "appliance, field device, network device"},
-    {"name": "FieldController", "cat": "system", "subtype_of": "NetworkDevice", "desc": "PLC, RTU (OT)"},
-    {"name": "ControlSystem", "cat": "system", "desc": "SCADA, DCS, Safety Instrumented System (SIS)"},
-    {"name": "PhysicalProcess", "cat": "system", "desc": "the physical process an OT CII monitors/controls (s10.1.2)"},
-    {"name": "DigitalBoundary", "cat": "system", "desc": "cyber operating environment; perimeter/trust boundary; DMZ", "aliases": ["cyber operating environment", "digital boundary", "perimeter boundary", "trust boundary"]},
-    {"name": "PhysicalSite", "cat": "system", "desc": "primary/secondary hosting locations"},
-    {"name": "EssentialService", "cat": "system", "desc": "the service the CII delivers (Act s2)"},
-    {"name": "Sector", "cat": "system", "subtype_of": "EssentialService", "desc": "the 11 Act First-Schedule sectors (Energy, Info-comms, Water, Healthcare, Banking&Finance, Security&Emergency, Aviation, LandTransport, Maritime, Government, Media)"},
-
-    {"name": "SecurityControl", "cat": "control", "desc": "generic control/measure/mechanism", "aliases": ["control", "measure", "mechanism", "security measure"]},
-    {"name": "MitigatingControl", "cat": "control", "subtype_of": "SecurityControl", "desc": "risk-mitigating / engineering (non-digital) control"},
-    {"name": "CompensatingControl", "cat": "control", "subtype_of": "SecurityControl", "desc": "alternative control (audit)"},
-    {"name": "AccessControlMechanism", "cat": "control", "subtype_of": "SecurityControl", "desc": "authentication, authorisation, MFA, privileged access"},
-    {"name": "SecurityConfigurationBaseline", "cat": "control", "desc": "system hardening baseline (s5.9.2)", "aliases": ["security configuration baseline", "configuration baseline", "baseline"]},
-    {"name": "NetworkControl", "cat": "control", "subtype_of": "SecurityControl", "desc": "segmentation, firewall, WAF, IDS/IPS, data-flow control"},
-    {"name": "Cryptography", "cat": "control", "desc": "encryption, cryptographic key, DNSSEC, hashing", "aliases": ["encryption", "cryptographic key", "hash"]},
-    {"name": "MalwareProtection", "cat": "control", "subtype_of": "SecurityControl", "desc": "anti-malware / signatures"},
-    {"name": "Patch", "cat": "control", "desc": "security patch / update"},
-    {"name": "Backup", "cat": "control", "desc": "backup copy / restoration"},
-    {"name": "Log", "cat": "control", "desc": "logs, log retention (firewall/DNS/proxy/NIDS)"},
-    {"name": "SecurityArchitecture", "cat": "control", "desc": "multi-tier architecture, defence-in-depth layering"},
-    {"name": "SafetyMechanism", "cat": "control", "desc": "fail-safe, interlock (OT)"},
-    {"name": "Account", "cat": "sec_object", "desc": "user/application/service/system account", "aliases": ["account", "user account"]},
-    {"name": "PrivilegedAccount", "cat": "sec_object", "subtype_of": "Account", "desc": "account with administrative access privileges"},
-    {"name": "Password", "cat": "sec_object", "desc": "password / passphrase", "aliases": ["password", "passphrase"]},
-    {"name": "PasswordLength", "cat": "sec_object", "desc": "password length requirement (B05 / RtF-11.28)", "aliases": ["password length"]},
-    {"name": "DefaultCredential", "cat": "sec_object", "desc": "default password / default account", "aliases": ["default password", "default account", "default credential"]},
-    {"name": "HashStorage", "cat": "sec_object", "desc": "hashed storage form for credentials", "aliases": ["hash", "hash form", "hashed form"]},
-    {"name": "Port", "cat": "sec_object", "desc": "network port (hardening)", "aliases": ["port"]},
-    {"name": "Service", "cat": "sec_object", "desc": "system service/program (hardening)", "aliases": ["service"]},
-
-    {"name": "RiskManagement", "cat": "process", "desc": "risk framework; identification/analysis/evaluation/response"},
-    {"name": "RiskAssessment", "cat": "process", "subtype_of": "RiskManagement", "desc": "the assessment activity"},
-    {"name": "ThreatModelling", "cat": "process", "desc": "scope -> decompose -> identify -> attack-model"},
-    {"name": "ThreatHunting", "cat": "process", "desc": "proactive search"},
-    {"name": "ThreatIntelligence", "cat": "process", "desc": "intel gathering + information sharing"},
-    {"name": "VulnerabilityAssessment", "cat": "process", "desc": "identify/track/remediate vulnerabilities"},
-    {"name": "PenetrationTesting", "cat": "process", "desc": "authorised intrusion test"},
-    {"name": "AttackSimulation", "cat": "process", "desc": "red/purple teaming exercise"},
-    {"name": "Audit", "cat": "process", "desc": "cybersecurity audit (s15)"},
-    {"name": "AuditScope", "cat": "process", "desc": "the defined scope an audit must cover (s15; Auditing s6.3)"},
-    {"name": "AuditFinding", "cat": "process", "desc": "an audit criteria not being met"},
-    {"name": "AuditEvidence", "cat": "process", "desc": "records/facts verifiable against audit criteria"},
-    {"name": "AuditCriteria", "cat": "process", "desc": "requirements used as the audit reference"},
-    {"name": "Remediation", "cat": "process", "desc": "audit-finding remediation"},
-    {"name": "ChangeManagement", "cat": "process", "desc": "change identification/authorisation/validation"},
-    {"name": "IncidentManagement", "cat": "process", "desc": "detection -> containment -> recovery -> post-incident review"},
-    {"name": "Monitoring", "cat": "process", "desc": "monitoring & detection, logging"},
-    {"name": "CybersecurityExercise", "cat": "process", "desc": "scenario-based exercise"},
-    {"name": "SecurityByDesign", "cat": "process", "desc": "SDLC-integrated security (SBD phases)"},
-    {"name": "Training", "cat": "process", "desc": "awareness programme + skills training"},
-
-    {"name": "Policy", "cat": "artifact", "desc": "policy / standard / guideline / procedure"},
-    {"name": "Contract", "cat": "artifact", "desc": "outsourcing agreement / terms with a third party (s3.8)"},
-    {"name": "RiskRegister", "cat": "artifact", "desc": "risk register (s3.2.4)"},
-    {"name": "RiskAssessmentReport", "cat": "artifact", "desc": "risk assessment report + cybersecurity risk profile"},
-    {"name": "AssetInventory", "cat": "artifact", "desc": "CII asset inventory + network topology diagram"},
-    {"name": "IncidentResponsePlan", "cat": "artifact", "desc": "Cybersecurity Incident Response Plan"},
-    {"name": "CrisisCommunicationPlan", "cat": "artifact", "desc": "s7.2"},
-    {"name": "BusinessContinuityPlan", "cat": "artifact", "desc": "BCP"},
-    {"name": "DisasterRecoveryPlan", "cat": "artifact", "desc": "DRP (+ RTO/RPO)"},
-    {"name": "RemediationPlan", "cat": "artifact", "desc": "audit finding remediation plan"},
-    {"name": "AuditReport", "cat": "artifact", "desc": "audit report"},
-    {"name": "ThreatModel", "cat": "artifact", "desc": "the threat-model artifact"},
-    {"name": "AttackSimulationPlan", "cat": "artifact", "desc": "red/purple team plan"},
-    {"name": "RiskAppetite", "cat": "artifact", "desc": "risk appetite / risk tolerance / thresholds"},
-
-    {"name": "CybersecurityRisk", "cat": "risk", "desc": "risk = f(Likelihood, Impact)"},
-    {"name": "ResidualRisk", "cat": "risk", "subtype_of": "CybersecurityRisk", "desc": "risk after controls"},
-    {"name": "RiskScenario", "cat": "risk", "desc": "scenario in the risk register"},
-    {"name": "Likelihood", "cat": "risk", "desc": "discoverability/exploitability/reproducibility"},
-    {"name": "Impact", "cat": "risk", "desc": "magnitude of harm (nation/org/individual)"},
-    {"name": "CybersecurityThreat", "cat": "risk", "desc": "threat / threat event / threat vector"},
-    {"name": "TTP", "cat": "risk", "desc": "tactics, techniques & procedures"},
-    {"name": "Vulnerability", "cat": "risk", "desc": "weakness in design/implementation/operation"},
-    {"name": "CybersecurityIncident", "cat": "risk", "desc": "incident / cybersecurity event"},
-    {"name": "AttackConcept", "cat": "risk", "desc": "attack surface, attack vector, kill-chain, crown jewels, lateral movement"},
-    {"name": "Malware", "cat": "risk", "desc": "malware, IOC (indicator of compromise)"},
-
-    {"name": "DesignPrinciple", "cat": "governance", "desc": "defence-in-depth, least privilege, segregation of duties, defence-by-diversity, zero-trust"},
-    {"name": "ComplianceStatus", "cat": "governance", "desc": "compliant / non-compliant / not-applicable / insufficient"},
-    {"name": "Condition", "cat": "governance", "desc": "the 'if/where necessary' qualifier on an obligation"},
-    {"name": "ComplianceGap", "cat": "governance", "desc": "a gap / area of non-compliance"},
-    {"name": "Deadline", "cat": "governance", "desc": "recurring interval; Compliance/Effective/Designation Date"},
-    {"name": "OrganisationalStructure", "cat": "governance", "desc": "roles + authority + reporting lines"}
+    {
+      "name": "Actor",
+      "cat": "actor",
+      "abstract": true,
+      "desc": "abstract superclass of all duty-bearing/acting parties"
+    },
+    {
+      "name": "Regulator",
+      "cat": "regulatory",
+      "desc": "CSA, Commissioner, Deputy/Assistant Commissioner, Sector Lead, licensing officer",
+      "aliases": [
+        "CSA",
+        "Commissioner",
+        "Cyber Security Agency",
+        "Sector Lead"
+      ]
+    },
+    {
+      "name": "Legislation",
+      "cat": "regulatory",
+      "desc": "Cybersecurity Act 2018; CII Regulations 2018",
+      "aliases": [
+        "the Act",
+        "Cybersecurity Act 2018"
+      ]
+    },
+    {
+      "name": "CodeOfPractice",
+      "cat": "regulatory",
+      "desc": "CCoP 2.0 (this Code); standards of performance",
+      "aliases": [
+        "the Code",
+        "CCoP",
+        "CCoP 2.0"
+      ]
+    },
+    {
+      "name": "Provision",
+      "cat": "regulatory",
+      "desc": "a clause/section - the regulatory unit itself"
+    },
+    {
+      "name": "Obligation",
+      "cat": "regulatory",
+      "desc": "a duty a clause imposes (plain entity, per POC)"
+    },
+    {
+      "name": "Waiver",
+      "cat": "regulatory",
+      "desc": "s11(7) waiver - a granted instrument"
+    },
+    {
+      "name": "Direction",
+      "cat": "regulatory",
+      "desc": "written direction under s12(1)"
+    },
+    {
+      "name": "Designation",
+      "cat": "regulatory",
+      "desc": "s7 CII designation act"
+    },
+    {
+      "name": "Exemption",
+      "cat": "regulatory",
+      "desc": "Act s46 exemption"
+    },
+    {
+      "name": "ExternalStandard",
+      "cat": "regulatory",
+      "desc": "reference frameworks: NIST, ISO/IEC 27001, OWASP, MITRE ATT&CK, Purdue Model",
+      "aliases": [
+        "NIST",
+        "ISO",
+        "OWASP",
+        "industry standard",
+        "best practice"
+      ]
+    },
+    {
+      "name": "Certification",
+      "cat": "regulatory",
+      "desc": "professional/accreditation credentials: CISA, CRISC, CREST",
+      "aliases": [
+        "CISA",
+        "CRISC",
+        "CREST"
+      ]
+    },
+    {
+      "name": "RegulatoryFramework",
+      "cat": "regulatory",
+      "desc": "MAS-TRM, IM8 (multi-regulator overlap)"
+    },
+    {
+      "name": "CIIO",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "owner of the CII (primary duty-holder)",
+      "aliases": [
+        "owner of a critical information infrastructure",
+        "CII owner",
+        "the organisation"
+      ]
+    },
+    {
+      "name": "Board",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "board of directors / equivalent body"
+    },
+    {
+      "name": "SeniorManagement",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "senior/accountable management"
+    },
+    {
+      "name": "OrganisationalRole",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "a named role with assigned responsibility (fillers = personnel/employee)"
+    },
+    {
+      "name": "CISO",
+      "cat": "actor",
+      "subtype_of": "OrganisationalRole",
+      "desc": "Chief Information Security Officer"
+    },
+    {
+      "name": "IncidentResponseTeam",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "CIRT",
+      "aliases": [
+        "CIRT"
+      ]
+    },
+    {
+      "name": "CrisisTeam",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "crisis communication / crisis management team"
+    },
+    {
+      "name": "AttackSimTeam",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "red team, blue team, purple team"
+    },
+    {
+      "name": "ThirdParty",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "vendor, external party, service provider, outsourced provider",
+      "aliases": [
+        "vendor",
+        "external party",
+        "service provider"
+      ]
+    },
+    {
+      "name": "CloudServiceProvider",
+      "cat": "actor",
+      "subtype_of": "ThirdParty",
+      "desc": "cloud computing service provider"
+    },
+    {
+      "name": "Auditor",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "CSA-approved cybersecurity auditor"
+    },
+    {
+      "name": "PenetrationTester",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "certified pen-tester / accredited provider"
+    },
+    {
+      "name": "SystemActor",
+      "cat": "actor",
+      "subtype_of": "OrganisationalRole",
+      "desc": "System Owner, System Administrator, Database Administrator, System Custodian"
+    },
+    {
+      "name": "ProjectRole",
+      "cat": "actor",
+      "subtype_of": "OrganisationalRole",
+      "desc": "SBD roles: Steering Committee, Project Manager, Developer, Security Officer"
+    },
+    {
+      "name": "RiskRole",
+      "cat": "actor",
+      "subtype_of": "OrganisationalRole",
+      "desc": "Head of Organisation, Business Owner, Risk Management Function, Risk Owner, Cybersecurity Function"
+    },
+    {
+      "name": "LawEnforcement",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "law enforcement agency"
+    },
+    {
+      "name": "CyberThreatActor",
+      "cat": "actor",
+      "subtype_of": "Actor",
+      "desc": "adversary / attacker",
+      "aliases": [
+        "adversary",
+        "attacker",
+        "threat actor"
+      ]
+    },
+    {
+      "name": "ComputerSystem",
+      "cat": "system",
+      "desc": "generic computer/computer system",
+      "aliases": [
+        "computer system",
+        "computer"
+      ]
+    },
+    {
+      "name": "CII",
+      "cat": "system",
+      "desc": "critical information infrastructure",
+      "aliases": [
+        "critical information infrastructure",
+        "cii system",
+        "cii asset",
+        "the CII",
+        "a CII"
+      ]
+    },
+    {
+      "name": "CIIAsset",
+      "cat": "system",
+      "desc": "components: hardware, software, network infra"
+    },
+    {
+      "name": "ITSystem",
+      "cat": "system",
+      "subtype_of": "ComputerSystem",
+      "desc": "IT CII",
+      "aliases": [
+        "information technology",
+        "IT system"
+      ]
+    },
+    {
+      "name": "OTSystem",
+      "cat": "system",
+      "subtype_of": "ComputerSystem",
+      "desc": "OT CII",
+      "aliases": [
+        "operational technology",
+        "OT system",
+        "OT CII"
+      ]
+    },
+    {
+      "name": "Network",
+      "cat": "system",
+      "desc": "network / network segment"
+    },
+    {
+      "name": "EnterpriseNetwork",
+      "cat": "system",
+      "desc": "shared corporate network (not in-scope by default)",
+      "aliases": [
+        "enterprise network",
+        "corporate network"
+      ]
+    },
+    {
+      "name": "CloudSystem",
+      "cat": "system",
+      "desc": "cloud computing system (public/private/hybrid)",
+      "subtype_of": "ComputerSystem"
+    },
+    {
+      "name": "Database",
+      "cat": "system",
+      "desc": "database, database tier",
+      "subtype_of": "CIIAsset"
+    },
+    {
+      "name": "Application",
+      "cat": "system",
+      "desc": "software application, web application, firmware, programme code"
+    },
+    {
+      "name": "Server",
+      "cat": "system",
+      "subtype_of": "ComputerSystem",
+      "desc": "domain controller, DNS server, alarm server, OT historian, management server"
+    },
+    {
+      "name": "Endpoint",
+      "cat": "system",
+      "desc": "workstation, console, HMI, portable computing device, removable storage media"
+    },
+    {
+      "name": "NetworkDevice",
+      "cat": "system",
+      "desc": "appliance, field device, network device",
+      "subtype_of": "CIIAsset"
+    },
+    {
+      "name": "FieldController",
+      "cat": "system",
+      "subtype_of": "NetworkDevice",
+      "desc": "PLC, RTU (OT)"
+    },
+    {
+      "name": "ControlSystem",
+      "cat": "system",
+      "desc": "SCADA, DCS, Safety Instrumented System (SIS)",
+      "subtype_of": "CIIAsset"
+    },
+    {
+      "name": "PhysicalProcess",
+      "cat": "system",
+      "desc": "the physical process an OT CII monitors/controls (s10.1.2)"
+    },
+    {
+      "name": "DigitalBoundary",
+      "cat": "system",
+      "desc": "cyber operating environment; perimeter/trust boundary; DMZ",
+      "aliases": [
+        "cyber operating environment",
+        "digital boundary",
+        "perimeter boundary",
+        "trust boundary"
+      ]
+    },
+    {
+      "name": "PhysicalSite",
+      "cat": "system",
+      "desc": "primary/secondary hosting locations"
+    },
+    {
+      "name": "EssentialService",
+      "cat": "system",
+      "desc": "the service the CII delivers (Act s2)"
+    },
+    {
+      "name": "Sector",
+      "cat": "system",
+      "subtype_of": "EssentialService",
+      "desc": "the 11 Act First-Schedule sectors (Energy, Info-comms, Water, Healthcare, Banking&Finance, Security&Emergency, Aviation, LandTransport, Maritime, Government, Media)"
+    },
+    {
+      "name": "SecurityControl",
+      "cat": "control",
+      "desc": "generic control/measure/mechanism",
+      "aliases": [
+        "control",
+        "measure",
+        "mechanism",
+        "security measure"
+      ]
+    },
+    {
+      "name": "MitigatingControl",
+      "cat": "control",
+      "subtype_of": "SecurityControl",
+      "desc": "risk-mitigating / engineering (non-digital) control"
+    },
+    {
+      "name": "CompensatingControl",
+      "cat": "control",
+      "subtype_of": "SecurityControl",
+      "desc": "alternative control (audit)"
+    },
+    {
+      "name": "AccessControlMechanism",
+      "cat": "control",
+      "subtype_of": "SecurityControl",
+      "desc": "authentication, authorisation, MFA, privileged access"
+    },
+    {
+      "name": "SecurityConfigurationBaseline",
+      "cat": "control",
+      "desc": "system hardening baseline (s5.9.2)",
+      "aliases": [
+        "security configuration baseline",
+        "configuration baseline",
+        "baseline"
+      ]
+    },
+    {
+      "name": "NetworkControl",
+      "cat": "control",
+      "subtype_of": "SecurityControl",
+      "desc": "segmentation, firewall, WAF, IDS/IPS, data-flow control"
+    },
+    {
+      "name": "Cryptography",
+      "cat": "control",
+      "desc": "encryption, cryptographic key, DNSSEC, hashing",
+      "aliases": [
+        "encryption",
+        "cryptographic key",
+        "hash"
+      ],
+      "subtype_of": "SecurityControl"
+    },
+    {
+      "name": "MalwareProtection",
+      "cat": "control",
+      "subtype_of": "SecurityControl",
+      "desc": "anti-malware / signatures"
+    },
+    {
+      "name": "Patch",
+      "cat": "control",
+      "desc": "security patch / update",
+      "subtype_of": "SecurityControl"
+    },
+    {
+      "name": "Backup",
+      "cat": "control",
+      "desc": "backup copy / restoration"
+    },
+    {
+      "name": "Log",
+      "cat": "control",
+      "desc": "logs, log retention (firewall/DNS/proxy/NIDS)"
+    },
+    {
+      "name": "SecurityArchitecture",
+      "cat": "control",
+      "desc": "multi-tier architecture, defence-in-depth layering"
+    },
+    {
+      "name": "SafetyMechanism",
+      "cat": "control",
+      "desc": "fail-safe, interlock (OT)",
+      "subtype_of": "SecurityControl"
+    },
+    {
+      "name": "Account",
+      "cat": "sec_object",
+      "desc": "user/application/service/system account",
+      "aliases": [
+        "account",
+        "user account"
+      ]
+    },
+    {
+      "name": "PrivilegedAccount",
+      "cat": "sec_object",
+      "subtype_of": "Account",
+      "desc": "account with administrative access privileges"
+    },
+    {
+      "name": "Password",
+      "cat": "sec_object",
+      "desc": "password / passphrase",
+      "aliases": [
+        "password",
+        "passphrase"
+      ]
+    },
+    {
+      "name": "PasswordLength",
+      "cat": "sec_object",
+      "desc": "password length requirement (B05 / RtF-11.28)",
+      "aliases": [
+        "password length"
+      ]
+    },
+    {
+      "name": "DefaultCredential",
+      "cat": "sec_object",
+      "desc": "default password / default account",
+      "aliases": [
+        "default password",
+        "default account",
+        "default credential"
+      ]
+    },
+    {
+      "name": "HashStorage",
+      "cat": "sec_object",
+      "desc": "hashed storage form for credentials",
+      "aliases": [
+        "hash",
+        "hash form",
+        "hashed form"
+      ]
+    },
+    {
+      "name": "Port",
+      "cat": "sec_object",
+      "desc": "network port (hardening)",
+      "aliases": [
+        "port"
+      ]
+    },
+    {
+      "name": "Service",
+      "cat": "sec_object",
+      "desc": "system service/program (hardening)",
+      "aliases": [
+        "service"
+      ]
+    },
+    {
+      "name": "RiskManagement",
+      "cat": "process",
+      "desc": "risk framework; identification/analysis/evaluation/response"
+    },
+    {
+      "name": "RiskAssessment",
+      "cat": "process",
+      "subtype_of": "RiskManagement",
+      "desc": "the assessment activity"
+    },
+    {
+      "name": "ThreatModelling",
+      "cat": "process",
+      "desc": "scope -> decompose -> identify -> attack-model"
+    },
+    {
+      "name": "ThreatHunting",
+      "cat": "process",
+      "desc": "proactive search"
+    },
+    {
+      "name": "ThreatIntelligence",
+      "cat": "process",
+      "desc": "intel gathering + information sharing"
+    },
+    {
+      "name": "VulnerabilityAssessment",
+      "cat": "process",
+      "desc": "identify/track/remediate vulnerabilities"
+    },
+    {
+      "name": "PenetrationTesting",
+      "cat": "process",
+      "desc": "authorised intrusion test"
+    },
+    {
+      "name": "AttackSimulation",
+      "cat": "process",
+      "desc": "red/purple teaming exercise"
+    },
+    {
+      "name": "Audit",
+      "cat": "process",
+      "desc": "cybersecurity audit (s15)"
+    },
+    {
+      "name": "AuditScope",
+      "cat": "process",
+      "desc": "the defined scope an audit must cover (s15; Auditing s6.3)"
+    },
+    {
+      "name": "AuditFinding",
+      "cat": "process",
+      "desc": "an audit criteria not being met"
+    },
+    {
+      "name": "AuditEvidence",
+      "cat": "process",
+      "desc": "records/facts verifiable against audit criteria"
+    },
+    {
+      "name": "AuditCriteria",
+      "cat": "process",
+      "desc": "requirements used as the audit reference"
+    },
+    {
+      "name": "Remediation",
+      "cat": "process",
+      "desc": "audit-finding remediation"
+    },
+    {
+      "name": "ChangeManagement",
+      "cat": "process",
+      "desc": "change identification/authorisation/validation"
+    },
+    {
+      "name": "IncidentManagement",
+      "cat": "process",
+      "desc": "detection -> containment -> recovery -> post-incident review"
+    },
+    {
+      "name": "Monitoring",
+      "cat": "process",
+      "desc": "monitoring & detection, logging"
+    },
+    {
+      "name": "CybersecurityExercise",
+      "cat": "process",
+      "desc": "scenario-based exercise"
+    },
+    {
+      "name": "SecurityByDesign",
+      "cat": "process",
+      "desc": "SDLC-integrated security (SBD phases)"
+    },
+    {
+      "name": "Training",
+      "cat": "process",
+      "desc": "awareness programme + skills training"
+    },
+    {
+      "name": "Policy",
+      "cat": "artifact",
+      "desc": "policy / standard / guideline / procedure"
+    },
+    {
+      "name": "Contract",
+      "cat": "artifact",
+      "desc": "outsourcing agreement / terms with a third party (s3.8)"
+    },
+    {
+      "name": "RiskRegister",
+      "cat": "artifact",
+      "desc": "risk register (s3.2.4)"
+    },
+    {
+      "name": "RiskAssessmentReport",
+      "cat": "artifact",
+      "desc": "risk assessment report + cybersecurity risk profile"
+    },
+    {
+      "name": "AssetInventory",
+      "cat": "artifact",
+      "desc": "CII asset inventory + network topology diagram"
+    },
+    {
+      "name": "IncidentResponsePlan",
+      "cat": "artifact",
+      "desc": "Cybersecurity Incident Response Plan"
+    },
+    {
+      "name": "CrisisCommunicationPlan",
+      "cat": "artifact",
+      "desc": "s7.2"
+    },
+    {
+      "name": "BusinessContinuityPlan",
+      "cat": "artifact",
+      "desc": "BCP"
+    },
+    {
+      "name": "DisasterRecoveryPlan",
+      "cat": "artifact",
+      "desc": "DRP (+ RTO/RPO)"
+    },
+    {
+      "name": "RemediationPlan",
+      "cat": "artifact",
+      "desc": "audit finding remediation plan"
+    },
+    {
+      "name": "AuditReport",
+      "cat": "artifact",
+      "desc": "audit report"
+    },
+    {
+      "name": "ThreatModel",
+      "cat": "artifact",
+      "desc": "the threat-model artifact"
+    },
+    {
+      "name": "AttackSimulationPlan",
+      "cat": "artifact",
+      "desc": "red/purple team plan"
+    },
+    {
+      "name": "RiskAppetite",
+      "cat": "artifact",
+      "desc": "risk appetite / risk tolerance / thresholds"
+    },
+    {
+      "name": "CybersecurityRisk",
+      "cat": "risk",
+      "desc": "risk = f(Likelihood, Impact)"
+    },
+    {
+      "name": "ResidualRisk",
+      "cat": "risk",
+      "subtype_of": "CybersecurityRisk",
+      "desc": "risk after controls"
+    },
+    {
+      "name": "RiskScenario",
+      "cat": "risk",
+      "desc": "scenario in the risk register"
+    },
+    {
+      "name": "Likelihood",
+      "cat": "risk",
+      "desc": "discoverability/exploitability/reproducibility"
+    },
+    {
+      "name": "Impact",
+      "cat": "risk",
+      "desc": "magnitude of harm (nation/org/individual)"
+    },
+    {
+      "name": "CybersecurityThreat",
+      "cat": "risk",
+      "desc": "threat / threat event / threat vector"
+    },
+    {
+      "name": "TTP",
+      "cat": "risk",
+      "desc": "tactics, techniques & procedures"
+    },
+    {
+      "name": "Vulnerability",
+      "cat": "risk",
+      "desc": "weakness in design/implementation/operation"
+    },
+    {
+      "name": "CybersecurityIncident",
+      "cat": "risk",
+      "desc": "incident / cybersecurity event"
+    },
+    {
+      "name": "AttackConcept",
+      "cat": "risk",
+      "desc": "attack surface, attack vector, kill-chain, crown jewels, lateral movement"
+    },
+    {
+      "name": "Malware",
+      "cat": "risk",
+      "desc": "malware, IOC (indicator of compromise)"
+    },
+    {
+      "name": "DesignPrinciple",
+      "cat": "governance",
+      "desc": "defence-in-depth, least privilege, segregation of duties, defence-by-diversity, zero-trust"
+    },
+    {
+      "name": "ComplianceStatus",
+      "cat": "governance",
+      "desc": "compliant / non-compliant / not-applicable / insufficient"
+    },
+    {
+      "name": "Condition",
+      "cat": "governance",
+      "desc": "the 'if/where necessary' qualifier on an obligation"
+    },
+    {
+      "name": "ComplianceGap",
+      "cat": "governance",
+      "desc": "a gap / area of non-compliance"
+    },
+    {
+      "name": "Deadline",
+      "cat": "governance",
+      "desc": "recurring interval; Compliance/Effective/Designation Date"
+    },
+    {
+      "name": "OrganisationalStructure",
+      "cat": "governance",
+      "desc": "roles + authority + reporting lines"
+    }
   ],
-
   "relations": [
-    {"name": "APPLIES_TO", "domain": ["Provision", "CodeOfPractice"], "range": ["CII", "CIIO", "ITSystem", "OTSystem"]},
-    {"name": "DELIVERS", "domain": ["CII", "ComputerSystem"], "range": ["EssentialService"]},
-    {"name": "IN_SECTOR", "domain": ["EssentialService"], "range": ["Sector"]},
-    {"name": "WITHIN_BOUNDARY", "domain": ["CII", "CIIAsset", "ComputerSystem"], "range": ["DigitalBoundary"]},
-    {"name": "DETERMINED_BY", "domain": ["DigitalBoundary"], "range": ["Regulator"]},
-    {"name": "DESIGNATES", "domain": ["Regulator"], "range": ["CII", "ComputerSystem"]},
-    {"name": "CONNECTED_TO", "domain": ["CII", "ComputerSystem"], "range": ["EnterpriseNetwork", "Network"]},
-    {"name": "EXCLUDED_FROM_SCOPE", "domain": ["EnterpriseNetwork", "ComputerSystem"], "range": ["Audit", "AuditScope", "CII"]},
-    {"name": "CONDITIONED_ON", "domain": ["Obligation", "Provision"], "range": ["Condition"]},
-
-    {"name": "CLASSIFIED_AS", "domain": ["CII"], "range": ["ITSystem", "OTSystem"]},
-    {"name": "HAS_ASSET", "domain": ["CII"], "range": ["CIIAsset"]},
-    {"name": "DEPENDS_ON", "domain": ["CIIAsset"], "range": ["CIIAsset", "ComputerSystem"]},
-
-    {"name": "HAS_OBLIGATION", "domain": ["Actor"], "range": ["Obligation"]},
-    {"name": "RESPONSIBLE_FOR", "domain": ["Actor", "OrganisationalRole"], "range": ["Audit", "RiskManagement", "CIIAsset", "CII", "SecurityControl", "OrganisationalStructure"]},
-    {"name": "ACCOUNTABLE_FOR", "domain": ["CIIO", "SeniorManagement", "Board"], "range": ["CII", "CybersecurityRisk"]},
-    {"name": "ASSIGNED_TO", "domain": ["OrganisationalRole"], "range": ["Actor"]},
-    {"name": "OVERSEES", "domain": ["Board", "SeniorManagement"], "range": ["CybersecurityRisk", "CII"]},
-    {"name": "SEGREGATES", "domain": ["OrganisationalRole"], "range": ["OrganisationalRole"]},
-    {"name": "DELEGATES_TO", "domain": ["CIIO"], "range": ["ThirdParty", "CloudServiceProvider"]},
-    {"name": "SUPERVISES", "domain": ["OrganisationalRole", "CIIO"], "range": ["RiskAssessment", "Audit", "OrganisationalRole", "ThirdParty"]},
-    {"name": "HAS_CERTIFICATION", "domain": ["OrganisationalRole", "Auditor", "PenetrationTester", "ThirdParty"], "range": ["Certification"]},
-
-    {"name": "MANDATES", "domain": ["Provision"], "range": ["SecurityControl", "RiskManagement", "Audit", "Policy", "IncidentResponsePlan", "SecurityConfigurationBaseline"]},
-    {"name": "RECOMMENDS", "domain": ["Provision"], "range": ["SecurityControl", "RiskManagement", "Policy"]},
-    {"name": "IMPLEMENTS", "domain": ["CIIO"], "range": ["SecurityControl", "RiskManagement", "SecurityByDesign", "Monitoring"]},
-    {"name": "PROTECTS", "domain": ["SecurityControl"], "range": ["CII", "CIIAsset"]},
-    {"name": "MITIGATES", "domain": ["SecurityControl", "MitigatingControl"], "range": ["CybersecurityRisk", "CybersecurityThreat"]},
-    {"name": "ADDRESSES", "domain": ["SecurityControl"], "range": ["Vulnerability"]},
-    {"name": "APPLIES_BASELINE", "domain": ["SecurityConfigurationBaseline"], "range": ["CIIAsset", "Endpoint"]},
-    {"name": "ATTRIBUTE_OF", "domain": ["PasswordLength"], "range": ["Password"]},
-    {"name": "STORED_AS", "domain": ["Password", "DefaultCredential"], "range": ["HashStorage"]},
-    {"name": "MUST_CHANGE", "domain": ["SecurityConfigurationBaseline", "Provision", "CIIO"], "range": ["DefaultCredential", "Password"]},
-    {"name": "DISABLES", "domain": ["SecurityConfigurationBaseline", "CIIO"], "range": ["Account", "Service", "Port", "Application", "DefaultCredential"]},
-    {"name": "DEFERS_TO", "domain": ["Provision", "CodeOfPractice", "CIIO"], "range": ["ExternalStandard", "RegulatoryFramework"]},
-    {"name": "DOES_NOT_SPECIFY", "domain": ["Provision", "CodeOfPractice"], "range": ["__literal__", "PasswordLength", "SecurityControl"], "note": "B21 over-specification guard; range may be a literal or a concept the Code is silent on"},
-
-    {"name": "IDENTIFIES", "domain": ["RiskAssessment", "ThreatModelling", "VulnerabilityAssessment"], "range": ["CybersecurityRisk", "CybersecurityThreat", "Vulnerability", "CIIAsset"]},
-    {"name": "HAS_LIKELIHOOD", "domain": ["CybersecurityRisk"], "range": ["Likelihood"]},
-    {"name": "HAS_IMPACT", "domain": ["CybersecurityRisk"], "range": ["Impact"]},
-    {"name": "EXPLOITS", "domain": ["CybersecurityThreat", "CyberThreatActor"], "range": ["Vulnerability"]},
-    {"name": "TARGETS", "domain": ["CyberThreatActor"], "range": ["CIIAsset", "CII"]},
-    {"name": "MITIGATED_BY", "domain": ["CybersecurityRisk"], "range": ["SecurityControl"]},
-    {"name": "LEAVES_RESIDUAL", "domain": ["SecurityControl"], "range": ["ResidualRisk"]},
-    {"name": "RECORDED_IN", "domain": ["CybersecurityRisk", "RiskScenario"], "range": ["RiskRegister"]},
-    {"name": "ACCEPTED_BY", "domain": ["ResidualRisk"], "range": ["SeniorManagement", "RiskRole"]},
-
-    {"name": "DETECTS", "domain": ["Monitoring", "Log"], "range": ["CybersecurityIncident", "CybersecurityThreat"]},
-    {"name": "RESPONDS_TO", "domain": ["IncidentResponsePlan", "IncidentResponseTeam"], "range": ["CybersecurityIncident"]},
-    {"name": "ACTIVATES", "domain": ["CybersecurityIncident"], "range": ["IncidentResponsePlan", "IncidentResponseTeam", "CrisisCommunicationPlan"]},
-    {"name": "RECOVERS", "domain": ["DisasterRecoveryPlan", "BusinessContinuityPlan", "Backup"], "range": ["CII", "EssentialService"]},
-    {"name": "REPORTS", "domain": ["CIIO"], "range": ["Regulator"]},
-    {"name": "VALIDATES", "domain": ["CybersecurityExercise"], "range": ["IncidentResponsePlan", "BusinessContinuityPlan", "DisasterRecoveryPlan", "CrisisCommunicationPlan"]},
-
-    {"name": "AUDITS", "domain": ["Auditor"], "range": ["CII"]},
-    {"name": "PRODUCES", "domain": ["Audit"], "range": ["AuditFinding", "AuditReport"]},
-    {"name": "COVERS", "domain": ["Audit"], "range": ["AuditScope", "Provision"]},
-    {"name": "CONTAINS", "domain": ["AuditReport", "Policy", "IncidentResponsePlan", "RiskRegister"], "range": ["AuditFinding", "AuditEvidence", "SecurityControl", "RiskScenario", "CybersecurityRisk"]},
-    {"name": "REQUIRES_EVIDENCE", "domain": ["Audit", "AuditCriteria"], "range": ["AuditEvidence"]},
-    {"name": "ISSUES", "domain": ["Regulator"], "range": ["CodeOfPractice", "Direction"]},
-    {"name": "APPROVES", "domain": ["Regulator"], "range": ["Auditor", "RiskAssessmentReport", "Waiver"]},
-    {"name": "APPOINTS", "domain": ["Regulator"], "range": ["Auditor", "OrganisationalRole"]},
-    {"name": "REMEDIATED_BY", "domain": ["ComplianceGap", "AuditFinding"], "range": ["RemediationPlan"]},
-    {"name": "COMPENSATED_BY", "domain": ["Provision"], "range": ["CompensatingControl"]},
-    {"name": "GRANTS", "domain": ["Regulator"], "range": ["Waiver"]},
-    {"name": "WAIVES", "domain": ["Waiver"], "range": ["Provision", "Obligation"]},
-    {"name": "EXEMPTS", "domain": ["Legislation"], "range": ["Actor", "ComputerSystem"]},
-
-    {"name": "DEFINES", "domain": ["Provision"], "range": ["__any_entity__"]},
-    {"name": "OVERLAPS_WITH", "domain": ["CodeOfPractice"], "range": ["RegulatoryFramework"]}
+    {
+      "name": "APPLIES_TO",
+      "domain": [
+        "Provision",
+        "CodeOfPractice"
+      ],
+      "range": [
+        "CII",
+        "CIIO",
+        "ITSystem",
+        "OTSystem"
+      ]
+    },
+    {
+      "name": "DELIVERS",
+      "domain": [
+        "CII",
+        "ComputerSystem"
+      ],
+      "range": [
+        "EssentialService"
+      ]
+    },
+    {
+      "name": "IN_SECTOR",
+      "domain": [
+        "EssentialService"
+      ],
+      "range": [
+        "Sector"
+      ]
+    },
+    {
+      "name": "WITHIN_BOUNDARY",
+      "domain": [
+        "CII",
+        "CIIAsset",
+        "ComputerSystem"
+      ],
+      "range": [
+        "DigitalBoundary"
+      ]
+    },
+    {
+      "name": "DETERMINED_BY",
+      "domain": [
+        "DigitalBoundary"
+      ],
+      "range": [
+        "Regulator"
+      ]
+    },
+    {
+      "name": "DESIGNATES",
+      "domain": [
+        "Regulator"
+      ],
+      "range": [
+        "CII",
+        "ComputerSystem"
+      ]
+    },
+    {
+      "name": "CONNECTED_TO",
+      "domain": [
+        "CII",
+        "ComputerSystem"
+      ],
+      "range": [
+        "EnterpriseNetwork",
+        "Network"
+      ]
+    },
+    {
+      "name": "EXCLUDED_FROM_SCOPE",
+      "domain": [
+        "EnterpriseNetwork",
+        "ComputerSystem"
+      ],
+      "range": [
+        "Audit",
+        "AuditScope",
+        "CII"
+      ]
+    },
+    {
+      "name": "CONDITIONED_ON",
+      "domain": [
+        "Obligation",
+        "Provision"
+      ],
+      "range": [
+        "Condition"
+      ]
+    },
+    {
+      "name": "CLASSIFIED_AS",
+      "domain": [
+        "CII"
+      ],
+      "range": [
+        "ITSystem",
+        "OTSystem"
+      ]
+    },
+    {
+      "name": "HAS_ASSET",
+      "domain": [
+        "CII"
+      ],
+      "range": [
+        "CIIAsset"
+      ]
+    },
+    {
+      "name": "DEPENDS_ON",
+      "domain": [
+        "CIIAsset"
+      ],
+      "range": [
+        "CIIAsset",
+        "ComputerSystem"
+      ]
+    },
+    {
+      "name": "HAS_OBLIGATION",
+      "domain": [
+        "Actor"
+      ],
+      "range": [
+        "Obligation"
+      ]
+    },
+    {
+      "name": "RESPONSIBLE_FOR",
+      "domain": [
+        "Actor",
+        "OrganisationalRole"
+      ],
+      "range": [
+        "Audit",
+        "RiskManagement",
+        "CIIAsset",
+        "CII",
+        "SecurityControl",
+        "OrganisationalStructure"
+      ]
+    },
+    {
+      "name": "ACCOUNTABLE_FOR",
+      "domain": [
+        "CIIO",
+        "SeniorManagement",
+        "Board"
+      ],
+      "range": [
+        "CII",
+        "CybersecurityRisk"
+      ]
+    },
+    {
+      "name": "ASSIGNED_TO",
+      "domain": [
+        "OrganisationalRole"
+      ],
+      "range": [
+        "Actor"
+      ]
+    },
+    {
+      "name": "OVERSEES",
+      "domain": [
+        "Board",
+        "SeniorManagement"
+      ],
+      "range": [
+        "CybersecurityRisk",
+        "CII"
+      ]
+    },
+    {
+      "name": "SEGREGATES",
+      "domain": [
+        "OrganisationalRole"
+      ],
+      "range": [
+        "OrganisationalRole"
+      ]
+    },
+    {
+      "name": "DELEGATES_TO",
+      "domain": [
+        "CIIO"
+      ],
+      "range": [
+        "ThirdParty",
+        "CloudServiceProvider"
+      ]
+    },
+    {
+      "name": "SUPERVISES",
+      "domain": [
+        "OrganisationalRole",
+        "CIIO"
+      ],
+      "range": [
+        "RiskAssessment",
+        "Audit",
+        "OrganisationalRole",
+        "ThirdParty"
+      ]
+    },
+    {
+      "name": "HAS_CERTIFICATION",
+      "domain": [
+        "OrganisationalRole",
+        "Auditor",
+        "PenetrationTester",
+        "ThirdParty"
+      ],
+      "range": [
+        "Certification"
+      ]
+    },
+    {
+      "name": "MANDATES",
+      "domain": [
+        "Provision"
+      ],
+      "range": [
+        "SecurityControl",
+        "RiskManagement",
+        "Audit",
+        "Policy",
+        "IncidentResponsePlan",
+        "SecurityConfigurationBaseline",
+        "AssetInventory",
+        "Contract",
+        "Monitoring",
+        "Training",
+        "ChangeManagement",
+        "IncidentManagement",
+        "ThreatIntelligence",
+        "ThreatHunting",
+        "PenetrationTesting",
+        "AttackSimulation",
+        "VulnerabilityAssessment",
+        "CybersecurityExercise",
+        "SecurityByDesign",
+        "SecurityArchitecture",
+        "Backup",
+        "Log",
+        "RiskRegister",
+        "CrisisCommunicationPlan",
+        "BusinessContinuityPlan",
+        "DisasterRecoveryPlan",
+        "RemediationPlan"
+      ]
+    },
+    {
+      "name": "RECOMMENDS",
+      "domain": [
+        "Provision"
+      ],
+      "range": [
+        "SecurityControl",
+        "RiskManagement",
+        "Policy",
+        "Audit",
+        "IncidentResponsePlan",
+        "SecurityConfigurationBaseline",
+        "AssetInventory",
+        "Contract",
+        "Monitoring",
+        "Training",
+        "ChangeManagement",
+        "IncidentManagement",
+        "ThreatIntelligence",
+        "ThreatHunting",
+        "PenetrationTesting",
+        "AttackSimulation",
+        "VulnerabilityAssessment",
+        "CybersecurityExercise",
+        "SecurityByDesign",
+        "SecurityArchitecture",
+        "Backup",
+        "Log",
+        "RiskRegister",
+        "CrisisCommunicationPlan",
+        "BusinessContinuityPlan",
+        "DisasterRecoveryPlan",
+        "RemediationPlan"
+      ]
+    },
+    {
+      "name": "IMPLEMENTS",
+      "domain": [
+        "CIIO"
+      ],
+      "range": [
+        "SecurityControl",
+        "RiskManagement",
+        "SecurityByDesign",
+        "Monitoring",
+        "ChangeManagement",
+        "IncidentManagement",
+        "Training",
+        "ThreatIntelligence",
+        "SecurityArchitecture"
+      ]
+    },
+    {
+      "name": "PROTECTS",
+      "domain": [
+        "SecurityControl"
+      ],
+      "range": [
+        "CII",
+        "CIIAsset"
+      ]
+    },
+    {
+      "name": "MITIGATES",
+      "domain": [
+        "SecurityControl",
+        "MitigatingControl"
+      ],
+      "range": [
+        "CybersecurityRisk",
+        "CybersecurityThreat",
+        "Malware"
+      ]
+    },
+    {
+      "name": "ADDRESSES",
+      "domain": [
+        "SecurityControl"
+      ],
+      "range": [
+        "Vulnerability"
+      ]
+    },
+    {
+      "name": "APPLIES_BASELINE",
+      "domain": [
+        "SecurityConfigurationBaseline"
+      ],
+      "range": [
+        "CIIAsset",
+        "Endpoint"
+      ]
+    },
+    {
+      "name": "ATTRIBUTE_OF",
+      "domain": [
+        "PasswordLength"
+      ],
+      "range": [
+        "Password"
+      ]
+    },
+    {
+      "name": "STORED_AS",
+      "domain": [
+        "Password",
+        "DefaultCredential"
+      ],
+      "range": [
+        "HashStorage"
+      ]
+    },
+    {
+      "name": "MUST_CHANGE",
+      "domain": [
+        "SecurityConfigurationBaseline",
+        "Provision",
+        "CIIO"
+      ],
+      "range": [
+        "DefaultCredential",
+        "Password"
+      ]
+    },
+    {
+      "name": "DISABLES",
+      "domain": [
+        "SecurityConfigurationBaseline",
+        "CIIO"
+      ],
+      "range": [
+        "Account",
+        "Service",
+        "Port",
+        "Application",
+        "DefaultCredential"
+      ]
+    },
+    {
+      "name": "DEFERS_TO",
+      "domain": [
+        "Provision",
+        "CodeOfPractice",
+        "CIIO"
+      ],
+      "range": [
+        "ExternalStandard",
+        "RegulatoryFramework"
+      ]
+    },
+    {
+      "name": "DOES_NOT_SPECIFY",
+      "domain": [
+        "Provision",
+        "CodeOfPractice"
+      ],
+      "range": [
+        "__literal__",
+        "PasswordLength",
+        "SecurityControl"
+      ],
+      "note": "B21 over-specification guard; range may be a literal or a concept the Code is silent on"
+    },
+    {
+      "name": "IDENTIFIES",
+      "domain": [
+        "RiskAssessment",
+        "ThreatModelling",
+        "VulnerabilityAssessment"
+      ],
+      "range": [
+        "CybersecurityRisk",
+        "CybersecurityThreat",
+        "Vulnerability",
+        "CIIAsset"
+      ]
+    },
+    {
+      "name": "HAS_LIKELIHOOD",
+      "domain": [
+        "CybersecurityRisk"
+      ],
+      "range": [
+        "Likelihood"
+      ]
+    },
+    {
+      "name": "HAS_IMPACT",
+      "domain": [
+        "CybersecurityRisk"
+      ],
+      "range": [
+        "Impact"
+      ]
+    },
+    {
+      "name": "EXPLOITS",
+      "domain": [
+        "CybersecurityThreat",
+        "CyberThreatActor"
+      ],
+      "range": [
+        "Vulnerability"
+      ]
+    },
+    {
+      "name": "TARGETS",
+      "domain": [
+        "CyberThreatActor"
+      ],
+      "range": [
+        "CIIAsset",
+        "CII"
+      ]
+    },
+    {
+      "name": "MITIGATED_BY",
+      "domain": [
+        "CybersecurityRisk"
+      ],
+      "range": [
+        "SecurityControl"
+      ]
+    },
+    {
+      "name": "LEAVES_RESIDUAL",
+      "domain": [
+        "SecurityControl"
+      ],
+      "range": [
+        "ResidualRisk"
+      ]
+    },
+    {
+      "name": "RECORDED_IN",
+      "domain": [
+        "CybersecurityRisk",
+        "RiskScenario"
+      ],
+      "range": [
+        "RiskRegister"
+      ]
+    },
+    {
+      "name": "ACCEPTED_BY",
+      "domain": [
+        "ResidualRisk"
+      ],
+      "range": [
+        "SeniorManagement",
+        "RiskRole"
+      ]
+    },
+    {
+      "name": "DETECTS",
+      "domain": [
+        "Monitoring",
+        "Log"
+      ],
+      "range": [
+        "CybersecurityIncident",
+        "CybersecurityThreat",
+        "Malware"
+      ]
+    },
+    {
+      "name": "RESPONDS_TO",
+      "domain": [
+        "IncidentResponsePlan",
+        "IncidentResponseTeam"
+      ],
+      "range": [
+        "CybersecurityIncident"
+      ]
+    },
+    {
+      "name": "ACTIVATES",
+      "domain": [
+        "CybersecurityIncident"
+      ],
+      "range": [
+        "IncidentResponsePlan",
+        "IncidentResponseTeam",
+        "CrisisCommunicationPlan"
+      ]
+    },
+    {
+      "name": "RECOVERS",
+      "domain": [
+        "DisasterRecoveryPlan",
+        "BusinessContinuityPlan",
+        "Backup"
+      ],
+      "range": [
+        "CII",
+        "EssentialService"
+      ]
+    },
+    {
+      "name": "REPORTS",
+      "domain": [
+        "CIIO"
+      ],
+      "range": [
+        "Regulator"
+      ]
+    },
+    {
+      "name": "VALIDATES",
+      "domain": [
+        "CybersecurityExercise"
+      ],
+      "range": [
+        "IncidentResponsePlan",
+        "BusinessContinuityPlan",
+        "DisasterRecoveryPlan",
+        "CrisisCommunicationPlan"
+      ]
+    },
+    {
+      "name": "AUDITS",
+      "domain": [
+        "Auditor"
+      ],
+      "range": [
+        "CII"
+      ]
+    },
+    {
+      "name": "PRODUCES",
+      "domain": [
+        "Audit",
+        "ThreatModelling",
+        "RiskAssessment"
+      ],
+      "range": [
+        "AuditFinding",
+        "AuditReport",
+        "ThreatModel",
+        "RiskAssessmentReport"
+      ]
+    },
+    {
+      "name": "COVERS",
+      "domain": [
+        "Audit"
+      ],
+      "range": [
+        "AuditScope",
+        "Provision"
+      ]
+    },
+    {
+      "name": "CONTAINS",
+      "domain": [
+        "AuditReport",
+        "Policy",
+        "IncidentResponsePlan",
+        "RiskRegister",
+        "AssetInventory"
+      ],
+      "range": [
+        "AuditFinding",
+        "AuditEvidence",
+        "SecurityControl",
+        "RiskScenario",
+        "CybersecurityRisk",
+        "CIIAsset"
+      ]
+    },
+    {
+      "name": "REQUIRES_EVIDENCE",
+      "domain": [
+        "Audit",
+        "AuditCriteria"
+      ],
+      "range": [
+        "AuditEvidence"
+      ]
+    },
+    {
+      "name": "ISSUES",
+      "domain": [
+        "Regulator"
+      ],
+      "range": [
+        "CodeOfPractice",
+        "Direction"
+      ]
+    },
+    {
+      "name": "APPROVES",
+      "domain": [
+        "Regulator"
+      ],
+      "range": [
+        "Auditor",
+        "RiskAssessmentReport",
+        "Waiver"
+      ]
+    },
+    {
+      "name": "APPOINTS",
+      "domain": [
+        "Regulator"
+      ],
+      "range": [
+        "Auditor",
+        "OrganisationalRole"
+      ]
+    },
+    {
+      "name": "REMEDIATED_BY",
+      "domain": [
+        "ComplianceGap",
+        "AuditFinding"
+      ],
+      "range": [
+        "RemediationPlan"
+      ]
+    },
+    {
+      "name": "COMPENSATED_BY",
+      "domain": [
+        "Provision"
+      ],
+      "range": [
+        "CompensatingControl"
+      ]
+    },
+    {
+      "name": "GRANTS",
+      "domain": [
+        "Regulator"
+      ],
+      "range": [
+        "Waiver"
+      ]
+    },
+    {
+      "name": "WAIVES",
+      "domain": [
+        "Waiver"
+      ],
+      "range": [
+        "Provision",
+        "Obligation"
+      ]
+    },
+    {
+      "name": "EXEMPTS",
+      "domain": [
+        "Legislation"
+      ],
+      "range": [
+        "Actor",
+        "ComputerSystem"
+      ]
+    },
+    {
+      "name": "DEFINES",
+      "domain": [
+        "Provision"
+      ],
+      "range": [
+        "__any_entity__"
+      ]
+    },
+    {
+      "name": "OVERLAPS_WITH",
+      "domain": [
+        "CodeOfPractice"
+      ],
+      "range": [
+        "RegulatoryFramework"
+      ]
+    },
+    {
+      "name": "CONDUCTS",
+      "domain": [
+        "CIIO",
+        "Auditor",
+        "PenetrationTester",
+        "AttackSimTeam"
+      ],
+      "range": [
+        "RiskAssessment",
+        "Audit",
+        "PenetrationTesting",
+        "AttackSimulation",
+        "ThreatHunting",
+        "CybersecurityExercise"
+      ]
+    },
+    {
+      "name": "APPLIES_PRINCIPLE",
+      "domain": [
+        "CIIO",
+        "SecurityArchitecture"
+      ],
+      "range": [
+        "DesignPrinciple"
+      ]
+    },
+    {
+      "name": "USES_TECHNIQUE",
+      "domain": [
+        "CyberThreatActor",
+        "CybersecurityThreat"
+      ],
+      "range": [
+        "TTP"
+      ]
+    },
+    {
+      "name": "REDUCES",
+      "domain": [
+        "SecurityControl",
+        "DesignPrinciple"
+      ],
+      "range": [
+        "AttackConcept"
+      ]
+    },
+    {
+      "name": "HAS_DEADLINE",
+      "domain": [
+        "Provision",
+        "Obligation"
+      ],
+      "range": [
+        "Deadline"
+      ]
+    },
+    {
+      "name": "HAS_STATUS",
+      "domain": [
+        "CII",
+        "CIIO"
+      ],
+      "range": [
+        "ComplianceStatus"
+      ]
+    },
+    {
+      "name": "BOUNDED_BY",
+      "domain": [
+        "CybersecurityRisk",
+        "ResidualRisk"
+      ],
+      "range": [
+        "RiskAppetite"
+      ]
+    },
+    {
+      "name": "BINDS",
+      "domain": [
+        "Contract"
+      ],
+      "range": [
+        "ThirdParty",
+        "CloudServiceProvider"
+      ]
+    }
   ],
-
-  "disjoint": [["ITSystem", "OTSystem"]],
-
+  "disjoint": [
+    [
+      "ITSystem",
+      "OTSystem"
+    ]
+  ],
   "deferred": {
-    "clause_to_clause": ["REFERS_TO", "CLARIFIES"],
+    "clause_to_clause": [
+      "REFERS_TO",
+      "CLARIFIES"
+    ],
     "note": "explicit clause->clause citation edges dropped for now (no retrieval impact in POC Channel-I); revisit as generation-time overlay",
-    "scope_undecided": ["RtF procedural/Q&A framing", "Act legal/licensing machinery (s32 penalty, s42 service, Part 5 licensing)"]
+    "scope_undecided": [
+      "RtF procedural/Q&A framing",
+      "Act legal/licensing machinery (s32 penalty, s42 service, Part 5 licensing)"
+    ]
   }
 }

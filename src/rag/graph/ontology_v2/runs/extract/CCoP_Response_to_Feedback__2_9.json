@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.9",
+  "concepts": [
+    "Audit",
+    "CodeOfPractice",
+    "Provision",
+    "RegulatoryFramework"
+  ],
+  "triples": [
+    {
+      "s": "CodeOfPractice",
+      "s_type": "CodeOfPractice",
+      "rel": "OVERLAPS_WITH",
+      "o": "RegulatoryFramework",
+      "o_type": "RegulatoryFramework"
+    },
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "COVERS",
+      "o": "Provision",
+      "o_type": "Provision"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

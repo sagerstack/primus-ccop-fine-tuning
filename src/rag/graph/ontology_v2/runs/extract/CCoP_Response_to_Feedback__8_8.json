@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::8.8",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "CloudServiceProvider",
+    "ITSystem",
+    "OTSystem"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "CloudServiceProvider",
+      "o_type": "CloudServiceProvider"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "ITSystem",
+      "o_type": "ITSystem"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

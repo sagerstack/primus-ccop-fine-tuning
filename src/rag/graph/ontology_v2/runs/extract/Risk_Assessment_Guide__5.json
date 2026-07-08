@@ -1,0 +1,27 @@
+{
+  "citation_id": "Risk Assessment Guide::5",
+  "concepts": [
+    "CybersecurityRisk",
+    "RiskAppetite",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "MITIGATED_BY",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    },
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "BOUNDED_BY",
+      "o": "RiskAppetite",
+      "o_type": "RiskAppetite"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

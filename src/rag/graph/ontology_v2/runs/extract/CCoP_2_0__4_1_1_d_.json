@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP 2.0::4.1.1(d)",
+  "concepts": [
+    "AssetInventory",
+    "CIIAsset",
+    "OrganisationalRole"
+  ],
+  "triples": [
+    {
+      "s": "AssetInventory",
+      "s_type": "AssetInventory",
+      "rel": "CONTAINS",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "OrganisationalRole",
+      "s_type": "OrganisationalRole",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

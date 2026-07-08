@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.32",
+  "concepts": [
+    "CIIO",
+    "Patch",
+    "Vulnerability"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Patch",
+      "o_type": "Patch"
+    },
+    {
+      "s": "Patch",
+      "s_type": "Patch",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

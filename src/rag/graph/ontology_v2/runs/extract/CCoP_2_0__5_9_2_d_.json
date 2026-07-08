@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP 2.0::5.9.2(d)",
+  "concepts": [
+    "Port",
+    "SecurityConfigurationBaseline",
+    "Service"
+  ],
+  "triples": [
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "DISABLES",
+      "o": "Port",
+      "o_type": "Port"
+    },
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "DISABLES",
+      "o": "Service",
+      "o_type": "Service"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

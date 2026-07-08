@@ -1,0 +1,27 @@
+{
+  "citation_id": "Cybersecurity Act 2018::17",
+  "concepts": [
+    "CII",
+    "Direction",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "ISSUES",
+      "o": "Direction",
+      "o_type": "Direction"
+    },
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "DESIGNATES",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

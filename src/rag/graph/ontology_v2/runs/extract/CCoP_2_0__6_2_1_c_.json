@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::6.2.1(c)",
+  "concepts": [
+    "CybersecurityIncident",
+    "Monitoring"
+  ],
+  "triples": [
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

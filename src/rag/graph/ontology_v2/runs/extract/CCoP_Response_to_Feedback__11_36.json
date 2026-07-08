@@ -1,0 +1,53 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.36",
+  "concepts": [
+    "CII",
+    "CyberThreatActor",
+    "CybersecurityRisk",
+    "Endpoint",
+    "Malware",
+    "MalwareProtection",
+    "RiskAssessment",
+    "SecurityConfigurationBaseline"
+  ],
+  "triples": [
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "APPLIES_BASELINE",
+      "o": "Endpoint",
+      "o_type": "Endpoint"
+    },
+    {
+      "s": "MalwareProtection",
+      "s_type": "MalwareProtection",
+      "rel": "MITIGATES",
+      "o": "Malware",
+      "o_type": "Malware"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "SecurityConfigurationBaseline",
+      "o_type": "SecurityConfigurationBaseline"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

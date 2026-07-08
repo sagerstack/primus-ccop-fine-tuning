@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.26",
+  "concepts": [
+    "Backup",
+    "CII",
+    "Condition",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Backup",
+      "s_type": "Backup",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "CONDITIONED_ON",
+      "o": "Condition",
+      "o_type": "Condition"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

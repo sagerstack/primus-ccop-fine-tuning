@@ -1,0 +1,43 @@
+{
+  "citation_id": "Security By Design::6.4.4.1",
+  "concepts": [
+    "CIIO",
+    "CybersecurityRisk",
+    "PenetrationTesting",
+    "ProjectRole",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "PenetrationTesting",
+      "o_type": "PenetrationTesting"
+    },
+    {
+      "s": "ProjectRole",
+      "s_type": "ProjectRole",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "PenetrationTesting",
+      "o_type": "PenetrationTesting"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

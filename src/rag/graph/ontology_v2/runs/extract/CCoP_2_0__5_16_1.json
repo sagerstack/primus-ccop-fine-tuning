@@ -1,0 +1,34 @@
+{
+  "citation_id": "CCoP 2.0::5.16.1",
+  "concepts": [
+    "AttackSimTeam",
+    "AttackSimulation",
+    "CIIO"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "AttackSimulation",
+      "o_type": "AttackSimulation"
+    },
+    {
+      "s": "AttackSimTeam",
+      "s_type": "AttackSimTeam",
+      "rel": "CONDUCTS",
+      "o": "AttackSimulation",
+      "o_type": "AttackSimulation"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "AttackSimulation",
+      "o_type": "AttackSimulation"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

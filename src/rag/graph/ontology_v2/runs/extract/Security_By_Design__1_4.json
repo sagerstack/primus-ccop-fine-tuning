@@ -1,0 +1,36 @@
+{
+  "citation_id": "Security By Design::1.4",
+  "concepts": [
+    "AttackConcept",
+    "CIIO",
+    "SecurityByDesign",
+    "SecurityControl",
+    "Vulnerability"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "SecurityByDesign",
+      "o_type": "SecurityByDesign"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "REDUCES",
+      "o": "AttackConcept",
+      "o_type": "AttackConcept"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,44 @@
+{
+  "citation_id": "Threat Modelling Guide::3.5",
+  "concepts": [
+    "CIIO",
+    "CyberThreatActor",
+    "CybersecurityThreat",
+    "ExternalStandard",
+    "SecurityControl",
+    "TTP"
+  ],
+  "triples": [
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "USES_TECHNIQUE",
+      "o": "TTP",
+      "o_type": "TTP"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DEFERS_TO",
+      "o": "ExternalStandard",
+      "o_type": "ExternalStandard"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

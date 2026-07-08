@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.11",
+  "concepts": [
+    "CII",
+    "CyberThreatActor",
+    "Provision",
+    "SecurityControl",
+    "privileged-access-management"
+  ],
+  "triples": [
+    {
+      "s": "privileged-access-management",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP 2.0::5.16",
+  "concepts": [
+    "AttackSimulation",
+    "CII",
+    "CIIO",
+    "CyberThreatActor",
+    "TTP"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "AttackSimulation",
+      "o_type": "AttackSimulation"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "USES_TECHNIQUE",
+      "o": "TTP",
+      "o_type": "TTP"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

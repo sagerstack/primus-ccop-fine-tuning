@@ -1,0 +1,68 @@
+{
+  "citation_id": "CCoP 2.0::5.13",
+  "concepts": [
+    "CII",
+    "CyberThreatActor",
+    "CybersecurityThreat",
+    "Log",
+    "OrganisationalRole",
+    "Provision",
+    "Vulnerability",
+    "authentication",
+    "authorisation"
+  ],
+  "triples": [
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "EXPLOITS",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "authorisation",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "authentication",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "OrganisationalRole",
+      "s_type": "OrganisationalRole",
+      "rel": "SEGREGATES",
+      "o": "OrganisationalRole",
+      "o_type": "OrganisationalRole"
+    },
+    {
+      "s": "Log",
+      "s_type": "Log",
+      "rel": "DETECTS",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "authorisation",
+      "o_type": "AccessControlMechanism"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "authentication",
+      "o_type": "AccessControlMechanism"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::12.3",
+  "concepts": [
+    "CybersecurityThreat",
+    "Log",
+    "Policy",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "Policy",
+      "o_type": "Policy"
+    },
+    {
+      "s": "Log",
+      "s_type": "Log",
+      "rel": "DETECTS",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::4.6",
+  "concepts": [
+    "Board",
+    "Certification",
+    "CybersecurityRisk",
+    "OrganisationalRole"
+  ],
+  "triples": [
+    {
+      "s": "OrganisationalRole",
+      "s_type": "OrganisationalRole",
+      "rel": "HAS_CERTIFICATION",
+      "o": "Certification",
+      "o_type": "Certification"
+    },
+    {
+      "s": "Board",
+      "s_type": "Board",
+      "rel": "OVERSEES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

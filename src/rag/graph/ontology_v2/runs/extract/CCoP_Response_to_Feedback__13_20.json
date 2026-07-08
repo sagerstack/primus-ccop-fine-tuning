@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.20",
+  "concepts": [
+    "CIIO",
+    "CybersecurityExercise",
+    "Deadline",
+    "Provision",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "CybersecurityExercise",
+      "o_type": "CybersecurityExercise"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "HAS_DEADLINE",
+      "o": "Deadline",
+      "o_type": "Deadline"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

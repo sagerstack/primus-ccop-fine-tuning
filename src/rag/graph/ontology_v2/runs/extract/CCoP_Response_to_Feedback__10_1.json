@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP Response to Feedback::10.1",
+  "concepts": [
+    "AssetInventory",
+    "CII",
+    "CIIAsset",
+    "DigitalBoundary"
+  ],
+  "triples": [
+    {
+      "s": "AssetInventory",
+      "s_type": "AssetInventory",
+      "rel": "CONTAINS",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "WITHIN_BOUNDARY",
+      "o": "DigitalBoundary",
+      "o_type": "DigitalBoundary"
+    },
+    {
+      "s": "CIIAsset",
+      "s_type": "CIIAsset",
+      "rel": "DEPENDS_ON",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

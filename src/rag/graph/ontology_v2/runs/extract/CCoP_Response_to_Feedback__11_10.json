@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.10",
+  "concepts": [
+    "CII",
+    "CybersecurityThreat",
+    "Log",
+    "privileged-access-management"
+  ],
+  "triples": [
+    {
+      "s": "privileged-access-management",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Log",
+      "s_type": "Log",
+      "rel": "DETECTS",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

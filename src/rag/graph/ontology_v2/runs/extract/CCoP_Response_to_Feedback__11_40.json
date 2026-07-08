@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.40",
+  "concepts": [
+    "Policy",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "Policy",
+      "o_type": "Policy"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

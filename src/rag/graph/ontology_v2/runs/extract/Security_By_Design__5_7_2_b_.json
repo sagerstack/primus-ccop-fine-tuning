@@ -1,0 +1,19 @@
+{
+  "citation_id": "Security By Design::5.7.2(b)",
+  "concepts": [
+    "ProjectRole",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "ProjectRole",
+      "s_type": "ProjectRole",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

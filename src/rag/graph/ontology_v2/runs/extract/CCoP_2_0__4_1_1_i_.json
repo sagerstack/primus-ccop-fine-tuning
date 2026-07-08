@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP 2.0::4.1.1(i)",
+  "concepts": [
+    "CII",
+    "CybersecurityThreat",
+    "Network",
+    "NetworkControl"
+  ],
+  "triples": [
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CONNECTED_TO",
+      "o": "Network",
+      "o_type": "Network"
+    },
+    {
+      "s": "NetworkControl",
+      "s_type": "NetworkControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

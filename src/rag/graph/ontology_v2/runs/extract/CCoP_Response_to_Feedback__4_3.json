@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::4.3",
+  "concepts": [
+    "Board",
+    "CIIO",
+    "CybersecurityRisk",
+    "SecurityControl",
+    "SeniorManagement"
+  ],
+  "triples": [
+    {
+      "s": "Board",
+      "s_type": "Board",
+      "rel": "OVERSEES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "SeniorManagement",
+      "s_type": "SeniorManagement",
+      "rel": "OVERSEES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

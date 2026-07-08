@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::7.6",
+  "concepts": [
+    "CIIO",
+    "Condition",
+    "DesignPrinciple",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "APPLIES_PRINCIPLE",
+      "o": "DesignPrinciple",
+      "o_type": "DesignPrinciple"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "CONDITIONED_ON",
+      "o": "Condition",
+      "o_type": "Condition"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

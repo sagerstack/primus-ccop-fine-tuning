@@ -27,6 +27,13 @@
       "rel": "WITHIN_BOUNDARY",
       "o": "DigitalBoundary",
       "o_type": "DigitalBoundary"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
     }
   ],
   "proposed": [],

@@ -1,0 +1,28 @@
+{
+  "citation_id": "Cybersecurity Act 2018::46",
+  "concepts": [
+    "Actor",
+    "Condition",
+    "Legislation",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Legislation",
+      "s_type": "Legislation",
+      "rel": "EXEMPTS",
+      "o": "Actor",
+      "o_type": "Actor"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "CONDITIONED_ON",
+      "o": "Condition",
+      "o_type": "Condition"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

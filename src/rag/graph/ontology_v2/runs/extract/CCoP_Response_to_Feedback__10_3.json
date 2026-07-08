@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::10.3",
+  "concepts": [
+    "AssetInventory",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "AssetInventory",
+      "o_type": "AssetInventory"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

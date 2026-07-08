@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::5.3.1(b)",
+  "concepts": [
+    "CII",
+    "privileged-access-management"
+  ],
+  "triples": [
+    {
+      "s": "privileged-access-management",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

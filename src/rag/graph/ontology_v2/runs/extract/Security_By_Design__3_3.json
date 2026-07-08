@@ -1,0 +1,28 @@
+{
+  "citation_id": "Security By Design::3.3",
+  "concepts": [
+    "CIIO",
+    "CodeOfPractice",
+    "RegulatoryFramework",
+    "SecurityByDesign"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "SecurityByDesign",
+      "o_type": "SecurityByDesign"
+    },
+    {
+      "s": "CodeOfPractice",
+      "s_type": "CodeOfPractice",
+      "rel": "OVERLAPS_WITH",
+      "o": "RegulatoryFramework",
+      "o_type": "RegulatoryFramework"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

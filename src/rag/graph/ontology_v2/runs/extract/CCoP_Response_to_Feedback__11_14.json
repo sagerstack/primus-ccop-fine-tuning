@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.14",
+  "concepts": [
+    "CII",
+    "firewall",
+    "network-segmentation",
+    "unidirectional-gateway"
+  ],
+  "triples": [
+    {
+      "s": "firewall",
+      "s_type": "NetworkControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "network-segmentation",
+      "s_type": "NetworkControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "unidirectional-gateway",
+      "s_type": "NetworkControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

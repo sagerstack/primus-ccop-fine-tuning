@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.22",
+  "concepts": [
+    "Backup",
+    "CII",
+    "Deadline",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Backup",
+      "s_type": "Backup",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "HAS_DEADLINE",
+      "o": "Deadline",
+      "o_type": "Deadline"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

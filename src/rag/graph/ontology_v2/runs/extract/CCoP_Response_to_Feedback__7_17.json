@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::7.17",
+  "concepts": [
+    "CIIO",
+    "RiskAssessment"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

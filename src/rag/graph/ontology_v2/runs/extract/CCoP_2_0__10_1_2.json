@@ -1,0 +1,43 @@
+{
+  "citation_id": "CCoP 2.0::10.1.2",
+  "concepts": [
+    "ControlSystem",
+    "FieldController",
+    "PhysicalProcess",
+    "Provision",
+    "SafetyMechanism"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "SafetyMechanism",
+      "o_type": "SafetyMechanism"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "FieldController",
+      "o_type": "FieldController"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "PhysicalProcess",
+      "o_type": "PhysicalProcess"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "ControlSystem",
+      "o_type": "ControlSystem"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

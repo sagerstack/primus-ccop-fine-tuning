@@ -1,0 +1,37 @@
+{
+  "citation_id": "CCoP Response to Feedback::5.11",
+  "concepts": [
+    "CII",
+    "CybersecurityRisk",
+    "OTSystem",
+    "RiskAssessment",
+    "RiskRegister",
+    "RiskScenario"
+  ],
+  "triples": [
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "RiskScenario",
+      "s_type": "RiskScenario",
+      "rel": "RECORDED_IN",
+      "o": "RiskRegister",
+      "o_type": "RiskRegister"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

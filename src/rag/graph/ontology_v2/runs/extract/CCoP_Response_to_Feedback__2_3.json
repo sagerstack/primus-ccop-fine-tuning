@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.3",
+  "concepts": [
+    "Audit",
+    "ComputerSystem",
+    "Provision",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    },
+    {
+      "s": "ComputerSystem",
+      "s_type": "ComputerSystem",
+      "rel": "EXCLUDED_FROM_SCOPE",
+      "o": "Audit",
+      "o_type": "Audit"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

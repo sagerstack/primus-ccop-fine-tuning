@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::5.7.2(c)",
+  "concepts": [
+    "CII",
+    "Cryptography"
+  ],
+  "triples": [
+    {
+      "s": "Cryptography",
+      "s_type": "Cryptography",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

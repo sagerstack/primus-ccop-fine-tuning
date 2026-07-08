@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP 2.0::5.9.2(a)",
+  "concepts": [
+    "Account",
+    "DefaultCredential",
+    "SecurityConfigurationBaseline"
+  ],
+  "triples": [
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "DISABLES",
+      "o": "Account",
+      "o_type": "Account"
+    },
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "DISABLES",
+      "o": "DefaultCredential",
+      "o_type": "DefaultCredential"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

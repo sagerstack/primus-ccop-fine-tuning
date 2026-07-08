@@ -44,6 +44,13 @@
       "rel": "DISABLES",
       "o": "Port",
       "o_type": "Port"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SecurityConfigurationBaseline",
+      "o_type": "SecurityConfigurationBaseline"
     }
   ],
   "proposed": [],

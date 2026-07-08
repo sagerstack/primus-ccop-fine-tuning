@@ -1,0 +1,28 @@
+{
+  "citation_id": "Risk Assessment Guide::3",
+  "concepts": [
+    "CIIO",
+    "CybersecurityRisk",
+    "RiskAppetite",
+    "RiskManagement"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "RiskManagement",
+      "o_type": "RiskManagement"
+    },
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "BOUNDED_BY",
+      "o": "RiskAppetite",
+      "o_type": "RiskAppetite"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

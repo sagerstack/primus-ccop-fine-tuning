@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::3.1",
+  "concepts": [
+    "CIIO",
+    "ComplianceGap",
+    "Regulator",
+    "RemediationPlan"
+  ],
+  "triples": [
+    {
+      "s": "ComplianceGap",
+      "s_type": "ComplianceGap",
+      "rel": "REMEDIATED_BY",
+      "o": "RemediationPlan",
+      "o_type": "RemediationPlan"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

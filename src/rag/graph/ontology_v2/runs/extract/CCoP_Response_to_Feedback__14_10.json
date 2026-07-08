@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::14.10",
+  "concepts": [
+    "CIIO",
+    "Training"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Training",
+      "o_type": "Training"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

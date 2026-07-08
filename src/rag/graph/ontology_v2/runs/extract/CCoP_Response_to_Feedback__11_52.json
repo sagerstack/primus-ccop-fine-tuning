@@ -1,0 +1,37 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.52",
+  "concepts": [
+    "AttackSimulation",
+    "CII",
+    "CIIO",
+    "Deadline",
+    "OTSystem",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "AttackSimulation",
+      "o_type": "AttackSimulation"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "HAS_DEADLINE",
+      "o": "Deadline",
+      "o_type": "Deadline"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

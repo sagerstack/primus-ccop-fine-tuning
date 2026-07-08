@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.32",
+  "concepts": [
+    "AccessControlMechanism",
+    "CII",
+    "CybersecurityExercise",
+    "DisasterRecoveryPlan"
+  ],
+  "triples": [
+    {
+      "s": "DisasterRecoveryPlan",
+      "s_type": "DisasterRecoveryPlan",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "AccessControlMechanism",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CybersecurityExercise",
+      "s_type": "CybersecurityExercise",
+      "rel": "VALIDATES",
+      "o": "DisasterRecoveryPlan",
+      "o_type": "DisasterRecoveryPlan"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

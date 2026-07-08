@@ -31,5 +31,6 @@
     }
   ],
   "proposed": [],
-  "n_raw": 3
+  "n_raw": 3,
+  "extractor": "claude-opus"
 }

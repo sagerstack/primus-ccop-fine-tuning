@@ -1,0 +1,34 @@
+{
+  "citation_id": "Auditing Guidelines::5",
+  "concepts": [
+    "Auditor",
+    "CII",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "APPROVES",
+      "o": "Auditor",
+      "o_type": "Auditor"
+    },
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "APPOINTS",
+      "o": "Auditor",
+      "o_type": "Auditor"
+    },
+    {
+      "s": "Auditor",
+      "s_type": "Auditor",
+      "rel": "AUDITS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

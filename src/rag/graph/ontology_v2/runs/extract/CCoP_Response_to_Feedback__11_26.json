@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.26",
+  "concepts": [
+    "CIIAsset",
+    "Password",
+    "PasswordLength",
+    "SecurityConfigurationBaseline"
+  ],
+  "triples": [
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "APPLIES_BASELINE",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "PasswordLength",
+      "s_type": "PasswordLength",
+      "rel": "ATTRIBUTE_OF",
+      "o": "Password",
+      "o_type": "Password"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

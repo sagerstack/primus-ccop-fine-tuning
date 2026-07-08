@@ -1,0 +1,36 @@
+{
+  "citation_id": "Risk Assessment Guide::5.1",
+  "concepts": [
+    "CybersecurityRisk",
+    "ResidualRisk",
+    "RiskAppetite",
+    "SecurityControl",
+    "SeniorManagement"
+  ],
+  "triples": [
+    {
+      "s": "ResidualRisk",
+      "s_type": "ResidualRisk",
+      "rel": "ACCEPTED_BY",
+      "o": "SeniorManagement",
+      "o_type": "SeniorManagement"
+    },
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "MITIGATED_BY",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    },
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "BOUNDED_BY",
+      "o": "RiskAppetite",
+      "o_type": "RiskAppetite"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

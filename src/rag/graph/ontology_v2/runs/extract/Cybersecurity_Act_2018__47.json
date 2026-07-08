@@ -1,0 +1,19 @@
+{
+  "citation_id": "Cybersecurity Act 2018::47",
+  "concepts": [
+    "EssentialService",
+    "Sector"
+  ],
+  "triples": [
+    {
+      "s": "EssentialService",
+      "s_type": "EssentialService",
+      "rel": "IN_SECTOR",
+      "o": "Sector",
+      "o_type": "Sector"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,18 @@
+{
+  "citation_id": "CCoP 2.0::5.13.2",
+  "concepts": [
+    "SystemActor"
+  ],
+  "triples": [
+    {
+      "s": "SystemActor",
+      "s_type": "SystemActor",
+      "rel": "SEGREGATES",
+      "o": "SystemActor",
+      "o_type": "SystemActor"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

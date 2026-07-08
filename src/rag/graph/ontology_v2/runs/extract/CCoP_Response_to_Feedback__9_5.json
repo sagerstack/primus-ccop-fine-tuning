@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::9.5",
+  "concepts": [
+    "Contract",
+    "Obligation",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "ThirdParty",
+      "s_type": "ThirdParty",
+      "rel": "HAS_OBLIGATION",
+      "o": "Obligation",
+      "o_type": "Obligation"
+    },
+    {
+      "s": "Contract",
+      "s_type": "Contract",
+      "rel": "BINDS",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

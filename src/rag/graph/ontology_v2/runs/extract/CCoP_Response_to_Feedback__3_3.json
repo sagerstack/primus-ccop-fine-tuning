@@ -1,0 +1,37 @@
+{
+  "citation_id": "CCoP Response to Feedback::3.3",
+  "concepts": [
+    "AuditFinding",
+    "CIIO",
+    "Deadline",
+    "Provision",
+    "Regulator",
+    "RemediationPlan"
+  ],
+  "triples": [
+    {
+      "s": "AuditFinding",
+      "s_type": "AuditFinding",
+      "rel": "REMEDIATED_BY",
+      "o": "RemediationPlan",
+      "o_type": "RemediationPlan"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "HAS_DEADLINE",
+      "o": "Deadline",
+      "o_type": "Deadline"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

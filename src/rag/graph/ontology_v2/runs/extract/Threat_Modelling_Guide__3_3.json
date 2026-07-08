@@ -1,0 +1,36 @@
+{
+  "citation_id": "Threat Modelling Guide::3.3",
+  "concepts": [
+    "CII",
+    "CIIAsset",
+    "CybersecurityThreat",
+    "DigitalBoundary",
+    "ThreatModelling"
+  ],
+  "triples": [
+    {
+      "s": "ThreatModelling",
+      "s_type": "ThreatModelling",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "CIIAsset",
+      "s_type": "CIIAsset",
+      "rel": "DEPENDS_ON",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "WITHIN_BOUNDARY",
+      "o": "DigitalBoundary",
+      "o_type": "DigitalBoundary"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

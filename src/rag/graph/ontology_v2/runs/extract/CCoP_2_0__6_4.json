@@ -1,0 +1,52 @@
+{
+  "citation_id": "CCoP 2.0::6.4",
+  "concepts": [
+    "CIIO",
+    "CyberThreatActor",
+    "CybersecurityThreat",
+    "Regulator",
+    "SecurityControl",
+    "TTP",
+    "ThreatIntelligence"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "ThreatIntelligence",
+      "o_type": "ThreatIntelligence"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "USES_TECHNIQUE",
+      "o": "TTP",
+      "o_type": "TTP"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "ThreatIntelligence",
+      "o_type": "ThreatIntelligence"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}
