@@ -16,7 +16,21 @@ Corpus-wide OMD-GraphRAG KG build. **Strictly the POC (`poc_reference/omd_b01.py
 | **3 — per-doc critic** | ✅ d1–d6 done+fixed, d7 running | Critic subagent reviewed each doc (`runs/critic/doc{1,2,3to6,7}-findings.md`). All type-clean, no fabrications. Fixes applied: d1 (Annex A modality+scope, DEFERS_TO, W2/W3/O3), d2 (6 fixes: inverted COVERS, clause-merge, DISABLES mis-reads), d3–d6 (5 fixes: waiver/compensating in audit scope, STRIDE-LM mitigations, DEFERS_TO). |
 | **4 — entity resolution** | ✅ DONE (2026-07-09) | Verify+register pass (hand-authoring already canonical): 0 multi-type nodes, 0 dupes, cross-doc bridges confirmed (7-doc hubs), wrong-merge guard clean (IT⊥OT, Malware≠MalwareProtection, Password family, Cryptography≠DNSSEC). `concept_aliases.json` = 137 canonical nodes + surface forms for retrieval query→concept mapping. |
 | **5 — Neo4j persist** | ✅ DONE (2026-07-09) | Loaded `build_id=omd-v1-20260709`: **863 :Clause** (869 records − 6 footnote citation_id collisions) + **122 :Concept** + **3135 :INVOKES** (Clause→Concept) + **1935 :REL** (Concept→Concept). Loader `build_omd_graph.py`. **Old Phase-11 CU graph (1320 nodes) was backed up to `../complianceunit/cu_graph_backup.json` (+`restore.py`), then DETACH DELETE'd** (per user; it backed live graphcpl retrieval — REWIRE those 7 retrieval nodes or `restore.py` before using graphcpl). |
-| **6 — coverage/linkage** | 🟡 bridges verified | POC bridges reproduce in Neo4j: B05 5.9.2(b)↔11.28 via Password/PasswordLength ✓; B01 CII hub spans 7 docs (296 clauses) ✓; leaf bridge defence-in-depth spans CCoP↔RtF ✓. TODO: full coverage report + close residual gaps (footnote re-key, REQUIRES_EVIDENCE) + E2E omd_run retrieval. |
+| **6 — coverage/linkage** | 🟡 bridges verified | POC bridges reproduce in Neo4j: B05 5.9.2(b)↔11.28 via Password/PasswordLength ✓; B01 CII hub spans 7 docs (296 clauses) ✓; leaf bridge defence-in-depth spans CCoP↔RtF ✓. TODO: full coverage report + close residual gaps (footnote re-key, REQUIRES_EVIDENCE). |
+| **7 — retrieval (`graphont`)** | 🟡 core built, 2 issues | `omd_retrieval.py` = new POC Channel-I retrieval (query→concepts→1-hop `:REL` expand→INVOKES-overlap score) over the Neo4j `build_id` layer. Standalone, touches no existing code. **E2E proven on B05 password bridge.** **2 issues to fix before wiring (see module docstring):** (1) mega-hub over-expansion → needs concept-IDF weighting; (2) thin query→concept mapping (PenetrationTesting etc. unmapped) → auto-derive surface forms + embedding/LLM fallback. |
+
+## `graphont` — new additive retrieval mode (planned, NOT wired yet)
+User decision (2026-07-09): create a NEW mode `graphont` that routes to `omd_retrieval.py`; do NOT
+touch graphcpl or existing retrieval nodes. Wiring seams (all additive):
+1. `presentation/cli/query.py` → `VALID_MODES` += "graphont"
+2. `presentation/cli/commands/evaluate.py` → `VALID_EVAL_MODES` += "graphont"
+3. `application/use_cases/evaluate_model.py` → `_RETRIEVAL_EVAL_MODES` += "graphont" (also check for a
+   RunId mode allowlist — the Phase-9 graphrag bug was a 2nd allowlist; grep before wiring)
+4. `rag/retrieval/edges/routing.py` `route_by_mode` → return a "graphont" key
+5. `rag/retrieval/graph.py` → add one node (calls `omd_retrieval.retrieve()`, assembles
+   `filtered_documents`) + conditional-edge key + edge to `generate`. Mirror `compliance_context_assembly`
+   output shape so primus reasons+cites (comparable to hybrid/graphcpl).
+- **Prereq: fix the 2 `omd_retrieval` issues + re-run E2E on B01/B05/B12 (GT clauses top-K) FIRST.**
 
 ### Both design forks RESOLVED (2026-07-09, see memory `ontology-v2-pending-critic-forks`)
 1. **Modality (B02)** ✅ — ontology **v1.2** broadened MANDATES/RECOMMENDS range; `modality_pass.py`

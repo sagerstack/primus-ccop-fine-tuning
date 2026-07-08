@@ -66,7 +66,7 @@ def main():
         s.run("CREATE CONSTRAINT omd_clause IF NOT EXISTS FOR (c:Clause) REQUIRE (c.citation_id, c.build_id) IS UNIQUE")
         s.run("CREATE CONSTRAINT omd_concept IF NOT EXISTS FOR (c:Concept) REQUIRE (c.name, c.build_id) IS UNIQUE")
         s.run("UNWIND $rows AS r MERGE (c:Clause {citation_id:r.citation_id, build_id:$b}) "
-              "SET c.text=r.text, c.source_doc=r.source_doc", rows=clauses, b=BUILD_ID)
+              "SET c.text=r.text, c.source_doc=r.source_doc, c.name=r.citation_id", rows=clauses, b=BUILD_ID)
         s.run("UNWIND $rows AS r MERGE (c:Concept {name:r.name, build_id:$b}) SET c.type=r.type",
               rows=[{"name": k, "type": v} for k, v in concepts.items()], b=BUILD_ID)
         s.run("UNWIND $rows AS r MATCH (cl:Clause {citation_id:r.cid, build_id:$b}), "
