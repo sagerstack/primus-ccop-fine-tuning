@@ -1,0 +1,28 @@
+{
+  "citation_id": "Risk Assessment Guide::1.2",
+  "concepts": [
+    "CybersecurityRisk",
+    "RiskAssessment",
+    "RiskRegister",
+    "RiskScenario"
+  ],
+  "triples": [
+    {
+      "s": "RiskScenario",
+      "s_type": "RiskScenario",
+      "rel": "RECORDED_IN",
+      "o": "RiskRegister",
+      "o_type": "RiskRegister"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

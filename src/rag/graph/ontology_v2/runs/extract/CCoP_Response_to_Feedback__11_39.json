@@ -1,0 +1,57 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.39",
+  "concepts": [
+    "CIIO",
+    "Provision",
+    "Vulnerability",
+    "firewall",
+    "web-application-firewall"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "web-application-firewall",
+      "o_type": "NetworkControl"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "firewall",
+      "o_type": "NetworkControl"
+    },
+    {
+      "s": "web-application-firewall",
+      "s_type": "NetworkControl",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "firewall",
+      "s_type": "NetworkControl",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "web-application-firewall",
+      "o_type": "NetworkControl"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "firewall",
+      "o_type": "NetworkControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

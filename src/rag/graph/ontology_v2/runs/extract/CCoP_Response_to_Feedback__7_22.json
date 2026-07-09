@@ -1,0 +1,34 @@
+{
+  "citation_id": "CCoP Response to Feedback::7.22",
+  "concepts": [
+    "CIIO",
+    "ChangeManagement",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "ChangeManagement",
+      "o_type": "ChangeManagement"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "ChangeManagement",
+      "o_type": "ChangeManagement"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

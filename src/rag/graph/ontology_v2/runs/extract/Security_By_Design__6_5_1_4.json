@@ -1,0 +1,43 @@
+{
+  "citation_id": "Security By Design::6.5.1.4",
+  "concepts": [
+    "CIIO",
+    "Monitoring",
+    "Patch",
+    "Vulnerability",
+    "VulnerabilityAssessment"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    },
+    {
+      "s": "VulnerabilityAssessment",
+      "s_type": "VulnerabilityAssessment",
+      "rel": "IDENTIFIES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "Patch",
+      "s_type": "Patch",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

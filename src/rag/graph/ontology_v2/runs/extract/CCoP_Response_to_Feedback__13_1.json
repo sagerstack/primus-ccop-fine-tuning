@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.1",
+  "concepts": [
+    "CrisisCommunicationPlan",
+    "CybersecurityIncident",
+    "IncidentResponseTeam"
+  ],
+  "triples": [
+    {
+      "s": "CybersecurityIncident",
+      "s_type": "CybersecurityIncident",
+      "rel": "ACTIVATES",
+      "o": "CrisisCommunicationPlan",
+      "o_type": "CrisisCommunicationPlan"
+    },
+    {
+      "s": "IncidentResponseTeam",
+      "s_type": "IncidentResponseTeam",
+      "rel": "RESPONDS_TO",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP 2.0::7.3.2",
+  "concepts": [
+    "CIIO",
+    "CybersecurityExercise",
+    "Deadline",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "CybersecurityExercise",
+      "o_type": "CybersecurityExercise"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "HAS_DEADLINE",
+      "o": "Deadline",
+      "o_type": "Deadline"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "CybersecurityExercise",
+      "o_type": "CybersecurityExercise"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

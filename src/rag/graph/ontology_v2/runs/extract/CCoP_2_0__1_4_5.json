@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP 2.0::1.4.5",
+  "concepts": [
+    "CodeOfPractice",
+    "Direction",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "ISSUES",
+      "o": "Direction",
+      "o_type": "Direction"
+    },
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "ISSUES",
+      "o": "CodeOfPractice",
+      "o_type": "CodeOfPractice"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

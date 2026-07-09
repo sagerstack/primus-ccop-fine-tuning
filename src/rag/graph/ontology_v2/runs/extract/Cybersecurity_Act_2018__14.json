@@ -1,0 +1,50 @@
+{
+  "citation_id": "Cybersecurity Act 2018::14",
+  "concepts": [
+    "CIIO",
+    "CybersecurityIncident",
+    "IncidentResponsePlan",
+    "Monitoring",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    },
+    {
+      "s": "CybersecurityIncident",
+      "s_type": "CybersecurityIncident",
+      "rel": "ACTIVATES",
+      "o": "IncidentResponsePlan",
+      "o_type": "IncidentResponsePlan"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    },
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

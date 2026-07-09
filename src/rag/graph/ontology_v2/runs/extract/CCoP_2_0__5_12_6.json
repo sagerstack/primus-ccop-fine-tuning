@@ -1,0 +1,65 @@
+{
+  "citation_id": "CCoP 2.0::5.12.6",
+  "concepts": [
+    "CIIO",
+    "CybersecurityThreat",
+    "Monitoring",
+    "Provision",
+    "firewall",
+    "web-application-firewall"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "web-application-firewall",
+      "o_type": "NetworkControl"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "firewall",
+      "o_type": "NetworkControl"
+    },
+    {
+      "s": "web-application-firewall",
+      "s_type": "NetworkControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "firewall",
+      "s_type": "NetworkControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "web-application-firewall",
+      "o_type": "NetworkControl"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "firewall",
+      "o_type": "NetworkControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

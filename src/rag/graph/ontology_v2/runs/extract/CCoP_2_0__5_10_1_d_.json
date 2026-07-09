@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::5.10.1(d)",
+  "concepts": [
+    "Patch",
+    "Vulnerability"
+  ],
+  "triples": [
+    {
+      "s": "Patch",
+      "s_type": "Patch",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

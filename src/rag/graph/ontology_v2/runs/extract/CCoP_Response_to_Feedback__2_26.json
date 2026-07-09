@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.26",
+  "concepts": [
+    "Audit",
+    "AuditScope"
+  ],
+  "triples": [
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "COVERS",
+      "o": "AuditScope",
+      "o_type": "AuditScope"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

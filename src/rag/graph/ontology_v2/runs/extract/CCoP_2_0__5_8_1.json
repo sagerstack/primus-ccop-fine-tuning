@@ -1,0 +1,51 @@
+{
+  "citation_id": "CCoP 2.0::5.8.1",
+  "concepts": [
+    "CII",
+    "Condition",
+    "Cryptography",
+    "Network",
+    "Provision",
+    "authorisation"
+  ],
+  "triples": [
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CONNECTED_TO",
+      "o": "Network",
+      "o_type": "Network"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "CONDITIONED_ON",
+      "o": "Condition",
+      "o_type": "Condition"
+    },
+    {
+      "s": "Cryptography",
+      "s_type": "Cryptography",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "authorisation",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "Cryptography",
+      "o_type": "Cryptography"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

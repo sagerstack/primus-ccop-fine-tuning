@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::8.9",
+  "concepts": [
+    "Audit",
+    "AuditReport",
+    "CIIO",
+    "CloudServiceProvider"
+  ],
+  "triples": [
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "PRODUCES",
+      "o": "AuditReport",
+      "o_type": "AuditReport"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "CloudServiceProvider",
+      "o_type": "CloudServiceProvider"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

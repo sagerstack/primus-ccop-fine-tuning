@@ -1,0 +1,26 @@
+{
+  "citation_id": "CCoP 2.0::5.14.1",
+  "concepts": [
+    "Vulnerability",
+    "VulnerabilityAssessment"
+  ],
+  "triples": [
+    {
+      "s": "VulnerabilityAssessment",
+      "s_type": "VulnerabilityAssessment",
+      "rel": "IDENTIFIES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "VulnerabilityAssessment",
+      "o_type": "VulnerabilityAssessment"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

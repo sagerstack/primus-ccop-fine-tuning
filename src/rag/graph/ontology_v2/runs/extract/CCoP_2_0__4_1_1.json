@@ -1,0 +1,42 @@
+{
+  "citation_id": "CCoP 2.0::4.1.1",
+  "concepts": [
+    "CII",
+    "CIIAsset",
+    "DigitalBoundary",
+    "RiskAssessment"
+  ],
+  "triples": [
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "HAS_ASSET",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "CIIAsset",
+      "s_type": "CIIAsset",
+      "rel": "WITHIN_BOUNDARY",
+      "o": "DigitalBoundary",
+      "o_type": "DigitalBoundary"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
+    }
+  ],
+  "proposed": [],
+  "extractor": "claude-opus",
+  "n_raw": 3
+}

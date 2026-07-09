@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::5.16",
+  "concepts": [
+    "CII",
+    "CybersecurityRisk",
+    "MitigatingControl",
+    "OTSystem",
+    "SafetyMechanism"
+  ],
+  "triples": [
+    {
+      "s": "SafetyMechanism",
+      "s_type": "SafetyMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "MitigatingControl",
+      "s_type": "MitigatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

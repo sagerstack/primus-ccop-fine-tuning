@@ -1,0 +1,27 @@
+{
+  "citation_id": "Cybersecurity Act 2018::7",
+  "concepts": [
+    "ComputerSystem",
+    "EssentialService",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "DESIGNATES",
+      "o": "ComputerSystem",
+      "o_type": "ComputerSystem"
+    },
+    {
+      "s": "ComputerSystem",
+      "s_type": "ComputerSystem",
+      "rel": "DELIVERS",
+      "o": "EssentialService",
+      "o_type": "EssentialService"
+    }
+  ],
+  "proposed": [],
+  "extractor": "claude-opus",
+  "n_raw": 2
+}

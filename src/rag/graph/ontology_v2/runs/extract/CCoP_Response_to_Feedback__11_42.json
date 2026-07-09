@@ -1,0 +1,18 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.42",
+  "concepts": [
+    "SystemActor"
+  ],
+  "triples": [
+    {
+      "s": "SystemActor",
+      "s_type": "SystemActor",
+      "rel": "SEGREGATES",
+      "o": "SystemActor",
+      "o_type": "SystemActor"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

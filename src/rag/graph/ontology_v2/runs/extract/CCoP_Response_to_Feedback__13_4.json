@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.4",
+  "concepts": [
+    "CIIO",
+    "CompensatingControl",
+    "CybersecurityRisk",
+    "IncidentManagement"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "IncidentManagement",
+      "o_type": "IncidentManagement"
+    },
+    {
+      "s": "CompensatingControl",
+      "s_type": "CompensatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "IncidentManagement",
+      "o_type": "IncidentManagement"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

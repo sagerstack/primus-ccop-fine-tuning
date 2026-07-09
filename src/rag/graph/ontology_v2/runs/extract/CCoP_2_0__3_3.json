@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP 2.0::3.3",
+  "concepts": [
+    "CybersecurityRisk",
+    "MitigatingControl",
+    "Policy",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "Policy",
+      "o_type": "Policy"
+    },
+    {
+      "s": "MitigatingControl",
+      "s_type": "MitigatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

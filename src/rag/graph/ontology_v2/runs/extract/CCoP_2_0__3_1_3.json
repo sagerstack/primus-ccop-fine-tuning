@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP 2.0::3.1.3",
+  "concepts": [
+    "CII",
+    "CybersecurityRisk",
+    "SeniorManagement"
+  ],
+  "triples": [
+    {
+      "s": "SeniorManagement",
+      "s_type": "SeniorManagement",
+      "rel": "OVERSEES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "SeniorManagement",
+      "s_type": "SeniorManagement",
+      "rel": "OVERSEES",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP 2.0::6.1.1",
+  "concepts": [
+    "CII",
+    "CybersecurityThreat",
+    "Log",
+    "Network"
+  ],
+  "triples": [
+    {
+      "s": "Log",
+      "s_type": "Log",
+      "rel": "DETECTS",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CONNECTED_TO",
+      "o": "Network",
+      "o_type": "Network"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "Log",
+      "o_type": "Log"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

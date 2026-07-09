@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::5.15.3(b)",
+  "concepts": [
+    "Certification",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "ThirdParty",
+      "s_type": "ThirdParty",
+      "rel": "HAS_CERTIFICATION",
+      "o": "Certification",
+      "o_type": "Certification"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

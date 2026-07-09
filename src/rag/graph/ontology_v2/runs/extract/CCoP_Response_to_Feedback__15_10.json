@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.10",
+  "concepts": [
+    "CII",
+    "CIIAsset",
+    "OTSystem"
+  ],
+  "triples": [
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    },
+    {
+      "s": "CIIAsset",
+      "s_type": "CIIAsset",
+      "rel": "DEPENDS_ON",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

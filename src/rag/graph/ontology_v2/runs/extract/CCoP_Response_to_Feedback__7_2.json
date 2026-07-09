@@ -1,0 +1,37 @@
+{
+  "citation_id": "CCoP Response to Feedback::7.2",
+  "concepts": [
+    "AttackConcept",
+    "CII",
+    "CIIO",
+    "NetworkControl",
+    "SecurityControl",
+    "defence-in-depth"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "APPLIES_PRINCIPLE",
+      "o": "defence-in-depth",
+      "o_type": "DesignPrinciple"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "NetworkControl",
+      "s_type": "NetworkControl",
+      "rel": "REDUCES",
+      "o": "AttackConcept",
+      "o_type": "AttackConcept"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

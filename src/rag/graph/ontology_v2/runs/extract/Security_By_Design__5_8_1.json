@@ -1,0 +1,37 @@
+{
+  "citation_id": "Security By Design::5.8.1",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "CybersecurityRisk",
+    "RiskAssessment",
+    "SecurityByDesign",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "SecurityByDesign",
+      "o_type": "SecurityByDesign"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,42 @@
+{
+  "citation_id": "CCoP Response to Feedback::7.19",
+  "concepts": [
+    "CIIO",
+    "CybersecurityThreat",
+    "RiskAssessment",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

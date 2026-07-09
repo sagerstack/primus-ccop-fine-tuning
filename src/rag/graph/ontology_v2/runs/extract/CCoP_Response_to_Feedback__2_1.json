@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.1",
+  "concepts": [
+    "CII",
+    "CodeOfPractice"
+  ],
+  "triples": [
+    {
+      "s": "CodeOfPractice",
+      "s_type": "CodeOfPractice",
+      "rel": "APPLIES_TO",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

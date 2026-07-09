@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::12.9",
+  "concepts": [
+    "CIIO",
+    "Malware",
+    "Monitoring",
+    "ThreatIntelligence"
+  ],
+  "triples": [
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "Malware",
+      "o_type": "Malware"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "ThreatIntelligence",
+      "o_type": "ThreatIntelligence"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

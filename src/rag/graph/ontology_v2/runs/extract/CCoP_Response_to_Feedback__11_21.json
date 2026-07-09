@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.21",
+  "concepts": [
+    "AccessControlMechanism",
+    "CII",
+    "CyberThreatActor"
+  ],
+  "triples": [
+    {
+      "s": "AccessControlMechanism",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.54",
+  "concepts": [
+    "AttackSimulation",
+    "CIIO"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "AttackSimulation",
+      "o_type": "AttackSimulation"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

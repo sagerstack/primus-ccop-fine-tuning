@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP 2.0::5.7.2(e)",
+  "concepts": [
+    "Malware",
+    "MalwareProtection",
+    "Monitoring"
+  ],
+  "triples": [
+    {
+      "s": "MalwareProtection",
+      "s_type": "MalwareProtection",
+      "rel": "MITIGATES",
+      "o": "Malware",
+      "o_type": "Malware"
+    },
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "Malware",
+      "o_type": "Malware"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

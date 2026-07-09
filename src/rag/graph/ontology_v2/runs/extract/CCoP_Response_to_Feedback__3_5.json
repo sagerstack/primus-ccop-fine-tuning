@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::3.5",
+  "concepts": [
+    "ComplianceGap",
+    "Deadline",
+    "Provision",
+    "RemediationPlan"
+  ],
+  "triples": [
+    {
+      "s": "ComplianceGap",
+      "s_type": "ComplianceGap",
+      "rel": "REMEDIATED_BY",
+      "o": "RemediationPlan",
+      "o_type": "RemediationPlan"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "HAS_DEADLINE",
+      "o": "Deadline",
+      "o_type": "Deadline"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP 2.0::3.2.3",
+  "concepts": [
+    "CII",
+    "CybersecurityRisk",
+    "MitigatingControl",
+    "OTSystem"
+  ],
+  "triples": [
+    {
+      "s": "MitigatingControl",
+      "s_type": "MitigatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "MitigatingControl",
+      "o_type": "MitigatingControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

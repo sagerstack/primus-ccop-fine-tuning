@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP 2.0::11.2.2::table::2",
+  "concepts": [
+    "Audit",
+    "ComputerSystem",
+    "Provision",
+    "RiskManagement"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "RiskManagement",
+      "o_type": "RiskManagement"
+    },
+    {
+      "s": "ComputerSystem",
+      "s_type": "ComputerSystem",
+      "rel": "EXCLUDED_FROM_SCOPE",
+      "o": "Audit",
+      "o_type": "Audit"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

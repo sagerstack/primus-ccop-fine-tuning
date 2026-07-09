@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.55",
+  "concepts": [
+    "AttackSimulation",
+    "CII",
+    "CIIO",
+    "CodeOfPractice"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "AttackSimulation",
+      "o_type": "AttackSimulation"
+    },
+    {
+      "s": "CodeOfPractice",
+      "s_type": "CodeOfPractice",
+      "rel": "APPLIES_TO",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

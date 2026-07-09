@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.29",
+  "concepts": [
+    "CIIAsset",
+    "Malware",
+    "MalwareProtection",
+    "SecurityConfigurationBaseline"
+  ],
+  "triples": [
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "APPLIES_BASELINE",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "MalwareProtection",
+      "s_type": "MalwareProtection",
+      "rel": "MITIGATES",
+      "o": "Malware",
+      "o_type": "Malware"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

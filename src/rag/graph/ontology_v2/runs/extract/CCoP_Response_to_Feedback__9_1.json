@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::9.1",
+  "concepts": [
+    "CIIO",
+    "Monitoring",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "SUPERVISES",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

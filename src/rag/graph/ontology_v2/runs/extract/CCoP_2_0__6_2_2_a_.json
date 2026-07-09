@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::6.2.2(a)",
+  "concepts": [
+    "Malware",
+    "Monitoring"
+  ],
+  "triples": [
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "Malware",
+      "o_type": "Malware"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

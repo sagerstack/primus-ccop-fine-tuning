@@ -1,0 +1,37 @@
+{
+  "citation_id": "Security By Design::6.5.1",
+  "concepts": [
+    "Auditor",
+    "CII",
+    "CIIO",
+    "CybersecurityThreat",
+    "Monitoring",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "Auditor",
+      "s_type": "Auditor",
+      "rel": "AUDITS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

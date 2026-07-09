@@ -12,6 +12,7 @@ from typing import Dict, List, Optional
 from application.ports.output.i_logger import ILogger
 from application.ports.output.i_test_case_repository import ITestCaseRepository
 from domain.entities.test_case import TestCase
+from domain.value_objects.benchmark_id import normalize as normalize_benchmark_id
 from domain.value_objects.benchmark_type import BenchmarkType
 from domain.value_objects.ccop_section import CCoPSection
 from domain.value_objects.difficulty_level import DifficultyLevel
@@ -81,10 +82,19 @@ class JSONLTestCaseRepository(ITestCaseRepository):
 
     async def load_by_benchmark(self, benchmark_type: BenchmarkType) -> List[TestCase]:
         """Load test cases for a specific benchmark."""
-        # Find filepath for this benchmark type
+        # Find filepath for this benchmark type. Compared three ways so that
+        # zero-padding differences (B4 vs B04) never cause a silent miss:
+        # (1) exact string match, (2) BenchmarkType.short_name parity (already
+        # padding-agnostic via int parsing), (3) explicit normalize() parity
+        # as a belt-and-suspenders check independent of BenchmarkType parsing.
         filepath = None
+        target_normalized = normalize_benchmark_id(benchmark_type.short_name)
         for bt_str, fp in self._benchmark_files.items():
-            if benchmark_type == bt_str or benchmark_type.short_name == BenchmarkType.from_string(bt_str).short_name:
+            if (
+                benchmark_type == bt_str
+                or benchmark_type.short_name == BenchmarkType.from_string(bt_str).short_name
+                or target_normalized == normalize_benchmark_id(bt_str)
+            ):
                 filepath = fp
                 break
 
@@ -126,18 +136,36 @@ class JSONLTestCaseRepository(ITestCaseRepository):
         return test_cases
 
     async def load_by_id(self, test_id: str) -> Optional[TestCase]:
-        """Load test case by ID."""
+        """Load test case by ID.
+
+        Matches padding-agnostic (e.g. requesting "B4-001" resolves the GT
+        row keyed "B04-001") via `normalize()` so CLI/result ids that don't
+        share the GT file's zero-padding still resolve to the correct case.
+        """
         all_cases = await self.load_all()
+        normalized_target = normalize_benchmark_id(test_id)
         for case in all_cases:
-            if case.test_id == test_id:
+            if case.test_id == test_id or normalize_benchmark_id(case.test_id) == normalized_target:
                 return case
         return None
 
     async def load_by_ids(self, test_ids: List[str]) -> List[TestCase]:
-        """Load multiple test cases by IDs."""
+        """Load multiple test cases by IDs.
+
+        Padding-agnostic like `load_by_id`: a mix of padded/unpadded ids in
+        `test_ids` (e.g. both "B4-001" and "B04-001") still resolves to
+        exactly one result row per matching GT case, since `all_cases` is
+        iterated once and each GT test_id appears exactly once.
+        """
         all_cases = await self.load_all()
         test_id_set = set(test_ids)
-        return [case for case in all_cases if case.test_id in test_id_set]
+        normalized_target_ids = {normalize_benchmark_id(tid) for tid in test_ids}
+        return [
+            case
+            for case in all_cases
+            if case.test_id in test_id_set
+            or normalize_benchmark_id(case.test_id) in normalized_target_ids
+        ]
 
     async def count(self) -> int:
         """Count total test cases."""

@@ -83,6 +83,13 @@ Use bullet lists for simplicity. Older entries can be manually removed when they
 - **Status**: Known — same family as "Citation ID Mismatch" (2026-03-21) but distinct observable: that entry notes wrong displayed citation; this entry notes missing content.
 - **Fix**: (1) Verify section 5.3/5.4 exist in `ccop-official/CCoP---Second-Edition_Revision-One.pdf` (expected yes — Privileged Access Management is core). (2) Fix clause-aware chunker under `src/rag/ingestion/` that fails to split on the 5.2 → 5.3 boundary. (3) Drop + re-ingest collection, verify via `/collections/.../scroll` filter `section=5.3`. (4) Add ingestion sanity test: assert TOC-level section count matches indexed section count; fail loudly at ingestion time, not silently at eval time.
 
+### 2026-07-02 - GraphRAG KG collapses all 7 source docs into one "document.txt" Document node (provenance loss)
+- **Issue**: `--mode graphrag` on B01-001 retrieved chunks all labelled `document_source="document.txt"`; the model could not tell CCoP-main from Response-to-Feedback and **fabricated citations** ("CCoP Response to Feedback: Section 2.2/2.3/2.5"), zeroing the judge's `factual_grounding` (0/3) and `citation_correctness` (0/3). Neo4j shows 7 `Document` nodes but all with `path="document.txt"`.
+- **Root Cause**: `EmergentKGBuilder.build()` called `pipeline.run_async(text=text)` without passing the document name. neo4j-graphrag's SimpleKGPipeline sets `document_info.path = user_input.get("file_path") or "document.txt"` (simple_kg_builder.py:442-446), so every doc defaulted to `"document.txt"`. Chunk `citation_id` is the Neo4j elementId (clause-level metadata is separately a Phase-10 concern), so with no document identity either, the model has nothing real to cite.
+- **Impact**: Systematically depresses graphrag's judge composite on the two citation-dependent dimensions for a reason unrelated to retrieval quality (context_recall was 0.88, precision 1.00 — content WAS retrieved). Distinct from the clause-grounding limitation (ADR-007): this is a fixable build bug, not a design limitation.
+- **Status**: Fixed in code (2026-07-02) — `run_async(text=text, file_path=doc_name)`; in text mode file_path only sets Document.path, no file load. Requires graph rebuild (`ccop-eval graph build --drop`) to take effect on live data.
+- **Fix**: Pass the doc name as `file_path`. Not chunk/extraction tuning (D-05/D-08 intact) — a correctness fix permitted by D-19 ("make it work"). After rebuild, re-run B01-001 to measure how much citation-zeroing was this bug vs the genuine Phase-10 clause-grounding gap.
+
 ---
 
 ## Tips

@@ -1,0 +1,44 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.33",
+  "concepts": [
+    "Backup",
+    "CII",
+    "CIIO",
+    "CompensatingControl",
+    "CybersecurityRisk",
+    "Patch"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Patch",
+      "o_type": "Patch"
+    },
+    {
+      "s": "CompensatingControl",
+      "s_type": "CompensatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "Backup",
+      "s_type": "Backup",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "Patch",
+      "o_type": "Patch"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

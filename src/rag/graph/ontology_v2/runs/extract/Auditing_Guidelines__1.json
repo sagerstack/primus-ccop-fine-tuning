@@ -1,0 +1,36 @@
+{
+  "citation_id": "Auditing Guidelines::1",
+  "concepts": [
+    "Audit",
+    "Auditor",
+    "CII",
+    "Deadline",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Auditor",
+      "s_type": "Auditor",
+      "rel": "AUDITS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "COVERS",
+      "o": "Provision",
+      "o_type": "Provision"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "HAS_DEADLINE",
+      "o": "Deadline",
+      "o_type": "Deadline"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,28 @@
+{
+  "citation_id": "Security By Design::5.3.2(c)",
+  "concepts": [
+    "CIIO",
+    "ResidualRisk",
+    "RiskManagement",
+    "SeniorManagement"
+  ],
+  "triples": [
+    {
+      "s": "ResidualRisk",
+      "s_type": "ResidualRisk",
+      "rel": "ACCEPTED_BY",
+      "o": "SeniorManagement",
+      "o_type": "SeniorManagement"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "RiskManagement",
+      "o_type": "RiskManagement"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

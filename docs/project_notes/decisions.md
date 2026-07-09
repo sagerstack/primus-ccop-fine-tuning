@@ -140,6 +140,129 @@ Each decision should include:
 
 ---
 
+### ADR-006: Deprecate `forbidden_claims` from Ground Truth & Scoring (2026-06-29)
+
+**Context:**
+- `fail_conditions.forbidden_claims` is model-generated and fed to the LLM judge as scoring priors.
+- Stage-1 scan found contamination in 256/435 records — required-element descriptors
+  ("Reference to applicable CCoP clause", "Evidence quality considerations") wrongly placed in the
+  forbidden list (see `gt_audit_2026-04-28/stage1_defect_ledger.*`).
+- The judge cites these entries in its rationale, so a model-hallucinated "prohibition" becomes a
+  scoring criterion — a hallucination-amplification loop. Live example: B23 was penalised for
+  "violating" `"Clear articulation of regulatory alignment"`, which is actually a *required* element.
+- Negative space ("what a correct answer must NOT say") is unbounded and unverifiable — the
+  highest-hallucination-risk, lowest-marginal-value part of the GT, and largely redundant with the
+  judge's `factual_grounding` + `hallucination` dimensions and `expected_response`.
+
+**Decision:**
+- Deprecate `forbidden_claims` as a scoring input. Stop feeding it to the LLM judge; rely on the
+  judge's grounding/hallucination dimensions + `expected_response`.
+- Do NOT re-home entries into a `required_elements` field — that would only relocate the
+  model-generated hallucination, not remove it.
+
+**Alternatives Considered:**
+- Shrink to curated red-lines → Rejected: curation needs human/expert authorship these don't have.
+- Re-home contaminated entries to a rubric field → Rejected: relocates hallucination risk.
+
+**Consequences:**
+- Removes the judge-corruption / amplification loop; some previously-penalised cases may score higher.
+- Stage-1 D-FORBIDDEN's 706 flags become moot (field removed, not fixed).
+- Consumers to update: `domain/services/llm_judge_service.py`, `domain/services/scoring_service.py`,
+  `rag/retrieval/nodes/generation.py`, `domain/entities/test_case.py`, JSONL repository/parsers.
+- `fail_conditions.hallucination_patterns` is the same model-generated negative-space pattern and is
+  a candidate for the same treatment — flagged for review.
+
+---
+
+### ADR-007: Phase 9 GraphRAG reports coarse chunking as an intrinsic OOTB limitation (2026-07-02)
+
+**Context:**
+- Phase 9 `--mode graphrag` scored judge 0.06 vs hybrid 0.44 on B01-001. One confound axis is
+  chunk granularity: the graph uses neo4j-graphrag's default `FixedSizeSplitter` (4000 char /
+  200 overlap, single-pass, no gleaning), while hybrid uses our clause-level Docling chunks.
+- Question raised before Wave 6: is coarse chunking a fixable confound (re-chunk to clause units)
+  or an intrinsic characteristic to report? Settled with a deep-research pass (see
+  `docs/project_notes/research/2026-07-02-graphrag-chunking-regulatory.md`; mirrors Phase 9
+  decisions D-20 / D-16a in `.planning/phases/09-.../09-CONTEXT.md`).
+
+**Decision:**
+- Phase 9 keeps the default coarse splitter and **reports coarse chunking as an intrinsic
+  out-of-the-box limitation of the emergent baseline — not patched by re-chunking.**
+- Wave-6 retrieval parity (rerank + sparse + `top_n` funnel cap to 3) proceeds — those are harness
+  concerns, orthogonal to chunking.
+- The clause-granularity fix is architectural and deferred to Phase 10 (clause-node seeding +
+  clause-anchored fine retrieval + section-level extraction chunks, ideally with a gleaning/
+  multi-pass step).
+
+**Alternatives Considered:**
+- Re-chunk the graph to clause units → Rejected ✗: verified to *starve relationship extraction*
+  (both endpoints must co-occur in one chunk; arXiv 2605.28004) and adds a second variable to the
+  P9→P10 ablation (breaks D-01). Also "bigger is simply better" is false — smaller chunks recover
+  ~2× entities (arXiv 2404.16130v2), which the field fixes with gleaning that neo4j-graphrag lacks.
+- Defer entire chunk decision to Phase 10 without recording rationale → Rejected ✗: leaves the
+  Wave-6 confound narrative undocumented.
+
+**Consequences:**
+- Wave-6 graphrag-vs-hybrid comparison must explicitly caveat coarse chunking as a reported OOTB
+  characteristic, with citations — a defensible dissertation narrative, not an excuse.
+- ⚠️ Phase 10 risk carried forward: clause-node seeding alone is insufficient — retrieval must be
+  re-anchored on clause nodes, else the 4000-char return-unit confound rides into Phase 10.
+
+---
+
+### ADR-008: Backward compatibility MUST be maintained per pipeline `mode` (2026-07-04)
+
+**Context:**
+- The RAG pipeline exposes multiple `mode`s that grow over time: `llm-only`, `hybrid`,
+  `rag-only`, `graphrag`, `graphrag-retrieval`, `graphrag-ontology`, and the incoming
+  `graph-compliance` (Phase 11-09). Modes share downstream LangGraph nodes (retrieval →
+  reranking → grade → generate) and shared config/DI/allowlists.
+- This creates a standing regression risk: wiring a NEW mode can silently alter an EXISTING
+  mode's behavior. This is the exact "multi-allowlist" class the project keeps re-hitting
+  (see D-16/D-19/D-20 decision tokens; the `~/.claude/rules/e2e-testing.md` Phase 9 example
+  where a new `graphrag` mode passed mocked tests but a second `RunId._VALID_MODES` allowlist
+  was missed).
+- User directive (2026-07-04): each mode must stay backward-compatible going forward.
+
+**Decision:**
+- Any change that adds or modifies a `mode` MUST be **strictly additive** with respect to every
+  other mode. Existing modes' routing outcomes, retrieval semantics, node behavior, and output
+  contracts must be preserved unchanged.
+- New behavior lives behind the new mode's own routing branch (mirroring `route_by_mode`'s
+  additive `graphrag`/`graphrag-ontology` branches, where `hybrid` falls through to the
+  unchanged default `retrieval` node). Shared nodes may only be changed in ways that are
+  provably behavior-preserving for pre-existing modes.
+- Every mode-touching change carries a backward-compat verification: diff the shared-path files
+  and confirm pre-existing modes are behavior-identical, plus a smallest-slice E2E per affected
+  mode. Reference precedent: the Phase 11 Wave-1 audit confirmed phases 9/10/11 left the shared
+  hybrid code path byte-identical to pre-phase-9 (only additive early-return branches added).
+
+**Alternatives Considered:**
+- Refactor the shared retrieval path per-mode as needed → Rejected ✗: reintroduces exactly the
+  silent cross-mode regression class this ADR exists to prevent.
+- Rely on tests without a formal rule → Rejected ✗: mocked unit tests already missed a second
+  allowlist once (the e2e-testing rule's own cautionary example).
+
+**Consequences:**
+- Mode wiring must update ALL allowlist/gating sites in one change (routing, `RunId._VALID_MODES`,
+  DI container, settings, CLI, adapter validation) — never a subset.
+- ⚠️ **Data caveat (separate compat surface):** shared retrieval indices (e.g. the
+  `ccop_clauses_hybrid` Qdrant collection) are NOT covered by code-level backward compat. Every
+  mode reading a collection is affected when that collection is re-ingested (e.g. Phase 11 Wave 0
+  rebuilt `ccop_clauses_hybrid`, changing hybrid retrieval vs the frozen canonical baseline).
+  Corpus/index changes must be treated as explicit, announced decisions — not silent — and any
+  frozen baseline they invalidate must be re-noted or regenerated.
+
+**Scope note (2026-07-04) — retired modes are an explicit exception:** `graphrag`,
+`graphrag-retrieval`, and `graphrag-ontology` (Phase 9/10) are **retired**, superseded by
+`graph-compliance` (Phase 11). Their Neo4j substrate (the emergent entity graph) was deleted and
+will not be maintained or rebuilt. Their breakage is therefore **not** a backward-compat
+regression under this ADR — the compat guarantee applies to *live* modes (`llm-only`, `hybrid`,
+`rag-only`, `graph-compliance`). Do not "fix" a non-functional graphrag mode; if fully removing
+its code/allowlist entries, do so as a deliberate deprecation, not a silent edit.
+
+---
+
 ## Tips
 
 - Number decisions sequentially (ADR-001, ADR-002, etc.)

@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::7.1.2",
+  "concepts": [
+    "CybersecurityIncident",
+    "IncidentResponseTeam"
+  ],
+  "triples": [
+    {
+      "s": "IncidentResponseTeam",
+      "s_type": "IncidentResponseTeam",
+      "rel": "RESPONDS_TO",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    }
+  ],
+  "proposed": [],
+  "extractor": "claude-opus",
+  "n_raw": 1
+}

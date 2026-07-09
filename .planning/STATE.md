@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: executing
+stopped_at: context exhaustion at 77% (2026-07-09)
+last_updated: "2026-07-09T00:16:16.892Z"
+last_activity: 2026-07-04 -- Phase 11 execution started
+progress:
+  total_phases: 20
+  completed_phases: 9
+  total_plans: 85
+  completed_plans: 72
+  percent: 45
+---
+
 # Project State
 
 ## Project Reference
@@ -5,20 +21,21 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Build a hybrid model that CII organizations can trust to interpret CCoP 2.0 correctly
-**Current focus:** Phase 3.2 (Corpus and Ground Truth Correctness) — COMPLETE. Sub-goals A (Plans 01-04) and B (Plans 05-07) both delivered. Verifier passed 18/18 must-haves. Ready for Phase 4 (Re-Baseline).
+**Current focus:** Phase 11 — align-graphrag-to-graphcompliance-architecture-scenario-anch
 
 ## Current Position
 
-Phase: 3.2 of 8 (Corpus and Ground Truth Correctness) — COMPLETE (verifier passed 18/18)
-Plan: 7 of 7 — COMPLETE (validator hard-fail + CLI landed)
-Status: Phase 3.2 closed. Clean ground truth (`ccop-eval validate-ground-truth --no-semantic` → 434 valid, 0 errors); `ccop_clauses_hybrid` re-ingested with all 12 CCoP 2.0 sections 5.1-5.12 present; 691-entry inventory + hard-fail validator + deprecated-skip wired end-to-end. Verifier report at `.planning/phases/03.2-corpus-ground-truth-correctness/03.2-VERIFICATION.md`.
-Last activity: 2026-04-22 — Completed 03.2-07: Pass-2 regex context-awareness (76 false positives resolved) + ER_FOOTER patcher cluster (17 footer hallucinations) + `ccop-eval validate-ground-truth` CLI + JSONL repo deprecated-skip + 4 CLI integration tests; phase verifier passed 18/18.
+Phase: 11 (align-graphrag-to-graphcompliance-architecture-scenario-anch) — EXECUTING
+Plan: 1 of 10
+Status: Executing Phase 11
+Last activity: 2026-07-04 -- Phase 11 execution started
 
-Progress: [███████░░░] 67% (7/11 phase-3 plans + 3/3 phase-3.1 plans + 7/7 phase-3.2 plans)
+Progress: [█████████░] 85%
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 32
 - Average duration: 5.97 min
 - Total execution time: 3.22 hours
@@ -39,6 +56,7 @@ Progress: [███████░░░] 67% (7/11 phase-3 plans + 3/3 phase-3
 | 3.1. Eval Run Traceability & I/O Capture | 3/3 | ~90 min | ~30 min |
 
 **Recent Trend:**
+
 - Last 5 plans: 03.2-01 (chunker regex + merge-rule removal), 03.2-02 (table chunks + TOC gate), 03.2-03 (~15min re-ingest + section/phrase verification, SC #8 N/A), 03.2-04 (~33min B3-001 re-eval + funnel diagnostic + sub-goal A closure, SC #9 N/A), 03.2-05 (~60min clause inventory extraction + committed fixture + Cybersecurity Act legal-numbering extension, SC #11 satisfied)
 - Trend: Phase 3.2 plans average ~15-60 min; Plans 04-05 longer due to human-verify checkpoint pauses
 - Phase 3.1 VERIFIED COMPLETE: 9/9 success criteria PASS, 88/88 schema-v6 targeted tests passing, verifier report at `.planning/phases/03.1-eval-run-traceability/VERIFICATION.md`
@@ -47,6 +65,11 @@ Progress: [███████░░░] 67% (7/11 phase-3 plans + 3/3 phase-3
 - Phase 3.2 VERIFIED COMPLETE (2026-04-22): 18/18 success criteria PASS; verifier report at `.planning/phases/03.2-corpus-ground-truth-correctness/03.2-VERIFICATION.md`
 
 *Updated after each plan completion*
+| Phase 09 P01 | 109 | 3 tasks | 7 files |
+| Phase 09 P02 | 25min | 3 tasks | 13 files |
+| Phase 09 P03 | ~35min | 3 tasks | 8 files |
+| Phase 10 P03 | 47min | 3 tasks | 9 files |
+| Phase 10 P04 | 80min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -187,6 +210,16 @@ Recent decisions affecting current work:
 - **[03-03] B5 all Revise (not Discard):** All 7 cases have valuable clause references; practitioner reframing preserves generation effort
 - **[03-03] B19 (Cross-Scenario) removed:** Meta-benchmark retired; 3/3 cases discard; consistency addressed at dataset analysis level
 - **[03-03] B20→B21 full migration:** All 3 over-specification cases Keep to B21 — strong adversarial patterns reusable as-is
+- [Phase 09-02]: EmergentKGBuilder wraps SimpleKGPipeline with NO schema/entities/relations kwargs (D-03/D-08 emergent baseline); LLM/embedder/pipeline construction behind injectable factories preserves the D-16 Phase-10 additivity seam
+- [Phase 09-02]: Graph build stats (nodes/relationships/chunks) read via direct Cypher count queries after each pipeline run, not from PipelineResult internals - not a stable schema across neo4j-graphrag versions
+- [Phase 09-02]: Unignored src/rag/graph/build/ and tests/rag/graph/build/ in .gitignore - the top-level build/ packaging-artifact rule was silently shadowing the plan-mandated directory name
+- [Phase 09-03]: Neo4j 5.x requires COUNT { (n)--() } instead of size((n)--()) for pattern-expression counts - the older size() form is a hard syntax error, not a deprecation
+- [Phase 09-03]: Clause coverage computed via one bulk Chunk.text read + boundary-aware Python regex match against clause_inventory.json entries, never per-clause_id Cypher - keeps all Cypher parameter-free/interpolation-free (T-09-09) and avoids 738 round-trip queries
+- [Phase 09-03]: duplicate_entities groups on a priority-ordered display name (identifier-shaped properties like user_id/asset_id before descriptive labels like username/name) - matches actual heterogeneous property shapes in the live emergent-extraction graph
+- [Phase 10]: [10-03] Method-C ontology discovery from structured sources (section headings + 18 benchmark defs + stratified prose), one LLM call per category — NOT open per-chunk NER (fixes the Phase 9 D-06 failure mode)
+- [Phase 10]: [10-03] Curation gate (a) approve-with-amendments: 20 node types (dropped 11 TOC-mirroring Section types), 47 relations (added 17), gold synonyms collapsed onto canonicals; D-17 unresolved_missing=0
+- [Phase ?]: [10-04] Curation gate (b) reconciled: +4 Method-B-only node types (OperationalTechnology/ThirdParty/EssentialService/BusinessEntity) -> 24 node types; VIOLATES split from CANNOT_SATISFY -> 48 relations; ontology LOCKED (additional_*_types=false)
+- [Phase ?]: [10-04] Method B clustering cross-check corroborated 10 Method-C types; only 4 of 71 B-only candidates cleared the GT-need bar; D-01 C->curate->B->reconcile->lock sequence COMPLETE
 
 ### Pending Todos
 
@@ -240,6 +273,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-22
-Stopped at: Completed 03.2-07-PLAN.md — validator hard-fail + `ccop-eval validate-ground-truth` CLI + JSONL repo deprecated-skip + 4 CLI integration tests. Phase 3.2 verifier passed 18/18. Phase closed.
-Resume file: N/A — Phase 3.2 complete. Next: Phase 4 (Re-Baseline & Re-Evaluate) — plan and execute the main baseline eval on v2 ground truth with corrected corpus.
+Last session: 2026-07-09T00:16:16.878Z
+Stopped at: context exhaustion at 77% (2026-07-09)
+Resume file: None

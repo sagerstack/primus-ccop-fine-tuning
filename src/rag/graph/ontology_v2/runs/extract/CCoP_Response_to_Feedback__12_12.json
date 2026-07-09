@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::12.12",
+  "concepts": [
+    "CIIO",
+    "CybersecurityThreat",
+    "ThreatHunting",
+    "ThreatModelling"
+  ],
+  "triples": [
+    {
+      "s": "ThreatModelling",
+      "s_type": "ThreatModelling",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "ThreatHunting",
+      "o_type": "ThreatHunting"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

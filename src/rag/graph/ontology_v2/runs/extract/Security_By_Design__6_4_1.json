@@ -1,0 +1,27 @@
+{
+  "citation_id": "Security By Design::6.4.1",
+  "concepts": [
+    "SecurityControl",
+    "Vulnerability",
+    "VulnerabilityAssessment"
+  ],
+  "triples": [
+    {
+      "s": "VulnerabilityAssessment",
+      "s_type": "VulnerabilityAssessment",
+      "rel": "IDENTIFIES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.8",
+  "concepts": [
+    "CodeOfPractice",
+    "RegulatoryFramework"
+  ],
+  "triples": [
+    {
+      "s": "CodeOfPractice",
+      "s_type": "CodeOfPractice",
+      "rel": "OVERLAPS_WITH",
+      "o": "RegulatoryFramework",
+      "o_type": "RegulatoryFramework"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

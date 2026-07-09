@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP 2.0::11.2.2",
+  "concepts": [
+    "Audit",
+    "CII",
+    "ComputerSystem",
+    "DNSSEC",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "DNSSEC",
+      "s_type": "Cryptography",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "ComputerSystem",
+      "s_type": "ComputerSystem",
+      "rel": "EXCLUDED_FROM_SCOPE",
+      "o": "Audit",
+      "o_type": "Audit"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "DNSSEC",
+      "o_type": "Cryptography"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.26",
+  "concepts": [
+    "CybersecurityThreat",
+    "FieldController",
+    "Monitoring",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "FieldController",
+      "o_type": "FieldController"
+    },
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

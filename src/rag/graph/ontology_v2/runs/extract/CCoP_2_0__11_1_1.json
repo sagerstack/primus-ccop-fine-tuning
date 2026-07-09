@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP 2.0::11.1.1",
+  "concepts": [
+    "CII",
+    "CodeOfPractice",
+    "Network"
+  ],
+  "triples": [
+    {
+      "s": "CodeOfPractice",
+      "s_type": "CodeOfPractice",
+      "rel": "APPLIES_TO",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CONNECTED_TO",
+      "o": "Network",
+      "o_type": "Network"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,43 @@
+{
+  "citation_id": "Security By Design::6.3.2",
+  "concepts": [
+    "CII",
+    "CybersecurityRisk",
+    "ProjectRole",
+    "RiskAssessment",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "ProjectRole",
+      "s_type": "ProjectRole",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

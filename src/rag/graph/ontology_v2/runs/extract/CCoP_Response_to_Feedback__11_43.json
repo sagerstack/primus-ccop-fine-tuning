@@ -1,0 +1,34 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.43",
+  "concepts": [
+    "AccessControlMechanism",
+    "CII",
+    "SystemActor"
+  ],
+  "triples": [
+    {
+      "s": "SystemActor",
+      "s_type": "SystemActor",
+      "rel": "SEGREGATES",
+      "o": "SystemActor",
+      "o_type": "SystemActor"
+    },
+    {
+      "s": "AccessControlMechanism",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "AccessControlMechanism",
+      "o_type": "AccessControlMechanism"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP 2.0::7.1.1(g)",
+  "concepts": [
+    "CII",
+    "CybersecurityIncident",
+    "DisasterRecoveryPlan",
+    "IncidentResponsePlan"
+  ],
+  "triples": [
+    {
+      "s": "IncidentResponsePlan",
+      "s_type": "IncidentResponsePlan",
+      "rel": "RESPONDS_TO",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    },
+    {
+      "s": "DisasterRecoveryPlan",
+      "s_type": "DisasterRecoveryPlan",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.2",
+  "concepts": [
+    "CII",
+    "CodeOfPractice",
+    "DigitalBoundary",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "CodeOfPractice",
+      "s_type": "CodeOfPractice",
+      "rel": "APPLIES_TO",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "WITHIN_BOUNDARY",
+      "o": "DigitalBoundary",
+      "o_type": "DigitalBoundary"
+    },
+    {
+      "s": "DigitalBoundary",
+      "s_type": "DigitalBoundary",
+      "rel": "DETERMINED_BY",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    }
+  ],
+  "proposed": [],
+  "extractor": "claude-opus",
+  "n_raw": 3
+}

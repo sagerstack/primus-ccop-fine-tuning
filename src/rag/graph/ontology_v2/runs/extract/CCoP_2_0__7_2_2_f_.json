@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::7.2.2(f)",
+  "concepts": [
+    "CrisisCommunicationPlan",
+    "CybersecurityIncident"
+  ],
+  "triples": [
+    {
+      "s": "CybersecurityIncident",
+      "s_type": "CybersecurityIncident",
+      "rel": "ACTIVATES",
+      "o": "CrisisCommunicationPlan",
+      "o_type": "CrisisCommunicationPlan"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

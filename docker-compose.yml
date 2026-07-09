@@ -17,3 +17,25 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  neo4j:
+    image: neo4j:5.26-community  # 5.26 LTS
+    container_name: neo4j-local
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:7474:7474"  # Browser / HTTP (localhost-bound only)
+      - "127.0.0.1:7687:7687"  # Bolt (localhost-bound only)
+    volumes:
+      - ./neo4j_storage:/data          # Persistent graph store
+      - ./neo4j_storage/logs:/logs     # Persistent logs
+    environment:
+      # Credentials come from ${CCOP_NEO4J_PASSWORD} in src/config/.env.local — never a literal here.
+      - NEO4J_AUTH=neo4j/${CCOP_NEO4J_PASSWORD}
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:7474 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5

@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP 2.0::3.7.3(b)",
+  "concepts": [
+    "CIIO",
+    "Regulator",
+    "RiskAssessmentReport"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    },
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "APPROVES",
+      "o": "RiskAssessmentReport",
+      "o_type": "RiskAssessmentReport"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

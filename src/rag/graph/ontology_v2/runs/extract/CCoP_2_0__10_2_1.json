@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP 2.0::10.2.1",
+  "concepts": [
+    "CII",
+    "DigitalBoundary",
+    "EnterpriseNetwork",
+    "OTSystem"
+  ],
+  "triples": [
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    },
+    {
+      "s": "OTSystem",
+      "s_type": "OTSystem",
+      "rel": "CONNECTED_TO",
+      "o": "EnterpriseNetwork",
+      "o_type": "EnterpriseNetwork"
+    },
+    {
+      "s": "OTSystem",
+      "s_type": "OTSystem",
+      "rel": "WITHIN_BOUNDARY",
+      "o": "DigitalBoundary",
+      "o_type": "DigitalBoundary"
+    }
+  ],
+  "proposed": [],
+  "extractor": "claude-opus",
+  "n_raw": 3
+}

@@ -1,0 +1,44 @@
+{
+  "citation_id": "Cybersecurity Act 2018::SecondSchedule.1",
+  "concepts": [
+    "Monitoring",
+    "Obligation",
+    "PenetrationTester",
+    "PenetrationTesting",
+    "Provision",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "PenetrationTesting",
+      "o_type": "PenetrationTesting"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    },
+    {
+      "s": "PenetrationTester",
+      "s_type": "PenetrationTester",
+      "rel": "CONDUCTS",
+      "o": "PenetrationTesting",
+      "o_type": "PenetrationTesting"
+    },
+    {
+      "s": "ThirdParty",
+      "s_type": "ThirdParty",
+      "rel": "HAS_OBLIGATION",
+      "o": "Obligation",
+      "o_type": "Obligation"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

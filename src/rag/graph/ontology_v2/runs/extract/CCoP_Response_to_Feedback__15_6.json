@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.6",
+  "concepts": [
+    "ControlSystem",
+    "PhysicalProcess",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "PhysicalProcess",
+      "o_type": "PhysicalProcess"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "ControlSystem",
+      "o_type": "ControlSystem"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

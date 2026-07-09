@@ -34,6 +34,19 @@ class Settings(BaseSettings):
         default=120,
         description="Claude CLI request timeout in seconds"
     )
+    cu_extraction_model: str = Field(
+        default="anthropic/claude-sonnet-4",
+        description=(
+            "OpenRouter model id for Phase-11 Compliance-Unit classification "
+            "(Stage 1, `cu_classifier.py`) and 4-tuple extraction (Stage 2, "
+            "`cu_extractor.py`), routed through `OpenRouterGateway` "
+            "(OpenRouter credits, decoupled from the `claude -p` Claude "
+            "subscription that hit daily token limits mid-build, 2026-07-05). "
+            "Must be an OpenRouter model id (verify on openrouter.ai/models). "
+            "Override via CCOP_CU_EXTRACTION_MODEL. Reuses `claude_cli_timeout` "
+            "as the per-call timeout bound and `judge_max_retries` for retries."
+        )
+    )
 
     # LLM Judge Configuration
     llm_judge_model: str = Field(
@@ -405,6 +418,117 @@ class Settings(BaseSettings):
     qdrant_sparse_model: Optional[str] = Field(
         default=None,
         description="Sparse embedding model name for BM25 (e.g., Qdrant/bm25)"
+    )
+
+    # ------------------------------------------------------------------
+    # Neo4j GraphRAG Configuration (Phase 9 — emergent-KG baseline)
+    # ------------------------------------------------------------------
+    # Connection (D-01/D-12): local Docker Neo4j alongside qdrant.
+    neo4j_uri: str = Field(
+        default="bolt://localhost:7687",
+        description="Neo4j Bolt URI (local Docker service)"
+    )
+    neo4j_user: str = Field(
+        default="neo4j",
+        description="Neo4j username"
+    )
+    neo4j_password: Optional[str] = Field(
+        default=None,
+        description=(
+            "Neo4j password. No insecure default — supply via CCOP_NEO4J_PASSWORD "
+            "in config/.env.local (must match docker-compose NEO4J_AUTH). Never a "
+            "committed literal."
+        )
+    )
+    neo4j_database: str = Field(
+        default="neo4j",
+        description="Neo4j database name"
+    )
+    graph_vector_index_name: str = Field(
+        default="ccop_chunk_embeddings",
+        description="Neo4j vector index name for chunk embeddings (CCOP_GRAPH_VECTOR_INDEX)",
+        alias="CCOP_GRAPH_VECTOR_INDEX",
+    )
+    graph_fulltext_index_name: str = Field(
+        default="ccop_chunk_fulltext",
+        description=(
+            "Neo4j fulltext (Lucene) index name over Chunk.text — the sparse leg of "
+            "the graph HybridCypherRetriever (Wave-6 retrieval parity: dense + sparse, "
+            "mirroring hybrid's dense+BM25 RRF). NOTE: Lucene BM25 is an approximate, "
+            "not bit-identical, parity to hybrid's fastembed BM25 (CCOP_GRAPH_FULLTEXT_INDEX)."
+        ),
+        alias="CCOP_GRAPH_FULLTEXT_INDEX",
+    )
+
+    # GraphRAG infrastructure models — held constant across Phase 9 and Phase 10
+    # (D-16 additivity). Kept as explicit standalone fields so they remain an
+    # interceptable seam for ontology-governed extraction in Phase 10.
+    graph_extraction_model: str = Field(
+        default="openai/gpt-4o-mini",
+        description=(
+            "KG entity/relationship extraction LLM (D-06a) — runs via OpenRouter "
+            "(reuses openrouter_api_key / openrouter_base_url). Held constant across "
+            "Phase 9 and Phase 10 so the ablation isolates the ontology, not the model."
+        )
+    )
+    graph_embedding_model: str = Field(
+        default="BAAI/bge-large-en-v1.5",
+        description=(
+            "GraphRAG embedding model (D-07) — in-process SentenceTransformer, exact "
+            "parity with hybrid's CCOP_QDRANT_EMBEDDING_MODEL. Held constant across "
+            "Phase 9 and Phase 10."
+        )
+    )
+    graph_embedding_dimensions: int = Field(
+        default=1024,
+        ge=1,
+        description="Embedding vector dimensionality for the Neo4j vector index (bge-large-en-v1.5 = 1024, D-07)"
+    )
+
+    # ------------------------------------------------------------------
+    # Neo4j GraphRAG Ontology Configuration (Phase 10 — ontology-grounded KG)
+    # ------------------------------------------------------------------
+    # Front-loaded here (plan 10-02) so NO other Phase 10 plan needs to touch
+    # settings.py — single-owner seam, avoids same-wave write conflicts in
+    # Waves 3 and 5 (10-08/10-09 both read settings in the same wave).
+    ontology_config_path: str = Field(
+        default="src/rag/graph/ontology/ontology_config.json",
+        description=(
+            "Path to the Phase 10 ontology config (entity/relation/function-type "
+            "schema, D-01). File is created by a later Phase 10 plan."
+        )
+    )
+    shacl_shapes_path: str = Field(
+        default="src/rag/graph/ontology/shapes.ttl",
+        description=(
+            "Path to the SHACL shapes file used to validate ontology-grounded "
+            "extraction (D-02/D-03). File is created by a later Phase 10 plan."
+        )
+    )
+    ontology_discovery_model: str = Field(
+        default="openai/gpt-4o-mini",
+        description=(
+            "LLM used for ontology-guided discovery/extraction passes (Phase 10, "
+            "D-06a parity with graph_extraction_model) — runs via OpenRouter."
+        )
+    )
+    function_type_boost: float = Field(
+        default=1.5,
+        gt=0,
+        description=(
+            "Retrieval-time score boost applied to nodes matching the query's "
+            "inferred function-type (D-12). Applied by the real clause-anchored "
+            "retrieval query landing in plan 10-09."
+        )
+    )
+    gleaning_max_gleanings: int = Field(
+        default=1,
+        ge=0,
+        description="Maximum number of additional 'gleaning' extraction passes per chunk (D-11)"
+    )
+    graphrag_ontology_enabled: bool = Field(
+        default=True,
+        description="Feature flag gating the Phase 10 `graphrag-ontology` mode and its DI provider"
     )
 
     model_config = SettingsConfigDict(

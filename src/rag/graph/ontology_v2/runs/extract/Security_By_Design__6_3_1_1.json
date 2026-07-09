@@ -1,0 +1,35 @@
+{
+  "citation_id": "Security By Design::6.3.1.1",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "DigitalBoundary",
+    "SecurityArchitecture"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "SecurityArchitecture",
+      "o_type": "SecurityArchitecture"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "WITHIN_BOUNDARY",
+      "o": "DigitalBoundary",
+      "o_type": "DigitalBoundary"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SecurityArchitecture",
+      "o_type": "SecurityArchitecture"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,34 @@
+{
+  "citation_id": "Security By Design::6.1.1.2",
+  "concepts": [
+    "CybersecurityThreat",
+    "RiskAssessment",
+    "Vulnerability"
+  ],
+  "triples": [
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "CybersecurityThreat",
+      "s_type": "CybersecurityThreat",
+      "rel": "EXPLOITS",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

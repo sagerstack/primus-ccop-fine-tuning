@@ -1,0 +1,19 @@
+{
+  "citation_id": "Cybersecurity Act 2018::5",
+  "concepts": [
+    "CodeOfPractice",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "ISSUES",
+      "o": "CodeOfPractice",
+      "o_type": "CodeOfPractice"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

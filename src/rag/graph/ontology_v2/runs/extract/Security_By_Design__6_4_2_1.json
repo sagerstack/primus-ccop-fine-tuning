@@ -1,0 +1,35 @@
+{
+  "citation_id": "Security By Design::6.4.2.1",
+  "concepts": [
+    "CII",
+    "SecurityControl",
+    "Vulnerability",
+    "VulnerabilityAssessment"
+  ],
+  "triples": [
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "VulnerabilityAssessment",
+      "s_type": "VulnerabilityAssessment",
+      "rel": "IDENTIFIES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

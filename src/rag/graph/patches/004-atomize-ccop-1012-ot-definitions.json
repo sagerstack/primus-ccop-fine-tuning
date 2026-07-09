@@ -1,0 +1,14 @@
+{
+  "_comment": "Patch 004 content — the 8 CCoP-10.1.2 OT/ICS defined terms, atomized. All verbatim from the CCoP-10.1.2 table, reframed as \"'term' means ...\" sentences (article lowercased, or a minimal article added for bare-noun cells; noted in the .md). One source typo fixed: 'register block' cell reads 'Atemporary' -> 'a temporary'. Each becomes a :Clause:Premise child of CCoP-10.1.2, premise_kind='definition'.",
+  "parent_citation_id": "CCoP-10.1.2",
+  "terms": [
+    {"slug": "alert-suppression", "text": "'alert suppression' means the act of dismissing a notification.", "provenance": "CCoP s.10.1.2 (verbatim)"},
+    {"slug": "fail-safe", "text": "'fail-safe' means a feature or practice that is designed to handle failure that results in minimal or no harm to equipment, environment and people.", "provenance": "CCoP s.10.1.2 (verbatim)"},
+    {"slug": "field-controller", "text": "'field controller' means an industrial computer (e.g., Programmable Logic Controller (PLC), Remote Terminal Unit (RTU)) in an OT environment used to monitor and/or control physical processes.", "provenance": "CCoP s.10.1.2 (verbatim; +article 'an')"},
+    {"slug": "interlock", "text": "'interlock' means a mechanism, process or function to prevent operation (e.g., start-up, stoppage, etc) from entering in an undesired state.", "provenance": "CCoP s.10.1.2 (verbatim; +article 'a')"},
+    {"slug": "physical-process", "text": "'physical process' means an action or activity denoted by any change of operation states, such as valve movement (open to close status), circuit breaker activated (close to open status) and motor rotation (low to high speed).", "provenance": "CCoP s.10.1.2 (verbatim)"},
+    {"slug": "programme-code", "text": "'programme code' means the programmable code (e.g., Supervisory Control and Data Acquisition (SCADA) / Distributed Control System (DCS) function script, ladder diagram, function block diagram, structured text) developed for an application that is used to monitor and control the CII.", "provenance": "CCoP s.10.1.2 (verbatim)"},
+    {"slug": "register-block", "text": "'register block' means a temporary memory space that is used by the field controller to store or manipulate data.", "provenance": "CCoP s.10.1.2 (verbatim; source typo 'Atemporary' -> 'a temporary')"},
+    {"slug": "Safety-Instrumented-System", "text": "'Safety Instrumented System' means control systems that take a physical process to a safe state when in conditions that are or may become hazardous.", "provenance": "CCoP s.10.1.2 (verbatim)"}
+  ]
+}

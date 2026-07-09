@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::5.12",
+  "concepts": [
+    "CII",
+    "CyberThreatActor",
+    "Malware",
+    "Monitoring",
+    "OTSystem"
+  ],
+  "triples": [
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "Malware",
+      "o_type": "Malware"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

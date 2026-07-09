@@ -1,0 +1,36 @@
+{
+  "citation_id": "Risk Assessment Guide::3.1",
+  "concepts": [
+    "CybersecurityRisk",
+    "CybersecurityThreat",
+    "Impact",
+    "Likelihood",
+    "Vulnerability"
+  ],
+  "triples": [
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "HAS_LIKELIHOOD",
+      "o": "Likelihood",
+      "o_type": "Likelihood"
+    },
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "HAS_IMPACT",
+      "o": "Impact",
+      "o_type": "Impact"
+    },
+    {
+      "s": "CybersecurityThreat",
+      "s_type": "CybersecurityThreat",
+      "rel": "EXPLOITS",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

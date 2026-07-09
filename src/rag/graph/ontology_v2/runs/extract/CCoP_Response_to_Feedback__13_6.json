@@ -1,0 +1,34 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.6",
+  "concepts": [
+    "CybersecurityIncident",
+    "IncidentResponsePlan",
+    "Monitoring"
+  ],
+  "triples": [
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    },
+    {
+      "s": "CybersecurityIncident",
+      "s_type": "CybersecurityIncident",
+      "rel": "ACTIVATES",
+      "o": "IncidentResponsePlan",
+      "o_type": "IncidentResponsePlan"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

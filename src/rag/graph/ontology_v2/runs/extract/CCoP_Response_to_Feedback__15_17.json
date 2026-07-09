@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.17",
+  "concepts": [
+    "CIIO",
+    "CybersecurityThreat",
+    "Monitoring",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

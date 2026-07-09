@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.11",
+  "concepts": [
+    "Deadline",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "HAS_DEADLINE",
+      "o": "Deadline",
+      "o_type": "Deadline"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

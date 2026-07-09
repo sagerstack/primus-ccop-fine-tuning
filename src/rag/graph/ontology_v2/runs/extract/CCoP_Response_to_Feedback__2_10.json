@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.10",
+  "concepts": [
+    "CII",
+    "Deadline",
+    "OTSystem",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "HAS_DEADLINE",
+      "o": "Deadline",
+      "o_type": "Deadline"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

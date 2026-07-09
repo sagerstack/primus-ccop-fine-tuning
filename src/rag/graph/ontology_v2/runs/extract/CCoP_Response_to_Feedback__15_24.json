@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.24",
+  "concepts": [
+    "CII",
+    "SafetyMechanism"
+  ],
+  "triples": [
+    {
+      "s": "SafetyMechanism",
+      "s_type": "SafetyMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

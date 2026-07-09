@@ -1,0 +1,26 @@
+{
+  "citation_id": "Auditing Guidelines::3",
+  "concepts": [
+    "Auditor",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "APPROVES",
+      "o": "Auditor",
+      "o_type": "Auditor"
+    },
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "APPOINTS",
+      "o": "Auditor",
+      "o_type": "Auditor"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::5.3",
+  "concepts": [
+    "CIIO",
+    "CybersecurityThreat",
+    "ExternalStandard",
+    "ThreatModelling"
+  ],
+  "triples": [
+    {
+      "s": "ThreatModelling",
+      "s_type": "ThreatModelling",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DEFERS_TO",
+      "o": "ExternalStandard",
+      "o_type": "ExternalStandard"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

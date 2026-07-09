@@ -1,0 +1,28 @@
+{
+  "citation_id": "Security By Design::6.4.3",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "PenetrationTesting",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "PenetrationTesting",
+      "o_type": "PenetrationTesting"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::14.2",
+  "concepts": [
+    "CIIO",
+    "ExternalStandard",
+    "Training"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Training",
+      "o_type": "Training"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DEFERS_TO",
+      "o": "ExternalStandard",
+      "o_type": "ExternalStandard"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

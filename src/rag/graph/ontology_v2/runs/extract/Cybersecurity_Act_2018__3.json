@@ -1,0 +1,19 @@
+{
+  "citation_id": "Cybersecurity Act 2018::3",
+  "concepts": [
+    "CII",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "APPLIES_TO",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

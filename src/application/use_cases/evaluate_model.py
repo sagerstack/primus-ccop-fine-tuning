@@ -29,6 +29,16 @@ from domain.value_objects.benchmark_type import BenchmarkType
 from domain.value_objects.evaluation_category import EvaluationCategory
 from domain.value_objects.quality_group import QualityGroup
 
+# Evaluation modes that produce retrieval context, so the RAG-only quality
+# groups (Retrieval Quality, Model-RAG Grounding) DO apply and must not be
+# marked N/A. Any non-retrieval scored mode (e.g. "llm-only") is absent here.
+# MAINTENANCE: keep in sync with the retrieval members of
+# presentation.cli.commands.evaluate.VALID_EVAL_MODES — Phase 10 adds
+# "graphrag-ontology". (This mirrors the run_id._VALID_MODES lesson: a new
+# retrieval mode added in one place but missed here silently N/As its
+# retrieval metrics in the summary/report.)
+_RETRIEVAL_EVAL_MODES = {"hybrid", "graphrag", "graphrag-ontology", "graphcpl", "graphont"}
+
 
 class EvaluateModelUseCase(IEvaluateModelUseCase):
     """
@@ -619,7 +629,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
                 }
 
                 # Check if this group should show N/A in llm-only mode
-                if quality_group.name in rag_only_groups and evaluation_mode != "hybrid":
+                if quality_group.name in rag_only_groups and evaluation_mode not in _RETRIEVAL_EVAL_MODES:
                     # Mark all metrics as N/A
                     for metric_name in quality_group.metrics:
                         group_dict["metrics"].append({
@@ -697,7 +707,7 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             }
 
             # Check if this group should show N/A in llm-only mode
-            if quality_group.name in rag_only_groups and evaluation_mode != "hybrid":
+            if quality_group.name in rag_only_groups and evaluation_mode not in _RETRIEVAL_EVAL_MODES:
                 # Mark all metrics as N/A at overall level
                 for metric_name in quality_group.metrics:
                     group_dict["metrics"].append({

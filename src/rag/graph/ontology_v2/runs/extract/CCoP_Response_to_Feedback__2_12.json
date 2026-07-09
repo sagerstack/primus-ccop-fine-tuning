@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.12",
+  "concepts": [
+    "CybersecurityRisk",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

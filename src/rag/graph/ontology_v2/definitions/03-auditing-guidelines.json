@@ -1,0 +1,72 @@
+[
+  {
+    "term": "Audit",
+    "abbr": "",
+    "definition": "The systematic, independent and documented process for obtaining audit evidence (SN 8.3) and evaluating objectively to determine the extent to which the audit criteria (SN 8.2) are fulfilled.",
+    "citation_id": "Auditing Guidelines::8",
+    "incomplete": false
+  },
+  {
+    "term": "Audit criteria",
+    "abbr": "",
+    "definition": "A set of requirements used as a reference against which audit evidence (SN 8.3) is compared.",
+    "citation_id": "Auditing Guidelines::8",
+    "incomplete": false
+  },
+  {
+    "term": "Audit evidence",
+    "abbr": "",
+    "definition": "Audit evidence refers to records, statements of fact or other information, which are relevant to the audit criteria (SN 8.2) and verifiable.",
+    "citation_id": "Auditing Guidelines::8",
+    "incomplete": false
+  },
+  {
+    "term": "Audit finding",
+    "abbr": "",
+    "definition": "An audit criteria not being met.",
+    "citation_id": "Auditing Guidelines::8",
+    "incomplete": false
+  },
+  {
+    "term": "Audit period",
+    "abbr": "",
+    "definition": "The period of time to which the audit work relates and from which audit evidence is obtained.",
+    "citation_id": "Auditing Guidelines::8",
+    "incomplete": false
+  },
+  {
+    "term": "Audit subject",
+    "abbr": "",
+    "definition": "Audit subject refers to the CII system that is to be audited.",
+    "citation_id": "Auditing Guidelines::8",
+    "incomplete": false
+  },
+  {
+    "term": "Adequacy of control",
+    "abbr": "",
+    "definition": "Adequacy refers to whether the control in place is fit for the purpose.",
+    "citation_id": "Auditing Guidelines::8",
+    "incomplete": false
+  },
+  {
+    "term": "Compensating control",
+    "abbr": "",
+    "definition": "Compensating control, also called an alternative control, may be considered when an entity cannot meet a requirement explicitly as stated, due to legitimate technical or documented business constraints, but has sufficiently mitigated the risk associated with the requirement through implementation of other controls. Compensating control must: a. Meet the intent and rigor of the original requirement; b. Provide a similar level of defence as the original requirement; and c. Commensurate with the additional risk imposed by not adhering to the requirement.",
+    "citation_id": "Auditing Guidelines::8",
+    "incomplete": false
+  },
+  {
+    "term": "Effectiveness of control",
+    "abbr": "",
+    "definition": "Effectiveness refers to whether the control in place has the desired effect of mitigating the risk.",
+    "citation_id": "Auditing Guidelines::8",
+    "incomplete": false
+  },
+  {
+    "term": "Interim control",
+    "abbr": "",
+    "definition": "A set of measures designed to reduce the risk temporarily while the recommended control is being implemented.",
+    "citation_id": "Auditing Guidelines::8",
+    "incomplete": false
+  }
+]

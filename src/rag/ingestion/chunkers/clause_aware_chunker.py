@@ -37,12 +37,30 @@ logger = logging.getLogger(__name__)
 # parent clause body rather than as standalone headings. The optional \\([a-z]\\)
 # group is included per Phase 3.2 plan requirement and is harmless when absent.
 #
-# Chunks stop at the clause level (X.Y.Z or X.Y). Item-letter sub-items remain
-# embedded in parent clause text per the CONTEXT.md leaf-depth decision.
+# Chunks stop at the clause level (X.Y.Z or X.Y) for the PARENT clause chunk
+# (full body retained, including item-letter sub-items, for context/backward
+# compatibility — see _extract_table_chunks precedent). Phase 11 (D-19/D-25.1)
+# ADDITIVELY emits each lettered sub-item ("- (a) ...", "- (b) ...") as its
+# OWN discrete chunk too (see _extract_item_letter_chunks below) so
+# clause_inventory.json's 228 composite ids (e.g. "10.2.5(a)") each resolve to
+# a real retrievable verbatim body — not just a substring buried in the
+# parent's text. This mirrors the table-chunk additive pattern: the parent
+# keeps its full text, item-letter chunks are extra, finer-grained points.
 CLAUSE_PATTERN = re.compile(
     r"^(?:##\s+|-\s+(?=\d+\.))?(\d+(?:\.\d+)*(?:\([a-z]\))?)\s+(.+?)$",
     re.MULTILINE,
 )
+
+# Docling's Classic pipeline renders lettered sub-items as markdown list lines
+# nested inside the parent clause's body, e.g.:
+#   - (a) Ensure that privileged access is granted only to selected accounts;
+#   - (b) Maintain an updated inventory of privileged accounts;
+# (confirmed against the live re-ingested corpus, clause 5.3.1 — 03.2-01
+# SUMMARY "Issues Encountered" note: item-letter notation is NEVER a
+# standalone heading in the real Docling output, always a list item within
+# the enclosing clause's body). This pattern captures the letter + item text
+# for each such line so it can be emitted as its own discrete, additive chunk.
+ITEM_LETTER_PATTERN = re.compile(r"^-\s+\(([a-z])\)\s+(.+)$")
 
 
 def chunk_by_clauses(
@@ -131,6 +149,15 @@ def chunk_by_clauses(
             clause_content, document_name, clause_number
         )
         chunks.extend(table_chunks)
+
+        # Detect lettered sub-items ("- (a) ...") in the clause body and emit
+        # additive discrete chunks per item (D-19/D-25.1, Phase 11). The
+        # parent clause chunk above is untouched — item chunks are extra,
+        # finer-grained retrieval/citation units layered on top.
+        item_chunks = _extract_item_letter_chunks(
+            clause_content, document_name, clause_number
+        )
+        chunks.extend(item_chunks)
 
         i += 3
 
@@ -395,6 +422,104 @@ def _extract_table_chunks(
         )
 
     return table_chunks
+
+
+def _extract_item_letter_chunks(
+    clause_content: str, document_name: str, clause_number: str
+) -> List[CcopChunk]:
+    """
+    Detect lettered sub-items ("- (a) ...", "- (b) ...") in a clause body and
+    emit additive discrete chunks per item (D-19/D-25.1, Phase 11).
+
+    Docling's Classic pipeline renders these as consecutive markdown list
+    lines inside the parent clause's body (verified against the live
+    re-ingested corpus — clause 5.3.1 renders "- (a) ...", "- (b) ...",
+    "- (c) ...", "- (d) ..." as plain list lines, never as standalone
+    headings). Each item chunk is ADDITIVE: the enclosing clause chunk
+    (built by `_create_clause_chunk`) keeps its full body text including all
+    lettered items, exactly mirroring `_extract_table_chunks`'s
+    parent-keeps-everything convention. Item chunks give
+    `clause_inventory.json`'s composite ids (e.g. "10.2.5(a)") a real,
+    independently-retrievable verbatim body instead of only a substring
+    buried inside a larger parent chunk.
+
+    A run of item lines can wrap onto a following non-bulleted line (rare,
+    but handled defensively) — any line that is not itself a new lettered
+    bullet, a blank line, or a table pipe-line is treated as a continuation
+    of the currently-open item.
+
+    Args:
+        clause_content: Content text of the enclosing clause
+        document_name: Source document name
+        clause_number: Enclosing clause number (e.g., "5.3.1")
+
+    Returns:
+        List of item-letter CcopChunks (empty if no lettered items found)
+    """
+    lines = clause_content.split("\n")
+    item_chunks: List[CcopChunk] = []
+    current_letter: str = ""
+    current_lines: List[str] = []
+
+    def _flush() -> None:
+        nonlocal current_letter, current_lines
+        if not current_letter:
+            return
+        item_text = " ".join(part.strip() for part in current_lines if part.strip()).strip()
+        if not item_text:
+            return
+
+        item_clause = f"{clause_number}({current_letter})"
+        section = _extract_section(clause_number)
+        parent_path = f"{_build_parent_path(clause_number)} > {item_clause}"
+        chapter = clause_number.split(".")[0]
+        citation_id = f"{document_name}::{item_clause}"
+
+        metadata = ChunkMetadata(
+            document_source=document_name,
+            section=section,
+            clause=item_clause,
+            citation_id=citation_id,
+            parent_path=parent_path,
+            chapter=chapter,
+            type="clause",
+            parent_clause=clause_number,
+        )
+        item_chunks.append(
+            CcopChunk(
+                id=citation_id,
+                text=f"({current_letter}) {item_text}",
+                metadata=metadata,
+            )
+        )
+
+    for line in lines:
+        stripped = line.strip()
+        match = ITEM_LETTER_PATTERN.match(stripped)
+        if match:
+            _flush()
+            current_letter = match.group(1)
+            current_lines = [match.group(2)]
+        elif not stripped:
+            # Blank line: item text can legitimately span a blank line in
+            # some renderings; do not flush on blank alone.
+            continue
+        elif stripped.startswith("|"):
+            # Table content — never absorbed into a lettered item's text
+            # (tables are handled separately by _extract_table_chunks).
+            continue
+        elif current_letter:
+            current_lines.append(stripped)
+        # else: plain prose before any lettered item — nothing to do yet.
+
+    _flush()
+
+    if item_chunks:
+        logger.debug(
+            f"  {clause_number}: {len(item_chunks)} item-letter chunk(s) extracted"
+        )
+
+    return item_chunks
 
 
 def _create_clause_chunk(

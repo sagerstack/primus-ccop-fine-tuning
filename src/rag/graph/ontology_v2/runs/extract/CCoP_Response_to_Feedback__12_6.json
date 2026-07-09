@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP Response to Feedback::12.6",
+  "concepts": [
+    "CIIO",
+    "CybersecurityThreat",
+    "Log",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    },
+    {
+      "s": "Log",
+      "s_type": "Log",
+      "rel": "DETECTS",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "Log",
+      "o_type": "Log"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

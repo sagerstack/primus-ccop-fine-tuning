@@ -10,17 +10,24 @@ from typing import TYPE_CHECKING, Callable
 
 from langgraph.graph import END, StateGraph
 
+from rag.graph.retrieval.graph_retrieval_node import graph_retrieve_documents
 from rag.retrieval.edges.routing import decide_after_grading, route_by_mode
 
 if TYPE_CHECKING:
     from infrastructure.config.settings import Settings
 from rag.retrieval.nodes.fallback import fallback_generation
+from rag.retrieval.nodes.function_type_routing import classify_function_type
 from rag.retrieval.nodes.generation import generate_response
 from rag.retrieval.nodes.grading import grade_documents
 from rag.retrieval.nodes.query_analysis import analyze_query
 from rag.retrieval.nodes.rag_response import rag_only_response
 from rag.retrieval.nodes.reranking import rerank_documents
 from rag.retrieval.nodes.retrieval import retrieve_documents
+from rag.retrieval.nodes.context_graph_extraction import extract_context_graph
+from rag.retrieval.nodes.anchor_hypernym_mapping import map_anchors_to_hypernyms
+from rag.retrieval.nodes.compliance_gate_retrieval import compliance_gate_retrieval
+from rag.retrieval.nodes.compliance_context_assembly import compliance_context_assembly
+from rag.retrieval.nodes.omd_context_assembly import omd_context_assembly
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -73,11 +80,20 @@ def build_rag_graph(settings: "Settings"):
     # Nodes
     workflow.add_node("query_analysis", analyze_query)
     workflow.add_node("retrieval", retrieve_documents)
+    workflow.add_node("function_type_routing", classify_function_type)
+    workflow.add_node("graph_retrieval", graph_retrieve_documents)
     workflow.add_node("reranking", rerank_documents)
     workflow.add_node("grade_documents", grade_documents)
     workflow.add_node("generate", generate_response)
     workflow.add_node("fallback", fallback_generation)
     workflow.add_node("rag_response", rag_only_response)
+    # GraphCompliance (--mode graphcpl) chain
+    workflow.add_node("context_graph_extraction", extract_context_graph)
+    workflow.add_node("anchor_hypernym_mapping", map_anchors_to_hypernyms)
+    workflow.add_node("compliance_gate_retrieval", compliance_gate_retrieval)
+    workflow.add_node("compliance_context_assembly", compliance_context_assembly)
+    # OMD-GraphRAG (--mode graphont) single assembly node
+    workflow.add_node("omd_context_assembly", omd_context_assembly)
 
     # Entry point
     workflow.set_entry_point("query_analysis")
@@ -88,13 +104,50 @@ def build_rag_graph(settings: "Settings"):
         route_by_mode,
         {
             "retrieval": "retrieval",
+            "graph_retrieval": "graph_retrieval",
+            # Phase 10 (D-12, plan 10-09): route_by_mode's graphrag-ontology
+            # key now targets a dedicated `function_type_routing` node (NOT
+            # `graph_retrieval` directly, unlike plan 10-02's placeholder
+            # wiring) so the D-09 function-type classification runs and
+            # persists to `state["function_type"]` BEFORE the boosted
+            # ontology Cypher query executes. LangGraph conditional-edge
+            # functions do not persist state mutations (verified empirically
+            # — only node function return values are merged into state), so
+            # this MUST be a real node, not a side effect inside
+            # `route_by_mode` itself.
+            "graph_retrieval_ontology": "function_type_routing",
+            "context_graph_extraction": "context_graph_extraction",
+            "omd_context_assembly": "omd_context_assembly",
             "fallback": "fallback",
         },
     )
 
+    # GraphCompliance chain (--mode graphcpl): Context Graph -> Gate -> judgment -> END
+    workflow.add_edge("context_graph_extraction", "anchor_hypernym_mapping")
+    workflow.add_edge("anchor_hypernym_mapping", "compliance_gate_retrieval")
+    # Option (a): route through the primus `generate` node — the Gate assembles
+    # graph content into filtered_documents; primus reasons + cites (comparable to hybrid).
+    workflow.add_edge("compliance_gate_retrieval", "compliance_context_assembly")
+    workflow.add_edge("compliance_context_assembly", "generate")
+
+    # OMD-GraphRAG chain (--mode graphont): retriever reranks internally, so the single
+    # assembly node edges straight to primus `generate` (mirrors graphcpl option (a)).
+    workflow.add_edge("omd_context_assembly", "generate")
+
     # Retrieval → reranking → grading (always)
     workflow.add_edge("retrieval", "reranking")
     workflow.add_edge("reranking", "grade_documents")
+
+    # D-12: function-type classification runs BEFORE ontology graph
+    # retrieval, so `state["function_type"]` is set when
+    # `graph_retrieve_documents` calls the ontology provider's
+    # retrieve(..., function_type=...).
+    workflow.add_edge("function_type_routing", "graph_retrieval")
+
+    # Graph retrieval flows through the SAME reranking → grading → generate path
+    # as hybrid (Wave-6 retrieval parity, 2026-07-02): retrieve wide → shared
+    # cross-encoder rerank → top-N → primus generate (the unchanged node, D-06).
+    workflow.add_edge("graph_retrieval", "reranking")
 
     # After grading: route by mode + retrieval success
     workflow.add_conditional_edges(

@@ -1,0 +1,27 @@
+{
+  "citation_id": "Risk Assessment Guide::1.1",
+  "concepts": [
+    "CIIO",
+    "CybersecurityRisk",
+    "RiskAssessment"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::7.5",
+  "concepts": [
+    "AttackConcept",
+    "CIIO",
+    "CyberThreatActor",
+    "Vulnerability",
+    "defence-by-diversity"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "APPLIES_PRINCIPLE",
+      "o": "defence-by-diversity",
+      "o_type": "DesignPrinciple"
+    },
+    {
+      "s": "defence-by-diversity",
+      "s_type": "DesignPrinciple",
+      "rel": "REDUCES",
+      "o": "AttackConcept",
+      "o_type": "AttackConcept"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "EXPLOITS",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,51 @@
+{
+  "citation_id": "Threat Modelling Guide::1.1",
+  "concepts": [
+    "CIIAsset",
+    "CyberThreatActor",
+    "CybersecurityThreat",
+    "SecurityControl",
+    "ThreatModelling",
+    "Vulnerability"
+  ],
+  "triples": [
+    {
+      "s": "ThreatModelling",
+      "s_type": "ThreatModelling",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "EXPLOITS",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

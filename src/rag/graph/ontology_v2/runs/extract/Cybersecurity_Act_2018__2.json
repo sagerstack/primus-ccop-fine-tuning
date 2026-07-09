@@ -1,0 +1,27 @@
+{
+  "citation_id": "Cybersecurity Act 2018::2",
+  "concepts": [
+    "CII",
+    "Provision",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

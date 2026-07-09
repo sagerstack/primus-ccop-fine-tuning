@@ -1,0 +1,36 @@
+{
+  "citation_id": "Auditing Guidelines::6.2",
+  "concepts": [
+    "Audit",
+    "Auditor",
+    "CII",
+    "ComplianceStatus",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "COVERS",
+      "o": "Provision",
+      "o_type": "Provision"
+    },
+    {
+      "s": "Auditor",
+      "s_type": "Auditor",
+      "rel": "AUDITS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "HAS_STATUS",
+      "o": "ComplianceStatus",
+      "o_type": "ComplianceStatus"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

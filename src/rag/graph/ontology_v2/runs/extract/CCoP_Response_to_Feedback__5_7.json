@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::5.7",
+  "concepts": [
+    "CybersecurityRisk",
+    "RiskRegister"
+  ],
+  "triples": [
+    {
+      "s": "CybersecurityRisk",
+      "s_type": "CybersecurityRisk",
+      "rel": "RECORDED_IN",
+      "o": "RiskRegister",
+      "o_type": "RiskRegister"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

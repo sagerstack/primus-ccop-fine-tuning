@@ -1,0 +1,19 @@
+{
+  "citation_id": "Cybersecurity Act 2018::8",
+  "concepts": [
+    "ComputerSystem",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "DESIGNATES",
+      "o": "ComputerSystem",
+      "o_type": "ComputerSystem"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

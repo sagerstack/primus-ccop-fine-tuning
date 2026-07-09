@@ -12,6 +12,7 @@ from presentation.cli.commands.evaluate import evaluate_app
 from presentation.cli.commands.report import report_app
 from presentation.cli.commands.setup import setup_app
 from presentation.cli.commands.validate_ground_truth import validate_app
+from rag.graph.cli.graph import graph_app
 from rag.presentation.cli.query import query_app
 
 # Create main Typer app
@@ -30,6 +31,11 @@ app.add_typer(
     validate_app,
     name="validate-ground-truth",
     help="Validate v2 ground-truth JSONL files against the clause inventory",
+)
+app.add_typer(
+    graph_app,
+    name="graph",
+    help="Build and inspect the GraphRAG knowledge graph",
 )
 
 console = Console()

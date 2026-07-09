@@ -1,0 +1,42 @@
+{
+  "citation_id": "CCoP 2.0::5.14",
+  "concepts": [
+    "CyberThreatActor",
+    "SecurityControl",
+    "Vulnerability",
+    "VulnerabilityAssessment"
+  ],
+  "triples": [
+    {
+      "s": "VulnerabilityAssessment",
+      "s_type": "VulnerabilityAssessment",
+      "rel": "IDENTIFIES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "EXPLOITS",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "VulnerabilityAssessment",
+      "o_type": "VulnerabilityAssessment"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

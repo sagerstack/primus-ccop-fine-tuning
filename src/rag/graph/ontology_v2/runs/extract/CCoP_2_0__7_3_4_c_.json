@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::7.3.4(c)",
+  "concepts": [
+    "CII",
+    "OrganisationalRole"
+  ],
+  "triples": [
+    {
+      "s": "OrganisationalRole",
+      "s_type": "OrganisationalRole",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

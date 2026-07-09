@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::7.23",
+  "concepts": [
+    "CIIO",
+    "ChangeManagement"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "ChangeManagement",
+      "o_type": "ChangeManagement"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

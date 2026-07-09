@@ -1,0 +1,43 @@
+{
+  "citation_id": "Security By Design::6.4.3.1",
+  "concepts": [
+    "CIIO",
+    "CyberThreatActor",
+    "PenetrationTesting",
+    "SecurityControl",
+    "Vulnerability"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "PenetrationTesting",
+      "o_type": "PenetrationTesting"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "EXPLOITS",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "ADDRESSES",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "PenetrationTesting",
+      "o_type": "PenetrationTesting"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

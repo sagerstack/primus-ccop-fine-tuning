@@ -1,0 +1,37 @@
+{
+  "citation_id": "CCoP Response to Feedback::12.15",
+  "concepts": [
+    "CIIO",
+    "CyberThreatActor",
+    "CybersecurityThreat",
+    "Monitoring",
+    "TTP",
+    "ThreatHunting"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "ThreatHunting",
+      "o_type": "ThreatHunting"
+    },
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "USES_TECHNIQUE",
+      "o": "TTP",
+      "o_type": "TTP"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

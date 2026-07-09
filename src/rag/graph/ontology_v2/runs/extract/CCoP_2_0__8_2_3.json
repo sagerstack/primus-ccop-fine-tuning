@@ -1,0 +1,26 @@
+{
+  "citation_id": "CCoP 2.0::8.2.3",
+  "concepts": [
+    "BusinessContinuityPlan",
+    "CII"
+  ],
+  "triples": [
+    {
+      "s": "BusinessContinuityPlan",
+      "s_type": "BusinessContinuityPlan",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "BusinessContinuityPlan",
+      "o_type": "BusinessContinuityPlan"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

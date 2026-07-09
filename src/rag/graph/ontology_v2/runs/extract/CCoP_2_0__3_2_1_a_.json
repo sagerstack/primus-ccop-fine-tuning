@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::3.2.1(a)",
+  "concepts": [
+    "CIIO",
+    "RiskManagement"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "RiskManagement",
+      "o_type": "RiskManagement"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

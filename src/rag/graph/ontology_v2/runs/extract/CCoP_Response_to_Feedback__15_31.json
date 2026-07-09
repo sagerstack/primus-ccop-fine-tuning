@@ -1,0 +1,34 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.31",
+  "concepts": [
+    "CIIO",
+    "CybersecurityIncident",
+    "Monitoring"
+  ],
+  "triples": [
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

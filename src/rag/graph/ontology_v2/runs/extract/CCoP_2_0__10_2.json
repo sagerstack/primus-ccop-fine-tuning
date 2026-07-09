@@ -1,0 +1,62 @@
+{
+  "citation_id": "CCoP 2.0::10.2",
+  "concepts": [
+    "AttackConcept",
+    "CII",
+    "ControlSystem",
+    "CyberThreatActor",
+    "CybersecurityRisk",
+    "EnterpriseNetwork",
+    "FieldController",
+    "NetworkControl",
+    "OTSystem",
+    "SafetyMechanism"
+  ],
+  "triples": [
+    {
+      "s": "OTSystem",
+      "s_type": "OTSystem",
+      "rel": "CONNECTED_TO",
+      "o": "EnterpriseNetwork",
+      "o_type": "EnterpriseNetwork"
+    },
+    {
+      "s": "NetworkControl",
+      "s_type": "NetworkControl",
+      "rel": "REDUCES",
+      "o": "AttackConcept",
+      "o_type": "AttackConcept"
+    },
+    {
+      "s": "ControlSystem",
+      "s_type": "ControlSystem",
+      "rel": "DEPENDS_ON",
+      "o": "FieldController",
+      "o_type": "FieldController"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "SafetyMechanism",
+      "s_type": "SafetyMechanism",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "NetworkControl",
+      "o_type": "NetworkControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 5,
+  "extractor": "claude-opus"
+}

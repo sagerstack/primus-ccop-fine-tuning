@@ -1,0 +1,44 @@
+{
+  "citation_id": "CCoP 2.0::11.2",
+  "concepts": [
+    "CII",
+    "CyberThreatActor",
+    "DNSSEC",
+    "Network",
+    "Provision",
+    "Vulnerability"
+  ],
+  "triples": [
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "EXPLOITS",
+      "o": "Vulnerability",
+      "o_type": "Vulnerability"
+    },
+    {
+      "s": "DNSSEC",
+      "s_type": "Cryptography",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CONNECTED_TO",
+      "o": "Network",
+      "o_type": "Network"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "DNSSEC",
+      "o_type": "Cryptography"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

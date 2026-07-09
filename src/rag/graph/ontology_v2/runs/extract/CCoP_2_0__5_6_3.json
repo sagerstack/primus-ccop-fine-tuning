@@ -1,0 +1,44 @@
+{
+  "citation_id": "CCoP 2.0::5.6.3",
+  "concepts": [
+    "CII",
+    "Condition",
+    "CybersecurityRisk",
+    "Network",
+    "Provision",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CONNECTED_TO",
+      "o": "Network",
+      "o_type": "Network"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "CONDITIONED_ON",
+      "o": "Condition",
+      "o_type": "Condition"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

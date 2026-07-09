@@ -1,0 +1,43 @@
+{
+  "citation_id": "CCoP Response to Feedback::10.6",
+  "concepts": [
+    "AssetInventory",
+    "CIIAsset",
+    "CybersecurityRisk",
+    "RiskAssessment",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "AssetInventory",
+      "s_type": "AssetInventory",
+      "rel": "CONTAINS",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "CIIAsset",
+      "s_type": "CIIAsset",
+      "rel": "DEPENDS_ON",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

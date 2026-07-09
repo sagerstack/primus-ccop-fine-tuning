@@ -1,0 +1,28 @@
+{
+  "citation_id": "Security By Design::5.5.5",
+  "concepts": [
+    "CIIO",
+    "CybersecurityRisk",
+    "RiskAssessment",
+    "RiskManagement"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "RiskManagement",
+      "o_type": "RiskManagement"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

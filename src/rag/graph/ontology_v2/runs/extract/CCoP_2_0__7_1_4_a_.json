@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::7.1.4(a)",
+  "concepts": [
+    "ComplianceGap",
+    "RemediationPlan"
+  ],
+  "triples": [
+    {
+      "s": "ComplianceGap",
+      "s_type": "ComplianceGap",
+      "rel": "REMEDIATED_BY",
+      "o": "RemediationPlan",
+      "o_type": "RemediationPlan"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

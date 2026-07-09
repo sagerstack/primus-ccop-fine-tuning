@@ -1,0 +1,27 @@
+{
+  "citation_id": "Threat Modelling Guide::3.6",
+  "concepts": [
+    "CybersecurityThreat",
+    "ThreatModel",
+    "ThreatModelling"
+  ],
+  "triples": [
+    {
+      "s": "ThreatModelling",
+      "s_type": "ThreatModelling",
+      "rel": "PRODUCES",
+      "o": "ThreatModel",
+      "o_type": "ThreatModel"
+    },
+    {
+      "s": "ThreatModelling",
+      "s_type": "ThreatModelling",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

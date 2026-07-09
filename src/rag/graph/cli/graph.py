@@ -1,0 +1,960 @@
+"""
+GraphRAG CLI Commands
+
+`ccop-eval graph build` constructs the emergent CCoP knowledge graph in Neo4j
+as a first-class, repeatable command (D-17) — not a throwaway spike.
+
+`ccop-eval graph build-ontology` constructs the SCHEMA-CONSTRAINED
+(ontology-governed) CCoP knowledge graph (Phase 10, D-06/D-07 fix), then
+LINKs extracted entities to the seeded :Clause backbone (D-10/D-11).
+
+`ccop-eval graph inspect` / `graph stats` surface the D-18 KG-quality metrics
+(KGInspector) so the emergent graph is seen and measured before it is ever
+scored — the quantitative half of the D-19 iterate-and-improve loop
+(inspect -> adjust -> rebuild -> re-inspect). The interactive/visual half is
+docs/phase-2/neo4j-browser-workflow.md.
+"""
+
+import asyncio
+import json
+import logging
+from pathlib import Path
+from typing import Any, Optional
+
+import neo4j
+import typer
+from rich.console import Console
+from rich.table import Table
+
+from application.use_cases.clause_hit_harness import (
+    ClauseHitHarnessResult,
+    ClauseHitHarnessUseCase,
+)
+from infrastructure.config.settings import get_settings
+from rag.graph.build.corpus_source import DEFAULT_CCOP_DIR, load_ccop_corpus_texts
+from rag.graph.build.kg_builder import BuildStats, EmergentKGBuilder
+from rag.graph.build.ontology_kg_builder import (
+    BuildStats as OntologyBuildStats,
+)
+from rag.graph.build.ontology_kg_builder import OntologyKGBuilder
+from rag.graph.inspect.metrics import DEFAULT_CLAUSE_INVENTORY_PATH, KGInspector
+from rag.graph.ontology.clause_linker import ClauseLinker, LinkStats
+from rag.graph.ontology.clause_seeder import (
+    DEFAULT_CLAUSE_INVENTORY_PATH as DEFAULT_SEED_INVENTORY_PATH,
+)
+from rag.graph.build.policy_graph_builder import PolicyBuildStats, PolicyGraphBuilder
+from rag.graph.ontology.clause_seeder import ClauseSeeder, SeedStats
+from rag.graph.ontology.cu_classifier import CUClassifier, CUMintStats
+from rag.graph.ontology.cu_extractor import CUExtractor, ExtractionStats
+from rag.graph.ontology.cu_teardown import CUTeardown, TeardownStats
+from rag.graph.ontology.shacl_validator import (
+    DEFAULT_REPORT_PATH,
+    DEFAULT_SHAPES_PATH,
+    SHACLValidator,
+    ValidationReport,
+)
+
+DEFAULT_GOLD_RELATION_XLSX_FILENAME = "eval-report-hybrid-suite-20260630-0907.xlsx"
+
+graph_app = typer.Typer(help="Build and inspect the GraphRAG knowledge graph")
+
+console = Console()
+logger = logging.getLogger(__name__)
+
+
+@graph_app.command(name="build")
+def build_command(
+    ccop_dir: str = typer.Option(
+        DEFAULT_CCOP_DIR,
+        "--ccop-dir",
+        help="Path to the ccop-official directory containing CCoP PDFs",
+    ),
+    drop: bool = typer.Option(
+        False,
+        "--drop/--no-drop",
+        help=(
+            "Wipe the existing graph before building (clean rebuild for "
+            "iteration, D-19). Default: off — the destructive path is "
+            "explicit opt-in."
+        ),
+    ),
+) -> None:
+    """
+    Build the emergent CCoP knowledge graph in Neo4j.
+
+    Extraction = openai/gpt-4o-mini via OpenRouter (D-06a). Embeddings =
+    BAAI/bge-large-en-v1.5, in-process (D-07). NO schema constraint — this is
+    the un-governed emergent baseline (D-03/D-08). Input is the same
+    Docling-parsed CCoP markdown the hybrid Qdrant index consumes (D-04/D-05).
+
+    Examples:
+        ccop-eval graph build
+        ccop-eval graph build --drop
+    """
+    try:
+        asyncio.run(_run_build(ccop_dir, drop))
+    except Exception as e:
+        console.print(f"[red]Graph build failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+
+
+async def _run_build(ccop_dir: str, drop: bool) -> None:
+    settings = get_settings()
+
+    driver = neo4j.GraphDatabase.driver(
+        settings.neo4j_uri,
+        auth=(settings.neo4j_user, settings.neo4j_password),
+    )
+
+    try:
+        if drop:
+            console.print(
+                "[yellow]--drop set: wiping existing graph before build...[/yellow]"
+            )
+            with driver.session(database=settings.neo4j_database) as session:
+                session.run("MATCH (n) DETACH DELETE n")
+
+        with console.status("[bold green]Loading CCoP corpus (Docling markdown)..."):
+            texts = load_ccop_corpus_texts(settings, ccop_dir=ccop_dir)
+
+        console.print(f"[bold]Loaded {len(texts)} document(s) from {ccop_dir}[/bold]")
+
+        builder = EmergentKGBuilder(settings=settings, driver=driver)
+
+        with console.status(
+            "[bold green]Building emergent KG (gpt-4o-mini extraction)..."
+        ):
+            stats = await builder.build(texts)
+
+        _print_summary(stats)
+    finally:
+        driver.close()
+
+
+def _print_summary(stats: BuildStats) -> None:
+    table = Table(title="GraphRAG Build Summary", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("Documents processed", str(stats.docs_processed))
+    table.add_row("Chunks written", str(stats.chunks_written))
+    table.add_row("Nodes created", str(stats.nodes_created))
+    table.add_row("Relationships created", str(stats.relationships_created))
+    table.add_row("Failures", str(len(stats.failures)))
+    console.print(table)
+
+    if stats.failures:
+        console.print("[red]Failures:[/red]")
+        for failure in stats.failures:
+            console.print(f"  - {failure}")
+
+
+@graph_app.command(name="build-ontology")
+def build_ontology_command(
+    ccop_dir: str = typer.Option(
+        DEFAULT_CCOP_DIR,
+        "--ccop-dir",
+        help="Path to the ccop-official directory containing CCoP PDFs",
+    ),
+    drop: bool = typer.Option(
+        False,
+        "--drop/--no-drop",
+        help=(
+            "Wipe the existing graph before building (clean rebuild for "
+            "iteration, D-19). Default: off — the destructive path is "
+            "explicit opt-in."
+        ),
+    ),
+    permissive: bool = typer.Option(
+        False,
+        "--permissive/--strict",
+        help=(
+            "Flip additional_node_types/additional_relationship_types to "
+            "True for iteration (RESEARCH.md Pitfall 1 escape hatch — the "
+            "locked vocabulary can silently drop out-of-schema entities). "
+            "Default: --strict (the locked ontology_config.json vocabulary)."
+        ),
+    ),
+    sample: bool = typer.Option(
+        False,
+        "--sample/--full",
+        help=(
+            "Build on ONLY the first loaded document (cheap iteration / "
+            "smoke-test). Default: --full (the entire CCoP corpus)."
+        ),
+    ),
+    link: bool = typer.Option(
+        True,
+        "--link/--no-link",
+        help=(
+            "Run the deterministic clause_linker pass after the build "
+            "(D-10/D-11 entity->:Clause LINKED_TO). Default: on."
+        ),
+    ),
+) -> None:
+    """
+    Build the SCHEMA-CONSTRAINED (ontology-governed) CCoP knowledge graph in
+    Neo4j (Phase 10, D-06/D-07 anti-pattern fix), then LINK extracted
+    entities to the seeded :Clause backbone (D-10/D-11).
+
+    Extraction = openai/gpt-4o-mini via OpenRouter (D-06a, held constant with
+    Phase 9). Embeddings = BAAI/bge-large-en-v1.5, in-process (D-07). Schema
+    = the LOCKED ontology_config.json (24 node types, 48 relationship types,
+    additional_node_types=false) unless --permissive is set. Extraction unit
+    = SectionAlignedSplitter + gleaning (D-11, 10-06).
+
+    Run `ccop-eval graph seed-clauses` FIRST so extracted entities have a
+    seeded :Clause backbone to link to.
+
+    Examples:
+        ccop-eval graph seed-clauses
+        ccop-eval graph build-ontology
+        ccop-eval graph build-ontology --sample --permissive
+        ccop-eval graph build-ontology --drop
+    """
+    try:
+        asyncio.run(_run_build_ontology(ccop_dir, drop, permissive, sample, link))
+    except Exception as e:
+        console.print(f"[red]Ontology KG build failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+
+
+async def _run_build_ontology(
+    ccop_dir: str, drop: bool, permissive: bool, sample: bool, link: bool
+) -> None:
+    settings = get_settings()
+
+    driver = neo4j.GraphDatabase.driver(
+        settings.neo4j_uri,
+        auth=(settings.neo4j_user, settings.neo4j_password),
+    )
+
+    try:
+        if drop:
+            console.print(
+                "[yellow]--drop set: wiping existing graph before build...[/yellow]"
+            )
+            with driver.session(database=settings.neo4j_database) as session:
+                session.run("MATCH (n) DETACH DELETE n")
+
+        with console.status("[bold green]Loading CCoP corpus (Docling markdown)..."):
+            texts = load_ccop_corpus_texts(settings, ccop_dir=ccop_dir)
+
+        if sample:
+            first_doc_name, first_doc_text = next(iter(texts.items()))
+            texts = {first_doc_name: first_doc_text}
+            console.print(
+                f"[yellow]--sample set: building on 1 document only "
+                f"({first_doc_name})[/yellow]"
+            )
+
+        console.print(f"[bold]Loaded {len(texts)} document(s) from {ccop_dir}[/bold]")
+
+        builder = OntologyKGBuilder(settings=settings, driver=driver, permissive=permissive)
+
+        mode_label = "PERMISSIVE" if permissive else "STRICT (locked schema)"
+        with console.status(
+            f"[bold green]Building ontology-constrained KG "
+            f"({mode_label}, gpt-4o-mini extraction + gleaning)..."
+        ):
+            stats = await builder.build(texts)
+
+        _print_ontology_build_summary(stats, permissive)
+
+        if link:
+            with console.status(
+                "[bold green]Linking extracted entities to seeded :Clause backbone..."
+            ):
+                linker = ClauseLinker(settings=settings, driver=driver)
+                link_stats = linker.link()
+            _print_link_summary(link_stats)
+    finally:
+        driver.close()
+
+
+def _print_ontology_build_summary(stats: OntologyBuildStats, permissive: bool) -> None:
+    mode = "permissive" if permissive else "strict (locked schema)"
+    table = Table(title=f"Ontology KG Build Summary ({mode})", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("Documents processed", str(stats.docs_processed))
+    table.add_row("Chunks written", str(stats.chunks_written))
+    table.add_row("Nodes created", str(stats.nodes_created))
+    table.add_row("Relationships created", str(stats.relationships_created))
+    table.add_row("Failures", str(len(stats.failures)))
+    console.print(table)
+
+    if stats.failures:
+        console.print("[red]Failures:[/red]")
+        for failure in stats.failures:
+            console.print(f"  - {failure}")
+
+
+def _print_link_summary(stats: LinkStats) -> None:
+    table = Table(title="Clause Linking Summary (D-10/D-11)", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("Chunks scanned", str(stats.chunks_scanned))
+    table.add_row("Clauses scanned", str(stats.clauses_scanned))
+    table.add_row("Chunk-clause matches", str(stats.chunk_clause_pairs))
+    table.add_row("LINKED_TO edges (total)", str(stats.linked_to_edges_total))
+    console.print(table)
+
+
+def _open_driver(settings) -> neo4j.Driver:
+    return neo4j.GraphDatabase.driver(
+        settings.neo4j_uri,
+        auth=(settings.neo4j_user, settings.neo4j_password),
+    )
+
+
+@graph_app.command(name="seed-clauses")
+def seed_clauses_command(
+    inventory_path: str = typer.Option(
+        str(DEFAULT_SEED_INVENTORY_PATH),
+        "--inventory-path",
+        help="Path to clause_inventory.json (D-10 deterministic seed source)",
+    ),
+) -> None:
+    """
+    Seed (or re-seed) the deterministic clause backbone (D-10).
+
+    MERGEs :Clause nodes from clause_inventory.json with Title -> Chapter ->
+    Article -> Item parent-child edges and function_type tags (D-09) from
+    the locked ontology. No LLM call -- deterministic and idempotent;
+    re-running never creates duplicates. These real-ID clause nodes become
+    the fine-grained retrieval unit (D-11) that extracted entities LINK to.
+
+    Example:
+        ccop-eval graph seed-clauses
+    """
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        seeder = ClauseSeeder(settings=settings, driver=driver, inventory_path=inventory_path)
+        with console.status("[bold green]Seeding clause backbone (deterministic, no LLM)..."):
+            stats = seeder.seed()
+        _print_seed_summary(stats)
+    except Exception as e:
+        console.print(f"[red]Clause seeding failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+    finally:
+        driver.close()
+
+
+def _print_seed_summary(stats: SeedStats) -> None:
+    table = Table(title="Clause Backbone Seed Summary", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("Entries in fixture", str(stats.entries_total))
+    table.add_row("Clause nodes (post-seed)", str(stats.nodes_seeded))
+    table.add_row("Parent-child edges", str(stats.edges_created))
+    console.print(table)
+
+    dist_table = Table(title="function_type Distribution (D-09)", show_header=True)
+    dist_table.add_column("function_type", style="cyan")
+    dist_table.add_column("Count", justify="right", style="bold")
+    for function_type, count in stats.function_type_distribution.items():
+        dist_table.add_row(function_type, str(count))
+    console.print(dist_table)
+
+
+@graph_app.command(name="reset-cus")
+def reset_cus_command(
+    snapshot_dir: str = typer.Option(
+        ".",
+        "--snapshot-dir",
+        help="Directory to write the pre-teardown CU snapshot JSON (D-38 rollback/diff baseline)",
+    ),
+    yes: bool = typer.Option(
+        False,
+        "--yes/--no-yes",
+        help=(
+            "Skip the interactive confirmation. Teardown DETACH DELETEs every "
+            ":ComplianceUnit node (the :Clause backbone is preserved). Default: "
+            "off -- the destructive path is explicit opt-in."
+        ),
+    ),
+) -> None:
+    """
+    Snapshot then DETACH DELETE the :ComplianceUnit layer (11-04b / D-38).
+
+    Captures every CU (props + FROM_CLAUSE clause id) to a timestamp-free
+    `cu-snapshot.json` under --snapshot-dir first, then deletes all CU nodes
+    so the corrected 11-04b pipeline regenerates from a clean slate. The
+    883-node :Clause backbone is NEVER touched -- teardown fails loud if the
+    clause count changes.
+
+    Example:
+        ccop-eval graph reset-cus --snapshot-dir .planning/phases/11-.../snapshots --yes
+    """
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        teardown = CUTeardown(settings=settings, driver=driver)
+        cu_before = _count_cus(driver, settings)
+        if cu_before and not yes:
+            console.print(
+                f"[yellow]About to DETACH DELETE {cu_before} :ComplianceUnit node(s).[/yellow] "
+                f"Re-run with --yes to proceed (the :Clause backbone is preserved)."
+            )
+            raise typer.Exit(code=1)
+        snapshot_path = Path(snapshot_dir) / "cu-snapshot.json"
+        Path(snapshot_dir).mkdir(parents=True, exist_ok=True)
+        with console.status("[bold yellow]Snapshotting + tearing down the CU layer..."):
+            stats = teardown.teardown(snapshot_path=snapshot_path)
+        _print_teardown_summary(stats)
+    except typer.Exit:
+        raise
+    except Exception as e:
+        console.print(f"[red]CU teardown failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+    finally:
+        driver.close()
+
+
+def _count_cus(driver: neo4j.Driver, settings) -> int:
+    with driver.session(database=settings.neo4j_database) as session:
+        return session.run("MATCH (cu:ComplianceUnit) RETURN count(cu) AS c").single()["c"]
+
+
+def _print_teardown_summary(stats: TeardownStats) -> None:
+    table = Table(title="CU Teardown Summary (D-38)", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("CUs before", str(stats.cu_count_before))
+    table.add_row("CUs after", str(stats.cu_count_after))
+    table.add_row(":Clause backbone (before -> after)", f"{stats.clause_count_before} -> {stats.clause_count_after}")
+    table.add_row("Snapshot records", str(stats.snapshot_records))
+    table.add_row("Snapshot path", str(stats.snapshot_path))
+    console.print(table)
+    if stats.type_distribution_before:
+        dist = Table(title="Pre-teardown CU type distribution", show_header=True)
+        dist.add_column("cu_type", style="cyan")
+        dist.add_column("count", justify="right", style="bold")
+        for cu_type, count in stats.type_distribution_before.items():
+            dist.add_row(cu_type, str(count))
+        console.print(dist)
+
+
+@graph_app.command(name="build-cus")
+def build_cus_command(
+    reset: bool = typer.Option(
+        False,
+        "--reset/--no-reset",
+        help=(
+            "Snapshot + DETACH DELETE the existing CU layer before rebuilding "
+            "(11-04b full regen, D-38). Default: off. The :Clause backbone is "
+            "always preserved."
+        ),
+    ),
+    snapshot_dir: str = typer.Option(
+        ".",
+        "--snapshot-dir",
+        help="Directory for the pre-reset CU snapshot (only used with --reset)",
+    ),
+    resume: bool = typer.Option(
+        True,
+        "--resume/--no-resume",
+        help="Skip obligation CUs that already carry a 4-tuple (crash-safe re-invoke). Default: on.",
+    ),
+    stage: str = typer.Option(
+        "all",
+        "--stage",
+        help="Which stage(s) to run: 'classify' | 'extract' | 'all'. Default: all.",
+    ),
+) -> None:
+    """
+    Regenerate the Policy-Graph CU layer (11-04b): classify + mint typed
+    :ComplianceUnit nodes (pure-LLM, D-30), then extract the 4-tuple on every
+    obligation CU (retry-on-empty, D-36).
+
+    WARNING: this is a real-Opus, multi-hour offline build via the local
+    Claude CLI (`claude -p --model claude-opus-4-8`). With --reset it first
+    deletes the existing CU layer. Run `graph seed-clauses` + the 11-02
+    source-annotation pass FIRST.
+
+    Examples:
+        ccop-eval graph build-cus --reset --snapshot-dir .planning/.../snapshots
+        ccop-eval graph build-cus --stage extract --resume
+    """
+    if stage not in {"classify", "extract", "all"}:
+        console.print(f"[red]--stage must be one of classify|extract|all (got {stage!r})[/red]")
+        raise typer.Exit(code=1)
+    try:
+        asyncio.run(_run_build_cus(reset, snapshot_dir, resume, stage))
+    except Exception as e:
+        console.print(f"[red]CU build failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+
+
+async def _run_build_cus(reset: bool, snapshot_dir: str, resume: bool, stage: str) -> None:
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        if reset:
+            Path(snapshot_dir).mkdir(parents=True, exist_ok=True)
+            teardown = CUTeardown(settings=settings, driver=driver)
+            with console.status("[bold yellow]Snapshot + teardown of existing CU layer (D-38)..."):
+                _print_teardown_summary(
+                    teardown.teardown(snapshot_path=Path(snapshot_dir) / "cu-snapshot.json")
+                )
+
+        if stage in {"classify", "all"}:
+            classifier = CUClassifier(settings=settings, driver=driver)
+            console.print("[bold green]Stage 1: classify + mint CUs (pure-LLM, claude-opus-4-8)...[/bold green]")
+            _print_cu_mint_summary(await classifier.classify_and_mint())
+
+        if stage in {"extract", "all"}:
+            extractor = CUExtractor(settings=settings, driver=driver)
+            console.print("[bold green]Stage 2: 4-tuple extraction (retry-on-empty)...[/bold green]")
+            _print_cu_extract_summary(await extractor.extract(resume=resume))
+    finally:
+        driver.close()
+
+
+def _print_cu_mint_summary(stats: CUMintStats) -> None:
+    table = Table(title="CU Classify + Mint Summary (11-04b / emergent)", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("Candidates considered", str(stats.candidates_considered))
+    table.add_row("LLM classification calls", str(stats.llm_classification_calls))
+    table.add_row("Forced-premise (RtF)", str(stats.forced_premise_count))
+    table.add_row("actor-CU", str(stats.actor_cu_count))
+    table.add_row("meta-CU", str(stats.meta_cu_count))
+    table.add_row("premise", str(stats.premise_count))
+    table.add_row("CUs without source text", str(stats.cu_without_source_text_count))
+    table.add_row("CUs without source link", str(stats.cu_without_source_link_count))
+    console.print(table)
+    if stats.modality_distribution:
+        console.print(f"[bold]actor-CU modality:[/bold] {stats.modality_distribution}")
+    if stats.premise_kind_distribution:
+        console.print(f"[bold]premise_kind:[/bold] {stats.premise_kind_distribution}")
+
+
+def _print_cu_extract_summary(stats: ExtractionStats) -> None:
+    table = Table(title="CU 4-Tuple Extraction Summary (11-04b / D-36)", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("Obligation CUs considered", str(stats.cus_considered))
+    table.add_row("Extracted (non-empty)", str(stats.cus_extracted))
+    table.add_row("Degraded empty", str(stats.cus_degraded_empty))
+    table.add_row("Retried on empty", str(stats.cus_retried))
+    table.add_row("Still empty after retry", str(stats.cus_still_empty_after_retry))
+    table.add_row("Obligation CUs missing tuple (NULL)", str(stats.obligation_cu_missing_tuple_count))
+    table.add_row("Obligation CUs ALL-EMPTY (gate)", str(stats.obligation_cu_all_empty_count))
+    table.add_row("Premises with a tuple (must be 0)", str(stats.premise_with_tuple_count))
+    console.print(table)
+
+
+@graph_app.command(name="build-compliance")
+def build_compliance_command(
+    drop: bool = typer.Option(
+        False,
+        "--drop/--no-drop",
+        help=(
+            "SCOPED drop: delete ONLY :ComplianceUnit + REFERS_TO before rebuilding "
+            "(the :Clause source layer is ALWAYS preserved). Default: off."
+        ),
+    ),
+) -> None:
+    """
+    Build the full offline Policy Graph reproducibly (11-05): classify+mint CUs
+    -> 4-tuple extract -> subject-finalize -> REFERS_TO link, on the persisted
+    11-02 source layer. Fails loud if the source layer (883 :Clause with text)
+    is absent. Real-Opus/OpenRouter build.
+    """
+    try:
+        asyncio.run(_run_build_compliance(drop))
+    except Exception as e:
+        console.print(f"[red]Policy Graph build failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+
+
+async def _run_build_compliance(drop: bool) -> None:
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        builder = PolicyGraphBuilder(settings=settings, driver=driver)
+        console.print("[bold green]Building offline Policy Graph (classify -> extract -> finalize -> link)...[/bold green]")
+        stats = await builder.build(drop=drop)
+        _print_policy_build_summary(stats)
+    finally:
+        driver.close()
+
+
+def _print_policy_build_summary(stats: PolicyBuildStats) -> None:
+    table = Table(title="Policy Graph Build Summary (11-05)", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", justify="right", style="bold")
+    table.add_row("actor-CU", str(stats.actor_cu_count))
+    table.add_row("meta-CU", str(stats.meta_cu_count))
+    table.add_row("premise", str(stats.premise_count))
+    table.add_row("REFERS_TO edges", str(stats.refers_to_edges))
+    table.add_row("obligation CUs missing tuple", str(stats.obligation_cu_missing_tuple))
+    table.add_row("subjects inherited / doc-defaulted", f"{stats.subjects_inherited} / {stats.subjects_doc_defaulted}")
+    table.add_row("subjects overridden / normalized", f"{stats.subjects_overridden} / {stats.subjects_normalized}")
+    table.add_row("stage failures", str(len(stats.failures)))
+    console.print(table)
+    for f in stats.failures:
+        console.print(f"  [red]- {f}[/red]")
+
+
+@graph_app.command(name="inspect")
+def inspect_command(
+    inventory_path: str = typer.Option(
+        str(DEFAULT_CLAUSE_INVENTORY_PATH),
+        "--inventory-path",
+        help="Path to clause_inventory.json (D-18 clause-coverage source)",
+    ),
+) -> None:
+    """
+    Print a human-readable KG-quality report (D-18).
+
+    Node/edge counts, entity-type distribution, degree summary, orphan
+    count, clause coverage vs clause_inventory.json, duplicate-entity
+    groups, and extraction failure rate. Complements the interactive Neo4j
+    Browser workflow (docs/phase-2/neo4j-browser-workflow.md) — this is the
+    quantitative half of the D-19 inspect -> adjust -> rebuild -> re-inspect
+    loop, run BEFORE the graph is ever scored.
+
+    Honesty guardrail (D-19): these metrics measure structural/extraction
+    functionality. They are not a knob for chasing B01/B03/B04 scores.
+
+    Example:
+        ccop-eval graph inspect
+    """
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        inspector = KGInspector(driver=driver, database=settings.neo4j_database)
+        summary = inspector.summary(inventory_path=inventory_path)
+        _print_inspect_report(summary)
+    except Exception as e:
+        console.print(f"[red]Graph inspect failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+    finally:
+        driver.close()
+
+
+@graph_app.command(name="stats")
+def stats_command(
+    inventory_path: str = typer.Option(
+        str(DEFAULT_CLAUSE_INVENTORY_PATH),
+        "--inventory-path",
+        help="Path to clause_inventory.json (D-18 clause-coverage source)",
+    ),
+    output: Optional[str] = typer.Option(
+        None,
+        "--output",
+        help="Write JSON stats to this path instead of stdout (feeds the Plan 06 comparison report)",
+    ),
+) -> None:
+    """
+    Print (or write) the D-18 KG-quality summary as machine-readable JSON.
+
+    Same metrics as `graph inspect`, JSON-encoded for programmatic
+    consumption (e.g. the Plan 06 graphrag-vs-hybrid comparison report's
+    KG-quality section, D-15).
+
+    Example:
+        ccop-eval graph stats --output kg-stats.json
+    """
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        inspector = KGInspector(driver=driver, database=settings.neo4j_database)
+        summary = inspector.summary(inventory_path=inventory_path)
+        payload = json.dumps(summary, indent=2, default=str)
+
+        if output:
+            Path(output).write_text(payload)
+            console.print(f"[green]Stats written to {output}[/green]")
+        else:
+            console.print(payload)
+    except Exception as e:
+        console.print(f"[red]Graph stats failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+    finally:
+        driver.close()
+
+
+def _print_inspect_report(summary: dict[str, Any]) -> None:
+    coverage = summary["clause_coverage"]
+    console.print(
+        f"[bold]clause_coverage:[/bold] {coverage['covered']}/{coverage['total']} "
+        f"({coverage['coverage_ratio']:.1%})"
+    )
+
+    counts_table = Table(title="KG Structure", show_header=True)
+    counts_table.add_column("Metric", style="cyan")
+    counts_table.add_column("Value", justify="right", style="bold")
+    counts_table.add_row("Nodes", str(summary["node_count"]))
+    counts_table.add_row("Edges", str(summary["edge_count"]))
+    counts_table.add_row("Orphan nodes", str(summary["orphan_nodes"]))
+    console.print(counts_table)
+
+    entity_table = Table(title="Entity-Type Distribution", show_header=True)
+    entity_table.add_column("Type", style="cyan")
+    entity_table.add_column("Count", justify="right", style="bold")
+    for label, count in summary["entity_type_distribution"].items():
+        entity_table.add_row(label, str(count))
+    console.print(entity_table)
+
+    degree = summary["degree_distribution"]
+    console.print(
+        f"[bold]Degree:[/bold] min={degree['min']} max={degree['max']} "
+        f"avg={degree['avg']} buckets={degree.get('buckets', {})}"
+    )
+
+    duplicates = summary["duplicate_entities"]
+    console.print(f"[bold]Duplicate-entity groups:[/bold] {len(duplicates)}")
+    if duplicates:
+        dup_table = Table(title="Duplicate Entities (top 10 by group size)")
+        dup_table.add_column("Name", style="yellow")
+        dup_table.add_column("Labels")
+        dup_table.add_column("Count", justify="right")
+        for group in sorted(duplicates, key=len, reverse=True)[:10]:
+            dup_table.add_row(
+                group[0]["name"], ", ".join(group[0]["labels"]), str(len(group))
+            )
+        console.print(dup_table)
+
+    failure = summary["extraction_failure_rate"]
+    console.print(
+        f"[bold]Extraction failure rate:[/bold] {failure['rate']} — {failure['note']}"
+    )
+
+
+@graph_app.command(name="validate")
+def validate_command(
+    shapes_path: str = typer.Option(
+        str(DEFAULT_SHAPES_PATH),
+        "--shapes-path",
+        help="Path to the committed SHACL shapes.ttl (D-07/D-13 constraints)",
+    ),
+    report_path: str = typer.Option(
+        str(DEFAULT_REPORT_PATH),
+        "--report-path",
+        help="Where to quarantine violations as JSON (D-13 reject + log)",
+    ),
+) -> None:
+    """
+    SHACL-validate the live ontology graph (D-13) — the structural backstop.
+
+    Exports the built graph LPG -> RDF, validates it against the committed
+    shapes.ttl (D-07: canonical name REQUIRED, junk names REJECTED), and
+    QUARANTINES non-conforming facts to a JSON report — reject + log
+    separately, NEVER silent-delete. Whatever slips past the schema-constrained
+    extraction prompt is caught here as a machine-checked constraint.
+
+    Exits non-zero when HIGH-severity (sh:Violation) violations exist, so it can
+    gate a build in CI / the D-19 inspect -> adjust -> rebuild loop.
+
+    Example:
+        ccop-eval graph validate
+    """
+    settings = get_settings()
+    driver = _open_driver(settings)
+    try:
+        validator = SHACLValidator(
+            driver=driver,
+            database=settings.neo4j_database,
+            shapes_path=shapes_path,
+        )
+        report = validator.validate(report_path=report_path)
+        _print_validation_report(report, report_path)
+    except Exception as e:
+        console.print(f"[red]Graph validate failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+    finally:
+        driver.close()
+
+    if report.high_severity_count > 0:
+        raise typer.Exit(code=1)
+
+
+def _print_validation_report(report: "ValidationReport", report_path: str) -> None:
+    if report.conforms:
+        console.print(
+            "[green]SHACL validation: graph CONFORMS[/green] "
+            "(0 violations — D-07 canonical-name/junk constraints satisfied)."
+        )
+        return
+
+    console.print(
+        f"[red]SHACL validation: {report.violation_count} violation(s)[/red] "
+        f"({report.high_severity_count} high-severity). "
+        f"Quarantined (reject + log, D-13 — not deleted) to: {report_path}"
+    )
+
+    severity_table = Table(title="Violations by Severity", show_header=True)
+    severity_table.add_column("Severity", style="cyan")
+    severity_table.add_column("Count", justify="right", style="bold")
+    for severity, count in sorted(report.severity_counts().items()):
+        severity_table.add_row(severity, str(count))
+    console.print(severity_table)
+
+    shape_table = Table(title="Violations by Shape (top 15)", show_header=True)
+    shape_table.add_column("Shape", style="cyan")
+    shape_table.add_column("Count", justify="right", style="bold")
+    for shape, count in sorted(
+        report.shape_counts().items(), key=lambda kv: kv[1], reverse=True
+    )[:15]:
+        shape_table.add_row(shape, str(count))
+    console.print(shape_table)
+
+    example_table = Table(title="Example Violations (up to 10)", show_header=True)
+    example_table.add_column("Focus Node", style="yellow", overflow="fold")
+    example_table.add_column("Value")
+    example_table.add_column("Message", overflow="fold")
+    for v in report.violations[:10]:
+        example_table.add_row(
+            v.focus_node,
+            str(v.value) if v.value is not None else "—",
+            (v.message or "").split(".")[0],
+        )
+    console.print(example_table)
+
+
+@graph_app.command(name="clause-hit")
+def clause_hit_command(
+    gold_xlsx: Optional[str] = typer.Option(
+        None,
+        "--gold-xlsx",
+        help=(
+            "Path to the D-17 gold-relation xlsx (defaults to "
+            f"<results_dir>/{DEFAULT_GOLD_RELATION_XLSX_FILENAME})"
+        ),
+    ),
+    pool_size: int = typer.Option(
+        50,
+        "--pool-size",
+        help="Candidate pool depth for recall@pool (D-15 default: 50)",
+    ),
+    test_id: list[str] = typer.Option(
+        [],
+        "--test-id",
+        help=(
+            "Restrict to specific test id(s) (repeatable). Default: the "
+            "fixed 18-case bdc4927d GT set."
+        ),
+    ),
+    output: Optional[str] = typer.Option(
+        None,
+        "--output",
+        help="Write JSON results to this path instead of stdout",
+    ),
+) -> None:
+    """
+    Run the deterministic clause-hit@3 acceptance gate (D-15).
+
+    For each of the 18 fixed-GT cases (or the ids given via --test-id), runs
+    the REAL graphrag-ontology retrieval path (plan 10-09, deterministic per
+    the LOCKED D-15 tie-break decision) and scores the retrieved clause ids
+    against a gold clause SET — the UNION of GT `clause_reference` and the
+    D-17 xlsx's hand-authored bracketed citations, with disagreements
+    flagged (Pitfall 4). Prints per-case + aggregate hit@3/recall@3/
+    recall@pool(pool_size).
+
+    Example:
+        ccop-eval graph clause-hit
+        ccop-eval graph clause-hit --test-id B01-001 --test-id B03-001
+    """
+    settings = get_settings()
+
+    try:
+        result = asyncio.run(
+            _run_clause_hit(settings, gold_xlsx, pool_size, test_id or None)
+        )
+    except Exception as e:
+        console.print(f"[red]Clause-hit harness failed:[/red] {e}")
+        raise typer.Exit(code=1) from e
+
+    _print_clause_hit_report(result)
+
+    if output:
+        payload = json.dumps(_clause_hit_result_to_dict(result), indent=2, default=str)
+        Path(output).write_text(payload)
+        console.print(f"[green]Results written to {output}[/green]")
+
+
+async def _run_clause_hit(
+    settings, gold_xlsx: Optional[str], pool_size: int, test_ids: Optional[list[str]]
+) -> ClauseHitHarnessResult:
+    from infrastructure.config.container import get_container
+
+    container = get_container()
+    graph_retrieval_provider = container.graph_retrieval_provider_ontology()
+    if graph_retrieval_provider is None:
+        raise RuntimeError(
+            "graphrag-ontology retrieval provider unavailable "
+            "(CCOP_NEO4J_URI unset or CCOP_GRAPHRAG_ONTOLOGY_ENABLED=false)"
+        )
+
+    test_case_repository = container.test_case_repository()
+    gold_xlsx_path = Path(gold_xlsx) if gold_xlsx else (
+        settings.results_dir / DEFAULT_GOLD_RELATION_XLSX_FILENAME
+    )
+
+    harness = ClauseHitHarnessUseCase(
+        test_case_repository=test_case_repository,
+        graph_retrieval_provider=graph_retrieval_provider,
+        gold_xlsx_path=gold_xlsx_path,
+        pool_size=pool_size,
+    )
+    return await harness.execute(test_ids=test_ids)
+
+
+def _print_clause_hit_report(result: ClauseHitHarnessResult) -> None:
+    table = Table(title="Clause-Hit@3 Harness (D-15)", show_header=True)
+    table.add_column("Test ID", style="cyan")
+    table.add_column("hit@3", justify="right")
+    table.add_column("recall@3", justify="right")
+    table.add_column("recall@pool", justify="right")
+    table.add_column("gold_set", overflow="fold")
+    table.add_column("disagree?", justify="center")
+    for case in result.per_case:
+        table.add_row(
+            case.test_id,
+            str(case.hit_at_3),
+            f"{case.recall_at_3:.2f}",
+            f"{case.recall_at_pool:.2f}",
+            ", ".join(sorted(case.gold_set)) or "—",
+            "[yellow]YES[/yellow]" if case.gold_disagreement else "",
+        )
+    console.print(table)
+
+    console.print(
+        f"[bold]Aggregate:[/bold] hit@3={result.aggregate_hit_at_3:.2%} "
+        f"recall@3={result.aggregate_recall_at_3:.2%} "
+        f"recall@pool={result.aggregate_recall_at_pool:.2%}"
+    )
+    if result.disagreement_test_ids:
+        console.print(
+            f"[yellow]Gold-source disagreements (Pitfall 4, human review):[/yellow] "
+            f"{', '.join(result.disagreement_test_ids)}"
+        )
+
+
+def _clause_hit_result_to_dict(result: ClauseHitHarnessResult) -> dict[str, Any]:
+    return {
+        "aggregate_hit_at_3": result.aggregate_hit_at_3,
+        "aggregate_recall_at_3": result.aggregate_recall_at_3,
+        "aggregate_recall_at_pool": result.aggregate_recall_at_pool,
+        "disagreement_test_ids": result.disagreement_test_ids,
+        "per_case": [
+            {
+                "test_id": c.test_id,
+                "gold_set": sorted(c.gold_set),
+                "clause_reference_set": sorted(c.clause_reference_set),
+                "xlsx_citation_set": sorted(c.xlsx_citation_set),
+                "gold_disagreement": c.gold_disagreement,
+                "retrieved_top3": c.retrieved_top3,
+                "retrieved_pool": c.retrieved_pool,
+                "hit_at_3": c.hit_at_3,
+                "recall_at_3": c.recall_at_3,
+                "recall_at_pool": c.recall_at_pool,
+            }
+            for c in result.per_case
+        ],
+    }

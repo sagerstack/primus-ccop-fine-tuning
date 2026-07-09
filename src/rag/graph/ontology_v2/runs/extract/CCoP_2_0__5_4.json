@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP 2.0::5.4",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "CyberThreatActor",
+    "Monitoring",
+    "authentication"
+  ],
+  "triples": [
+    {
+      "s": "authentication",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

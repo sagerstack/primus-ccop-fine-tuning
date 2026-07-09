@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.27",
+  "concepts": [
+    "CIIAsset",
+    "CIIO",
+    "ChangeManagement",
+    "SecurityConfigurationBaseline"
+  ],
+  "triples": [
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "APPLIES_BASELINE",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "ChangeManagement",
+      "o_type": "ChangeManagement"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "ChangeManagement",
+      "o_type": "ChangeManagement"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

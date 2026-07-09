@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::3.2",
+  "concepts": [
+    "Audit",
+    "AuditReport",
+    "ComplianceGap",
+    "RemediationPlan"
+  ],
+  "triples": [
+    {
+      "s": "ComplianceGap",
+      "s_type": "ComplianceGap",
+      "rel": "REMEDIATED_BY",
+      "o": "RemediationPlan",
+      "o_type": "RemediationPlan"
+    },
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "PRODUCES",
+      "o": "AuditReport",
+      "o_type": "AuditReport"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

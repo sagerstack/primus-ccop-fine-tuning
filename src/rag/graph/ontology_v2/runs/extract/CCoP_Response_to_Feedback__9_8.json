@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::9.8",
+  "concepts": [
+    "Audit",
+    "AuditReport",
+    "CIIO",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "SUPERVISES",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    },
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "PRODUCES",
+      "o": "AuditReport",
+      "o_type": "AuditReport"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

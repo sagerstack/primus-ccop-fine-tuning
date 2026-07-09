@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP 2.0::3.2.4(b)",
+  "concepts": [
+    "RiskRegister",
+    "RiskScenario"
+  ],
+  "triples": [
+    {
+      "s": "RiskScenario",
+      "s_type": "RiskScenario",
+      "rel": "RECORDED_IN",
+      "o": "RiskRegister",
+      "o_type": "RiskRegister"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

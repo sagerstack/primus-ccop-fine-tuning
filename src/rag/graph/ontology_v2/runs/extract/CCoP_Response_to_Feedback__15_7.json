@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.7",
+  "concepts": [
+    "PhysicalProcess",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "PhysicalProcess",
+      "o_type": "PhysicalProcess"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

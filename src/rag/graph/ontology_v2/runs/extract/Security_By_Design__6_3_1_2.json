@@ -1,0 +1,26 @@
+{
+  "citation_id": "Security By Design::6.3.1.2",
+  "concepts": [
+    "CII",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

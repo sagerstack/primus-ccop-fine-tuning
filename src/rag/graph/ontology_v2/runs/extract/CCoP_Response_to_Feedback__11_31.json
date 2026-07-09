@@ -1,0 +1,44 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.31",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "ChangeManagement",
+    "EssentialService",
+    "Malware",
+    "MalwareProtection"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "ChangeManagement",
+      "o_type": "ChangeManagement"
+    },
+    {
+      "s": "MalwareProtection",
+      "s_type": "MalwareProtection",
+      "rel": "MITIGATES",
+      "o": "Malware",
+      "o_type": "Malware"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "DELIVERS",
+      "o": "EssentialService",
+      "o_type": "EssentialService"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "ChangeManagement",
+      "o_type": "ChangeManagement"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

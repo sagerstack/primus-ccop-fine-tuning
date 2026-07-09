@@ -159,6 +159,15 @@ data/cache/
 # Committed audit ledger — verifier decisions + defect inventory referenced by report
 !ground-truth/gt-audit-20260430/audit_defects.json
 !ground-truth/gt-audit-20260430/verifier/audit_verifier_decisions.json
+# Committed Phase 10 ontology draft — Method-C output, curated at the human
+# gate (plan 10-03) and consumed by downstream Phase 10 plans (10-04+)
+!src/rag/graph/ontology/ontology_draft.json
+# Committed Phase 10 Method-B clustering cross-check reconcile report — input
+# to the second human curation gate (b, plan 10-04)
+!src/rag/graph/ontology/method_b_reconcile.json
+# Committed Phase 10 LOCKED ontology — reconciled at curation gate (b, plan
+# 10-04); the authoritative build-time schema every mechanical build wave consumes
+!src/rag/graph/ontology/ontology_config.json
 *.parquet
 *.feather
 *.h5
@@ -252,3 +261,14 @@ sandbox/
 
 # Qdrant local storage
 qdrant_storage/
+
+# Neo4j local storage (GraphRAG baseline — Phase 9)
+neo4j_storage/
+
+# GraphRAG source/test package literally named `build/` (Phase 9) — not a
+# packaging artifact; unignore it despite the top-level `build/` rule above.
+!src/rag/graph/build/
+!src/rag/graph/build/**
+!tests/rag/graph/build/
+!tests/rag/graph/build/**
+.env.local.bak*

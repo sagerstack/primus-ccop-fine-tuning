@@ -1,0 +1,34 @@
+{
+  "citation_id": "CCoP 2.0::8.2.2",
+  "concepts": [
+    "BusinessContinuityPlan",
+    "CII",
+    "DisasterRecoveryPlan"
+  ],
+  "triples": [
+    {
+      "s": "BusinessContinuityPlan",
+      "s_type": "BusinessContinuityPlan",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "DisasterRecoveryPlan",
+      "s_type": "DisasterRecoveryPlan",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "BusinessContinuityPlan",
+      "o_type": "BusinessContinuityPlan"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

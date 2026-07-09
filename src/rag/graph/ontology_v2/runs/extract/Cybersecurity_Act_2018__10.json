@@ -1,0 +1,19 @@
+{
+  "citation_id": "Cybersecurity Act 2018::10",
+  "concepts": [
+    "CIIO",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

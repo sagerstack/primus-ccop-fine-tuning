@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.20",
+  "concepts": [
+    "CII",
+    "ComplianceStatus",
+    "Regulator",
+    "Waiver"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "GRANTS",
+      "o": "Waiver",
+      "o_type": "Waiver"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "HAS_STATUS",
+      "o": "ComplianceStatus",
+      "o_type": "ComplianceStatus"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

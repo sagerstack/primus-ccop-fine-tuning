@@ -1,0 +1,44 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.27",
+  "concepts": [
+    "Backup",
+    "CII",
+    "CompensatingControl",
+    "CybersecurityRisk",
+    "Regulator",
+    "Waiver"
+  ],
+  "triples": [
+    {
+      "s": "Backup",
+      "s_type": "Backup",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "GRANTS",
+      "o": "Waiver",
+      "o_type": "Waiver"
+    },
+    {
+      "s": "CompensatingControl",
+      "s_type": "CompensatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "Backup",
+      "o_type": "Backup"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

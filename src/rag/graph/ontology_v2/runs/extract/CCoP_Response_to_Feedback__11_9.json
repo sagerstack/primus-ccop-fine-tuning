@@ -1,0 +1,37 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.9",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "CompensatingControl",
+    "CyberThreatActor",
+    "CybersecurityRisk",
+    "Monitoring"
+  ],
+  "triples": [
+    {
+      "s": "CompensatingControl",
+      "s_type": "CompensatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "Monitoring",
+      "o_type": "Monitoring"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

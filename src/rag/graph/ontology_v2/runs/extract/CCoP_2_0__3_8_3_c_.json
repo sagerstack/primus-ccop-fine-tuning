@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP 2.0::3.8.3(c)",
+  "concepts": [
+    "Audit",
+    "AuditReport",
+    "CIIO",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "PRODUCES",
+      "o": "AuditReport",
+      "o_type": "AuditReport"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "SUPERVISES",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

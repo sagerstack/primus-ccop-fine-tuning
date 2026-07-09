@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP 2.0::3.5.1(a)",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "SecurityArchitecture",
+    "SecurityControl",
+    "defence-in-depth"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "APPLIES_PRINCIPLE",
+      "o": "defence-in-depth",
+      "o_type": "DesignPrinciple"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "SecurityArchitecture",
+      "o_type": "SecurityArchitecture"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

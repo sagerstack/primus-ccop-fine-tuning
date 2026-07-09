@@ -23,7 +23,7 @@ Research will determine specific implementation approach. Requirements define ou
 - [x] **RAG-03**: Retrieval that returns relevant CCoP clauses for compliance queries
 - [x] **RAG-04**: Re-ranking to prioritize most relevant results
 - [x] **RAG-05**: Citation extraction linking retrieved chunks to source document/clause
-- [ ] **RAG-06**: Integration with existing Clean Architecture (port/adapter pattern)
+- [x] **RAG-06**: Integration with existing Clean Architecture (port/adapter pattern)
 
 ### Fine-Tuning
 
@@ -84,7 +84,7 @@ Research will determine optimal configuration. Requirements define outcomes.
 | RAG-03 | Phase 3, 3.2 | Complete — corpus re-ingestion + chunker fix delivered by Phase 3.2 sub-goal A (verifier passed 18/18 on 2026-04-22) |
 | RAG-04 | Phase 3, 3.2 | Complete — corpus re-ingestion + chunker fix delivered by Phase 3.2 sub-goal A (verifier passed 18/18 on 2026-04-22) |
 | RAG-05 | Phase 3, 3.2 | Complete — corpus re-ingestion + chunker fix delivered by Phase 3.2 sub-goal A (verifier passed 18/18 on 2026-04-22) |
-| RAG-06 | Phase 3 | Pending |
+| RAG-06 | Phase 3 | Complete |
 | FT-01 | Phase 5 | Pending |
 | FT-02 | Phase 5 | Pending |
 | FT-03 | Phase 5 | Pending |

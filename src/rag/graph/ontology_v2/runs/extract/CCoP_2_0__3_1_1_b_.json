@@ -1,0 +1,18 @@
+{
+  "citation_id": "CCoP 2.0::3.1.1(b)",
+  "concepts": [
+    "OrganisationalRole"
+  ],
+  "triples": [
+    {
+      "s": "OrganisationalRole",
+      "s_type": "OrganisationalRole",
+      "rel": "SEGREGATES",
+      "o": "OrganisationalRole",
+      "o_type": "OrganisationalRole"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

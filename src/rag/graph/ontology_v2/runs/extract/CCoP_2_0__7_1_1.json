@@ -1,0 +1,44 @@
+{
+  "citation_id": "CCoP 2.0::7.1.1",
+  "concepts": [
+    "CIIO",
+    "CybersecurityIncident",
+    "IncidentResponsePlan",
+    "IncidentResponseTeam",
+    "Provision",
+    "Regulator"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "IncidentResponsePlan",
+      "o_type": "IncidentResponsePlan"
+    },
+    {
+      "s": "IncidentResponsePlan",
+      "s_type": "IncidentResponsePlan",
+      "rel": "RESPONDS_TO",
+      "o": "CybersecurityIncident",
+      "o_type": "CybersecurityIncident"
+    },
+    {
+      "s": "CybersecurityIncident",
+      "s_type": "CybersecurityIncident",
+      "rel": "ACTIVATES",
+      "o": "IncidentResponseTeam",
+      "o_type": "IncidentResponseTeam"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "REPORTS",
+      "o": "Regulator",
+      "o_type": "Regulator"
+    }
+  ],
+  "proposed": [],
+  "extractor": "claude-opus",
+  "n_raw": 4
+}

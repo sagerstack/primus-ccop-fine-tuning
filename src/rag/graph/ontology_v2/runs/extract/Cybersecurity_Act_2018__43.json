@@ -1,0 +1,19 @@
+{
+  "citation_id": "Cybersecurity Act 2018::43",
+  "concepts": [
+    "Obligation",
+    "OrganisationalRole"
+  ],
+  "triples": [
+    {
+      "s": "OrganisationalRole",
+      "s_type": "OrganisationalRole",
+      "rel": "HAS_OBLIGATION",
+      "o": "Obligation",
+      "o_type": "Obligation"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

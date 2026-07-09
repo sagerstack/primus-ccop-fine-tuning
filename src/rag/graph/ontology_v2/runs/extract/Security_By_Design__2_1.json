@@ -1,0 +1,28 @@
+{
+  "citation_id": "Security By Design::2.1",
+  "concepts": [
+    "CIIO",
+    "CybersecurityRisk",
+    "SecurityByDesign",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "SecurityByDesign",
+      "o_type": "SecurityByDesign"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

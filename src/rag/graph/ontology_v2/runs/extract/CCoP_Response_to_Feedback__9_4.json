@@ -1,0 +1,37 @@
+{
+  "citation_id": "CCoP Response to Feedback::9.4",
+  "concepts": [
+    "CIIO",
+    "CybersecurityRisk",
+    "RiskAssessment",
+    "RiskRegister",
+    "RiskScenario",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "RiskScenario",
+      "s_type": "RiskScenario",
+      "rel": "RECORDED_IN",
+      "o": "RiskRegister",
+      "o_type": "RiskRegister"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

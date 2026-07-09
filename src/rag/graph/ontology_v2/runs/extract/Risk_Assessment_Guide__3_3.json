@@ -1,0 +1,27 @@
+{
+  "citation_id": "Risk Assessment Guide::3.3",
+  "concepts": [
+    "ResidualRisk",
+    "RiskManagement",
+    "RiskRole"
+  ],
+  "triples": [
+    {
+      "s": "RiskRole",
+      "s_type": "RiskRole",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "RiskManagement",
+      "o_type": "RiskManagement"
+    },
+    {
+      "s": "ResidualRisk",
+      "s_type": "ResidualRisk",
+      "rel": "ACCEPTED_BY",
+      "o": "RiskRole",
+      "o_type": "RiskRole"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

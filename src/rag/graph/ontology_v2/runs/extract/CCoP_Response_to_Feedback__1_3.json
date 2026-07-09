@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::1.3",
+  "concepts": [
+    "CyberThreatActor",
+    "CybersecurityThreat",
+    "SecurityControl",
+    "TTP"
+  ],
+  "triples": [
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "USES_TECHNIQUE",
+      "o": "TTP",
+      "o_type": "TTP"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,44 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.50",
+  "concepts": [
+    "CIIO",
+    "CompensatingControl",
+    "CybersecurityRisk",
+    "CybersecurityThreat",
+    "Monitoring",
+    "PenetrationTesting"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "PenetrationTesting",
+      "o_type": "PenetrationTesting"
+    },
+    {
+      "s": "CompensatingControl",
+      "s_type": "CompensatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "PenetrationTesting",
+      "o_type": "PenetrationTesting"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

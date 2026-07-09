@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::4.1",
+  "concepts": [
+    "Board",
+    "CybersecurityRisk",
+    "SeniorManagement"
+  ],
+  "triples": [
+    {
+      "s": "Board",
+      "s_type": "Board",
+      "rel": "OVERSEES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "SeniorManagement",
+      "s_type": "SeniorManagement",
+      "rel": "OVERSEES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

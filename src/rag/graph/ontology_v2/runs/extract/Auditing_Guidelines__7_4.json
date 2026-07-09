@@ -1,0 +1,19 @@
+{
+  "citation_id": "Auditing Guidelines::7.4",
+  "concepts": [
+    "Audit",
+    "AuditReport"
+  ],
+  "triples": [
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "PRODUCES",
+      "o": "AuditReport",
+      "o_type": "AuditReport"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,4 @@
+# Definitions — Security By Design (Annex C)  [2 terms]
+
+- Critical Information Infrastructure (CII): Infocomm or operational technology system or network infrastructure that is vital to the continuous delivery of Essential Services which Singapore relies on; services which, the loss or compromise, would (a) lead to debilitating impact on security, economy or public health and safety; or (b) threaten Singapore's survival during National Emergency.
+- Operational Technology (OT): A category of hardware and software that monitors and controls how physical devices perform. OT is primarily used in industrial control systems for manufacturing, transportation and utilities; technology that control operations. (See also industrial control systems)

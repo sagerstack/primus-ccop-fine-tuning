@@ -1,0 +1,19 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.20",
+  "concepts": [
+    "CII",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

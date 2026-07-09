@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP 2.0::8.1.3",
+  "concepts": [
+    "Backup",
+    "CII",
+    "Provision",
+    "authorisation"
+  ],
+  "triples": [
+    {
+      "s": "Backup",
+      "s_type": "Backup",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "authorisation",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "Backup",
+      "o_type": "Backup"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,58 @@
+# Definitions — CCoP 2.0 (§1.2.1)  [56 terms]
+
+- Act: The Cybersecurity Act 2018.
+- business continuity plan (BCP): Documented procedures that guide organisations to respond, recover, resume and restore businesses to a pre-defined level of operation following disruption and cover the resources, services and activities required to ensure the continuity of essential services.
+- Commissioner: The Commissioner of Cybersecurity appointed under section 4(1)(a) of the Act, and includes the Deputy Commissioner and Assistant Commissioners of Cybersecurity appointed under section 4(1)(b) of the Act.
+- critical information infrastructure (CII): As defined in section 2 of the Act.
+- CII asset: The components of an IT or OT system and/or network infrastructure of a CII and includes physical devices and systems, software platforms and applications of the CII.
+- CII Designation Date: Refers to the date on which a computer or computer system was designated as a CII under section 7(1) of the Act.
+- CIIO: The owner of a CII; 'owner' in this respect, means 'owner' as defined in section 2 of the Act.
+- Code: This Cybersecurity Code of Practice for Critical Information Infrastructure.
+- Compliance Date: Means:  ⚠INCOMPLETE
+- cyber operating environment: The operating environment that includes systems, applications, networks, physical sites, external interfaces and access activities.
+- cybersecurity: As defined in section 2 of the Act.
+- cybersecurity event: An observable occurrence of an activity in or through a computer or computer system that may affect the cybersecurity of that or another computer or computer system and includes a cybersecurity incident.
+- cybersecurity incident: As defined in section 2 of the Act.
+- cybersecurity risk: As defined in regulation 6 of the Cybersecurity (Critical Information Infrastructure) Regulations 2018.
+- cybersecurity risk profile: A profile that outlines a CII's known cybersecurity risks, policy constraints and regulatory obligations for the determination of level risk mitigating controls required.
+- cybersecurity threat: As defined in section 2 of the Act.
+- disaster recovery plan (DRP): A documented procedure which guides organisations on the steps to recover IT and/or OT capability when a disruption occurs.
+- Effective Date: Means the date this version of the Code takes effect.
+- essential service: As defined in section 2 of the Act.
+- Existing CII: Refers to a computer or computer system that is designated as a CII under section 7(1) of the Act as at the Effective Date and includes such a computer or computer system that becomes a Redesignated CII within 12 months from the Effective Date. Illustration A computer or computer system was designated as a CII on 1 November 2018 and remains designated as such at the Effective Date. This is an Existing CII. The designation of the same computer or computer system is withdrawn on 1 November 2022, and a new designation takes effect from the same day. This computer or computer system
+- indicators of compromise (IOC): Traces of security breach which can include IP addresses, Uniform Resource Locator (URL), domain, hashes, registry, filename, etc.
+- information technology (IT): An arrangement of interconnected computers that is used in the storing, accessing, processing, analysing and sending of information, for example: computing and telecommunications equipment.
+- Kerberos Ticket Granting Ticket account: The account is a special hidden account that encrypts all other authentication tokens in the Kerberos authentication protocol. An attacker who has compromised the account can forge a ticket to gain complete access to the entire domain.
+- malware: Malicious software or firmware intended to perform unauthorised processes that will have adverse impact on the confidentiality, integrity, or availability of a computer system, for example: virus, worm, Trojan horse, spyware and some forms of adware or other code-based entity that infects a host.
+- mechanism: An automated process that performs a series of activities.
+- operational technology (OT): An arrangement of interconnected computers that is used in the monitoring and/or control of physical processes, that includes: (a) Supervisory control and data acquisition systems, distributed control systems, and other control system configuration such as programmable logic controllers; (b) A combination of control components, for example electrical, mechanical, hydraulic, pneumatic, that act together to achieve an industrial objective, for example manufacturing, transportation of matter or energy.
+- organisational structure: The hierarchical arrangement of roles, lines of authority, and communications of an organisation.
+- patch: A set of changes to a software or firmware that addresses its cybersecurity vulnerabilities, or other updates to its functionality, usability or performance.
+- patch management: The process involving one or more of the following actions of acquiring, testing and installing patches or updates on existing software or firmware, enabling systems to stay updated, addressing vulnerabilities and includes patching applications, anti-malware, and firmware.
+- penetration testing: An authorised process of evaluating the security of a computer system, network or application by finding vulnerabilities attackers could exploit and includes the process of: (a) gathering information about the target; (b) identifying possible entry points; (c) attempting to break in (either virtually or for real); and (d) reporting the findings.
+- periodic: To perform an activity at a predefined interval.
+- physical sites: Primary and secondary locations hosting the CII.
+- purple teaming: In the context of an attack simulation means an exercise where the attack activity is revealed and explained to the blue team, and the red and blue teams work together and openly in real time to discuss each attack technique and the corresponding defensive measures, to improve people, process and technologies.
+- Previous Version: Means the version of the Cybersecurity Code of Practice for Critical Information Infrastructure issued by the Commissioner on 1 September 2018 and amended on 20 December 2019.
+- privilege: The rights assigned to any account including any user, application, service or system account.
+- privileged account: Any account including any user, application, service or system account, that has administrative access privileges.
+- recovery point objective: The amount of data that can be lost within a period most relevant to a business, before significant harm occurs, from the point of a critical event to the most preceding backup.
+- recovery time objective: The quantity of time that an application, system and/or process, can be down for without causing significant damage to the business as well as the time spent restoring the application and its data.
+- Redesignated CII: Means a computer or computer system which is designated as a CII under section 7(1) no later than 3 months after the expiry or withdrawal of a previous designation.
+- remote access: Access to a CII by a user, or a process acting on behalf of a user, communicating through an external network.
+- remote facilities: Computer or computer system that has remote access capability.
+- residual risk: The risk exposure after risk mitigating controls is considered or applied.
+- risk appetite: The amount of risk, on a broad level, that CIIO is willing to accept in pursuit of its strategic objectives.
+- scenario-based cybersecurity exercise: An activity to assess and validate an organisation's plans and capabilities relating to the handling of simulated cybersecurity incidents (the 'scenario') affecting the organisation. The exercise scenario should be based on relevant threats. Depending on the nature of the threats, CIIO may include social engineering and cyber range components in these scenarios.
+- security architecture: A set of physical and logical cybersecurity representations that addresses potential cybersecurity risks and gaps in the environment.
+- secured intermediary mechanism: Asecurity hardened agent or device that is used to access and manage a system that resides in a different security zone. Examples include a jump server and bastion host.
+- sensitive data: Sensitive data include production data and system configuration information.
+- shall: In this Code, means that the statement mentioned is a mandatory requirement for compliance.
+- shared user account: Accounts that are shared by one or more users and includes shared administrative user accounts.
+- should: In this Code, means that the statement mentioned is a recommended requirement.
+- strong encryption: Industry-accepted standard algorithms to scramble data and encrypts/decrypts with key to achieve data confidentiality.
+- system development lifecycle: The process of planning, analysis, design, development, testing, implementation, maintenance and retirement of a computer system.
+- threat hunting: The proactive effort to search for signs of malicious activity that has evaded security defences within the CII. It can be triggered by threat intelligence report, security monitoring, incident response, crown jewel analysis, domain expertise and analysis against MITRE ATT&CK, a globally accessible knowledge base of adversary tactics and techniques based on real-world observations.
+- test environment: A setup of computer or computer systems to support test use cases.
+- timely manner: To perform an activity as soon as possible.
+- vendor: Includes both technology suppliers and service providers.

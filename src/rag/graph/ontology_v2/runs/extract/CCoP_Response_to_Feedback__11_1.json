@@ -1,0 +1,37 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.1",
+  "concepts": [
+    "AccessControlMechanism",
+    "CII",
+    "CIIO",
+    "CybersecurityThreat",
+    "Monitoring",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "AccessControlMechanism",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    },
+    {
+      "s": "Monitoring",
+      "s_type": "Monitoring",
+      "rel": "DETECTS",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

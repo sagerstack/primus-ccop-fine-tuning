@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.31",
+  "concepts": [
+    "AccessControlMechanism",
+    "CII",
+    "Condition",
+    "DisasterRecoveryPlan",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "DisasterRecoveryPlan",
+      "s_type": "DisasterRecoveryPlan",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "AccessControlMechanism",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "CONDITIONED_ON",
+      "o": "Condition",
+      "o_type": "Condition"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

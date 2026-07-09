@@ -1,0 +1,19 @@
+{
+  "citation_id": "Cybersecurity Act 2018::36",
+  "concepts": [
+    "Obligation",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "ThirdParty",
+      "s_type": "ThirdParty",
+      "rel": "HAS_OBLIGATION",
+      "o": "Obligation",
+      "o_type": "Obligation"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

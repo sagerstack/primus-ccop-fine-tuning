@@ -1,0 +1,42 @@
+{
+  "citation_id": "CCoP Response to Feedback::9.2",
+  "concepts": [
+    "CIIO",
+    "CybersecurityRisk",
+    "SecurityControl",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "SUPERVISES",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

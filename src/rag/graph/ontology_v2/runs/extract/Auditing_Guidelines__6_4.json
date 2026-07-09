@@ -1,0 +1,44 @@
+{
+  "citation_id": "Auditing Guidelines::6.4",
+  "concepts": [
+    "Audit",
+    "CybersecurityRisk",
+    "CybersecurityThreat",
+    "Provision",
+    "RiskAssessment",
+    "SecurityControl"
+  ],
+  "triples": [
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "COVERS",
+      "o": "Provision",
+      "o_type": "Provision"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

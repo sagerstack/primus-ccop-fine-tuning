@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP 2.0::9.2.3",
+  "concepts": [
+    "Certification",
+    "OrganisationalRole",
+    "RiskAssessment"
+  ],
+  "triples": [
+    {
+      "s": "OrganisationalRole",
+      "s_type": "OrganisationalRole",
+      "rel": "HAS_CERTIFICATION",
+      "o": "Certification",
+      "o_type": "Certification"
+    },
+    {
+      "s": "OrganisationalRole",
+      "s_type": "OrganisationalRole",
+      "rel": "SUPERVISES",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

@@ -256,6 +256,63 @@ class Container(containers.DeclarativeContainer):
             return None
 
     @staticmethod
+    def _create_graph_retrieval_provider(settings, logger):
+        """
+        Create the graph retrieval provider (Phase 9, D-11).
+
+        Selection logic:
+        - If neo4j_uri is set: create Neo4jGraphRetrievalAdapter (entity-anchored
+          graph retrieval over the emergent KG).
+        - Else: return None (graphrag mode unavailable).
+
+        This is the pluggable seam Phase 10 registers a second (ontology-grounded)
+        provider against without touching Phase 9's adapter.
+        """
+        if getattr(settings, "neo4j_uri", None):
+            from rag.graph.retrieval.neo4j_graph_retrieval_adapter import (
+                Neo4jGraphRetrievalAdapter,
+            )
+
+            logger.info("Initialized Neo4jGraphRetrievalAdapter (mode=graphrag)")
+            return Neo4jGraphRetrievalAdapter(settings=settings, logger_=logger)
+        else:
+            logger.warning("No graph retrieval provider configured (CCOP_NEO4J_URI unset)")
+            return None
+
+    @staticmethod
+    def _create_ontology_graph_retrieval_provider(settings, logger):
+        """
+        Create the ontology-grounded graph retrieval provider (Phase 10, D-16).
+
+        This is the SECOND mode-aware singleton, `graph_retrieval_provider_ontology`
+        — a sibling of `_create_graph_retrieval_provider` / `graph_retrieval_provider`
+        (Phase 9), which this method does NOT modify (D-16 additivity).
+
+        Selection logic mirrors Phase 9's:
+        - If neo4j_uri is set AND graphrag_ontology_enabled: create
+          Neo4jOntologyGraphRetrievalAdapter (skeleton contract; real
+          clause-anchored query lands in plan 10-09).
+        - Else: return None (graphrag-ontology mode unavailable).
+        """
+        if getattr(settings, "neo4j_uri", None) and getattr(
+            settings, "graphrag_ontology_enabled", True
+        ):
+            from rag.graph.retrieval.neo4j_ontology_graph_retrieval_adapter import (
+                Neo4jOntologyGraphRetrievalAdapter,
+            )
+
+            logger.info(
+                "Initialized Neo4jOntologyGraphRetrievalAdapter (mode=graphrag-ontology)"
+            )
+            return Neo4jOntologyGraphRetrievalAdapter(settings=settings, logger_=logger)
+        else:
+            logger.warning(
+                "No ontology graph retrieval provider configured "
+                "(CCOP_NEO4J_URI unset or CCOP_GRAPHRAG_ONTOLOGY_ENABLED=false)"
+            )
+            return None
+
+    @staticmethod
     def _create_query_use_case(rag_pipeline, logger):
         from rag.application.use_cases.query_compliance import QueryComplianceUseCase
 
@@ -269,6 +326,20 @@ class Container(containers.DeclarativeContainer):
 
     indexer = providers.Singleton(
         _create_indexer_adapter,
+        settings=config,
+        logger=logger,
+    )
+
+    graph_retrieval_provider = providers.Singleton(
+        _create_graph_retrieval_provider,
+        settings=config,
+        logger=logger,
+    )
+
+    # Phase 10 sibling singleton (D-16 additivity) — `--mode graphrag-ontology`
+    # routes here, `--mode graphrag` (above) is untouched.
+    graph_retrieval_provider_ontology = providers.Singleton(
+        _create_ontology_graph_retrieval_provider,
         settings=config,
         logger=logger,
     )

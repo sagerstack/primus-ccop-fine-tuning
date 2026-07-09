@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP 2.0::5.6.2(a)",
+  "concepts": [
+    "CIIO",
+    "CybersecurityThreat",
+    "NetworkControl"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "NetworkControl",
+      "o_type": "NetworkControl"
+    },
+    {
+      "s": "NetworkControl",
+      "s_type": "NetworkControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

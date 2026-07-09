@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.18",
+  "concepts": [
+    "BusinessContinuityPlan",
+    "CIIO",
+    "CybersecurityExercise"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "CybersecurityExercise",
+      "o_type": "CybersecurityExercise"
+    },
+    {
+      "s": "CybersecurityExercise",
+      "s_type": "CybersecurityExercise",
+      "rel": "VALIDATES",
+      "o": "BusinessContinuityPlan",
+      "o_type": "BusinessContinuityPlan"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

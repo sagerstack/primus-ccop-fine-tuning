@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::9.6",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "ACCOUNTABLE_FOR",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

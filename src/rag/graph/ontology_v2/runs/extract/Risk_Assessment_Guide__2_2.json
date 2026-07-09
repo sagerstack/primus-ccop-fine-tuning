@@ -1,0 +1,27 @@
+{
+  "citation_id": "Risk Assessment Guide::2.2",
+  "concepts": [
+    "CIIO",
+    "RiskAssessment",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DELEGATES_TO",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

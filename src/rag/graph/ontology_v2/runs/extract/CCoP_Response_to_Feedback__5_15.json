@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::5.15",
+  "concepts": [
+    "CII",
+    "CybersecurityRisk",
+    "MitigatingControl",
+    "OTSystem"
+  ],
+  "triples": [
+    {
+      "s": "MitigatingControl",
+      "s_type": "MitigatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

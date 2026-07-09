@@ -1,0 +1,4 @@
+# Keep baseline snapshots (restore anchors); ignore intermediate/after snapshots
+# (derivable = baseline + patches applied in order).
+*-after.json
+!000-baseline-*.json

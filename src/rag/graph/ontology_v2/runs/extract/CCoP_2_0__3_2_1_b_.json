@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP 2.0::3.2.1(b)",
+  "concepts": [
+    "CIIO",
+    "OrganisationalRole",
+    "OrganisationalStructure",
+    "RiskManagement"
+  ],
+  "triples": [
+    {
+      "s": "OrganisationalRole",
+      "s_type": "OrganisationalRole",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "RiskManagement",
+      "o_type": "RiskManagement"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "OrganisationalStructure",
+      "o_type": "OrganisationalStructure"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

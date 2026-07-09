@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.19",
+  "concepts": [
+    "CybersecurityRisk",
+    "Provision",
+    "Regulator",
+    "SecurityControl",
+    "Waiver"
+  ],
+  "triples": [
+    {
+      "s": "Regulator",
+      "s_type": "Regulator",
+      "rel": "GRANTS",
+      "o": "Waiver",
+      "o_type": "Waiver"
+    },
+    {
+      "s": "Waiver",
+      "s_type": "Waiver",
+      "rel": "WAIVES",
+      "o": "Provision",
+      "o_type": "Provision"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

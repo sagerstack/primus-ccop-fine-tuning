@@ -1,0 +1,127 @@
+# Compliance Gate — in-session build plan (resumable)
+
+**Goal:** implement the GraphCompliance Compliance Gate (paper §3.3) end-to-end so
+`poetry run ccop-eval evaluate run --mode graphcpl --test-ids B01-001` runs
+and produces a scored result. **Paper is the gold standard**; the old 11-07/08/09/10
+plans are reference only (pre-patch, may have drifted). No GSD subagents — built in-session.
+
+## Locked decisions (2026-07-06)
+- **Retrieval = pure paper** (eq.3 subject-similarity + hypernym bonus → top-K1; eq.4 cross-encoder rerank → CU Plan). NO hybrid-text second channel / fallback floor (that was a plan hedge, not in the paper).
+- **Output / grounding (D4b, confirmed):** the mode's core job is to **forward the right graph content as context** for the query's anchors — **relevant premises (definitions/interpretations) + obligations (CU Plan actor/meta-CU) + verbatim clause text** — to the model. Premises come from the 11-06b hypernym STRONG-support (already computed per anchor) + any retrieved for the CUs; obligations from the Gate retrieval (eq.3-4). For B01-001, the paper's verdict+rationale is the answer; generalising to the non-verdict benchmarks (answer-gen over this grounding) is deferred but the context assembly is built for it now.
+- **Foundation** = current patched graph (premises are `:Clause:Premise`; obligations are `:ComplianceUnit` actor-CU/meta-CU, 381). Hyperparams = paper defaults (β=0.3, N=5, K1≈20, K≈8) + reuse `bge-large` embedder + `bge-reranker` cross-encoder.
+- **Retrieval unit = atomic CU** (actor-CU/meta-CU subjects). Premises are NOT retrieved by the Gate (they're the STRONG-support source in 11-06b hypernym mapping, already done).
+
+## Paper methodology → nodes (§3.3, Alg. 3, eqs. 3-6)
+1. Anchors A ← from Context Graph (state["anchors"] + state["hypernym_mappings"]) — DONE (11-06b).
+2. Preselect (eq.3): per anchor, score vs each CU `subject` → top-K1.
+3. Rerank (eq.4): cross-encoder q(a)=[predicate;actor_type;object_type] vs d(c)=[subject;constraint;condition] → CU Plan {P_i}.
+4. meta-CU gating: meta-CUs judged first (applicability); gate whether actor-CUs apply.
+5. Judgment (eq.5): listwise LLM over evidence window W(a) + CU Plan → per-CU {label∈{COMPLIANT,NON_COMPLIANT,NOT_APPLICABLE,INSUFFICIENT}, confidence, why, evidence}. Forbid inference from silence.
+6. Reference closure + exception (eq.6): for NON_COMPLIANT c, closure over REFERS_TO (+DERIVES=FROM_CLAUSE) → 2nd LLM call → override to COMPLIANT if a valid exception.
+7. Aggregate (violation-first): → final verdict + rationale + citations.
+
+## Current-code anchors (from survey)
+- Graph build: `rag/retrieval/graph.py::build_rag_graph` (add nodes + route). Pipeline: query_analysis → route_by_mode → … → reranking → grade_documents → decide_after_grading → {generate|fallback|rag_response} → END.
+- Routing: `rag/retrieval/edges/routing.py::route_by_mode` + `decide_after_grading`.
+- State: `rag/retrieval/state/graph_state.py` (has context_graph_triples/anchors/hypernym_mappings/cu_plan/verbatim_clause_texts reserved).
+- Mode allowlists (register graph-compliance in ALL):
+  1. `domain/value_objects/run_id.py` `_VALID_MODES`
+  2. `application/use_cases/evaluate_model.py` `_RETRIEVAL_EVAL_MODES`
+  3. `presentation/cli/commands/evaluate.py` `VALID_EVAL_MODES` + `--mode` help
+  4. `rag/retrieval/edges/routing.py` `route_by_mode` (+ decide_after_grading if needed)
+  5. `rag/retrieval/graph.py` (nodes + conditional edge target)
+  6. DI container `infrastructure/config/container.py` (if a provider singleton is needed)
+  7. RagResponse/DTO mapping (`rag/infrastructure/adapters/langgraph_rag_adapter.py`, `application/dtos/evaluation_result_dto.py`) — trace + generation propagate
+  8. `rag/application/use_cases/query_compliance.py` docstring/mode plumbing (verify)
+- Reuse: embedder `SentenceTransformerEmbeddings(settings.graph_embedding_model)` + cross-encoder from `reranking.py::_get_cross_encoder`; LLM call shape from `context_graph_extraction.py` (OpenRouter, temp 0, fix_invalid_json, degrade-to-empty).
+- Neo4j: actor-CU/meta-CU via `(cu:ComplianceUnit)-[:FROM_CLAUSE]->(c:Clause)`; REFERS_TO `(:ComplianceUnit)-[:REFERS_TO]->(:ComplianceUnit)`.
+
+## Build steps (implementation order; check off as done)
+- [ ] S1. New node `compliance_gate_retrieval` (eqs. 3-4): fetch actor/meta CU pool (subject+4-tuple+verbatim clause text, cache); per anchor eq.3 → top-K1 → cross-encoder rerank → `state["cu_plan"]` (+ `verbatim_clause_texts`). Mode-gated, degrade-safe. Unit test (mock pool).
+- [ ] S2. New node `compliance_judgment` (eqs. 5-6 + gating + aggregation): build evidence window; listwise judge LLM call; meta-CU gating; REFERS_TO closure + exception LLM call for NON_COMPLIANT; violation-first aggregate; assemble `state["generation"]` + citations + tokens/latency. Mode-gated, degrade-safe. Unit test (mock LLM).
+- [ ] S3. Wire into `graph.py`: add extract_context_graph, map_anchors_to_hypernyms, compliance_gate_retrieval, compliance_judgment nodes; route graphcpl: query_analysis → extract_context_graph → map_anchors_to_hypernyms → compliance_gate_retrieval → compliance_judgment → END.
+- [ ] S4. Register `graphcpl` in all mode allowlists (1-8 above).
+- [ ] S5. Trace/response propagation: generation + citations + tokens/latency + trace fields flow GraphState → RagResponse → EvaluationResult/CLI.
+- [ ] S6. E2E: `poetry run ccop-eval evaluate run --model primus-reasoning --mode graphcpl --test-ids B01-001` runs; inspect verdict + score. Fix wiring issues (multi-allowlist class of bug).
+
+## Acceptance
+`evaluate run --mode graphcpl --test-ids B01-001` completes end-to-end, produces a
+response with a verdict (expect not-applicable), retrieved CU Plan + verbatim clauses in the
+prompt, and a judge score. Then review.
+
+## Decision (route through primus, 2026-07-07)
+- graphcpl routes through the `generate` (primus) node; the Gate assembles graph content as context documents.
+- Context = ALL of: (1) ER/SAO triples + scenario summary, (2) anchor->hypernym classifications, (3) definitions/premises, (4) obligations (CU Plan, ALL CUs, 4-tuple + verbatim) + REFERS_TO references. Verbatim clause text + citations throughout. "Try all first, reduce later."
+
+## RESUME STATE (2026-07-07, pause point)
+
+**Built + committed:** full graphcpl Compliance Gate, E2E runnable via
+`poetry run ccop-eval evaluate run --model primus-reasoning --mode graphcpl --test-ids B01-001`.
+Commits: ab07aa7 (gate), ca35a37 (context-graph in prompt), 4438735 (route through primus).
+
+**Two working paths + the tradeoff we hit:**
+- Judgment-LLM path (compliance_judgment.py, in graph history) — correct verdict, Bench **0.39**, but bypasses primus.
+- Primus path (option a, CURRENT) — routes through `generate` (primus) with full graph context; Bench **0.06 FAIL**. Primus SUMMARIZED the policy instead of answering, because:
+  1. **Context overflow** — prompt hit 4096 tokens (CCOP_CONTEXT_LENGTH); all 14 CUs + verbatim clauses + refs blew past the window → truncated + diluted.
+  2. **No reasoning guidance** — the `generate` node's generic RAG prompt lacks the applicability instructions ("decide scope first; forbid inference from silence; shared network ≠ CII") that made the judgment LLM succeed.
+
+**NEXT (make option (a) work — reduce + guide):**
+1. Reduce context in `compliance_context_assembly.py`: cap CU Plan to top-K (~5-6); trim/drop verbatim clause text for long CUs (4-tuple summary often enough); keep definitions.
+2. Add applicability guidance to the graphcpl generation path — either a graphcpl-specific system/user prompt in `generation.py` (branch on mode) or a leading instruction document. Same instructions that worked in the judgment prompt.
+3. Re-run B01-001; iterate on context size (measure, don't guess).
+
+**Other follow-ups (independent, not started):**
+- Fix the 2 node-gate unit tests (graph-compliance -> graphcpl; 17 refs each in tests/rag/retrieval/nodes/test_{context_graph_extraction,anchor_hypernym_mapping}.py).
+- Cross-encoder scores display ~0.00 (small logits) — verify ranking is meaningful.
+- Paper-exact `judge.refs` exception-override call (separate 2nd LLM call for NON_COMPLIANT) — currently folded in.
+- D4b generalization to non-verdict benchmarks (B07/B14…) — untested beyond B01.
+- CLI: `--model` required but nominal in graphcpl (now real under option a).
+
+## RESUME — B01-001 diagnostic (2026-07-07, session 2 end)
+
+**Latest run (primus, option a):** Bench **0.28 PASS** (up from 0.06 after context+prompt were
+inspected, but still weak). primus SUMMARIZED the CII designation process instead of answering
+"is the admin system in scope?". verdict_accuracy 0/3.
+
+**GT for B01-001 (label=not-applicable):** the answer hinges on ONE rule —
+> CCoP applies to the **designated CII's digital boundary / cyber operating environment**, NOT
+> every system on the shared enterprise network.
+Critical sources: **CCoP §1.4.1**, **Act §7**, **RESPONSE-TO-FEEDBACK 2.2/2.3** (digital boundary
+jointly determined by CSA/CIIO/Sector Lead; systems outside it not subject to mandatory audits).
+
+**KEY FINDING (reframes the fix): it's a RANKING gap, not context size.**
+1. `CCoP-1.4.1` — the scope clause — IS in the graph and IS retrievable: minted as BOTH an
+   actor-CU AND a **meta-CU**, subject CIIO ("...the provisions of this Code shall apply to..."). It
+   was in the 381-CU pool but NOT in our top-K — out-ranked by generic CIIO duties (audit Act-15,
+   incident Act-14, exercise Act-16). We retrieved CCoP-1.4.4 (wrong clause), not 1.4.1.
+2. `CCoP-1.4.1#2` is a **meta-CU = applicability/scope gate**. The 16 meta-CUs (Act-3 "Application
+   of Act", CCoP-10.1.1/11.1.1 "this section shall apply to...", CCoP-1.4.1#2, Act-46 exemption)
+   are exactly the "is this in scope?" rules. Applicability questions (B01) TURN on them. Our
+   retrieval treats meta-CU == actor-CU, so the scope gate got out-ranked.
+3. The RtF "digital boundary" premises are NOT cleanly retrievable (buried in the patch-007a
+   deduped RtF blobs) — but §1.4.1's scope sentence carries the core rule.
+4. Secondary: primus prompt overflowed 4096 tokens (all 14 CUs + verbatim) + the generic RAG
+   prompt has no applicability guidance.
+
+**NEXT (in priority order):**
+1. **Prioritize meta-CUs** in `compliance_gate_retrieval.py`: always include the 16 meta-CUs (or
+   strongly boost them) in the CU Plan — paper's meta-CU-gating-first. Highest-value fix; directly
+   surfaces §1.4.1 for B01.
+2. **Reduce context** in `compliance_context_assembly.py`: cap actor-CUs to top-K (~5-6), trim
+   verbatim for long CUs (4-tuple often enough) — fix the 4096 overflow.
+3. **Add applicability guidance** to the graphcpl generation prompt (branch generation.py on
+   mode, or a leading instruction doc): "decide scope first; shared network != in-scope; forbid
+   inference from silence" — the instructions that made the judgment LLM score 0.39.
+4. Re-run B01-001, measure; iterate.
+
+**Two working paths (both committed):** judgment-LLM (compliance_judgment.py, git history) = 0.39
+but bypasses primus; primus (option a, current) = 0.28 but comparable to hybrid. Decision earlier:
+keep option a (evaluate primus).
+
+**Independent follow-ups (unstarted):** node-gate unit tests (graph-compliance->graphcpl, 17 refs
+each); cross-encoder scores display ~0.00 (verify ranking meaningful); paper-exact judge.refs
+exception call; D4b non-verdict benchmarks; --model nominal-but-required.
+
+**How to inspect:** `scripts/show_context_graph.py <test-id>` (G_C); Neo4j pool query
+`MATCH (cu:ComplianceUnit) WHERE cu.cu_type IN ['actor-CU','meta-CU'] RETURN cu.cu_id,cu.cu_type,cu.subject`;
+contexts sidecar `results/evaluations/2026-07/eval-run-...-contexts.json` (what was actually retrieved).

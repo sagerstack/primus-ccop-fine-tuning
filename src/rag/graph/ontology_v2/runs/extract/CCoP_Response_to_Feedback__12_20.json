@@ -1,0 +1,37 @@
+{
+  "citation_id": "CCoP Response to Feedback::12.20",
+  "concepts": [
+    "CIIO",
+    "CyberThreatActor",
+    "CybersecurityThreat",
+    "SecurityControl",
+    "TTP",
+    "ThreatIntelligence"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "ThreatIntelligence",
+      "o_type": "ThreatIntelligence"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "USES_TECHNIQUE",
+      "o": "TTP",
+      "o_type": "TTP"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityThreat",
+      "o_type": "CybersecurityThreat"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

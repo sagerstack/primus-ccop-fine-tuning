@@ -1,0 +1,44 @@
+{
+  "citation_id": "CCoP Response to Feedback::13.25",
+  "concepts": [
+    "Backup",
+    "CII",
+    "CybersecurityRisk",
+    "Provision",
+    "RiskAssessment",
+    "authorisation"
+  ],
+  "triples": [
+    {
+      "s": "Backup",
+      "s_type": "Backup",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "RiskAssessment",
+      "s_type": "RiskAssessment",
+      "rel": "IDENTIFIES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "authorisation",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "RECOMMENDS",
+      "o": "Backup",
+      "o_type": "Backup"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

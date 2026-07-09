@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.27",
+  "concepts": [
+    "FieldController",
+    "PhysicalProcess",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "FieldController",
+      "o_type": "FieldController"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "DEFINES",
+      "o": "PhysicalProcess",
+      "o_type": "PhysicalProcess"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

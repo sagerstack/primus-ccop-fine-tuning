@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::15.36",
+  "concepts": [
+    "CII",
+    "CybersecurityRisk",
+    "NetworkControl",
+    "SecurityControl",
+    "authorisation"
+  ],
+  "triples": [
+    {
+      "s": "NetworkControl",
+      "s_type": "NetworkControl",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "authorisation",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "SecurityControl",
+      "s_type": "SecurityControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

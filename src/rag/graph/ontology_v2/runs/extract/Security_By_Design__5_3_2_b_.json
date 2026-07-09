@@ -1,0 +1,27 @@
+{
+  "citation_id": "Security By Design::5.3.2(b)",
+  "concepts": [
+    "CompensatingControl",
+    "CybersecurityRisk",
+    "MitigatingControl"
+  ],
+  "triples": [
+    {
+      "s": "MitigatingControl",
+      "s_type": "MitigatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CompensatingControl",
+      "s_type": "CompensatingControl",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

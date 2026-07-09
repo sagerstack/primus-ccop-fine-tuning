@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.28",
+  "concepts": [
+    "CIIO",
+    "CodeOfPractice",
+    "ExternalStandard",
+    "Password",
+    "PasswordLength"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DEFERS_TO",
+      "o": "ExternalStandard",
+      "o_type": "ExternalStandard"
+    },
+    {
+      "s": "CodeOfPractice",
+      "s_type": "CodeOfPractice",
+      "rel": "DOES_NOT_SPECIFY",
+      "o": "PasswordLength",
+      "o_type": "PasswordLength"
+    },
+    {
+      "s": "PasswordLength",
+      "s_type": "PasswordLength",
+      "rel": "ATTRIBUTE_OF",
+      "o": "Password",
+      "o_type": "Password"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,35 @@
+{
+  "citation_id": "CCoP 2.0::5.9.1",
+  "concepts": [
+    "CIIAsset",
+    "Endpoint",
+    "Provision",
+    "SecurityConfigurationBaseline"
+  ],
+  "triples": [
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SecurityConfigurationBaseline",
+      "o_type": "SecurityConfigurationBaseline"
+    },
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "APPLIES_BASELINE",
+      "o": "CIIAsset",
+      "o_type": "CIIAsset"
+    },
+    {
+      "s": "SecurityConfigurationBaseline",
+      "s_type": "SecurityConfigurationBaseline",
+      "rel": "APPLIES_BASELINE",
+      "o": "Endpoint",
+      "o_type": "Endpoint"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

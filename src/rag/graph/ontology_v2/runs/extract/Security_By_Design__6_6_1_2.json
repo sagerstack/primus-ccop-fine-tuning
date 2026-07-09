@@ -1,0 +1,45 @@
+{
+  "citation_id": "Security By Design::6.6.1.2",
+  "concepts": [
+    "CII",
+    "CIIO",
+    "Cryptography",
+    "ExternalStandard",
+    "Policy",
+    "Provision",
+    "SystemActor"
+  ],
+  "triples": [
+    {
+      "s": "SystemActor",
+      "s_type": "SystemActor",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "Policy",
+      "o_type": "Policy"
+    },
+    {
+      "s": "Cryptography",
+      "s_type": "Cryptography",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "DEFERS_TO",
+      "o": "ExternalStandard",
+      "o_type": "ExternalStandard"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 4,
+  "extractor": "claude-opus"
+}

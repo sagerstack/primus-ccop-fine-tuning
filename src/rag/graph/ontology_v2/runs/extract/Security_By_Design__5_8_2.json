@@ -1,0 +1,28 @@
+{
+  "citation_id": "Security By Design::5.8.2",
+  "concepts": [
+    "CII",
+    "ProjectRole",
+    "SecurityControl",
+    "SystemActor"
+  ],
+  "triples": [
+    {
+      "s": "ProjectRole",
+      "s_type": "ProjectRole",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "SecurityControl",
+      "o_type": "SecurityControl"
+    },
+    {
+      "s": "SystemActor",
+      "s_type": "SystemActor",
+      "rel": "RESPONSIBLE_FOR",
+      "o": "CII",
+      "o_type": "CII"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

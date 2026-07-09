@@ -1,0 +1,43 @@
+{
+  "citation_id": "CCoP 2.0::8.2",
+  "concepts": [
+    "BusinessContinuityPlan",
+    "CII",
+    "CybersecurityExercise",
+    "DisasterRecoveryPlan",
+    "EssentialService"
+  ],
+  "triples": [
+    {
+      "s": "BusinessContinuityPlan",
+      "s_type": "BusinessContinuityPlan",
+      "rel": "RECOVERS",
+      "o": "EssentialService",
+      "o_type": "EssentialService"
+    },
+    {
+      "s": "DisasterRecoveryPlan",
+      "s_type": "DisasterRecoveryPlan",
+      "rel": "RECOVERS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "CybersecurityExercise",
+      "s_type": "CybersecurityExercise",
+      "rel": "VALIDATES",
+      "o": "BusinessContinuityPlan",
+      "o_type": "BusinessContinuityPlan"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "BusinessContinuityPlan",
+      "o_type": "BusinessContinuityPlan"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

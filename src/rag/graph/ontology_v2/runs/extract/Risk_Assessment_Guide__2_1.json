@@ -1,0 +1,19 @@
+{
+  "citation_id": "Risk Assessment Guide::2.1",
+  "concepts": [
+    "CIIO",
+    "RiskAssessment"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "IMPLEMENTS",
+      "o": "RiskAssessment",
+      "o_type": "RiskAssessment"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 1,
+  "extractor": "claude-opus"
+}

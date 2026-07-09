@@ -32,7 +32,15 @@ query_app = typer.Typer(help="Query CCoP compliance information")
 
 console = Console()
 
-VALID_MODES = ["hybrid", "llm-only", "rag-only"]
+VALID_MODES = [
+    "hybrid",
+    "llm-only",
+    "rag-only",
+    "graphrag",
+    "graphrag-retrieval",
+    "graphrag-ontology",  # Phase 10 (D-16 additivity) — ontology-grounded graph retrieval
+    "graphont",  # OMD-GraphRAG (ontology_v2) — tri-channel concept retrieval + reranker
+]
 
 
 @query_app.command(name="ask")
@@ -46,7 +54,10 @@ def query_command(
         False, "--verbose-io",
         help="Show full system/user prompts and detailed retrieved contexts in the result panel. Same semantics as `evaluate run --verbose-io`.",
     ),
-    mode: str = typer.Option("hybrid", "--mode", "-m", help="Pipeline mode: hybrid, llm-only, rag-only"),
+    mode: str = typer.Option(
+        "hybrid", "--mode", "-m",
+        help="Pipeline mode: hybrid, llm-only, rag-only, graphrag (graph -> primus), graphrag-retrieval (graph only, no generation)"
+    ),
     no_score: bool = typer.Option(False, "--no-score", help="Skip quality scoring (hybrid mode)"),
     no_judge: bool = typer.Option(
         False, "--no-judge",
@@ -60,6 +71,8 @@ def query_command(
         ccop-eval query ask "What are the access control requirements?"
         ccop-eval query ask "What are the access control requirements?" --mode llm-only
         ccop-eval query ask "What are the access control requirements?" --mode rag-only
+        ccop-eval query ask "What are the access control requirements?" --mode graphrag
+        ccop-eval query ask "What are the access control requirements?" --mode graphrag-retrieval
         ccop-eval query ask "How should CII organizations implement MFA?" --verbose
         ccop-eval query ask "How should CII organizations implement MFA?" --verbose-io
     """
@@ -102,6 +115,9 @@ async def _execute_query(
             "hybrid": "Querying RAG pipeline...",
             "llm-only": "Querying LLM (no RAG)...",
             "rag-only": "Retrieving documents (no LLM)...",
+            "graphrag": "Querying graph pipeline...",
+            "graphrag-retrieval": "Retrieving graph context (no LLM)...",
+            "graphrag-ontology": "Querying ontology-grounded graph pipeline...",
         }
 
         ts = datetime.utcnow()
@@ -126,6 +142,12 @@ async def _execute_query(
                     console.print("   - DATABRICKS_TOKEN")
                     console.print("   - DATABRICKS_CATALOG")
                     console.print("   - DATABRICKS_SCHEMA")
+                elif mode in ("graphrag", "graphrag-retrieval", "graphrag-ontology"):
+                    console.print("1. Ensure .env.local has the Neo4j graph provider settings:")
+                    console.print("   - CCOP_NEO4J_URI")
+                    console.print("   - CCOP_NEO4J_USER")
+                    console.print("   - CCOP_NEO4J_PASSWORD")
+                    console.print("   And that the graph has been built: `ccop-eval graph build`")
                 console.print("\n2. Ensure Ollama is running:")
                 console.print("   - OLLAMA_HOST (default: http://localhost:11434)")
             return

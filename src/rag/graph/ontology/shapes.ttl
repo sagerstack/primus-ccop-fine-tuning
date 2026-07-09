@@ -1,0 +1,201 @@
+# SHACL shapes for the ontology-grounded CCoP knowledge graph (Phase 10, D-13).
+#
+# These shapes are the STRUCTURAL BACKSTOP between "toy and production": whatever
+# slips past the schema-constrained extraction prompt (D-07) is caught here as a
+# machine-checked constraint. They encode the Phase 9 D-06 anti-pattern fixes:
+#
+#   * canonical `name` REQUIRED on every extracted entity (D-07), and
+#   * junk / placeholder names ("N.A.", "A", empty, "John Doe", ...) REJECTED.
+#
+# LPG -> RDF export mapping (see shacl_validator.py):
+#   Neo4j node        -> URI (ccop:<elementId>)
+#   Neo4j label       -> rdf:type ccop:<Label>
+#   Neo4j property k  -> ccop:<k> literal triple
+#   Neo4j relationship-> ccop:<TYPE> predicate triple
+#
+# Two families of node shape, because the graph has two provenance layers:
+#
+#   1. EXTRACTED entity types (LLM-extracted, D-07): keyed on the canonical
+#      `name` property. This is where Phase 9 produced junk ("N.A.", "A",
+#      "John Doe") — the CanonicalNameConstraint rejects exactly those.
+#
+#   2. SEEDED clause-backbone types (D-10 ClauseSeeder + D-09 function tags):
+#      Clause / ScopeClause / ControlClause / DefinitionClause carry a real
+#      `clause_id` (from the committed fixture), NOT a `name`. Requiring `name`
+#      on these would falsely quarantine all 691 deterministically-seeded
+#      clauses, so they are keyed on `clause_id` instead.
+
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ccop: <http://ccop.example/kg#> .
+
+# ---------------------------------------------------------------------------
+# Reusable property shapes
+# ---------------------------------------------------------------------------
+
+# D-07: every extracted entity must carry ONE canonical string `name`, at least
+# two characters long, containing a real word (>= 2 consecutive letters), and
+# not one of the known Phase 9 junk / placeholder values. This single shape is
+# referenced by every extracted-entity NodeShape below so the constraint is
+# authored once and cannot drift between types.
+ccop:CanonicalNameConstraint
+    a sh:PropertyShape ;
+    sh:path ccop:name ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 2 ;
+    sh:pattern "[A-Za-z]{2,}" ;
+    sh:message "D-07 violation: node must have exactly one canonical string 'name' (>= 2 chars, containing a real word), never a junk placeholder such as 'N.A.', 'A', empty, or 'John Doe'." ;
+    sh:not [
+        sh:in (
+            "N.A." "N/A" "NA" "n.a." "n/a" "na"
+            "A" "a" "-" "--" "."
+            "TBD" "tbd" "TODO" "todo" "N.A"
+            "Unknown" "unknown" "UNKNOWN"
+            "None" "none" "null" "NULL" "Null"
+            "Placeholder" "placeholder"
+            "Example" "example" "Example Corp"
+            "John Doe" "Jane Doe"
+            "Company X" "Company Y" "Company A" "Company B"
+        )
+    ] .
+
+# Seeded clause-backbone nodes are keyed on a real `clause_id` from the
+# committed fixture (D-10), not on `name`.
+ccop:ClauseIdConstraint
+    a sh:PropertyShape ;
+    sh:path ccop:clause_id ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:pattern "[A-Za-z0-9]" ;
+    sh:message "D-10 violation: seeded clause node must carry a non-empty 'clause_id' from the committed clause inventory." .
+
+# ---------------------------------------------------------------------------
+# Extracted-entity NodeShapes (canonical-name required, junk rejected) — D-07
+# ---------------------------------------------------------------------------
+
+ccop:CriticalInformationInfrastructureShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:CriticalInformationInfrastructure ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:AccessControlShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:AccessControl ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:MultiFactorAuthenticationShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:MultiFactorAuthentication ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:ComplianceGapShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:ComplianceGap ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:WaiverShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:Waiver ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:IncidentResponsePlanShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:IncidentResponsePlan ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:RiskAssessmentShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:RiskAssessment ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:CybersecurityGovernanceShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:CybersecurityGovernance ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:CybersecurityAuditShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:CybersecurityAudit ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:CybersecurityIncidentShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:CybersecurityIncident ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:CybersecurityTrainingShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:CybersecurityTraining ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:IncidentManagementShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:IncidentManagement ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:CyberThreatIntelligenceShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:CyberThreatIntelligence ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:ControlShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:Control ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:ObligationShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:Obligation ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:DefinitionShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:Definition ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:OperationalTechnologyShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:OperationalTechnology ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:ThirdPartyShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:ThirdParty ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:EssentialServiceShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:EssentialService ;
+    sh:property ccop:CanonicalNameConstraint .
+
+ccop:BusinessEntityShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:BusinessEntity ;
+    sh:property ccop:CanonicalNameConstraint .
+
+# ---------------------------------------------------------------------------
+# Seeded clause-backbone NodeShapes (clause_id required) — D-09 / D-10
+# ---------------------------------------------------------------------------
+
+ccop:ClauseShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:Clause ;
+    sh:property ccop:ClauseIdConstraint .
+
+ccop:ScopeClauseShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:ScopeClause ;
+    sh:property ccop:ClauseIdConstraint .
+
+ccop:ControlClauseShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:ControlClause ;
+    sh:property ccop:ClauseIdConstraint .
+
+ccop:DefinitionClauseShape
+    a sh:NodeShape ;
+    sh:targetClass ccop:DefinitionClause ;
+    sh:property ccop:ClauseIdConstraint .

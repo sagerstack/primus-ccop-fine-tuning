@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP 2.0::5.2.1(c)",
+  "concepts": [
+    "AccessControlMechanism",
+    "CII",
+    "Condition",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "AccessControlMechanism",
+      "s_type": "AccessControlMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "CONDITIONED_ON",
+      "o": "Condition",
+      "o_type": "Condition"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

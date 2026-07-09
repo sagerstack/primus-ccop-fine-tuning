@@ -1,0 +1,36 @@
+{
+  "citation_id": "CCoP Response to Feedback::1.2",
+  "concepts": [
+    "CII",
+    "CyberThreatActor",
+    "EssentialService",
+    "Sector",
+    "TTP"
+  ],
+  "triples": [
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "USES_TECHNIQUE",
+      "o": "TTP",
+      "o_type": "TTP"
+    },
+    {
+      "s": "CyberThreatActor",
+      "s_type": "CyberThreatActor",
+      "rel": "TARGETS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "EssentialService",
+      "s_type": "EssentialService",
+      "rel": "IN_SECTOR",
+      "o": "Sector",
+      "o_type": "Sector"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

@@ -1,0 +1,28 @@
+{
+  "citation_id": "CCoP Response to Feedback::2.6",
+  "concepts": [
+    "Audit",
+    "AuditScope",
+    "Deadline",
+    "Provision"
+  ],
+  "triples": [
+    {
+      "s": "Audit",
+      "s_type": "Audit",
+      "rel": "COVERS",
+      "o": "AuditScope",
+      "o_type": "AuditScope"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "HAS_DEADLINE",
+      "o": "Deadline",
+      "o_type": "Deadline"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

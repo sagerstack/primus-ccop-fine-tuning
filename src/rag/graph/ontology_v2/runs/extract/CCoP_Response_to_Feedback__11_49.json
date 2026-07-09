@@ -1,0 +1,27 @@
+{
+  "citation_id": "CCoP Response to Feedback::11.49",
+  "concepts": [
+    "CIIO",
+    "PenetrationTesting",
+    "ThirdParty"
+  ],
+  "triples": [
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "SUPERVISES",
+      "o": "ThirdParty",
+      "o_type": "ThirdParty"
+    },
+    {
+      "s": "CIIO",
+      "s_type": "CIIO",
+      "rel": "CONDUCTS",
+      "o": "PenetrationTesting",
+      "o_type": "PenetrationTesting"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 2,
+  "extractor": "claude-opus"
+}

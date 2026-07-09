@@ -1,0 +1,42 @@
+{
+  "citation_id": "CCoP 2.0::10.2.4",
+  "concepts": [
+    "CII",
+    "CybersecurityRisk",
+    "OTSystem",
+    "SafetyMechanism"
+  ],
+  "triples": [
+    {
+      "s": "SafetyMechanism",
+      "s_type": "SafetyMechanism",
+      "rel": "PROTECTS",
+      "o": "CII",
+      "o_type": "CII"
+    },
+    {
+      "s": "SafetyMechanism",
+      "s_type": "SafetyMechanism",
+      "rel": "MITIGATES",
+      "o": "CybersecurityRisk",
+      "o_type": "CybersecurityRisk"
+    },
+    {
+      "s": "CII",
+      "s_type": "CII",
+      "rel": "CLASSIFIED_AS",
+      "o": "OTSystem",
+      "o_type": "OTSystem"
+    },
+    {
+      "s": "Provision",
+      "s_type": "Provision",
+      "rel": "MANDATES",
+      "o": "SafetyMechanism",
+      "o_type": "SafetyMechanism"
+    }
+  ],
+  "proposed": [],
+  "n_raw": 3,
+  "extractor": "claude-opus"
+}

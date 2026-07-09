@@ -1,0 +1,934 @@
+{
+  "note": "surface-form -> canonical concept-node registry for retrieval query->concept mapping and future re-extraction consistency; leaf nodes carry their umbrella type",
+  "concepts": {
+    "Regulator": {
+      "type": "Regulator",
+      "surface": [
+        "CSA",
+        "Commissioner",
+        "Cyber Security Agency",
+        "Regulator",
+        "Sector Lead"
+      ]
+    },
+    "Legislation": {
+      "type": "Legislation",
+      "surface": [
+        "Cybersecurity Act 2018",
+        "Legislation",
+        "the Act"
+      ]
+    },
+    "CodeOfPractice": {
+      "type": "CodeOfPractice",
+      "surface": [
+        "CCoP",
+        "CCoP 2.0",
+        "CodeOfPractice",
+        "the Code"
+      ]
+    },
+    "Provision": {
+      "type": "Provision",
+      "surface": [
+        "Provision"
+      ]
+    },
+    "Obligation": {
+      "type": "Obligation",
+      "surface": [
+        "Obligation"
+      ]
+    },
+    "Waiver": {
+      "type": "Waiver",
+      "surface": [
+        "Waiver"
+      ]
+    },
+    "Direction": {
+      "type": "Direction",
+      "surface": [
+        "Direction"
+      ]
+    },
+    "Designation": {
+      "type": "Designation",
+      "surface": [
+        "Designation"
+      ]
+    },
+    "Exemption": {
+      "type": "Exemption",
+      "surface": [
+        "Exemption"
+      ]
+    },
+    "ExternalStandard": {
+      "type": "ExternalStandard",
+      "surface": [
+        "ExternalStandard",
+        "ISO",
+        "NIST",
+        "OWASP",
+        "best practice",
+        "industry standard"
+      ]
+    },
+    "Certification": {
+      "type": "Certification",
+      "surface": [
+        "CISA",
+        "CREST",
+        "CRISC",
+        "Certification"
+      ]
+    },
+    "RegulatoryFramework": {
+      "type": "RegulatoryFramework",
+      "surface": [
+        "RegulatoryFramework"
+      ]
+    },
+    "CIIO": {
+      "type": "CIIO",
+      "surface": [
+        "CII owner",
+        "CIIO",
+        "owner of a critical information infrastructure",
+        "the organisation"
+      ]
+    },
+    "Board": {
+      "type": "Board",
+      "surface": [
+        "Board"
+      ]
+    },
+    "SeniorManagement": {
+      "type": "SeniorManagement",
+      "surface": [
+        "SeniorManagement"
+      ]
+    },
+    "OrganisationalRole": {
+      "type": "OrganisationalRole",
+      "surface": [
+        "OrganisationalRole"
+      ]
+    },
+    "CISO": {
+      "type": "CISO",
+      "surface": [
+        "CISO"
+      ]
+    },
+    "IncidentResponseTeam": {
+      "type": "IncidentResponseTeam",
+      "surface": [
+        "CIRT",
+        "IncidentResponseTeam"
+      ]
+    },
+    "CrisisTeam": {
+      "type": "CrisisTeam",
+      "surface": [
+        "CrisisTeam"
+      ]
+    },
+    "AttackSimTeam": {
+      "type": "AttackSimTeam",
+      "surface": [
+        "AttackSimTeam"
+      ]
+    },
+    "ThirdParty": {
+      "type": "ThirdParty",
+      "surface": [
+        "ThirdParty",
+        "external party",
+        "service provider",
+        "vendor"
+      ]
+    },
+    "CloudServiceProvider": {
+      "type": "CloudServiceProvider",
+      "surface": [
+        "CloudServiceProvider"
+      ]
+    },
+    "Auditor": {
+      "type": "Auditor",
+      "surface": [
+        "Auditor"
+      ]
+    },
+    "PenetrationTester": {
+      "type": "PenetrationTester",
+      "surface": [
+        "PenetrationTester"
+      ]
+    },
+    "SystemActor": {
+      "type": "SystemActor",
+      "surface": [
+        "SystemActor"
+      ]
+    },
+    "ProjectRole": {
+      "type": "ProjectRole",
+      "surface": [
+        "ProjectRole"
+      ]
+    },
+    "RiskRole": {
+      "type": "RiskRole",
+      "surface": [
+        "RiskRole"
+      ]
+    },
+    "LawEnforcement": {
+      "type": "LawEnforcement",
+      "surface": [
+        "LawEnforcement"
+      ]
+    },
+    "CyberThreatActor": {
+      "type": "CyberThreatActor",
+      "surface": [
+        "CyberThreatActor",
+        "adversary",
+        "attacker",
+        "threat actor"
+      ]
+    },
+    "ComputerSystem": {
+      "type": "ComputerSystem",
+      "surface": [
+        "ComputerSystem",
+        "computer",
+        "computer system"
+      ]
+    },
+    "CII": {
+      "type": "CII",
+      "surface": [
+        "CII",
+        "a CII",
+        "cii asset",
+        "cii system",
+        "critical information infrastructure",
+        "the CII"
+      ]
+    },
+    "CIIAsset": {
+      "type": "CIIAsset",
+      "surface": [
+        "CIIAsset"
+      ]
+    },
+    "ITSystem": {
+      "type": "ITSystem",
+      "surface": [
+        "IT system",
+        "ITSystem",
+        "information technology"
+      ]
+    },
+    "OTSystem": {
+      "type": "OTSystem",
+      "surface": [
+        "OT CII",
+        "OT system",
+        "OTSystem",
+        "operational technology"
+      ]
+    },
+    "Network": {
+      "type": "Network",
+      "surface": [
+        "Network"
+      ]
+    },
+    "EnterpriseNetwork": {
+      "type": "EnterpriseNetwork",
+      "surface": [
+        "EnterpriseNetwork",
+        "corporate network",
+        "enterprise network"
+      ]
+    },
+    "CloudSystem": {
+      "type": "CloudSystem",
+      "surface": [
+        "CloudSystem"
+      ]
+    },
+    "Database": {
+      "type": "Database",
+      "surface": [
+        "Database"
+      ]
+    },
+    "Application": {
+      "type": "Application",
+      "surface": [
+        "Application"
+      ]
+    },
+    "Server": {
+      "type": "Server",
+      "surface": [
+        "Server"
+      ]
+    },
+    "Endpoint": {
+      "type": "Endpoint",
+      "surface": [
+        "Endpoint"
+      ]
+    },
+    "NetworkDevice": {
+      "type": "NetworkDevice",
+      "surface": [
+        "NetworkDevice"
+      ]
+    },
+    "FieldController": {
+      "type": "FieldController",
+      "surface": [
+        "FieldController"
+      ]
+    },
+    "ControlSystem": {
+      "type": "ControlSystem",
+      "surface": [
+        "ControlSystem"
+      ]
+    },
+    "PhysicalProcess": {
+      "type": "PhysicalProcess",
+      "surface": [
+        "PhysicalProcess"
+      ]
+    },
+    "DigitalBoundary": {
+      "type": "DigitalBoundary",
+      "surface": [
+        "DigitalBoundary",
+        "cyber operating environment",
+        "digital boundary",
+        "perimeter boundary",
+        "trust boundary"
+      ]
+    },
+    "PhysicalSite": {
+      "type": "PhysicalSite",
+      "surface": [
+        "PhysicalSite"
+      ]
+    },
+    "EssentialService": {
+      "type": "EssentialService",
+      "surface": [
+        "EssentialService"
+      ]
+    },
+    "Sector": {
+      "type": "Sector",
+      "surface": [
+        "Sector"
+      ]
+    },
+    "SecurityControl": {
+      "type": "SecurityControl",
+      "surface": [
+        "SecurityControl",
+        "control",
+        "measure",
+        "mechanism",
+        "security measure"
+      ]
+    },
+    "MitigatingControl": {
+      "type": "MitigatingControl",
+      "surface": [
+        "MitigatingControl"
+      ]
+    },
+    "CompensatingControl": {
+      "type": "CompensatingControl",
+      "surface": [
+        "CompensatingControl"
+      ]
+    },
+    "AccessControlMechanism": {
+      "type": "AccessControlMechanism",
+      "surface": [
+        "AccessControlMechanism"
+      ]
+    },
+    "SecurityConfigurationBaseline": {
+      "type": "SecurityConfigurationBaseline",
+      "surface": [
+        "SecurityConfigurationBaseline",
+        "baseline",
+        "configuration baseline",
+        "security configuration baseline"
+      ]
+    },
+    "NetworkControl": {
+      "type": "NetworkControl",
+      "surface": [
+        "NetworkControl"
+      ]
+    },
+    "Cryptography": {
+      "type": "Cryptography",
+      "surface": [
+        "Cryptography",
+        "cryptographic key",
+        "encryption",
+        "hash"
+      ]
+    },
+    "MalwareProtection": {
+      "type": "MalwareProtection",
+      "surface": [
+        "MalwareProtection"
+      ]
+    },
+    "Patch": {
+      "type": "Patch",
+      "surface": [
+        "Patch"
+      ]
+    },
+    "Backup": {
+      "type": "Backup",
+      "surface": [
+        "Backup"
+      ]
+    },
+    "Log": {
+      "type": "Log",
+      "surface": [
+        "Log"
+      ]
+    },
+    "SecurityArchitecture": {
+      "type": "SecurityArchitecture",
+      "surface": [
+        "SecurityArchitecture"
+      ]
+    },
+    "SafetyMechanism": {
+      "type": "SafetyMechanism",
+      "surface": [
+        "SafetyMechanism"
+      ]
+    },
+    "Account": {
+      "type": "Account",
+      "surface": [
+        "Account",
+        "account",
+        "user account"
+      ]
+    },
+    "PrivilegedAccount": {
+      "type": "PrivilegedAccount",
+      "surface": [
+        "PrivilegedAccount"
+      ]
+    },
+    "Password": {
+      "type": "Password",
+      "surface": [
+        "Password",
+        "passphrase",
+        "password"
+      ]
+    },
+    "PasswordLength": {
+      "type": "PasswordLength",
+      "surface": [
+        "PasswordLength",
+        "password length"
+      ]
+    },
+    "DefaultCredential": {
+      "type": "DefaultCredential",
+      "surface": [
+        "DefaultCredential",
+        "default account",
+        "default credential",
+        "default password"
+      ]
+    },
+    "HashStorage": {
+      "type": "HashStorage",
+      "surface": [
+        "HashStorage",
+        "hash",
+        "hash form",
+        "hashed form"
+      ]
+    },
+    "Port": {
+      "type": "Port",
+      "surface": [
+        "Port",
+        "port"
+      ]
+    },
+    "Service": {
+      "type": "Service",
+      "surface": [
+        "Service",
+        "service"
+      ]
+    },
+    "RiskManagement": {
+      "type": "RiskManagement",
+      "surface": [
+        "RiskManagement"
+      ]
+    },
+    "RiskAssessment": {
+      "type": "RiskAssessment",
+      "surface": [
+        "RiskAssessment"
+      ]
+    },
+    "ThreatModelling": {
+      "type": "ThreatModelling",
+      "surface": [
+        "ThreatModelling"
+      ]
+    },
+    "ThreatHunting": {
+      "type": "ThreatHunting",
+      "surface": [
+        "ThreatHunting"
+      ]
+    },
+    "ThreatIntelligence": {
+      "type": "ThreatIntelligence",
+      "surface": [
+        "ThreatIntelligence"
+      ]
+    },
+    "VulnerabilityAssessment": {
+      "type": "VulnerabilityAssessment",
+      "surface": [
+        "VulnerabilityAssessment"
+      ]
+    },
+    "PenetrationTesting": {
+      "type": "PenetrationTesting",
+      "surface": [
+        "PenetrationTesting"
+      ]
+    },
+    "AttackSimulation": {
+      "type": "AttackSimulation",
+      "surface": [
+        "AttackSimulation"
+      ]
+    },
+    "Audit": {
+      "type": "Audit",
+      "surface": [
+        "Audit"
+      ]
+    },
+    "AuditScope": {
+      "type": "AuditScope",
+      "surface": [
+        "AuditScope"
+      ]
+    },
+    "AuditFinding": {
+      "type": "AuditFinding",
+      "surface": [
+        "AuditFinding"
+      ]
+    },
+    "AuditEvidence": {
+      "type": "AuditEvidence",
+      "surface": [
+        "AuditEvidence"
+      ]
+    },
+    "AuditCriteria": {
+      "type": "AuditCriteria",
+      "surface": [
+        "AuditCriteria"
+      ]
+    },
+    "Remediation": {
+      "type": "Remediation",
+      "surface": [
+        "Remediation"
+      ]
+    },
+    "ChangeManagement": {
+      "type": "ChangeManagement",
+      "surface": [
+        "ChangeManagement"
+      ]
+    },
+    "IncidentManagement": {
+      "type": "IncidentManagement",
+      "surface": [
+        "IncidentManagement"
+      ]
+    },
+    "Monitoring": {
+      "type": "Monitoring",
+      "surface": [
+        "Monitoring"
+      ]
+    },
+    "CybersecurityExercise": {
+      "type": "CybersecurityExercise",
+      "surface": [
+        "CybersecurityExercise"
+      ]
+    },
+    "SecurityByDesign": {
+      "type": "SecurityByDesign",
+      "surface": [
+        "SecurityByDesign"
+      ]
+    },
+    "Training": {
+      "type": "Training",
+      "surface": [
+        "Training"
+      ]
+    },
+    "Policy": {
+      "type": "Policy",
+      "surface": [
+        "Policy"
+      ]
+    },
+    "Contract": {
+      "type": "Contract",
+      "surface": [
+        "Contract"
+      ]
+    },
+    "RiskRegister": {
+      "type": "RiskRegister",
+      "surface": [
+        "RiskRegister"
+      ]
+    },
+    "RiskAssessmentReport": {
+      "type": "RiskAssessmentReport",
+      "surface": [
+        "RiskAssessmentReport"
+      ]
+    },
+    "AssetInventory": {
+      "type": "AssetInventory",
+      "surface": [
+        "AssetInventory"
+      ]
+    },
+    "IncidentResponsePlan": {
+      "type": "IncidentResponsePlan",
+      "surface": [
+        "IncidentResponsePlan"
+      ]
+    },
+    "CrisisCommunicationPlan": {
+      "type": "CrisisCommunicationPlan",
+      "surface": [
+        "CrisisCommunicationPlan"
+      ]
+    },
+    "BusinessContinuityPlan": {
+      "type": "BusinessContinuityPlan",
+      "surface": [
+        "BusinessContinuityPlan"
+      ]
+    },
+    "DisasterRecoveryPlan": {
+      "type": "DisasterRecoveryPlan",
+      "surface": [
+        "DisasterRecoveryPlan"
+      ]
+    },
+    "RemediationPlan": {
+      "type": "RemediationPlan",
+      "surface": [
+        "RemediationPlan"
+      ]
+    },
+    "AuditReport": {
+      "type": "AuditReport",
+      "surface": [
+        "AuditReport"
+      ]
+    },
+    "ThreatModel": {
+      "type": "ThreatModel",
+      "surface": [
+        "ThreatModel"
+      ]
+    },
+    "AttackSimulationPlan": {
+      "type": "AttackSimulationPlan",
+      "surface": [
+        "AttackSimulationPlan"
+      ]
+    },
+    "RiskAppetite": {
+      "type": "RiskAppetite",
+      "surface": [
+        "RiskAppetite"
+      ]
+    },
+    "CybersecurityRisk": {
+      "type": "CybersecurityRisk",
+      "surface": [
+        "CybersecurityRisk"
+      ]
+    },
+    "ResidualRisk": {
+      "type": "ResidualRisk",
+      "surface": [
+        "ResidualRisk"
+      ]
+    },
+    "RiskScenario": {
+      "type": "RiskScenario",
+      "surface": [
+        "RiskScenario"
+      ]
+    },
+    "Likelihood": {
+      "type": "Likelihood",
+      "surface": [
+        "Likelihood"
+      ]
+    },
+    "Impact": {
+      "type": "Impact",
+      "surface": [
+        "Impact"
+      ]
+    },
+    "CybersecurityThreat": {
+      "type": "CybersecurityThreat",
+      "surface": [
+        "CybersecurityThreat"
+      ]
+    },
+    "TTP": {
+      "type": "TTP",
+      "surface": [
+        "TTP"
+      ]
+    },
+    "Vulnerability": {
+      "type": "Vulnerability",
+      "surface": [
+        "Vulnerability"
+      ]
+    },
+    "CybersecurityIncident": {
+      "type": "CybersecurityIncident",
+      "surface": [
+        "CybersecurityIncident"
+      ]
+    },
+    "AttackConcept": {
+      "type": "AttackConcept",
+      "surface": [
+        "AttackConcept"
+      ]
+    },
+    "Malware": {
+      "type": "Malware",
+      "surface": [
+        "Malware"
+      ]
+    },
+    "DesignPrinciple": {
+      "type": "DesignPrinciple",
+      "surface": [
+        "DesignPrinciple"
+      ]
+    },
+    "ComplianceStatus": {
+      "type": "ComplianceStatus",
+      "surface": [
+        "ComplianceStatus"
+      ]
+    },
+    "Condition": {
+      "type": "Condition",
+      "surface": [
+        "Condition"
+      ]
+    },
+    "ComplianceGap": {
+      "type": "ComplianceGap",
+      "surface": [
+        "ComplianceGap"
+      ]
+    },
+    "Deadline": {
+      "type": "Deadline",
+      "surface": [
+        "Deadline"
+      ]
+    },
+    "OrganisationalStructure": {
+      "type": "OrganisationalStructure",
+      "surface": [
+        "OrganisationalStructure"
+      ]
+    },
+    "defence-in-depth": {
+      "type": "DesignPrinciple",
+      "surface": [
+        "defence in depth",
+        "defence-in-depth",
+        "defense in depth"
+      ]
+    },
+    "least-privilege": {
+      "type": "DesignPrinciple",
+      "surface": [
+        "least privilege",
+        "least-privilege",
+        "minimum extent of access",
+        "minimum privilege"
+      ]
+    },
+    "segregation-of-duties": {
+      "type": "DesignPrinciple",
+      "surface": [
+        "segregation of duties",
+        "segregation-of-duties",
+        "separation of duties"
+      ]
+    },
+    "defence-by-diversity": {
+      "type": "DesignPrinciple",
+      "surface": [
+        "defence by diversity",
+        "defence-by-diversity",
+        "defense by diversity"
+      ]
+    },
+    "zero-trust": {
+      "type": "DesignPrinciple",
+      "surface": [
+        "zero trust",
+        "zero-trust"
+      ]
+    },
+    "multi-factor-authentication": {
+      "type": "AccessControlMechanism",
+      "surface": [
+        "2fa",
+        "mfa",
+        "multi-factor authentication",
+        "multi-factor-authentication",
+        "multifactor",
+        "two-factor authentication"
+      ]
+    },
+    "privileged-access-management": {
+      "type": "AccessControlMechanism",
+      "surface": [
+        "administrative access",
+        "pam",
+        "privileged access",
+        "privileged account",
+        "privileged-access-management"
+      ]
+    },
+    "authorisation": {
+      "type": "AccessControlMechanism",
+      "surface": [
+        "authorisation",
+        "authorization"
+      ]
+    },
+    "authentication": {
+      "type": "AccessControlMechanism",
+      "surface": [
+        "authenticate",
+        "authentication"
+      ]
+    },
+    "session-management": {
+      "type": "AccessControlMechanism",
+      "surface": [
+        "log-on",
+        "logon session",
+        "session management",
+        "session-management"
+      ]
+    },
+    "web-application-firewall": {
+      "type": "NetworkControl",
+      "surface": [
+        "waf",
+        "web application firewall",
+        "web-application-firewall"
+      ]
+    },
+    "firewall": {
+      "type": "NetworkControl",
+      "surface": [
+        "firewall"
+      ]
+    },
+    "network-segmentation": {
+      "type": "NetworkControl",
+      "surface": [
+        "network segment",
+        "network segmentation",
+        "network-segmentation",
+        "segment the network"
+      ]
+    },
+    "intrusion-detection": {
+      "type": "NetworkControl",
+      "surface": [
+        "ids/ips",
+        "intrusion detection",
+        "intrusion prevention",
+        "intrusion-detection",
+        "nids",
+        "nips"
+      ]
+    },
+    "unidirectional-gateway": {
+      "type": "NetworkControl",
+      "surface": [
+        "data diode",
+        "one-way data flow",
+        "unidirectional gateway",
+        "unidirectional-gateway"
+      ]
+    },
+    "DNSSEC": {
+      "type": "Cryptography",
+      "surface": [
+        "DNSSEC",
+        "dns security extension",
+        "dnssec"
+      ]
+    }
+  }
+}
