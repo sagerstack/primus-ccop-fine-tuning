@@ -27,6 +27,7 @@ from rag.retrieval.nodes.context_graph_extraction import extract_context_graph
 from rag.retrieval.nodes.anchor_hypernym_mapping import map_anchors_to_hypernyms
 from rag.retrieval.nodes.compliance_gate_retrieval import compliance_gate_retrieval
 from rag.retrieval.nodes.compliance_context_assembly import compliance_context_assembly
+from rag.retrieval.nodes.omd_context_assembly import omd_context_assembly
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -91,6 +92,8 @@ def build_rag_graph(settings: "Settings"):
     workflow.add_node("anchor_hypernym_mapping", map_anchors_to_hypernyms)
     workflow.add_node("compliance_gate_retrieval", compliance_gate_retrieval)
     workflow.add_node("compliance_context_assembly", compliance_context_assembly)
+    # OMD-GraphRAG (--mode graphont) single assembly node
+    workflow.add_node("omd_context_assembly", omd_context_assembly)
 
     # Entry point
     workflow.set_entry_point("query_analysis")
@@ -114,6 +117,7 @@ def build_rag_graph(settings: "Settings"):
             # `route_by_mode` itself.
             "graph_retrieval_ontology": "function_type_routing",
             "context_graph_extraction": "context_graph_extraction",
+            "omd_context_assembly": "omd_context_assembly",
             "fallback": "fallback",
         },
     )
@@ -125,6 +129,10 @@ def build_rag_graph(settings: "Settings"):
     # graph content into filtered_documents; primus reasons + cites (comparable to hybrid).
     workflow.add_edge("compliance_gate_retrieval", "compliance_context_assembly")
     workflow.add_edge("compliance_context_assembly", "generate")
+
+    # OMD-GraphRAG chain (--mode graphont): retriever reranks internally, so the single
+    # assembly node edges straight to primus `generate` (mirrors graphcpl option (a)).
+    workflow.add_edge("omd_context_assembly", "generate")
 
     # Retrieval → reranking → grading (always)
     workflow.add_edge("retrieval", "reranking")

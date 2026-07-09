@@ -38,6 +38,13 @@ def route_by_mode(state: GraphState) -> str:
         logger.info("Routing: mode=graphcpl -> context_graph_extraction node")
         return "context_graph_extraction"
 
+    if mode == "graphont":
+        # OMD-GraphRAG (ontology_v2): a single assembly node calls the tri-channel
+        # retriever (which reranks internally) and packs filtered_documents, then edges
+        # straight to `generate` — mirrors graphcpl option (a). Distinct branch (additive).
+        logger.info("Routing: mode=graphont -> omd_context_assembly node")
+        return "omd_context_assembly"
+
     if mode in ("graphrag", "graphrag-retrieval"):
         # Graph retrieval (Phase 9): swaps ONLY the retrieval node — the
         # graph provides contexts. For `graphrag` the unchanged primus

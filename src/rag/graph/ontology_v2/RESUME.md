@@ -19,6 +19,73 @@ Corpus-wide OMD-GraphRAG KG build. **Strictly the POC (`poc_reference/omd_b01.py
 | **6 — coverage/linkage** | 🟡 bridges verified | POC bridges reproduce in Neo4j: B05 5.9.2(b)↔11.28 via Password/PasswordLength ✓; B01 CII hub spans 7 docs (296 clauses) ✓; leaf bridge defence-in-depth spans CCoP↔RtF ✓. TODO: full coverage report + close residual gaps (footnote re-key, REQUIRES_EVIDENCE). |
 | **7 — retrieval (`graphont`)** | 🟡 core built, 2 issues | `omd_retrieval.py` = new POC Channel-I retrieval (query→concepts→1-hop `:REL` expand→INVOKES-overlap score) over the Neo4j `build_id` layer. Standalone, touches no existing code. **E2E proven on B05 password bridge.** **2 issues to fix before wiring (see module docstring):** (1) mega-hub over-expansion → needs concept-IDF weighting; (2) thin query→concept mapping (PenetrationTesting etc. unmapped) → auto-derive surface forms + embedding/LLM fallback. |
 
+## SESSION 2026-07-09b — definition injection + IDF + dense channel (all NEW code)
+
+Implemented, verified E2E, NOT yet committed:
+1. **Definition injection** — `build_definitions.py` loaded **68 :Definition nodes + 28 :DEFINES edges**
+   (build_id-scoped; hand-reviewed mapping, 2 bad auto-matches blocked: cyber-operating-env→DigitalBoundary,
+   mechanism→SecurityControl; 3 corrected: CII asset→CIIAsset, strong-encryption→Cryptography,
+   scenario-exercise→CybersecurityExercise). `omd_retrieval.inject_definitions(Q)` returns glossary defs of
+   Q concepts as grounding, bypassing ranking. §1.2.1 (was absent from graph) now reachable. ✅
+2. **Concept-IDF** — `compute_idf.py` set `:Concept.idf = log(N/df)` on all 122 (hubs CII≈1.1/CIIO≈0.8 vs
+   rare EnterpriseNetwork/DigitalBoundary≈4-5). Channel-I now IDF-weighted + **hub-gated expansion** (only
+   expand from seeds idf≥2.5, so CII no longer floods Q⁺). ✅
+3. **Cascade→fusion** — Channel-I (structural) now recalls over FULL corpus (IDF-safe), fused by RRF. ✅
+4. **Dense channel** — `build_dense_index.py` embedded 863 clauses w/ bge-large-en-v1.5 (project encoder,
+   `runs/dense/clauses_<build_id>.npz`); `channel_dense()` = cosine recall. Fused as 3rd RRF channel. ✅
+5. **query→concept prompt** — added SCOPE/APPLICABILITY rule (surface DigitalBoundary+Obligation+Regulator). ✅
+
+**Results (B01-001):** RtF §2.2 (decisive) #8→**#3**; Q now surfaces DigitalBoundary; §1.4.1 (abstract, was
+unreachable) → **dense #1**. **B05 password bridge regression clean** (RtF 11.28 #2, 5.9.2(b) #4).
+**Gap:** equal-RRF dilutes single-channel-strong hits (§1.4.1 dense#1 but fused#16); Act§7/RtF§2.3 still miss.
+
+**Paper read (research/graphcompliance/omd-graphrag.pdf §3.1-3.3, Fig 1+4).** Corrected a misconception:
+paper's **Channel-II = Community Report Retrieval** (Leiden Q_multi + τ=0.5 completion + LLM reports +
+S_comm cosine), NOT dense. Dense+keyword = the separate **Traditional-RAG channel**. Full paper = 3 channels
+(graph ⊕ community ⊕ traditional) → **β(q) weighted fusion** (eq.5-6) → **cross-encoder rerank** (qwen3-reranker-8b).
+
+6. **Weighted fusion + deeper recall** (configurable levers in `omd_retrieval.py`: `W_GRAPH=1.0,
+   W_BM25=0.7, W_DENSE=1.5, RECALL_DEPTH=100, RRF_K=60`; all overridable per `retrieve()` call).
+   Dense↑ per project Exp #11/#28 + B01 ablation. **Result:** RtF §2.2 pinned #1; §1.4.1 67→51, §2.3
+   55→41; **Act §7 absent→in D_cand** (recalls at BM25#64, so depth had to exceed 64). **All 4 B01
+   critical GT clauses now in the candidate union D_cand (236 clauses)** — the set the reranker scores.
+   B05 regression clean. Fused *rank* of criticals still mid = reranker's job, not fusion's.
+
+7. **Cross-encoder reranker** (`omd_retrieval.rerank()` + `retrieve(do_rerank=True)`). Reuses project
+   `BAAI/bge-reranker-large` (settings.cross_encoder_model, Exp #7; swap `RERANK_MODEL`→qwen3-reranker-8b
+   for paper-exact). Scores every (question, clause) pair in the **D_cand union** (~237). **NOT pure-CE**
+   — pure-CE ordering (paper §3.3.3) BROKE B05: bge-reranker-large collapses to clustered ~0 scores on
+   short factoid queries → randomised top-8. Fix = **CE⊕RRF rank fusion** (project Exp #28; weights
+   `RERANK_CE_WEIGHT=1.5, RERANK_RRF_WEIGHT=1.0`, configurable). Falls back to RRF if model can't load.
+   **Results:** B01 RtF§2.2 #1, RtF§2.3 #41→#11, OT-cluster demoted; **B05 11.28 restored to #3**.
+   Trade-off: fixed weight can't tell confident-CE (B01) from clueless-CE (B05) → **next: confidence-
+   adaptive CE weight (scale by CE score-spread)**. §1.4.1(#46)/Act§7(#177) still resist bge — need
+   qwen3-reranker-8b or domain tuning. **Perf: bge-reranker-large CPU ≈ 60-90s/query for 237 pairs →
+   GPU or bounded pool needed for the 435-case eval.**
+
+8. **Confidence-adaptive CE** (`RERANK_ADAPTIVE=True, RERANK_CONF_REF=0.15`). CE weight scaled by
+   `min(stdev(CE scores)/CONF_REF, 1)` — confident queries keep full CE, collapsed queries (bge dies on
+   short/definitional Qs) fall back to RRF. **Validated on 6 benchmarks** (B01/B02/B05/B12/B22/B24): never
+   worse than RRF; recovers the ranking on the 3 collapse cases where fixed-CE *damaged* it (B12 targets
+   93→159→**93**). `retrieve()` returns `ce_confidence`. Finding: bge collapses on half the queries; its
+   value is mostly demoting off-target consensus on long scenario Qs (B01), not lift.
+
+**MODEL DECISION (2026-07-09, RESOLVED):** Stay on project models — **bge-large-en-v1.5** (dense) +
+**bge-reranker-large** (CE). qwen3-reranker-8b REJECTED: ~16GB won't fit this 17GB Mac (MPS/unified),
+infeasible for 435-case eval; and **OpenRouter hosts NO reranker models** (chat-completions only) so it
+can't serve it either. Real vehicle would be DeepInfra/Novita/HF-Endpoint/self-hosted TEI — deferred.
+Adapter interface verified (AutoModelForCausalLM + `<Instruct>/<Query>/<Document>` + yes/no logit softmax)
+if ever revisited on GPU.
+
+**STILL OPEN:**
+- Scope: (a) dense+reranker DONE [current], (b) add Community Report channel (Leiden+LLM reports+S_comm)
+  = biggest remaining build, lowest ROI for factoid GT, or (c) stop here and wire graphont.
+- Fairer validation: re-run the 6-query check with `key_facts` clauses in the target set (current metric
+  used cref+supp only, which excluded B01's decisive RtF§2.2 the CE nailed at #1 — understates the CE).
+**NEXT:** the cross-encoder RERANKER over the fused pool is the real ranking fix (would lift §1.4.1 from
+recalled-but-diluted). Build it next once scope confirmed. New helpers this session: build_definitions.py,
+compute_idf.py, build_dense_index.py.
+
 ## RETRIEVAL DEBRIEF (2026-07-09) — B01-001 investigation
 
 ### What we're trying to accomplish

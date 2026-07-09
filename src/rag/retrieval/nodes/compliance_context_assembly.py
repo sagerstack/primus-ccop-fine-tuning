@@ -14,6 +14,7 @@ Context documents (all 4, all CUs — "try all first, reduce later"):
 Mode-gated on `graphcpl`; degrade-safe. Downstream `generate` (primus) does the reasoning.
 """
 import logging
+import os
 from typing import Any, Dict, List
 
 from langchain_core.documents import Document
@@ -24,6 +25,12 @@ from rag.retrieval.state.graph_state import GraphState
 logger = logging.getLogger(__name__)
 
 _MODE = "graphcpl"
+
+# Experiment gate (2026-07-07): when set to "minimal", send ONLY Scenario
+# Analysis (triples + STRONG/WEAK classifications) + Definitions/premises —
+# drop the Obligations (CU Plan) and Referenced-obligation blocks that flood
+# the 4096 window. Default ("") = current full behavior.
+_CONTEXT_MODE = os.environ.get("CCOP_GRAPHCPL_CONTEXT", "").strip().lower()
 
 _FETCH_REFS_QUERY = """
 UNWIND $cu_ids AS cid
@@ -90,22 +97,26 @@ def compliance_context_assembly(state: GraphState) -> GraphState:
             seen.add(prem)
             docs.append(_doc(prem, f"def:{m.get('label','')}", f"Definition ({m.get('label','')})"))
 
-    # 3. Obligations (CU Plan — all CUs, 4-tuple header + verbatim clause text)
-    for c in cu_plan:
-        header = f"[{c.get('subject','')} | {c.get('modality','')}] {str(c.get('constraint',''))}".strip()
-        body = c.get("clause_text", "") or ""
-        docs.append(_doc(f"{header}\n\n{body}", c.get("citation_id", ""), f"Obligation ({c.get('cu_type','')})"))
+    if _CONTEXT_MODE == "minimal":
+        # Experiment: scenario + definitions only — skip obligations + references.
+        logger.info("Compliance-Gate context: MINIMAL mode (scenario + definitions only)")
+    else:
+        # 3. Obligations (CU Plan — all CUs, 4-tuple header + verbatim clause text)
+        for c in cu_plan:
+            header = f"[{c.get('subject','')} | {c.get('modality','')}] {str(c.get('constraint',''))}".strip()
+            body = c.get("clause_text", "") or ""
+            docs.append(_doc(f"{header}\n\n{body}", c.get("citation_id", ""), f"Obligation ({c.get('cu_type','')})"))
 
-    # 4. References (REFERS_TO neighbours)
-    try:
-        refs = _fetch_references(settings, [c["cu_id"] for c in cu_plan if c.get("cu_id")])
-    except Exception as e:
-        logger.warning(f"Reference fetch failed: {e}")
-        refs = []
-    for r in refs:
-        docs.append(_doc(
-            f"[{r.get('subject','')}] {str(r.get('constraint',''))}\n\n{r.get('clause_text','')}",
-            r.get("citation_id", ""), "Referenced obligation"))
+        # 4. References (REFERS_TO neighbours)
+        try:
+            refs = _fetch_references(settings, [c["cu_id"] for c in cu_plan if c.get("cu_id")])
+        except Exception as e:
+            logger.warning(f"Reference fetch failed: {e}")
+            refs = []
+        for r in refs:
+            docs.append(_doc(
+                f"[{r.get('subject','')}] {str(r.get('constraint',''))}\n\n{r.get('clause_text','')}",
+                r.get("citation_id", ""), "Referenced obligation"))
 
     state["filtered_documents"] = docs
     state["documents"] = docs

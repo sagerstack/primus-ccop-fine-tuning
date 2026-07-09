@@ -271,3 +271,4 @@ neo4j_storage/
 !src/rag/graph/build/**
 !tests/rag/graph/build/
 !tests/rag/graph/build/**
+.env.local.bak*

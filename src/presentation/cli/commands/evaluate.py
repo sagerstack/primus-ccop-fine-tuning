@@ -27,7 +27,7 @@ from presentation.cli.formatters import build_per_result_panel
 evaluate_app = typer.Typer()
 console = Console()
 
-VALID_EVAL_MODES = ["hybrid", "llm-only", "graphrag", "graphrag-ontology", "graphcpl"]
+VALID_EVAL_MODES = ["hybrid", "llm-only", "graphrag", "graphrag-ontology", "graphcpl", "graphont"]
 
 
 @evaluate_app.command()
