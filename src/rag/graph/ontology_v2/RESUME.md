@@ -19,6 +19,60 @@ Corpus-wide OMD-GraphRAG KG build. **Strictly the POC (`poc_reference/omd_b01.py
 | **6 — coverage/linkage** | 🟡 bridges verified | POC bridges reproduce in Neo4j: B05 5.9.2(b)↔11.28 via Password/PasswordLength ✓; B01 CII hub spans 7 docs (296 clauses) ✓; leaf bridge defence-in-depth spans CCoP↔RtF ✓. TODO: full coverage report + close residual gaps (footnote re-key, REQUIRES_EVIDENCE). |
 | **7 — retrieval (`graphont`)** | 🟡 core built, 2 issues | `omd_retrieval.py` = new POC Channel-I retrieval (query→concepts→1-hop `:REL` expand→INVOKES-overlap score) over the Neo4j `build_id` layer. Standalone, touches no existing code. **E2E proven on B05 password bridge.** **2 issues to fix before wiring (see module docstring):** (1) mega-hub over-expansion → needs concept-IDF weighting; (2) thin query→concept mapping (PenetrationTesting etc. unmapped) → auto-derive surface forms + embedding/LLM fallback. |
 
+## RETRIEVAL DEBRIEF (2026-07-09) — B01-001 investigation
+
+### What we're trying to accomplish
+Turn the persisted KG into working retrieval: a NEW mode `graphont` that runs the OMD-GraphRAG
+POC methodology (concept-based retrieval) so it can be benchmarked vs `hybrid`/`graphcpl`. New
+code only; do NOT touch graphcpl or existing retrieval nodes. `omd_retrieval.py` is that code.
+
+### Steps taken (this session, after the KG build)
+1. Built `omd_retrieval.py` = POC **Channel-I** (query→concepts Q → Q⁺=1-hop over `:REL` →
+   score `|Q∩INVOKES| + 0.5·|(Q⁺−Q)∩INVOKES|` → top-K). Ran it corpus-wide (all 863 clauses).
+2. **Found: hub flooding.** `CII` is in 296 clauses; scoring the whole corpus lets every CII
+   clause tie, so B01-001 returned generic OT/access clauses, not scope answers.
+3. **Read the POC** (`poc_reference/omd_b01.py`, `omd_e2e.py`) to see why it "worked":
+   - it scored a **hand-picked ~18-clause pool** (answers + real distractors), not the corpus;
+   - `omd_b01.py` = same concept-overlap formula as ours; `omd_e2e.py` = a **hand-tuned
+     relation-weight table** (APPLIES_TO +2, EXCLUDED_FROM_AUDIT +2, IN_AUDIT_SCOPE −1.5…) — B01-specific.
+   - the POC is **dual-channel** (Ch-I structural + **Ch-II dense + β-fusion + rerank**); we'd
+     ported Ch-I ONLY, and pointed a *re-ranker* at the whole corpus.
+4. **Fixed query→Q (issue #2):** replaced substring matching with **schema-guided LLM extraction**
+   (POC design). Killed the false hit ("patient monitoring"→Monitoring). Q now clean/semantic.
+5. **Built the dual-channel cascade (issue partially):** added **Channel-II = BM25 sparse recall**
+   over all 863 clause texts → top-k1=40 candidates → Channel-I re-ranks only those → light fusion
+   (`ch1 + 0.5·bm25_norm`). Added 3-stage CLI output (Ch-II list / Q,Q⁺ / Ch-I final).
+
+### What we've been EVALUATING for B01-001
+Query = the healthcare scenario (patient-monitoring/MRI = CII; hospital admin on shared enterprise
+network — does mandatory compliance extend?). GT `expected_label = not-applicable`.
+- **GT reference clauses:** CCoP §1.2.1, §1.4.1; Act §7.
+- **GT key_facts → decisive clause = RtF §2.2** (digital boundary jointly determined by
+  CSA/CIIO/Sector-Lead, ≠ enterprise-network perimeter) + RtF §2.3 (recommend org-wide) + Annex-A exclusion.
+- **Result:** pipeline surfaced NONE of §1.2.1/§1.4.1/Act§7 at top; **RtF §2.2 WAS recalled by
+  BM25 (#3) but Channel-I DEMOTED it to #8** (equal-weighting rewards concept-count, so OT-architecture
+  §10.2 with many common concepts beat the focused answer).
+
+### Root causes (evidence-backed) + NEXT STEPS
+1. **Equal-weight Channel-I buries the decisive clause** → **add concept-IDF weighting**
+   (weight ∝ log(N/df): `CII` df=296→idf≈1.1; `DigitalBoundary`/`EnterpriseNetwork` rare→idf≈4.3).
+   Precompute `df` per concept, store `idf` on `:Concept`, multiply into the score. **Biggest lever.**
+2. **Cascade (BM25→Ch-I) gates concept-retrieval behind lexical recall** → §1.4.1/Act§7 (abstract,
+   lexically dissimilar) never enter the pool. **Switch to FUSION:** run IDF-weighted Channel-I as
+   its own recall channel over the FULL corpus (IDF stops the flooding) **in parallel** with BM25,
+   then fuse. This is the paper's real design; cascade was my wrong turn.
+3. **`DigitalBoundary` missing from Q** though the question is entirely about scope/boundary →
+   improve the query→concept prompt to surface *implicit* scope concepts.
+4. **§1.2.1 not in the graph** — definitions were pulled to a separate `definitions/` layer in
+   Phase 0, never loaded as `:Clause`. Decide: load definitions as clauses (or a `:Definition` node)
+   so glossary-referenced answers are reachable.
+5. Then wire `graphont` (seams below), benchmark vs hybrid/graphcpl.
+
+### Files (retrieval)
+- `omd_retrieval.py` — Channel-I + Channel-II(BM25) + LLM query→concept + 3-stage output. WORKS,
+  but ranking needs #1/#2 above. Known issues in its docstring.
+- `poc_reference/omd_b01.py` / `omd_e2e.py` — the reference (pool + relation-weights + dual-channel).
+
 ## `graphont` — new additive retrieval mode (planned, NOT wired yet)
 User decision (2026-07-09): create a NEW mode `graphont` that routes to `omd_retrieval.py`; do NOT
 touch graphcpl or existing retrieval nodes. Wiring seams (all additive):
