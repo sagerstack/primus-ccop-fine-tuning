@@ -1,0 +1,120 @@
+{
+  "_meta": {
+    "slice": "C",
+    "artifact": "deterministic weak-retrieval detector golden triples",
+    "detector": "src/rag/retrieval/nodes/omd_retrieval_grade.py::omd_retrieval_grade",
+    "captured_by": "coordinator (acting lead; plan-reviewer + builder were startup-stalled/dead)",
+    "contract": "detector reads state['retrieval_trace'] (Slice B) + state['retrieval_succeeded'] (protected, read-only) and writes state['retrieval_grade'] in {strong,low_confidence,empty}, state['retrieval_grade_reasons']=list[str] (triggered conditions only), state['should_requery']=bool. It MUST NOT mutate the 4 protected Slice-B keys (filtered_documents, documents, is_rag_augmented, retrieval_succeeded).",
+    "thresholds": {"TAU_CONF": 0.3, "TAU_TOP1": 0.5, "TAU_MARGIN": 0.05, "TAU_COVERAGE": 0.5},
+    "signal_mapping": {
+      "ce_confidence": "retrieval_trace['ce_confidence'] (float|None; normalized CE discrimination in [0,1]). Rule inactive when None (reranker off/failed).",
+      "top1_rerank_score": "retrieval_trace['candidates'][0]['ce_score'] (real cross-encoder score; NOT 'score' which is RRF-scale). Rule inactive when candidates empty or ce_score None.",
+      "top1_top2_margin": "candidates[0]['ce_score'] - candidates[1]['ce_score']. Rule inactive when <2 candidates or either ce_score None.",
+      "concept_coverage": "DEFERRED v1 — not computable from retrieval_trace (per-candidate concept sets not persisted; adding them needs forbidden Slice-B edits). TAU_COVERAGE reserved, rule inactive.",
+      "retrieval_succeeded": "state['retrieval_succeeded'] (protected, read-only)."
+    },
+    "ce_confidence_none_policy": "team-lead ruling 3(b): ce_confidence None (reranker off/failed) is treated as a WEAK signal -> low_confidence with reason 'ce_confidence=None(untrustworthy)'. It does NOT arm should_requery (a re-query cannot restore a reranker that did not run; Slice D owns requery guards).",
+    "grade_rules": "empty iff (retrieval_trace absent) OR (not retrieval_succeeded); else low_confidence iff any active low-confidence rule fires; else strong.",
+    "should_requery_rule": "True iff grade==low_confidence AND ce_confidence was PRESENT and < TAU_CONF (a computed-low confidence); else False (None-confidence, top1/margin-only, empty, and strong never requery in v1)."
+  },
+  "cases": [
+    {
+      "name": "G1_strong",
+      "description": "High confidence, high top1, wide margin -> strong, no reasons, no requery.",
+      "input_state": {
+        "retrieval_succeeded": true,
+        "retrieval_trace": {"ce_confidence": 0.9, "candidates": [{"ce_score": 5.0, "score": 0.04}, {"ce_score": 3.0, "score": 0.03}], "d_cand": 42}
+      },
+      "expected": {"retrieval_grade": "strong", "retrieval_grade_reasons": [], "should_requery": false}
+    },
+    {
+      "name": "G2_low_conf_ce_confidence_only",
+      "description": "Only ce_confidence below tau -> low_confidence, requery TRUE.",
+      "input_state": {
+        "retrieval_succeeded": true,
+        "retrieval_trace": {"ce_confidence": 0.12, "candidates": [{"ce_score": 5.0}, {"ce_score": 3.0}], "d_cand": 42}
+      },
+      "expected": {"retrieval_grade": "low_confidence", "retrieval_grade_reasons": ["ce_confidence=0.12<0.3"], "should_requery": true}
+    },
+    {
+      "name": "G3_low_conf_top1_only",
+      "description": "Only top1 rerank score below tau (margin ok, confidence ok) -> low_confidence, requery FALSE.",
+      "input_state": {
+        "retrieval_succeeded": true,
+        "retrieval_trace": {"ce_confidence": 0.9, "candidates": [{"ce_score": 0.2}, {"ce_score": 0.05}], "d_cand": 42}
+      },
+      "expected": {"retrieval_grade": "low_confidence", "retrieval_grade_reasons": ["top1_rerank_score=0.2<0.5"], "should_requery": false}
+    },
+    {
+      "name": "G4_low_conf_margin_only",
+      "description": "Only top1-top2 margin below tau -> low_confidence, requery FALSE.",
+      "input_state": {
+        "retrieval_succeeded": true,
+        "retrieval_trace": {"ce_confidence": 0.9, "candidates": [{"ce_score": 5.0}, {"ce_score": 4.98}], "d_cand": 42}
+      },
+      "expected": {"retrieval_grade": "low_confidence", "retrieval_grade_reasons": ["top1_top2_margin=0.02<0.05"], "should_requery": false}
+    },
+    {
+      "name": "G5_multi_trigger_requery",
+      "description": "ce_confidence + top1 + margin all fire -> low_confidence, requery TRUE (order: ce_confidence, top1_rerank_score, top1_top2_margin).",
+      "input_state": {
+        "retrieval_succeeded": true,
+        "retrieval_trace": {"ce_confidence": 0.1, "candidates": [{"ce_score": 0.2}, {"ce_score": 0.19}], "d_cand": 42}
+      },
+      "expected": {"retrieval_grade": "low_confidence", "retrieval_grade_reasons": ["ce_confidence=0.1<0.3", "top1_rerank_score=0.2<0.5", "top1_top2_margin=0.01<0.05"], "should_requery": true}
+    },
+    {
+      "name": "G6_empty_not_succeeded",
+      "description": "retrieval_succeeded False -> empty, requery FALSE.",
+      "input_state": {
+        "retrieval_succeeded": false,
+        "retrieval_trace": {"ce_confidence": null, "candidates": [], "d_cand": 0}
+      },
+      "expected": {"retrieval_grade": "empty", "retrieval_grade_reasons": ["empty: retrieval_succeeded=False"], "should_requery": false}
+    },
+    {
+      "name": "G7_empty_trace_absent",
+      "description": "retrieval_trace key absent (retrieval node raised -> dispatcher popped trace) -> empty, requery FALSE.",
+      "input_state": {
+        "retrieval_succeeded": false
+      },
+      "expected": {"retrieval_grade": "empty", "retrieval_grade_reasons": ["empty: retrieval_trace absent"], "should_requery": false}
+    },
+    {
+      "name": "G8_reranker_inactive_untrustworthy",
+      "description": "Reranker off/failed: ce_confidence None + ce_score None. Ruling 3(b): None is untrustworthy -> low_confidence with 'ce_confidence=None(untrustworthy)'. should_requery FALSE (a re-query cannot restore a missing reranker).",
+      "input_state": {
+        "retrieval_succeeded": true,
+        "retrieval_trace": {"ce_confidence": null, "candidates": [{"ce_score": null, "score": 0.03}, {"ce_score": null, "score": 0.02}], "ranked_by": "rrf", "d_cand": 42}
+      },
+      "expected": {"retrieval_grade": "low_confidence", "retrieval_grade_reasons": ["ce_confidence=None(untrustworthy)"], "should_requery": false}
+    },
+    {
+      "name": "G9_single_candidate",
+      "description": "Exactly one candidate: top1 rule active, margin rule skipped (needs >=2) -> low_confidence on top1, requery FALSE.",
+      "input_state": {
+        "retrieval_succeeded": true,
+        "retrieval_trace": {"ce_confidence": 0.9, "candidates": [{"ce_score": 0.2}], "d_cand": 1}
+      },
+      "expected": {"retrieval_grade": "low_confidence", "retrieval_grade_reasons": ["top1_rerank_score=0.2<0.5"], "should_requery": false}
+    },
+    {
+      "name": "G10_real_b01_shape",
+      "description": "Mirrors real frozen B01-001 (ce_confidence=0.0, top1=top2 ce_score=0.0024643 -> margin 0). All three rules fire -> low_confidence, requery TRUE.",
+      "input_state": {
+        "retrieval_succeeded": true,
+        "retrieval_trace": {"ce_confidence": 0.0, "candidates": [{"ce_score": 0.0024643465876579285}, {"ce_score": 0.0024643465876579285}], "ranked_by": "ce+rrf(conf=0.00)", "d_cand": 100}
+      },
+      "expected": {"retrieval_grade": "low_confidence", "retrieval_grade_reasons": ["ce_confidence=0<0.3", "top1_rerank_score=0.002464<0.5", "top1_top2_margin=0<0.05"], "should_requery": true}
+    },
+    {
+      "name": "G11_definitions_only_no_ranked_candidates",
+      "description": "Reachable definitions-only retrieval: succeeded True (docs from injected definitions) but candidates==[] (RRF empty). -> low_confidence 'no_ranked_candidates', requery FALSE. Guards against grading a zero-ranked-clause retrieval 'strong' (reviewer defect #1).",
+      "input_state": {
+        "retrieval_succeeded": true,
+        "retrieval_trace": {"ce_confidence": null, "candidates": [], "ranked_by": "none", "d_cand": 0}
+      },
+      "expected": {"retrieval_grade": "low_confidence", "retrieval_grade_reasons": ["no_ranked_candidates"], "should_requery": false}
+    }
+  ]
+}

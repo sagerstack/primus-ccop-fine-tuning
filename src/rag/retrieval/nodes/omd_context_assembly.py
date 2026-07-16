@@ -6,6 +6,7 @@ packs them through plain Python function calls, then degrades safely to empty co
 import logging
 
 from rag.retrieval.nodes.omd_pack import omd_pack
+from rag.retrieval.nodes.omd_retrieval_grade import omd_retrieval_grade
 from rag.retrieval.nodes.omd_retrieve import omd_retrieve
 from rag.retrieval.state.graph_state import GraphState
 
@@ -28,6 +29,19 @@ def omd_context_assembly(state: GraphState) -> GraphState:
             "(%d clauses + %d definitions, ranked_by=%s, D_cand=%d)",
             len(state["documents"]), len(trace["candidates"]), len(trace["definitions"]),
             trace.get("ranked_by"), trace.get("d_cand", 0))
+        # Slice C (DETECT): grade retrieval quality AFTER packing. Own try/except so a
+        # detector fault degrades to grade="unknown" WITHOUT discarding the packed docs
+        # (it must not fall through to the empty-context fallback below). Additive keys
+        # only; the four protected Slice-B keys and the log message above are untouched,
+        # so graphont stays byte-identical (parity harness excludes additive keys).
+        try:
+            omd_retrieval_grade(state)
+        except Exception as ge:
+            state["retrieval_grade"] = "unknown"
+            state.setdefault("retrieval_grade_reasons", [])
+            state["retrieval_grade_reasons"].append(f"detector_exception: {ge!r}")
+            state["should_requery"] = False
+            logger.warning("retrieval-grade detector failed (%s) — grade=unknown", ge)
         return state
     except Exception as e:  # degrade-safe: empty context, primus answers without grounding
         state.pop("retrieval_trace", None)
