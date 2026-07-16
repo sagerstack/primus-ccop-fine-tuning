@@ -263,6 +263,58 @@ its code/allowlist entries, do so as a deliberate deprecation, not a silent edit
 
 ---
 
+### ADR-009: Phase 12 `graphont-agentic` revised to rev 02 after peer-reviewed research critique (2026-07-13)
+
+**Context:**
+- Phase 12 (`12-01-PLAN.md`) proposed a bounded agentic retrieval-quality loop on `graphont`.
+- A two-model research team (Roberto/Robin) produced a peer-reviewed critique:
+  `research/20260713-agentic-rag-critique/FINAL-agentic-rag-critique.md`. It affirmed the
+  strategy/architecture but flagged concentrated weaknesses.
+
+**Decision:**
+- Adopt `12-02-PLAN.md` (supersedes `12-01`). Key revisions:
+  - **Detector = two-tier deterministic gate** (hard-failure OR sentinels + calibrated soft
+    consensus/AND over rank-normalized pre-generation features) instead of a wide OR of soft
+    thresholds (reranker scores certify topicality, not answer support; wide OR over-fires).
+  - **Action routing derived from an offline action-oracle**, not intuition.
+  - **Removed the post-generation "citation-present-in-context" signal from the runtime detector**
+    (offline diagnostic only) — it is not knowable pre-generation.
+  - **Graph expansion must be typed, hub-safe, provenance-first** (guards the `CII` hub ≈⅓ of the
+    graph against Static-Graph-Fallacy / hub-drift).
+  - **Evaluation requires disjoint calibration/held-out/test splits**, pooled expert adjudication,
+    full-chain retrieval metric, and retry-ablation + action-oracle counterfactuals.
+  - **Retrieval recall vs GT is the PRIMARY success metric; D6 is secondary/observational** —
+    improved clause recall with flat D6 is still a Phase 12 success (citation behavior is out of
+    scope; Slice 1.5 remains excluded).
+- All `12-01` locked decisions, the additive/backward-compatible mode (per ADR-008), GT-offline-only,
+  and the RoG/ReAct/query-reformulation deferrals are retained unchanged.
+- **`graphont` parity is a HARD, BLOCKING acceptance gate (applies ADR-008 to Phase 12):** `graphont`
+  must remain usable and behavior-identical for future evaluation/comparison after `graphont-agentic`
+  ships. Before the new mode is activated, `graphont` is verified **byte/structure-identical**
+  (candidate order → packed context → generation prompt) via golden traces captured *before* the Slice B
+  node split; a parity failure **blocks the phase**. All new behavior is gated on
+  `mode == "graphont-agentic"` only, behind a feature flag that can be disabled without reverting the
+  refactor.
+- **Phase 12 MUST NOT modify the shared corpus/index** (`ccop_clauses_hybrid`). Per ADR-008's
+  data-surface caveat, re-ingesting/changing the index shifts `graphont` retrieval even with identical
+  code and invalidates the frozen baseline — explicitly out of scope; Phase 12 only adds retry logic
+  over the existing collection.
+
+**Alternatives Considered:**
+- Keep `12-01` as-is → Rejected ✗: leaves the over-firing detector, intuition-based routing, and a
+  calibration set that both tunes and validates (overfit risk).
+- Rewrite scope toward full 2026 agentic RAG (RoG/reformulation/answer-verification) → Rejected ✗:
+  breaks the clean deterministic causal experiment; deferral judged justified.
+
+**Consequences:**
+- New nodes/state fields (`assess_retrieval_quality` two-tier, `plan_requery`, traversal provenance).
+- Added labeling cost (pooled adjudication + action-oracle over the calibration set).
+- Phase 12 is judged on retrieval recall, not D6 — update any dashboard/report that assumed D6 as the
+  Phase 12 pass bar.
+- References: `12-02-PLAN.md`; `research/20260713-agentic-rag-critique/FINAL-agentic-rag-critique.md`.
+
+---
+
 ## Tips
 
 - Number decisions sequentially (ADR-001, ADR-002, etc.)
