@@ -1,0 +1,200 @@
+{
+  "B01-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B01-001-20260714-0159-contexts.json",
+    "md5": {
+      "filtered_documents": "c257e5471c3418b8982ac524723c7e17",
+      "documents": "c257e5471c3418b8982ac524723c7e17",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "5500a2e33e7d67d836c1e69e220cc287"
+    }
+  },
+  "B02-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B02-001-20260713-1059-contexts.json",
+    "md5": {
+      "filtered_documents": "47345416207db3784b7a009adf1fbeda",
+      "documents": "47345416207db3784b7a009adf1fbeda",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "1258c2829deebbf880b89ce1bae39a83"
+    }
+  },
+  "B03-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B03-001-20260713-1109-contexts.json",
+    "md5": {
+      "filtered_documents": "b9813befda57ea8e7142d6d93b727509",
+      "documents": "b9813befda57ea8e7142d6d93b727509",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "67d394a63d340e70c140a25cc6c71030"
+    }
+  },
+  "B04-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B04-001-20260713-1114-contexts.json",
+    "md5": {
+      "filtered_documents": "3cbe597539e6b7f7fbff0fca0b7a7076",
+      "documents": "3cbe597539e6b7f7fbff0fca0b7a7076",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "02a737820560c29789eee9b05b14bdec"
+    }
+  },
+  "B05-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B05-001-20260713-1437-contexts.json",
+    "md5": {
+      "filtered_documents": "eddea47e56583145f0e9b108f9fc4f33",
+      "documents": "eddea47e56583145f0e9b108f9fc4f33",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "30cdbb85c9ef4f735ecde6b7d95cbad4"
+    }
+  },
+  "B06-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B06-001-20260713-1118-contexts.json",
+    "md5": {
+      "filtered_documents": "53a1ec317234cb1879504b1f0b1dd990",
+      "documents": "53a1ec317234cb1879504b1f0b1dd990",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "226e43fb7c836c230b5f7756473bc951"
+    }
+  },
+  "B07-006": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B07-006-20260713-1121-contexts.json",
+    "md5": {
+      "filtered_documents": "7176b44cffb55aac4e773a7f09d2049b",
+      "documents": "7176b44cffb55aac4e773a7f09d2049b",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "b25d368b4be99c20d4fead1732c360e8"
+    }
+  },
+  "B08-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B08-001-20260713-1123-contexts.json",
+    "md5": {
+      "filtered_documents": "7ac766d33c7aef3f71753777e4e136da",
+      "documents": "7ac766d33c7aef3f71753777e4e136da",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "cb8b134393af66bdebf4b41a270af2ac"
+    }
+  },
+  "B09-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B09-001-20260713-1129-contexts.json",
+    "md5": {
+      "filtered_documents": "6cedc51a6722c59f93f0ee8459409698",
+      "documents": "6cedc51a6722c59f93f0ee8459409698",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "ee1e7d56049c4c90982312dd2c4b21cb"
+    }
+  },
+  "B10-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B10-001-20260713-1131-contexts.json",
+    "md5": {
+      "filtered_documents": "1e3a57694135b8cf69a40e232b60518e",
+      "documents": "1e3a57694135b8cf69a40e232b60518e",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "2977cf596c76684d89b77a5aad430935"
+    }
+  },
+  "B12-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B12-001-20260713-1133-contexts.json",
+    "md5": {
+      "filtered_documents": "55270e864792d20646fad0dabdcfacc5",
+      "documents": "55270e864792d20646fad0dabdcfacc5",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "04542010ac3fd28b2a98582cf0828a98"
+    }
+  },
+  "B13-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B13-001-20260713-1146-contexts.json",
+    "md5": {
+      "filtered_documents": "b48f070984a45d4f2dfb5454e93a5a87",
+      "documents": "b48f070984a45d4f2dfb5454e93a5a87",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "e14342f938b37f92ddad7f724b6e8888"
+    }
+  },
+  "B14-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B14-001-20260713-1214-contexts.json",
+    "md5": {
+      "filtered_documents": "13a3846a92b56ef188d711b0bf1412df",
+      "documents": "13a3846a92b56ef188d711b0bf1412df",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "da1774203ecf9030c6d7ae7a645d52f1"
+    }
+  },
+  "B18-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B18-001-20260713-1224-contexts.json",
+    "md5": {
+      "filtered_documents": "d5acbe8a07f7ad7a3567a1d956ba900b",
+      "documents": "d5acbe8a07f7ad7a3567a1d956ba900b",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "1e59d1bee2e33d6a42d67858b650a9a8"
+    }
+  },
+  "B21-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B21-001-20260713-1234-contexts.json",
+    "md5": {
+      "filtered_documents": "80f7ce2ff0120ff78f4e571d5aeb66b5",
+      "documents": "80f7ce2ff0120ff78f4e571d5aeb66b5",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "c1834c1d23d8be88fcff7a1feb992a2c"
+    }
+  },
+  "B22-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B22-001-20260713-1305-contexts.json",
+    "md5": {
+      "filtered_documents": "bc035fc879cdc978ee6d84790f2ad0ad",
+      "documents": "bc035fc879cdc978ee6d84790f2ad0ad",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "12fd0a567c6cc00c77535e2ea8b03f46"
+    }
+  },
+  "B23-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B23-001-20260713-1320-contexts.json",
+    "md5": {
+      "filtered_documents": "c8c64ee9ba3edb6322c86f2376207dab",
+      "documents": "c8c64ee9ba3edb6322c86f2376207dab",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "882c0d32136a1ece4aa302c9e0fdb904"
+    }
+  },
+  "B24-001": {
+    "source": "src/results/evaluations/2026-07/eval-run-graphont-test-B24-001-20260713-1442-contexts.json",
+    "md5": {
+      "filtered_documents": "813aa06f0af3137284a0e3d907442c78",
+      "documents": "813aa06f0af3137284a0e3d907442c78",
+      "is_rag_augmented": "b326b5062b2f0e69046810717534cb09",
+      "retrieval_succeeded": "b326b5062b2f0e69046810717534cb09",
+      "info_log": "ccc6ef18cdfb12c0c27f72660fb10788",
+      "combined": "1f0b016669ee1e10bef3468ca03aea45"
+    }
+  }
+}
