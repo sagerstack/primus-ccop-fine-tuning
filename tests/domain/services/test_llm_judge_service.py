@@ -1,7 +1,7 @@
 """
 Unit tests for LLMJudgeService.
 
-Tests LLM-as-Judge evaluation using mocked Claude responses.
+Tests LLM-as-Judge evaluation with universal rubric (D1-D6 dimensions).
 """
 
 import json
@@ -11,7 +11,7 @@ import pytest
 
 from domain.entities.model_response import ModelResponse
 from domain.entities.test_case import TestCase
-from domain.services.llm_judge_service import JudgeEvaluation, LLMJudgeService
+from domain.services.llm_judge_service import DimensionScore, JudgeEvaluation, LLMJudgeService
 from domain.value_objects.benchmark_type import BenchmarkType
 from domain.value_objects.ccop_section import CCoPSection
 from domain.value_objects.difficulty_level import DifficultyLevel
@@ -32,184 +32,206 @@ class TestLLMJudgeService:
             question="What audit evidence would demonstrate compliance with Clause 3.1.1?",
             expected_response="Auditors would expect documented policies, approval records, and evidence of implementation.",
             evaluation_criteria={"accuracy": "Must align with audit expectations"},
+            key_facts=["Board must approve cybersecurity policy"],
+            forbidden_claims=["No documentation needed"],
+            metadata={
+                "key_facts_structured": [
+                    {"fact": "Board approval required", "source": "CCoP 2.0 3.1.1", "tier": "critical"}
+                ]
+            }
         )
 
     @pytest.fixture
     def model_response(self) -> ModelResponse:
-        """Create sample model response."""
+        """Create sample model response with Sources."""
         return ModelResponse(
-            content="Compliance would be demonstrated through policy documents, board approvals, and implementation logs.",
+            content="""Compliance would be demonstrated through policy documents, board approvals, and implementation logs.
+
+**Sources:**
+CCoP 2.0: 3.1.1
+""",
             metadata={},
         )
 
-    @pytest.fixture
-    def rubric(self) -> dict[str, str]:
-        """Create sample evaluation rubric."""
-        return {
-            "accuracy": "Does the response identify correct audit evidence?",
-            "completeness": "Are all evidence types covered?",
-            "alignment": "Does this match auditor expectations?",
-        }
-
     def test_build_judge_prompt(
-        self, test_case: TestCase, model_response: ModelResponse, rubric: dict[str, str]
+        self, test_case: TestCase, model_response: ModelResponse
     ) -> None:
-        """Test judge prompt construction."""
+        """Test judge prompt construction with new contract (no Qdrant placeholders)."""
         service = LLMJudgeService()
-        prompt = service._build_judge_prompt(test_case, model_response, rubric)
+        prompt = service._build_judge_prompt(test_case, model_response, "B12")
 
-        # Verify prompt contains all required elements
-        assert "B12-001" in prompt or test_case.question in prompt
+        # Verify prompt contains required elements
+        assert test_case.question in prompt
         assert model_response.content in prompt
         assert test_case.expected_response in prompt
-        assert "accuracy_score" in prompt
-        assert "completeness_score" in prompt
-        assert "alignment_score" in prompt
+        assert "{clause_reference}" not in prompt  # Should be substituted
+        assert "{key_facts}" not in prompt  # Should be substituted
+        assert "{forbidden_claims}" not in prompt  # Should be substituted
+        
+        # Verify Qdrant-dependent placeholders are ABSENT
+        assert "{citation_verifications}" not in prompt
+        assert "{expected_citations_text}" not in prompt
+        
+        # Verify GT placeholders ARE present/substituted
+        assert "3.1.1" in prompt  # clause_reference substituted
+        assert "Board" in prompt or "approval" in prompt  # key_facts substituted
 
     def test_parse_judge_response_clean_json(self) -> None:
-        """Test parsing clean JSON response."""
+        """Test parsing clean 5-dimension JSON response (D1-D5)."""
         service = LLMJudgeService()
+        # LLM now returns 5 dimensions (D1-D5), D6 computed separately
         response = json.dumps({
-            "accuracy_score": 4,
-            "completeness_score": 5,
-            "alignment_score": 3,
-            "justification": "Good coverage of audit evidence",
+            "dimensions": [
+                {"dimension": "verdict_accuracy", "score": 3, "weight": 0.5},
+                {"dimension": "justification_quality", "score": 2, "weight": 0.5},
+                {"dimension": "factual_grounding", "score": 2, "weight": 0.5},
+                {"dimension": "scope_appropriateness", "score": 3, "weight": 0.5},
+                {"dimension": "actionable_way_forward", "score": 1, "weight": 0.5},
+            ],
+            "justification": "Good coverage of audit evidence with minor gaps.",
             "confidence": 0.8,
         })
 
-        evaluation = service._parse_judge_response(response)
+        dimensions, justification, confidence, raw_response = service._parse_judge_response(response)
 
-        assert evaluation.accuracy_score == 4
-        assert evaluation.completeness_score == 5
-        assert evaluation.alignment_score == 3
-        assert evaluation.justification == "Good coverage of audit evidence"
-        assert evaluation.confidence == 0.8
-        assert evaluation.overall_score == 12 / 15  # (4+5+3)/15
+        # Assert tuple components
+        assert len(dimensions) == 5  # D1-D5 only
+        assert dimensions[0].name == "verdict_accuracy"
+        assert dimensions[0].score == 3
+        assert dimensions[0].weight == 0.5
+        assert justification == "Good coverage of audit evidence with minor gaps."
+        assert confidence == 0.8
+        assert raw_response == response
 
     def test_parse_judge_response_markdown_code_block(self) -> None:
         """Test parsing JSON wrapped in markdown code block."""
         service = LLMJudgeService()
         response = """```json
 {
-  "accuracy_score": 3,
-  "completeness_score": 4,
-  "alignment_score": 4,
+  "dimensions": [
+    {"dimension": "verdict_accuracy", "score": 2, "weight": 0.5},
+    {"dimension": "justification_quality", "score": 2, "weight": 0.5},
+    {"dimension": "factual_grounding", "score": 1, "weight": 0.5},
+    {"dimension": "scope_appropriateness", "score": 2, "weight": 0.5},
+    {"dimension": "actionable_way_forward", "score": 1, "weight": 0.5}
+  ],
   "justification": "Partial alignment",
   "confidence": 0.7
 }
 ```"""
 
-        evaluation = service._parse_judge_response(response)
+        dimensions, justification, confidence, raw_response = service._parse_judge_response(response)
 
-        assert evaluation.accuracy_score == 3
-        assert evaluation.completeness_score == 4
-        assert evaluation.alignment_score == 4
+        assert len(dimensions) == 5
+        assert dimensions[0].score == 2
+        assert dimensions[2].name == "factual_grounding"
+        assert dimensions[2].score == 1
 
     def test_parse_judge_response_plain_code_block(self) -> None:
         """Test parsing JSON in plain code block without json marker."""
         service = LLMJudgeService()
         response = """```
 {
-  "accuracy_score": 5,
-  "completeness_score": 5,
-  "alignment_score": 5,
+  "dimensions": [
+    {"dimension": "verdict_accuracy", "score": 3, "weight": 0.5},
+    {"dimension": "justification_quality", "score": 3, "weight": 0.5},
+    {"dimension": "factual_grounding", "score": 3, "weight": 0.5},
+    {"dimension": "scope_appropriateness", "score": 3, "weight": 0.5},
+    {"dimension": "actionable_way_forward", "score": 3, "weight": 0.5}
+  ],
   "justification": "Excellent alignment",
   "confidence": 0.9
 }
 ```"""
 
-        evaluation = service._parse_judge_response(response)
+        dimensions, justification, confidence, _ = service._parse_judge_response(response)
 
-        assert evaluation.accuracy_score == 5
-        assert evaluation.overall_score == 1.0  # Perfect score
+        assert len(dimensions) == 5
+        assert all(d.score == 3 for d in dimensions)  # Perfect scores
 
     def test_parse_judge_response_missing_confidence(self) -> None:
         """Test parsing response with missing confidence field."""
         service = LLMJudgeService()
         response = json.dumps({
-            "accuracy_score": 4,
-            "completeness_score": 4,
-            "alignment_score": 4,
+            "dimensions": [
+                {"dimension": "verdict_accuracy", "score": 2, "weight": 0.5},
+                {"dimension": "justification_quality", "score": 2, "weight": 0.5},
+                {"dimension": "factual_grounding", "score": 2, "weight": 0.5},
+                {"dimension": "scope_appropriateness", "score": 2, "weight": 0.5},
+                {"dimension": "actionable_way_forward", "score": 2, "weight": 0.5},
+            ],
             "justification": "Good response",
         })
 
-        evaluation = service._parse_judge_response(response)
+        dimensions, justification, confidence, _ = service._parse_judge_response(response)
 
-        assert evaluation.confidence == 0.5  # Default value
+        assert confidence == 0.5  # Default value
+        assert len(dimensions) == 5
 
-    @patch('subprocess.run')
-    def test_call_claude_agent_success(self, mock_run: MagicMock) -> None:
-        """Test successful Claude Agent SDK call."""
-        mock_run.return_value = MagicMock(
-            returncode=0,
-            stdout='{"accuracy_score": 4, "completeness_score": 4, "alignment_score": 4, "justification": "Good", "confidence": 0.8}',
-            stderr=""
-        )
+    # NOTE: test_call_claude_agent_* tests REMOVED - deprecated code path.
+    # The current LLMJudgeService uses _call_judge() which routes through
+    # OpenRouter, not the old Claude Agent SDK. The _call_claude_agent()
+    # method no longer exists in the codebase.
 
-        service = LLMJudgeService()
-        result = service._call_claude_agent("test prompt")
-
-        assert '"accuracy_score": 4' in result
-        mock_run.assert_called_once()
-
-    @patch('subprocess.run')
-    def test_call_claude_agent_error(self, mock_run: MagicMock) -> None:
-        """Test Claude Agent SDK error handling."""
-        mock_run.return_value = MagicMock(
-            returncode=1,
-            stdout="",
-            stderr="Connection error"
-        )
-
-        service = LLMJudgeService()
-
-        with pytest.raises(RuntimeError, match="Claude Agent SDK error"):
-            service._call_claude_agent("test prompt")
-
-    @patch.object(LLMJudgeService, '_call_claude_agent')
+    @patch.object(LLMJudgeService, '_call_judge')
     def test_evaluate_response_success(
         self,
-        mock_claude: MagicMock,
+        mock_judge: MagicMock,
         test_case: TestCase,
         model_response: ModelResponse,
-        rubric: dict[str, str]
     ) -> None:
-        """Test successful evaluation."""
-        mock_claude.return_value = json.dumps({
-            "accuracy_score": 4,
-            "completeness_score": 5,
-            "alignment_score": 4,
+        """Test successful evaluation with 5-dim LLM + computed D6."""
+        # Mock LLM judge returns 5 dimensions (D1-D5)
+        mock_judge.return_value = json.dumps({
+            "dimensions": [
+                {"dimension": "verdict_accuracy", "score": 3, "weight": 0.5},
+                {"dimension": "justification_quality", "score": 2, "weight": 0.5},
+                {"dimension": "factual_grounding", "score": 2, "weight": 0.5},
+                {"dimension": "scope_appropriateness", "score": 3, "weight": 0.5},
+                {"dimension": "actionable_way_forward", "score": 1, "weight": 0.5},
+            ],
             "justification": "Strong alignment with audit expectations",
             "confidence": 0.85,
         })
 
         service = LLMJudgeService()
-        evaluation = service.evaluate_response(test_case, model_response, rubric)
+        evaluation = service.evaluate_response(test_case, model_response, "B12")
 
-        assert evaluation.accuracy_score == 4
-        assert evaluation.completeness_score == 5
-        assert evaluation.alignment_score == 4
-        assert evaluation.overall_score == pytest.approx(13 / 15)
+        # Assert final JudgeEvaluation has ALL 6 dimensions (D1-D5 from LLM + D6 computed)
+        assert len(evaluation.dimensions) == 6
+        
+        # Check D1-D5
+        assert evaluation.dimensions[0].name == "verdict_accuracy"
+        assert evaluation.dimensions[0].score == 3
+        assert evaluation.dimensions[1].name == "justification_quality"
+        assert evaluation.dimensions[1].score == 2
+        
+        # Check D6 (citation_correctness) was computed and appended
+        d6 = next((d for d in evaluation.dimensions if d.name == "citation_correctness"), None)
+        assert d6 is not None, "D6 (citation_correctness) should be computed and appended"
+        assert d6.weight == 0.5
+        # D6 should be 3 (perfect precision): model cites 3.1.1, GT has 3.1.1
+        assert d6.score == 3
+        
         assert evaluation.confidence == 0.85
+        # Overall score = sum(score * weight) / (3.0 * sum(weight))
+        # = (3*0.5 + 2*0.5 + 2*0.5 + 3*0.5 + 1*0.5 + 3*0.5) / (3.0 * 3.0)
+        # = (1.5 + 1.0 + 1.0 + 1.5 + 0.5 + 1.5) / 9.0 = 7.0 / 9.0
+        assert evaluation.overall_score == pytest.approx(7.0 / 9.0)
 
-    @patch.object(LLMJudgeService, '_call_claude_agent')
+    @patch.object(LLMJudgeService, '_call_judge')
     def test_evaluate_response_fallback_on_error(
         self,
-        mock_claude: MagicMock,
+        mock_judge: MagicMock,
         test_case: TestCase,
         model_response: ModelResponse,
-        rubric: dict[str, str]
     ) -> None:
-        """Test fallback to conservative scoring on error."""
-        mock_claude.side_effect = Exception("Network error")
+        """Test graceful error handling on judge failure."""
+        mock_judge.side_effect = Exception("Network error")
 
         service = LLMJudgeService()
-        evaluation = service.evaluate_response(test_case, model_response, rubric)
+        evaluation = service.evaluate_response(test_case, model_response, "B12")
 
-        # Should return conservative scores
-        assert evaluation.accuracy_score == 3
-        assert evaluation.completeness_score == 3
-        assert evaluation.alignment_score == 3
-        assert evaluation.overall_score == 0.6
-        assert evaluation.confidence == 0.0
-        assert "error" in evaluation.justification.lower()
+        # Should return error evaluation with judge_error=True
+        assert evaluation.judge_error is True
+        assert "error" in evaluation.error_message.lower() or "failed" in evaluation.error_message.lower()

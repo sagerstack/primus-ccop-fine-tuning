@@ -331,6 +331,7 @@ Return ONLY valid JSON (no markdown):
         from infrastructure.config.settings import get_settings
         from infrastructure.external.openrouter_client import OpenRouterClient as _OpenRouterClient
         settings = get_settings()
+        self._settings = settings  # Store for judge_seed access
 
         self._model = model_name or settings.judge_primary_model
         self._secondary_model = secondary_model or settings.judge_secondary_model
@@ -366,14 +367,12 @@ Return ONLY valid JSON (no markdown):
         self._rubrics: Dict[str, str] = self._load_rubrics()
 
         # Ground-truth verification infrastructure for D3 factual_grounding.
-        # Loads clause inventory (deterministic existence check) and caches
-        # actual clause text from Qdrant (for misattribution detection).
+        # Loads clause inventory (deterministic existence check) from the
+        # offline ground-truth test suite.
         # Doc-keyed inventory built first — _inventory_ids derives its flat
-        # union from it. The richer per-doc structure is what the citation
-        # verification logic now uses for document-name-aware routing.
+        # union from it.
         self._inventory_by_doc: Dict[str, set[str]] = self._load_inventory_by_doc()
         self._inventory_ids: set[str] = self._load_inventory_ids()
-        self._clause_text_cache: Dict[str, str] = self._load_clause_text_cache()
 
     def _load_inventory_ids(self) -> set[str]:
         """Load the set of valid clause IDs across the full source corpus.
@@ -476,70 +475,6 @@ Return ONLY valid JSON (no markdown):
                 return canonical
         return None
 
-    def _load_clause_text_cache(self) -> Dict[str, str]:
-        """
-        Pre-load all CCoP 2.0 clause texts from Qdrant for misattribution detection.
-        Non-fatal: if Qdrant is unreachable, judge falls back to inventory-only
-        (existence check still works; misattribution detection is limited).
-        """
-        cache: Dict[str, str] = {}
-        try:
-            from infrastructure.config.settings import get_settings
-            from qdrant_client import QdrantClient
-        except ImportError:
-            logger.warning("qdrant_client not installed. Clause text verification disabled.")
-            return cache
-
-        try:
-            settings = get_settings()
-            client = QdrantClient(url=settings.qdrant_url)
-            next_offset = None
-            while True:
-                batch, next_offset = client.scroll(
-                    collection_name=settings.qdrant_collection_name,
-                    limit=500,
-                    offset=next_offset,
-                    with_payload=["text", "citation_id", "clause", "document_source"],
-                )
-                if not batch:
-                    break
-                for hit in batch:
-                    payload = hit.payload or {}
-                    if payload.get("document_source") != "CCoP 2.0":
-                        continue
-                    # Prefer the `clause` field (bare clause id like "5.3.1");
-                    # fall back to stripping the "CCoP 2.0::" prefix from
-                    # citation_id. Skip table/preamble sub-chunks whose
-                    # citation_id contains extra "::" segments beyond the prefix.
-                    clause_id = payload.get("clause") or ""
-                    if not clause_id:
-                        cid = payload.get("citation_id") or ""
-                        if "::" in cid:
-                            parts = cid.split("::")
-                            # Only accept "DOC::CLAUSE" — skip "DOC::CLAUSE::table::N" etc.
-                            if len(parts) == 2:
-                                clause_id = parts[1]
-                    if not clause_id:
-                        continue
-                    text = (payload.get("text") or "").strip()
-                    if not text:
-                        continue
-                    # Keep the primary (longest) chunk if multiple exist
-                    if clause_id not in cache or len(text) > len(cache[clause_id]):
-                        cache[clause_id] = text[:500]
-                if next_offset is None:
-                    break
-            logger.info(
-                "Cached %d CCoP 2.0 clause texts from Qdrant for misattribution detection",
-                len(cache),
-            )
-        except Exception as e:
-            logger.warning(
-                "Could not build clause text cache from Qdrant: %s. "
-                "Misattribution detection will use existence check only.",
-                e,
-            )
-        return cache
 
     # Two patterns combined to avoid false positives on version numbers
     # ("CCoP 2.0"):
@@ -631,143 +566,143 @@ Return ONLY valid JSON (no markdown):
 
         return result
 
-    def _resolve_clause_text(self, clause_id: str) -> tuple[str, str]:
+    def _extract_clause_id(self, s: str) -> Optional[str]:
         """
-        Return (text, lookup_source) for a clause ID. Falls back to the parent
-        clause if a sub-letter citation (e.g., 5.3.1(c)) isn't chunked
-        separately in Qdrant — the parent clause chunk contains all sub-letters.
-
+        Extract bare clause ID from a citation string and normalize it.
+        
+        Examples:
+            "CCoP 2.0: 5.3.1" -> "5.3.1"
+            "CCoP 2.0 5.9.2(b)" -> "5.9.2(b)"
+            "Response to Feedback 11.28" -> "11.28"
+            "Section 5.3.1(b)" -> "5.3.1(b)"
+            "AnnexC" -> "AnnexC"
+        
         Returns:
-            (text, source) where source is "exact", "parent", or "missing".
+            Normalized clause ID or None if no clause token found.
         """
-        text = self._clause_text_cache.get(clause_id, "")
-        if text:
-            return text, "exact"
-        # Sub-letter fallback: 5.3.1(c) -> 5.3.1
-        parent_match = re.match(r"^(\d{1,2}(?:\.\d{1,2}){1,2})\([a-z]\)$", clause_id)
-        if parent_match:
-            parent_id = parent_match.group(1)
-            parent_text = self._clause_text_cache.get(parent_id, "")
-            if parent_text:
-                return parent_text, "parent"
-        return "", "missing"
+        if not s:
+            return None
+        
+        # Strip document name prefix if present (handles both ":"-separated and space-separated)
+        # First try colon-separated ("CCoP 2.0: 5.3.1")
+        if ":" in s:
+            s = s.split(":", 1)[1].strip()
+        else:
+            # For space-separated ("CCoP 2.0 5.9.2(b)"), remove known document prefixes
+            s = re.sub(r"^(?:CCoP 2\.0|RESPONSE-TO-FEEDBACK|Response to Feedback|CCoP Response to Feedback|Cybersecurity Act 2018|Section|Clause|\u00a7|Part|Chapter)\s+", "", s, flags=re.IGNORECASE).strip()
+        
+        # Try to extract clause pattern: digits with optional dots and sub-letters
+        # Also handle Annex patterns and table references
+        patterns = [
+            r"^(\d{1,2}(?:\.\d{1,2})*(?:\([a-z]\))?)",  # Standard clause at start like 5.3.1 or 5.9.2(b)
+            r"(Annex[A-Z])",  # Annex patterns
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, s)
+            if match:
+                clause_token = match.group(1)
+                # Normalize using ClauseHitScoringService
+                try:
+                    from domain.services.clause_hit_scoring_service import ClauseHitScoringService
+                    return ClauseHitScoringService.normalize_clause_id(clause_token)
+                except Exception:
+                    # Fallback: just return the extracted token
+                    return clause_token
+        
+        return None
 
-    def _build_citation_verification_block(self, response_text: str) -> str:
+    def _compute_citation_correctness(
+        self,
+        response_content: str,
+        test_case: TestCase,
+    ) -> int:
         """
-        Extract citations from the response and verify each by routing through
-        the doc-keyed inventory. Each citation's claimed document name (NOT
-        which footer block the model placed it in) determines the verification
-        path. Returns a pre-verified ground-truth block for the judge.
-
-        Verdicts:
-          - EXISTS: claimed doc is in the 7-doc corpus AND clause is in that
-            doc's inventory. Includes actual clause text when available.
-          - FABRICATED: claimed doc is in the 7-doc corpus BUT clause is not
-            found in that doc's inventory — the model invented a clause ID
-            that doesn't exist in a real corpus document.
-          - EXTERNAL: claimed doc is NOT in our 7-doc corpus (e.g., NIST CSF,
-            ISO 27001). Cannot verify against our inventory; not penalized
-            as fabrication.
-
-        The model's block placement is logged alongside but doesn't affect
-        the verdict — a CCoP clause incorrectly placed in **Other Sources**
-        still gets verified against CCoP inventory; an external citation
-        incorrectly placed in **Sources** still gets EXTERNAL classification.
+        Compute D6 (citation_correctness) programmatically.
+        
+        Returns precision score (0-3) of model's in-corpus citations against
+        ground-truth clause set.
+        
+        Args:
+            response_content: Model's response text (contains Sources block)
+            test_case: Test case with clause_reference and key_facts
+        
+        Returns:
+            0-3 score based on precision:
+                3 if precision = 1.0 (perfect)
+                2 if precision >= 0.67
+                1 if precision >= 0.34 or no corpus citations
+                0 if precision < 0.34
         """
-        attributed = self._extract_attributed_citations(response_text)
-        if not attributed:
-            return "  (no citations detected in response)"
-
-        lines = []
-        for claimed_doc, clause, source_loc in attributed:
-            # Route by claimed doc name (or default to CCoP 2.0 for inline
-            # mentions that didn't specify a document).
-            effective_doc = claimed_doc or "CCoP 2.0"
-            canonical = self._normalize_doc_name(effective_doc)
-            block_label = f' [from {source_loc}]'
-
-            if canonical is None:
-                # Doc not in 7-doc corpus → external reference, no verdict.
-                lines.append(
-                    f'  - "{effective_doc}: {clause}": EXTERNAL — '
-                    f'document is outside the Singapore corpus; no inventory '
-                    f'verification available.{block_label}'
-                )
+        # Build C (model's in-corpus citations from Sources)
+        attributed = self._extract_attributed_citations(response_content)
+        corpus_citations = set()
+        
+        for doc_name, clause_str, _ in attributed:
+            clause_id = self._extract_clause_id(clause_str)
+            if not clause_id:
                 continue
-
-            doc_inventory = self._inventory_by_doc.get(canonical, set())
-
-            # Check direct match, then with prefix stripping for variants
-            # like "Section 5.3.1" / "Clause 5.3.1" / "Part 1".
-            stripped = re.sub(
-                r"^(?:Section|Clause|§|Part|Chapter)\s+",
-                "", clause, flags=re.IGNORECASE,
-            ).strip()
-            matched_clause = None
-            if clause in doc_inventory:
-                matched_clause = clause
-            elif stripped and stripped in doc_inventory:
-                matched_clause = stripped
-
-            if matched_clause is None:
-                lines.append(
-                    f'  - "{canonical}: {clause}": FABRICATED — '
-                    f'clause not found in {canonical} inventory '
-                    f'(claimed doc IS in corpus).{block_label}'
-                )
-                continue
-
-            # Found in inventory → look up actual text for misattribution check.
-            text, source = self._resolve_clause_text(matched_clause)
-            if source == "exact":
-                snippet = text.replace("\n", " ").strip()[:280]
-                lines.append(
-                    f'  - "{canonical}: {matched_clause}": EXISTS. '
-                    f'Actual clause text: "{snippet}..."{block_label}'
-                )
-            elif source == "parent":
-                snippet = text.replace("\n", " ").strip()[:280]
-                lines.append(
-                    f'  - "{canonical}: {matched_clause}": EXISTS. '
-                    f'Parent clause text (sub-letter not chunked separately): '
-                    f'"{snippet}..."{block_label}'
-                )
+            
+            # Classify as corpus or external using inventory
+            # If doc_name is provided, check that specific doc; otherwise check any-doc
+            if doc_name:
+                canonical = self._normalize_doc_name(doc_name)
+                if canonical and canonical in self._inventory_by_doc:
+                    doc_inventory = self._inventory_by_doc[canonical]
+                    if clause_id in doc_inventory:
+                        corpus_citations.add(clause_id)
+                # Else: external doc or not in corpus -> exclude
             else:
-                lines.append(
-                    f'  - "{canonical}: {matched_clause}": EXISTS '
-                    f'(clause text not cached — limited verification).{block_label}'
-                )
-
-        return "\n".join(lines)
-
-    def _build_expected_citations_block(self, clause_reference: str) -> str:
-        """
-        For each clause in the test case's clause_reference list, fetch its
-        actual text from the Qdrant cache and format as a ground-truth block.
-        Gives the judge access to what the expected answer's cited clauses
-        actually say, not just their IDs.
-        """
-        if not clause_reference:
-            return "  (no expected citations specified in ground truth)"
-
-        expected_ids = [cid.strip() for cid in clause_reference.split(",") if cid.strip()]
-        if not expected_ids:
-            return "  (no expected citations specified in ground truth)"
-
-        lines = []
-        for cid in expected_ids:
-            text, source = self._resolve_clause_text(cid)
-            if source == "exact":
-                snippet = text.replace("\n", " ").strip()[:280]
-                lines.append(f'  - "{cid}": "{snippet}..."')
-            elif source == "parent":
-                snippet = text.replace("\n", " ").strip()[:280]
-                lines.append(f'  - "{cid}": (parent clause text, sub-letter not chunked separately) "{snippet}..."')
-            elif cid in self._inventory_ids:
-                lines.append(f'  - "{cid}": (exists in source-doc inventory, text not cached)')
+                # No doc name -> classify by clause ID membership in any inventory
+                if clause_id in self._inventory_ids:
+                    corpus_citations.add(clause_id)
+                # Else: not in any inventory -> external, exclude
+        
+        # Build G (ground-truth clause set from clause_reference + key_facts sources)
+        gt_clauses = set()
+        
+        # From clause_reference
+        clause_ref = test_case.clause_reference or ""
+        if clause_ref:
+            # Handle both comma-separated string and list
+            if isinstance(clause_ref, str):
+                clause_ids = [c.strip() for c in clause_ref.split(",") if c.strip()]
             else:
-                lines.append(f'  - "{cid}": (not found in any source-doc corpus — possible ground-truth issue)')
-        return "\n".join(lines)
+                clause_ids = clause_ref
+            
+            for cid in clause_ids:
+                normalized = self._extract_clause_id(cid)
+                if normalized:
+                    gt_clauses.add(normalized)
+        
+        # From key_facts sources
+        # Try structured key_facts first
+        structured_kf = test_case.metadata.get("key_facts_structured", [])
+        if structured_kf:
+            for kf in structured_kf:
+                if isinstance(kf, dict) and "source" in kf:
+                    source = kf["source"]
+                    clause_id = self._extract_clause_id(source)
+                    if clause_id:
+                        gt_clauses.add(clause_id)
+        
+        # If no corpus citations, return D6=1 (neutral)
+        if not corpus_citations:
+            return 1
+        
+        # Compute precision
+        intersection = corpus_citations & gt_clauses
+        precision = len(intersection) / len(corpus_citations)
+        
+        # Map precision to 0-3 scale
+        if precision == 1.0:
+            return 3
+        elif precision >= 0.67:
+            return 2
+        elif precision >= 0.34:
+            return 1
+        else:
+            return 0
 
     def _build_key_facts_block(self, test_case: TestCase) -> str:
         """
@@ -901,9 +836,26 @@ Return ONLY valid JSON (no markdown):
                     max_attempts=self._json_retry_attempts,
                     judge_mode="rubric",
                 )
-                judge_response = self._call_judge(judge_prompt)
+                judge_response = self._call_judge(judge_prompt, seed=self._settings.judge_seed)
                 try:
-                    return self._parse_judge_response(judge_response)
+                    # Parse D1-D5 from LLM
+                    dimensions, justification, confidence, raw_response = self._parse_judge_response(judge_response)
+                    
+                    # Compute D6 programmatically
+                    d6_score = self._compute_citation_correctness(response.content, test_case)
+                    dimensions.append(DimensionScore(
+                        name="citation_correctness",
+                        score=d6_score,
+                        weight=0.5,
+                    ))
+                    
+                    # Build final JudgeEvaluation with all 6 dimensions
+                    return JudgeEvaluation.from_dimensions(
+                        dimensions=dimensions,
+                        justification=justification,
+                        confidence=confidence,
+                        raw_response=raw_response,
+                    )
                 except (json.JSONDecodeError, KeyError, ValueError) as parse_err:
                     last_err = parse_err
                     struct_logger.warning(
@@ -1006,7 +958,7 @@ Return ONLY valid JSON (no markdown):
                     max_attempts=self._json_retry_attempts,
                     judge_mode="universal",
                 )
-                judge_response = self._call_judge(judge_prompt)
+                judge_response = self._call_judge(judge_prompt, seed=self._settings.judge_seed)
                 try:
                     return self._parse_universal_judge_response(judge_response)
                 except (json.JSONDecodeError, KeyError, ValueError) as parse_err:
@@ -1124,19 +1076,6 @@ Return ONLY valid JSON (no markdown):
         # and source metadata from ground truth.
         key_facts_block = self._build_key_facts_block(test_case)
 
-        # Pre-verify citations in the response against the CCoP 2.0 clause
-        # inventory and fetch actual clause text from Qdrant. Injected into
-        # the prompt so the judge scores D3 from verified ground truth rather
-        # than its own parametric knowledge.
-        citation_verifications = self._build_citation_verification_block(response.content)
-
-        # Expected citations from ground truth clause_reference, with actual
-        # clause text so the judge can compare response claims against what
-        # the expected-to-cite clauses actually say.
-        expected_citations_block = self._build_expected_citations_block(
-            test_case.clause_reference or ""
-        )
-
         forbidden = (
             "\n".join(f"  - {c}" for c in test_case.forbidden_claims)
             if test_case.forbidden_claims
@@ -1154,8 +1093,6 @@ Return ONLY valid JSON (no markdown):
         prompt = prompt.replace("{expected_response}", test_case.expected_response)
         prompt = prompt.replace("{key_facts}", key_facts_block)
         prompt = prompt.replace("{clause_reference}", test_case.clause_reference)
-        prompt = prompt.replace("{expected_citations_text}", expected_citations_block)
-        prompt = prompt.replace("{citation_verifications}", citation_verifications)
         prompt = prompt.replace("{forbidden_claims}", forbidden)
         prompt = prompt.replace("{hallucination_patterns}", hallucination_patterns_str)
 
@@ -1167,22 +1104,22 @@ Return ONLY valid JSON (no markdown):
 
         return prompt
 
-    def _parse_judge_response(self, response: str) -> JudgeEvaluation:
+    def _parse_judge_response(self, response: str) -> Tuple[List[DimensionScore], str, float, str]:
         """
-        Parse JSON response from Claude judge into JudgeEvaluation.
+        Parse JSON response from LLM judge into components.
 
-        Expects the standardized format:
+        Expects the standardized format (D1-D5 only, D6 computed separately):
         {
-            "dimensions": [{"dimension": "...", "score": 0-3, "weight": 1.0}],
+            "dimensions": [{"dimension": "...", "score": 0-3, "weight": 0.5}],
             "justification": "...",
             "confidence": 0.0-1.0
         }
 
         Args:
-            response: Raw response from Claude
+            response: Raw response from LLM judge
 
         Returns:
-            Parsed JudgeEvaluation with dynamic DimensionScore list
+            Tuple of (dimensions D1-D5, justification, confidence, raw_response)
 
         Raises:
             json.JSONDecodeError: If response is not valid JSON
@@ -1216,11 +1153,11 @@ Return ONLY valid JSON (no markdown):
                 )
             )
 
-        return JudgeEvaluation.from_dimensions(
-            dimensions=dimensions,
-            justification=data["justification"],
-            confidence=float(data.get("confidence", 0.5)),
-            raw_response=response,
+        return (
+            dimensions,
+            data["justification"],
+            float(data.get("confidence", 0.5)),
+            response,
         )
 
     def _parse_universal_judge_response(self, response: str) -> JudgeEvaluation:
