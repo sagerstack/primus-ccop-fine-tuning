@@ -1,3 +1,60 @@
+# ontology_v2 — RESUME (latest: 2026-07-09c)
+
+## ⭐ SESSION 2026-07-09c — graphont WIRED, COMMITTED, PR'd. Next = comparison eval.
+
+**Status: `--mode graphont` is fully built, E2E-proven, committed (`e3339b8`), and PR #4 → main open.**
+(https://github.com/sagerstack/primus-ccop-fine-tuning/pull/4 — 183-commit branch)
+
+**Retrieval pipeline (all configurable in `omd_retrieval.py`):** query → gpt-4o-mini concept extraction
+(Q) → tri-channel over **931 passages** (863 clauses + 68 definitions): IDF-weighted graph Channel-I
+(hub-gated 1-hop expand) + BM25 + bge-large dense → **weighted RRF** (graph 1.0·bm25 0.7·dense 1.5,
+depth 100) → **cross-encoder rerank** (bge-reranker-large) with **confidence-adaptive CE⊕RRF**
+(RERANK_CONF_REF=0.15; collapsed-query → RRF fallback) → Top-8 + **definition injection**.
+Node: `rag/retrieval/nodes/omd_context_assembly.py`. Allowlists updated: query/evaluate/run_id/evaluate_model.
+
+**This session's changes (in the commit):**
+- Definitions now **first-class retrievable passages** (`_passages()` in omd_retrieval + build_dense_index
+  → 931-vector `.npz`). Fixed 40 orphaned defs (had no DEFINES edge, weren't in BM25/dense → unreachable).
+- **Noise fixes:** drop circular def stubs ("As defined in section N of the Act"), dedup+cap defs (≤3),
+  clean citation formatting. **B01-001 benchmark 0.39→0.61** (precision 0.86→1.00, factual_grounding 0→2/3).
+  **B05-001 = 0.778** (cites both GT clauses).
+- **RAGAs configurable** via `CCOP_RAGAS_ENABLED` (settings + container already wired). **Currently FALSE.**
+
+**⚠️ HARD GOTCHA — memory/OOM (17GB Mac):** graphont eval + RAGAs = jetsam OOM kill. RAGAs loads a
+DUPLICATE bge-large (~1.3GB, same model as dense channel) + evaluator LLM; stacked with bge-dense +
+bge-reranker + Ollama primus (~5GB) + Docker(Neo4j+Qdrant) + apps → swap thrash (B01 took 32min) → killed.
+**To run graphont eval: RAGAs OFF + close Word/heavy apps + stop Qdrant during graphont (uses Neo4j only).**
+Consequence: RAGAs off = **no retrieval-quality metrics** (context_recall/precision/faithfulness are ALL RAGAs);
+LLM-Judge score survives. For the comparison, compute retrieval quality DIRECTLY from retrieved-IDs vs GT.
+
+**NEXT (the pending task): 18-case graphont-vs-hybrid retrieval comparison.**
+1. Run `evaluate run --mode graphont` then `--mode hybrid` on the 18 stratified IDs
+   `[B01-001,B02-001,B03-001,B04-001,B05-001,B06-001,B07-006,B08-001,B09-001,B10-001,B12-001,B13-001,
+   B14-001,B18-001,B21-001,B22-001,B23-001,B24-001]`, `--verbose-io`, `CCOP_TEST_CASES_DIR=../ground-truth/
+   test-suite/audit-20260629-1245`. **Run BATCHED (~3 cases/process) with `--resume`** so memory frees between
+   batches (one long process OOMs). RAGAs OFF. Stop Qdrant for graphont, restart for hybrid.
+2. Build spreadsheet: extractor **READY + validated** at `<scratchpad>/build_comparison_xlsx.py` → writes
+   `docs/project_notes/graphont_vs_hybrid_retrieval.xlsx` (2 worksheets: graphont, hybrid; cols = test_id,
+   GT answer, GT clauses, retrieved IDs, retrieved content, model answer, citations, score). Auto-finds
+   most-recent full-18 run per mode.
+3. Comparison analysis (c): retrieval quality (recall@K / decisive-clause-hit from IDs-vs-GT), graphRAG
+   value-add vs hybrid, whether hybrid does better citations anywhere.
+
+**Other open threads (lower priority):**
+- **Recall gap** (B01): §1.4.1 has a genuine **extraction gap** (its text is about Obligation/Provision-
+  APPLIES_TO-CII but only invokes CodeOfPractice/CII/CIIO) — the legit non-overfitting fix. Act §7 = concept
+  mismatch (hard). §1.2.1 = it's a :Definition; CII def cites as SBD-AnnexC not §1.2.1 (fixable via cross-ref tag).
+- **query→concept nondeterminism**: ±0.11 score swing between identical runs (gpt-4o-mini varies even at temp 0).
+  Cache concepts per test-id before trusting exact numbers.
+- **Community Report channel** (paper Channel-2: Leiden + LLM reports + S_comm): NOT built, deferred (low ROI
+  for factoid GT). Diagram fix TODO: arrow should be OMD-Retrieval→gpt-4o-mini (NOT LLM-Inference); add Opus
+  (build-time extraction) to Models box.
+
+**Diagrams:** `report/term3-mid/graphont_retrieval_methodology.excalidraw` + `graphont_architecture.excalidraw`
+(generators in scratchpad). Arch diagram: Neo4j = the one DB, .npz dense index = derived cache.
+
+---
+
 # ontology_v2 — RESUME (2026-07-08)
 
 Corpus-wide OMD-GraphRAG KG build. **Strictly the POC (`poc_reference/omd_b01.py`,

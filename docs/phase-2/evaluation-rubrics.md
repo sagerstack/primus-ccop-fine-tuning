@@ -31,7 +31,7 @@
 
 **Purpose**: A single benchmark-agnostic rubric applied to every LLM-judged benchmark. Benchmark-specific signal comes from each test case's ground truth (`key_facts`, `clause_reference`, `expected_response`), not from the rubric itself.
 
-**Dimensions**: Six generic dimensions, each scored on the anchored 0-3 scale, all carrying equal weight 0.5. `factual_grounding` measures whether the response's claims are supported by available material (claim-level grounding); `citation_correctness` measures whether cited clause IDs are real and accurately described — these are independent signals. Composite score = weighted sum / (3.0 × total weight); maximum composite = 1.0.
+**Dimensions**: Five LLM-scored dimensions (D1-D5) plus one programmatic dimension (D6 citation_correctness, computed from model's Sources vs ground-truth clause set), each scored on the anchored 0-3 scale, all carrying equal weight 0.5. Composite score = weighted sum / (3.0 × total weight); maximum composite = 1.0.
 
 ### Dimension Definitions and Anchors
 
@@ -59,16 +59,16 @@ Is the reasoning logically sound, internally consistent, and does it follow from
 
 #### D3: Factual Grounding (weight 0.5)
 
-Are the response's atomic factual claims supported by the available material — retrieved contexts, ground-truth `key_facts`, and the actual text of cited clauses (in `Citation Verifications`)?
+Are the response's atomic factual claims supported by the ground-truth material (`Key Facts`, `Forbidden Claims`, and `Hallucination Patterns`)?
 
-This dimension is **claim-level**, not citation-level. A response can score well here even with imprecise citation IDs, as long as its actual factual statements are traceable to material we have. Conversely, a response with perfectly-cited clause IDs scores poorly here if the substantive claims it makes don't follow from those clauses.
+This dimension is **claim-level**, not citation-level. A response can score well here even with imprecise citation IDs, as long as its actual factual statements are traceable to the provided ground-truth material. Conversely, a response with perfectly-cited clause IDs scores poorly here if the substantive claims it makes contradict ground truth or assert forbidden claims.
 
 | Score | Anchor |
 |-------|--------|
-| 0 | Most claims are CONTRADICTED or UNSUPPORTED (claim-grounding ratio < 0.34) |
-| 1 | Partial grounding — some claims supported, many unsupported (0.34 ≤ ratio < 0.67) |
-| 2 | Most claims supported by available material; minor unsupported claims (0.67 ≤ ratio < 1.0) |
-| 3 | Every factual claim is supported by retrieved contexts, key_facts, or cited clause text (ratio = 1.0) |
+| 0 | Most claims are CONTRADICTED by ground truth or UNSUPPORTED (claim-grounding ratio < 0.34) |
+| 1 | Partial grounding — some claims supported by ground truth, many unsupported (0.34 ≤ ratio < 0.67) |
+| 2 | Most claims supported by ground-truth material; minor unsupported claims (0.67 ≤ ratio < 1.0) |
+| 3 | Every factual claim is supported by Key Facts or avoids Forbidden Claims and Hallucination Patterns (ratio = 1.0) |
 
 #### D4: Scope Appropriateness (weight 0.5)
 
@@ -94,21 +94,12 @@ Does the response translate its analysis into concrete, feasible next steps the 
 
 #### D6: Citation Correctness (weight 0.5)
 
-Are the cited clause IDs real (existing in the corpus inventory) and accurately described against the actual clause text? This is a **citation-level** check, distinct from D3's claim-level check. A response can score well here while making poor substantive claims (correct IDs, wrong descriptions), or vice versa.
-
-Sub-letter precision matters: `5.3.1(c)` is FABRICATED if only `5.3.1(a)` and `5.3.1(b)` exist in the corpus, even though the parent clause `5.3.1` is real.
-
-| Score | Anchor |
-|-------|--------|
-| 0 | Most cited clause IDs are FABRICATED or MISATTRIBUTED (citation ratio < 0.34) |
-| 1 | Partial citation accuracy — some real, many fabricated/misattributed (0.34 ≤ ratio < 0.67) |
-| 2 | Mostly real and correctly described; one or two imprecise (0.67 ≤ ratio < 1.0) |
-| 3 | All citations real, sub-letters verified, descriptions match clause text (ratio = 1.0) |
+**(Computed programmatically, not LLM-scored.)** Precision of the model's in-corpus citations (from its Sources block) against the ground-truth clause set (clause_reference + key_facts sources). External references (e.g., NIST, ISO) are excluded. Precision = |C∩G|/|C|, mapped to 0-3 scale (1.0→3, ≥0.67→2, ≥0.34→1, <0.34→0). If no corpus citations, D6=1.
 
 ### Judge Prompt Template
 
 ```
-You are an expert compliance auditor evaluating a model's response to a compliance scenario. Score the response on 6 dimensions using an anchored 0-3 scale for each. All dimensions carry equal weight 0.5. `factual_grounding` is a claim-level check (are the response's factual statements supported?); `citation_correctness` is a citation-level check (are the cited clause IDs real and correctly described?). The two dimensions measure independent signals — score them separately.
+You are an expert compliance auditor evaluating a model's response to a compliance scenario. Score the response on **5 dimensions** (D1-D5) using an anchored 0-3 scale for each. All dimensions carry equal weight 0.5. (D6 citation_correctness is computed programmatically, not scored by you.)
 
 **CRITICAL — SCORE STRICTLY FROM GROUND TRUTH**:
 Score only based on what is documented in the ground-truth sections below (Expected Response, Key Facts, Clause Reference, Citation Verifications, Forbidden Claims, Hallucination Patterns). Do NOT use your own parametric memory of the regulation to fill in gaps or give the benefit of the doubt. If a claim in the response is not verifiable against the provided ground truth AND cannot be traced to a clause whose actual text is shown below, treat it as ungrounded. Leniency not based on ground truth is a scoring error.
@@ -127,12 +118,6 @@ Score only based on what is documented in the ground-truth sections below (Expec
 
 **Clause Reference** (the clause IDs the expected answer cites):
 {clause_reference}
-
-**Expected Citations** (the actual text of each clause the expected answer cites — use this to evaluate whether the response addresses the substance the expected answer draws on):
-{expected_citations_text}
-
-**Citation Verifications** (programmatically extracted from the response and verified against the CCoP 2.0 clause inventory; use this as ground truth for D3):
-{citation_verifications}
 
 **Forbidden Claims** (the response MUST NOT assert any of these):
 {forbidden_claims}
@@ -210,29 +195,6 @@ Score:
 
 ---
 
-**D6 — citation_correctness** (weight 0.5):
-
-Citation-level check. Use Citation Verifications as ground truth.
-
-Step 1 — Classify each citation:
-  - EXTERNAL (outside 7-doc corpus): EXCLUDED
-  - FABRICATED (claimed corpus clause that doesn't exist, including invented sub-letters like `5.3.1(c)` when only `(a)`/`(b)` exist): count
-  - EXISTS: go to Step 2
-
-Step 2 — For each EXISTS, compare to actual clause text:
-  - CORRECT, IMPRECISE, or MISATTRIBUTED
-
-Step 3 — Score by ratio:
-  - `correct_weight = CORRECT + 0.5 × IMPRECISE`
-  - `verifiable_total = CORRECT + IMPRECISE + MISATTRIBUTED + FABRICATED`
-  - `ratio = correct_weight / verifiable_total`
-  - 1.0 → D6=3 | ≥0.67 → D6=2 | ≥0.34 → D6=1 | <0.34 → D6=0
-  - 0 citations → D6=1
-
-In justification: counts only.
-
----
-
 **Output Format** (JSON only, no other text):
 
 {
@@ -241,10 +203,9 @@ In justification: counts only.
     {"dimension": "justification_quality",  "score": <0-3>, "weight": 0.5},
     {"dimension": "factual_grounding",      "score": <0-3>, "weight": 0.5},
     {"dimension": "scope_appropriateness",  "score": <0-3>, "weight": 0.5},
-    {"dimension": "actionable_way_forward", "score": <0-3>, "weight": 0.5},
-    {"dimension": "citation_correctness",   "score": <0-3>, "weight": 0.5}
+    {"dimension": "actionable_way_forward", "score": <0-3>, "weight": 0.5}
   ],
-  "justification": "<1-2 sentences per dimension. Be concise. For D3: counts only (e.g., '4 SUPPORTED, 1 UNSUPPORTED, 0 CONTRADICTED → ratio 0.8 → D3=2') plus one example per CONTRADICTED claim. For D4: name any constraint violation. For D5: (a) no steps or (b) infeasible steps. For D6: counts only with the same ratio shown.>",
+  "justification": "<1-2 sentences per dimension. Be concise. For D3: counts only (e.g., '4 SUPPORTED, 1 UNSUPPORTED, 0 CONTRADICTED → ratio 0.8 → D3=2') plus one example per CONTRADICTED claim. For D4: name any constraint violation. For D5: (a) no steps or (b) infeasible steps.>",
   "confidence": <0.0-1.0>
 }
 ```
