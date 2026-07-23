@@ -7,6 +7,7 @@ CLI command for evaluating models.
 import asyncio
 import json
 import logging
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -27,7 +28,7 @@ from presentation.cli.formatters import build_per_result_panel
 evaluate_app = typer.Typer()
 console = Console()
 
-VALID_EVAL_MODES = ["hybrid", "llm-only", "graphrag", "graphrag-ontology", "graphcpl", "graphont"]
+VALID_EVAL_MODES = ["hybrid", "llm-only", "graphrag", "graphrag-ontology", "graphcpl", "graphont", "graphont-agentic"]
 
 
 @evaluate_app.command()
@@ -86,8 +87,55 @@ def run(
             "model has drifted vs the partial file."
         ),
     ),
+    hyde: Optional[bool] = typer.Option(
+        None,
+        "--hyde/--no-hyde",
+        help="Enable/disable HyDE hypothetical-clause dense retrieval for this run (overrides env). Supported in hybrid, rag-only, graphont, and graphont-agentic.",
+    ),
+    poolk: Optional[int] = typer.Option(
+        None,
+        "--poolk",
+        "--pool-k",
+        min=1,
+        max=50,
+        help="Override retrieval candidate pool size for this run (1-50).",
+    ),
+    topk: Optional[int] = typer.Option(
+        None,
+        "--topk",
+        "--top-k",
+        min=1,
+        max=20,
+        help="Override maximum primary ranked contexts passed downstream for this run (1-20).",
+    ),
 ) -> None:
     """Run model evaluation."""
+    if poolk is not None and topk is not None and topk > poolk:
+        console.print("[red]Invalid retrieval limits: --topk cannot exceed --poolk.[/red]")
+        raise typer.Exit(code=1)
+
+    if hyde is not None:
+        _val = "true" if hyde else "false"
+        os.environ["CCOP_RAG_HYDE_ENABLED"] = _val
+        os.environ["CCOP_GRAPHONT_HYDE_ENABLED"] = _val
+        os.environ["CCOP_GRAPHONT_AGENTIC_HYDE_ENABLED"] = _val
+        import infrastructure.config.settings as _sett
+        _sett._settings = None  # force re-read of overridden env
+
+    if poolk is not None:
+        _poolk = str(poolk)
+        os.environ["CCOP_RAG_RETRIEVAL_TOP_K"] = _poolk
+        os.environ["CCOP_GRAPHONT_POOL_K"] = _poolk
+        os.environ["CCOP_GRAPHONT_AGENTIC_POOL_K"] = _poolk
+    if topk is not None:
+        _topk = str(topk)
+        os.environ["CCOP_RERANK_TOP_N"] = _topk
+        os.environ["CCOP_GRAPHONT_TOP_K"] = _topk
+        os.environ["CCOP_GRAPHONT_AGENTIC_TOP_K"] = _topk
+    if poolk is not None or topk is not None:
+        import infrastructure.config.settings as _sett
+        _sett._settings = None
+
     from infrastructure.config.settings import get_settings
 
     # Verbose log routing — match `query ask --verbose` behaviour so rag.retrieval.*

@@ -17,6 +17,19 @@ def _doc(text: str, citation_id: str, section: str, score: float) -> Document:
     )
 
 
+def cap_primary_candidates(candidates: List[dict], top_k: int) -> List[dict]:
+    """Preserve ranking order; retain all definition candidates plus at most top_k primary clauses."""
+    selected = []
+    primary_count = 0
+    for candidate in candidates:
+        if candidate.get("kind") == "definition":
+            selected.append(candidate)
+        elif primary_count < top_k:
+            selected.append(candidate)
+            primary_count += 1
+    return selected
+
+
 def omd_pack(state: GraphState) -> GraphState:
     """Transform the persisted retrieval trace into primus context documents."""
     trace = state["retrieval_trace"]
@@ -56,4 +69,4 @@ def omd_pack(state: GraphState) -> GraphState:
     return state
 
 
-__all__ = ["omd_pack"]
+__all__ = ["cap_primary_candidates", "omd_pack"]

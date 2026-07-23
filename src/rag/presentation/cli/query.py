@@ -14,8 +14,10 @@ behaves the same as `evaluate run --judge-mode universal`.
 
 import asyncio
 import logging
+import os
 import sys
 from datetime import datetime
+from typing import Optional
 
 import typer
 from rich.console import Console
@@ -40,6 +42,7 @@ VALID_MODES = [
     "graphrag-retrieval",
     "graphrag-ontology",  # Phase 10 (D-16 additivity) — ontology-grounded graph retrieval
     "graphont",  # OMD-GraphRAG (ontology_v2) — tri-channel concept retrieval + reranker
+    "graphont-agentic",  # Phase 12 — OMD-GraphRAG + LLM-based relevance filtering
 ]
 
 
@@ -63,6 +66,27 @@ def query_command(
         False, "--no-judge",
         help="Skip the universal LLM judge (saves ~10-20s per query). Judge runs by default.",
     ),
+    hyde: Optional[bool] = typer.Option(
+        None,
+        "--hyde/--no-hyde",
+        help="Enable/disable HyDE hypothetical-clause dense retrieval for this run (overrides env). Supported in hybrid, rag-only, graphont, and graphont-agentic.",
+    ),
+    poolk: Optional[int] = typer.Option(
+        None,
+        "--poolk",
+        "--pool-k",
+        min=1,
+        max=50,
+        help="Override retrieval candidate pool size for this run (1-50).",
+    ),
+    topk: Optional[int] = typer.Option(
+        None,
+        "--topk",
+        "--top-k",
+        min=1,
+        max=20,
+        help="Override maximum primary ranked contexts passed downstream for this run (1-20).",
+    ),
 ) -> None:
     """
     Query CCoP compliance information.
@@ -79,6 +103,32 @@ def query_command(
     if mode not in VALID_MODES:
         console.print(f"[red]Invalid mode:[/red] {mode}. Must be one of: {', '.join(VALID_MODES)}")
         raise typer.Exit(code=1)
+
+    if poolk is not None and topk is not None and topk > poolk:
+        console.print("[red]Invalid retrieval limits: --topk cannot exceed --poolk.[/red]")
+        raise typer.Exit(code=1)
+
+    if hyde is not None:
+        _val = "true" if hyde else "false"
+        os.environ["CCOP_RAG_HYDE_ENABLED"] = _val
+        os.environ["CCOP_GRAPHONT_HYDE_ENABLED"] = _val
+        os.environ["CCOP_GRAPHONT_AGENTIC_HYDE_ENABLED"] = _val
+        import infrastructure.config.settings as _sett
+        _sett._settings = None  # force re-read of overridden env
+
+    if poolk is not None:
+        _poolk = str(poolk)
+        os.environ["CCOP_RAG_RETRIEVAL_TOP_K"] = _poolk
+        os.environ["CCOP_GRAPHONT_POOL_K"] = _poolk
+        os.environ["CCOP_GRAPHONT_AGENTIC_POOL_K"] = _poolk
+    if topk is not None:
+        _topk = str(topk)
+        os.environ["CCOP_RERANK_TOP_N"] = _topk
+        os.environ["CCOP_GRAPHONT_TOP_K"] = _topk
+        os.environ["CCOP_GRAPHONT_AGENTIC_TOP_K"] = _topk
+    if poolk is not None or topk is not None:
+        import infrastructure.config.settings as _sett
+        _sett._settings = None
 
     # Verbose log routing — surfaces rag.retrieval.* INFO-level diagnostics
     log_level = logging.INFO if verbose else logging.WARNING

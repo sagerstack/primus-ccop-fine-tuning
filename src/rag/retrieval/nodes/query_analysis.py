@@ -24,7 +24,7 @@ QUESTION:
 HYPOTHETICAL CLAUSE:"""
 
 
-def _generate_hyde(question: str, settings) -> str:
+def _generate_hyde(question: str, settings, temperature: float = 0.2) -> str:
     """Call OpenRouter to generate a hypothetical CCoP clause."""
     if not settings.openrouter_api_key:
         logger.warning("HyDE enabled but OPENROUTER_API_KEY not set; skipping")
@@ -39,7 +39,7 @@ def _generate_hyde(question: str, settings) -> str:
         resp = client.chat.completions.create(
             model=settings.rag_hyde_model,
             messages=[{"role": "user", "content": HYDE_PROMPT.format(q=question)}],
-            temperature=0.2,
+            temperature=temperature,
             max_tokens=200,
         )
         return (resp.choices[0].message.content or "").strip()

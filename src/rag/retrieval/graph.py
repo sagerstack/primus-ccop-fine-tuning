@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Callable
 from langgraph.graph import END, StateGraph
 
 from rag.graph.retrieval.graph_retrieval_node import graph_retrieve_documents
-from rag.retrieval.edges.routing import decide_after_grading, route_by_mode
+from rag.retrieval.edges.routing import decide_after_grading, route_after_hyde, route_by_mode
 
 if TYPE_CHECKING:
     from infrastructure.config.settings import Settings
@@ -19,6 +19,7 @@ from rag.retrieval.nodes.fallback import fallback_generation
 from rag.retrieval.nodes.function_type_routing import classify_function_type
 from rag.retrieval.nodes.generation import generate_response
 from rag.retrieval.nodes.grading import grade_documents
+from rag.retrieval.nodes.hyde_generation import hyde_generation
 from rag.retrieval.nodes.query_analysis import analyze_query
 from rag.retrieval.nodes.rag_response import rag_only_response
 from rag.retrieval.nodes.reranking import rerank_documents
@@ -28,6 +29,7 @@ from rag.retrieval.nodes.anchor_hypernym_mapping import map_anchors_to_hypernyms
 from rag.retrieval.nodes.compliance_gate_retrieval import compliance_gate_retrieval
 from rag.retrieval.nodes.compliance_context_assembly import compliance_context_assembly
 from rag.retrieval.nodes.omd_context_assembly import omd_context_assembly
+from rag.retrieval.nodes.omd_agentic_context_assembly import omd_agentic_context_assembly
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -94,6 +96,9 @@ def build_rag_graph(settings: "Settings"):
     workflow.add_node("compliance_context_assembly", compliance_context_assembly)
     # OMD-GraphRAG (--mode graphont) single assembly node
     workflow.add_node("omd_context_assembly", omd_context_assembly)
+    # OMD-GraphRAG + agentic filtering (--mode graphont-agentic) single assembly node
+    workflow.add_node("hyde_generation", hyde_generation)
+    workflow.add_node("omd_agentic_context_assembly", omd_agentic_context_assembly)
 
     # Entry point
     workflow.set_entry_point("query_analysis")
@@ -118,6 +123,8 @@ def build_rag_graph(settings: "Settings"):
             "graph_retrieval_ontology": "function_type_routing",
             "context_graph_extraction": "context_graph_extraction",
             "omd_context_assembly": "omd_context_assembly",
+            "hyde_generation": "hyde_generation",
+            "omd_agentic_context_assembly": "omd_agentic_context_assembly",
             "fallback": "fallback",
         },
     )
@@ -133,6 +140,16 @@ def build_rag_graph(settings: "Settings"):
     # OMD-GraphRAG chain (--mode graphont): retriever reranks internally, so the single
     # assembly node edges straight to primus `generate` (mirrors graphcpl option (a)).
     workflow.add_edge("omd_context_assembly", "generate")
+    # OMD-GraphRAG + agentic filtering chain (--mode graphont-agentic): same topology.
+    workflow.add_conditional_edges(
+        "hyde_generation",
+        route_after_hyde,
+        {
+            "omd_context_assembly": "omd_context_assembly",
+            "omd_agentic_context_assembly": "omd_agentic_context_assembly",
+        },
+    )
+    workflow.add_edge("omd_agentic_context_assembly", "generate")
 
     # Retrieval → reranking → grading (always)
     workflow.add_edge("retrieval", "reranking")

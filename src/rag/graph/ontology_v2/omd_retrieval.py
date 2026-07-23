@@ -28,6 +28,7 @@ KNOWN LIMITATIONS (paper components NOT yet built — pending user scope decisio
      + S_comm cosine) not built — the paper's community-level channel for multi-doc/global-theme queries.
   3. Act §7 / RtF §2.3 still miss — likely need the reranker (1) to rank recalled-but-diluted candidates.
 """
+import hashlib
 import json
 import re
 import statistics
@@ -133,10 +134,8 @@ def _string_match_concepts(text: str) -> List[str]:
     return hits
 
 
-def query_to_concepts(text: str) -> List[str]:
-    """Map query -> canonical concept nodes via schema-guided LLM extraction (POC design):
-    the LLM reads the question and picks the concepts it is *about* from the graph's concept
-    vocabulary — understanding meaning, not spotting keywords. Falls back to substring match."""
+def _query_to_concepts_uncached(text: str) -> List[str]:
+    """Uncached LLM extraction — internal helper. Use query_to_concepts() for the cached version."""
     vocab = _concept_vocab()
     try:
         from openai import OpenAI
@@ -155,6 +154,50 @@ def query_to_concepts(text: str) -> List[str]:
     except Exception:
         pass
     return _string_match_concepts(text)
+
+
+def query_to_concepts(text: str) -> List[str]:
+    """Map query -> canonical concept nodes via schema-guided LLM extraction (cached for determinism).
+    Falls back to substring match if LLM call fails. Cache keyed by (model, build_id, question)."""
+    s = get_settings()
+    
+    # Bypass cache if disabled
+    if not s.query_concepts_cache_enabled:
+        return _query_to_concepts_uncached(text)
+    
+    # Cache key: model|build_id|question
+    cache_key = hashlib.sha256(f"{s.ontology_discovery_model}|{BUILD_ID}|{text}".encode()).hexdigest()
+    
+    # Cache file path
+    cache_dir = Path(s.results_dir) / "cache"
+    cache_file = cache_dir / "query_to_concepts_cache.json"
+    
+    # Load cache (fail-open)
+    cache = {}
+    try:
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        if cache_file.exists():
+            cache = json.loads(cache_file.read_text())
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Failed to load query_to_concepts cache: {e}")
+    
+    # Check cache
+    if cache_key in cache:
+        return cache[cache_key]
+    
+    # Cache miss: call uncached version
+    result = _query_to_concepts_uncached(text)
+    
+    # Save to cache (fail-open)
+    try:
+        cache[cache_key] = result
+        cache_file.write_text(json.dumps(cache, indent=2))
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Failed to save query_to_concepts cache: {e}")
+    
+    return result
 
 
 def expand(concepts: List[str], min_seed_idf: float = 2.5) -> List[str]:
@@ -365,7 +408,7 @@ def rerank(query: str, candidates: List[Tuple[str, str]],
 
 
 def retrieve(text: str, k: int = 8, n1: int = None, k1: int = None, kd: int = None,
-             w_graph: float = W_GRAPH, w_bm25: float = W_BM25, w_dense: float = W_DENSE,
+             dense_query: str = None, w_graph: float = W_GRAPH, w_bm25: float = W_BM25, w_dense: float = W_DENSE,
              rrf_k: int = RRF_K, do_rerank: bool = RERANK_ENABLED, rerank_model: str = RERANK_MODEL,
              rerank_ce_w: float = RERANK_CE_WEIGHT, rerank_rrf_w: float = RERANK_RRF_WEIGHT,
              rerank_adaptive: bool = RERANK_ADAPTIVE, rerank_conf_ref: float = RERANK_CONF_REF) -> Dict:
@@ -383,7 +426,7 @@ def retrieve(text: str, k: int = 8, n1: int = None, k1: int = None, kd: int = No
 
     ch1 = channel1(Q, Qplus, n1)                       # [(cid, ch1, doc, text)]  structural
     ch2 = channel2(text, k1)                           # [(cid, bm25)]            keyword
-    chd = channel_dense(text, kd)                      # [(cid, cosine)]          semantic
+    chd = channel_dense(dense_query if dense_query is not None else text, kd)  # [(cid, cosine)] semantic
     ch1_by = {cid: (s, doc, txt) for cid, s, doc, txt in ch1}
     bm_by = {cid: s for cid, s in ch2}
     dn_by = {cid: s for cid, s in chd}

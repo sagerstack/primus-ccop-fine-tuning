@@ -6,6 +6,7 @@ Conditional edge functions for LangGraph routing decisions.
 
 import logging
 
+from infrastructure.config.settings import get_settings
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -42,8 +43,18 @@ def route_by_mode(state: GraphState) -> str:
         # OMD-GraphRAG (ontology_v2): a single assembly node calls the tri-channel
         # retriever (which reranks internally) and packs filtered_documents, then edges
         # straight to `generate` — mirrors graphcpl option (a). Distinct branch (additive).
+        if get_settings().graphont_hyde_enabled:
+            logger.info("Routing: mode=graphont+HyDE -> hyde_generation node")
+            return "hyde_generation"
         logger.info("Routing: mode=graphont -> omd_context_assembly node")
         return "omd_context_assembly"
+
+    if mode == "graphont-agentic":
+        # OMD-GraphRAG + LLM-based relevance filtering (Phase 12, agentic mode): retrieves
+        # k candidates, scores each on answer-support (0/1/2) via RetrievalEvaluator, filters
+        # by min_score, then packs survivors. Distinct branch (additive).
+        logger.info("Routing: mode=graphont-agentic -> omd_agentic_context_assembly node")
+        return "hyde_generation"
 
     if mode in ("graphrag", "graphrag-retrieval"):
         # Graph retrieval (Phase 9): swaps ONLY the retrieval node — the
@@ -75,6 +86,15 @@ def route_by_mode(state: GraphState) -> str:
 
     logger.info(f"Routing: mode={mode} -> retrieval node")
     return "retrieval"
+
+
+def route_after_hyde(state: GraphState) -> str:
+    mode = state.get("mode", "")
+    if mode == "graphont":
+        return "omd_context_assembly"
+    if mode == "graphont-agentic":
+        return "omd_agentic_context_assembly"
+    raise ValueError(f"hyde_generation is not valid for mode={mode!r}")
 
 
 def decide_after_grading(state: GraphState) -> str:

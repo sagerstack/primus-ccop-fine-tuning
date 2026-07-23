@@ -79,6 +79,10 @@ class Settings(BaseSettings):
         default=0.2,
         description="Judge sampling temperature (0.0-1.0); 0.2 is the variance-reduction sweet spot"
     )
+    judge_seed: Optional[int] = Field(
+        default=None,
+        description="Fixed seed for LLM-Judge calls (passed to OpenRouterClient). None = default. Set an int with judge_temperature=0 for more reproducible judging (note: qwen3-235b is MoE/OpenRouter so residual nondeterminism remains). Env: CCOP_JUDGE_SEED",
+    )
     judge_max_retries: int = Field(
         default=3,
         description="Max retries on OpenRouter API failure before raising JudgeAPIError"
@@ -95,6 +99,58 @@ class Settings(BaseSettings):
     judge_timeout: int = Field(
         default=60,
         description="Per-call timeout in seconds for OpenRouter judge calls"
+    )
+    retrieval_evaluator_model: str = Field(
+        default="qwen/qwen3-235b-a22b-07-25",
+        description="OpenRouter model id for the retrieval evaluator (per-clause relevance/answer-support scoring for filtering). Env: CCOP_RETRIEVAL_EVALUATOR_MODEL",
+    )
+    retrieval_evaluator_temperature: float = Field(
+        default=0.0,
+        description="Sampling temperature for the retrieval evaluator (0 for near-deterministic). Env: CCOP_RETRIEVAL_EVALUATOR_TEMPERATURE",
+    )
+    graphont_pool_k: int = Field(
+        default=8,
+        ge=1,
+        le=50,
+        description="Number of internally ranked graphont candidates retained before the final primary-context cap. Env: CCOP_GRAPHONT_POOL_K",
+    )
+    graphont_top_k: int = Field(
+        default=8,
+        ge=1,
+        le=20,
+        description="Top-k retrieved candidates for --mode graphont (default 8 = paper baseline; configurable for recall@k experiments). Env: CCOP_GRAPHONT_TOP_K",
+    )
+    graphont_agentic_pool_k: int = Field(
+        default=8,
+        ge=1,
+        le=50,
+        description="Number of retrieved candidates the retrieval evaluator scores in graphont-agentic mode (default 8 = same pool as graphont). Env: CCOP_GRAPHONT_AGENTIC_POOL_K",
+    )
+    graphont_agentic_top_k: int = Field(
+        default=8,
+        ge=1,
+        le=20,
+        description="Maximum primary clause contexts retained after graphont-agentic evaluator filtering. Definitions do not consume this budget. Env: CCOP_GRAPHONT_AGENTIC_TOP_K",
+    )
+    graphont_agentic_filter_min_score: int = Field(
+        default=1,
+        description="Keep clauses whose retrieval-evaluator score >= this in graphont-agentic mode (1 = retention-safe; 2 = aggressive). Env: CCOP_GRAPHONT_AGENTIC_FILTER_MIN_SCORE",
+    )
+    graphont_hyde_enabled: bool = Field(
+        default=False,
+        description="Enable HyDE hypothetical-clause dense retrieval in plain graphont mode. Default False preserves the graphont baseline. Env: CCOP_GRAPHONT_HYDE_ENABLED",
+    )
+    graphont_agentic_hyde_enabled: bool = Field(
+        default=False,
+        description="Enable HyDE (hypothetical-clause dense retrieval) in graphont-agentic mode. Default False = agentic baseline unchanged. Env: CCOP_GRAPHONT_AGENTIC_HYDE_ENABLED",
+    )
+    hyde_cache_enabled: bool = Field(
+        default=True,
+        description="Cache HyDE generations for deterministic comparisons. Env: CCOP_HYDE_CACHE_ENABLED",
+    )
+    query_concepts_cache_enabled: bool = Field(
+        default=True,
+        description="Cache query_to_concepts LLM extraction (keyed by model|build_id|question) for deterministic/reproducible retrieval pools. Env: CCOP_QUERY_CONCEPTS_CACHE_ENABLED",
     )
 
     # Model Configuration
@@ -161,6 +217,10 @@ class Settings(BaseSettings):
         ge=0.0,
         le=2.0,
         description="Default temperature (0.3 balances reproducibility with reasoning depth)"
+    )
+    generation_seed: Optional[int] = Field(
+        default=None,
+        description="Fixed seed for Primus (Ollama) generation. None = nondeterministic (default). Set an int (e.g. 0) with temperature 0 for fully reproducible generation. Env: CCOP_GENERATION_SEED",
     )
     default_top_p: float = Field(
         default=0.9,

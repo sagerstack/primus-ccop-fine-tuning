@@ -44,6 +44,7 @@ class GraphState(TypedDict):
 
     # Lab Exp #41 production-promoted fields:
     hyde_query: str  # gpt-4o-mini-generated hypothetical clause (used for retrieval embedding)
+    hyde_clause: str  # graphont-agentic HyDE clause for dense-channel embedding (set by hyde_generation node)
     dense_ranks: List[int]  # Original dense-retrieval rank for each retrieved doc
     rrf_scores: List[float]  # Reciprocal Rank Fusion combined score
     merged_groups: List[Dict]  # Parent-child merged sibling groups, if any

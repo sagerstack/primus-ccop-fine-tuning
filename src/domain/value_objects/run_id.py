@@ -30,6 +30,7 @@ _VALID_MODES = {
     "graphrag-ontology",  # Phase 10 (D-16 additivity) — ontology-grounded graph retrieval
     "graphcpl",  # Phase 11 — GraphCompliance Compliance Gate
     "graphont",  # OMD-GraphRAG (ontology_v2) — tri-channel concept retrieval + reranker
+    "graphont-agentic",  # Phase 12 — OMD-GraphRAG + LLM-based relevance filtering
 }
 
 
