@@ -142,11 +142,14 @@ Relevant passages from the regulatory corpus:
     )
 
     # Initialize LLM
-    llm = ChatOllama(
-        model=settings.model_name,
-        temperature=settings.default_temperature,
-        base_url=settings.ollama_host,
-    )
+    llm_kwargs = {
+        "model": settings.model_name,
+        "temperature": settings.default_temperature,
+        "base_url": settings.ollama_host,
+    }
+    if settings.generation_seed is not None:
+        llm_kwargs["seed"] = settings.generation_seed
+    llm = ChatOllama(**llm_kwargs)
 
     # Build retrieved_contexts_detailed from filtered documents (before LLM call)
     state["retrieved_contexts_detailed"] = [

@@ -31,6 +31,7 @@ class OllamaGateway(IModelGateway):
         top_k: int = 40,
         system_prompt: Optional[str] = None,
         metadata: Optional[Dict[str, any]] = None,
+        seed: Optional[int] = None,
     ) -> ModelResponse:
         """Generate response from Ollama model."""
         start_time = datetime.utcnow()
@@ -47,6 +48,7 @@ class OllamaGateway(IModelGateway):
                 top_p=top_p,
                 top_k=top_k,
                 max_tokens=max_tokens,
+                seed=seed,
             )
 
             end_time = datetime.utcnow()

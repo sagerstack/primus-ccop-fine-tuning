@@ -31,6 +31,7 @@ class OllamaClient:
         top_p: float = 0.9,
         top_k: int = 40,
         max_tokens: int = 1024,
+        seed: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Generate completion from Ollama."""
         url = f"{self.host}/api/generate"
@@ -50,6 +51,8 @@ class OllamaClient:
         # prompts (often 7-11K tokens) are not silently truncated.
         if self.num_ctx is not None:
             payload["options"]["num_ctx"] = self.num_ctx
+        if seed is not None:
+            payload["options"]["seed"] = seed
         if system:
             payload["system"] = system
 
