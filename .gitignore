@@ -275,3 +275,6 @@ neo4j_storage/
 
 # Office lock files
 ~$*
+
+# scratch parity harness
+tmp_parity/
