@@ -7,22 +7,23 @@ Qdrant dependencies.
 """
 
 import pytest
-from domain.services.llm_judge_service import LLMJudgeService
-from domain.entities.test_case import TestCase
+
 from domain.entities.model_response import ModelResponse
+from domain.entities.test_case import TestCase
+from domain.services.llm_judge_service import LLMJudgeService
 from domain.value_objects.benchmark_type import BenchmarkType
-from domain.value_objects.difficulty_level import DifficultyLevel
 from domain.value_objects.ccop_section import CCoPSection
+from domain.value_objects.difficulty_level import DifficultyLevel
 
 
 class TestCitationCorrectnessD6:
     """Test programmatic D6 (citation_correctness) computation."""
-    
+
     @pytest.fixture
     def judge_service(self):
         """Initialize judge service."""
         return LLMJudgeService()
-    
+
     def test_extract_clause_id_standard_formats(self, judge_service):
         """Test _extract_clause_id on various citation formats."""
         test_cases = [
@@ -36,11 +37,11 @@ class TestCitationCorrectnessD6:
             ("", None),
             ("No clause here", None),
         ]
-        
+
         for input_str, expected in test_cases:
             result = judge_service._extract_clause_id(input_str)
             assert result == expected, f"Failed for input '{input_str}': expected {expected}, got {result}"
-    
+
     def test_b05_001_perfect_precision(self, judge_service):
         """Test B05-001 case: all citations match ground truth → D6=3."""
         # Response with Sources matching GT exactly
@@ -50,7 +51,7 @@ class TestCitationCorrectnessD6:
 CCoP Response to Feedback: 11.28
 CCoP 2.0: 5.9.2(b)
 """
-        
+
         response = ModelResponse(
             response_id="test",
             content=response_content,
@@ -62,7 +63,7 @@ CCoP 2.0: 5.9.2(b)
             latency_ms=1000,
             temperature=0.0,
         )
-        
+
         # Ground truth with matching clauses
         test_case = TestCase(
             test_id="B05-001",
@@ -91,10 +92,10 @@ CCoP 2.0: 5.9.2(b)
                 ]
             }
         )
-        
+
         d6_score = judge_service._compute_citation_correctness(response.content, test_case)
         assert d6_score == 3, f"Expected D6=3 (perfect precision), got D6={d6_score}"
-    
+
     def test_mixed_gt_and_non_gt_corpus_citations(self, judge_service):
         """Test mixed case: 1 GT clause + 1 real-but-non-GT corpus clause → precision 0.5 → D6=1."""
         response_content = """Analysis...
@@ -103,7 +104,7 @@ CCoP 2.0: 5.9.2(b)
 CCoP 2.0: 5.3.1
 CCoP 2.0: 4.1.2
 """
-        
+
         response = ModelResponse(
             response_id="test",
             content=response_content,
@@ -115,7 +116,7 @@ CCoP 2.0: 4.1.2
             latency_ms=1000,
             temperature=0.0,
         )
-        
+
         # GT only has 5.3.1, not 4.1.2
         test_case = TestCase(
             test_id="B01-901",
@@ -130,11 +131,11 @@ CCoP 2.0: 4.1.2
             key_facts=[],
             forbidden_claims=[],
         )
-        
+
         d6_score = judge_service._compute_citation_correctness(response.content, test_case)
         # Precision = 1/2 = 0.5 → D6=1 (0.34 ≤ 0.5 < 0.67)
         assert d6_score == 1, f"Expected D6=1 (precision 0.5), got D6={d6_score}"
-    
+
     def test_external_references_excluded(self, judge_service):
         """Test external exclusion: 1 GT clause + NIST citation → NIST excluded → precision 1.0 → D6=3."""
         response_content = """Following NIST guidelines...
@@ -145,7 +146,7 @@ CCoP 2.0: 5.3.1
 **Other Sources:**
 NIST SP 800-63
 """
-        
+
         response = ModelResponse(
             response_id="test",
             content=response_content,
@@ -157,7 +158,7 @@ NIST SP 800-63
             latency_ms=1000,
             temperature=0.0,
         )
-        
+
         test_case = TestCase(
             test_id="B01-902",
             benchmark_type=BenchmarkType.from_string("B01_CCoP_Applicability_Scope"),
@@ -171,16 +172,16 @@ NIST SP 800-63
             key_facts=[],
             forbidden_claims=[],
         )
-        
+
         d6_score = judge_service._compute_citation_correctness(response.content, test_case)
         # NIST is external (not in inventory) → excluded from C
         # C = {5.3.1}, G = {5.3.1} → precision 1.0 → D6=3
         assert d6_score == 3, f"Expected D6=3 (external excluded, perfect precision), got D6={d6_score}"
-    
+
     def test_no_sources_returns_d6_equals_1(self, judge_service):
         """Test empty case: no Sources → D6=1 (neutral)."""
         response_content = """Some analysis without citations."""
-        
+
         response = ModelResponse(
             response_id="test",
             content=response_content,
@@ -192,7 +193,7 @@ NIST SP 800-63
             latency_ms=1000,
             temperature=0.0,
         )
-        
+
         test_case = TestCase(
             test_id="B01-903",
             benchmark_type=BenchmarkType.from_string("B01_CCoP_Applicability_Scope"),
@@ -206,12 +207,17 @@ NIST SP 800-63
             key_facts=[],
             forbidden_claims=[],
         )
-        
+
         d6_score = judge_service._compute_citation_correctness(response.content, test_case)
         assert d6_score == 1, f"Expected D6=1 (no citations, neutral), got D6={d6_score}"
-    
-    def test_low_precision_returns_d6_equals_0(self, judge_service):
-        """Test low precision case: 1 GT clause + 3 non-GT → precision 0.25 → D6=0."""
+
+    def test_low_precision_returns_half_point(self, judge_service):
+        """Low-but-nonzero precision: 1 GT clause + 3 non-GT → precision 0.25 → D6=0.5.
+
+        Partial-precision credit (D6 change #3): the model cited a correct
+        ground-truth clause, just imprecisely — that is meaningfully better than
+        citing no correct corpus clause at all (which scores 0.0).
+        """
         response_content = """Analysis...
 
 **Sources:**
@@ -220,7 +226,7 @@ CCoP 2.0: 4.1.1
 CCoP 2.0: 4.1.2
 CCoP 2.0: 3.1
 """
-        
+
         response = ModelResponse(
             response_id="test",
             content=response_content,
@@ -232,7 +238,7 @@ CCoP 2.0: 3.1
             latency_ms=1000,
             temperature=0.0,
         )
-        
+
         test_case = TestCase(
             test_id="B01-904",
             benchmark_type=BenchmarkType.from_string("B01_CCoP_Applicability_Scope"),
@@ -246,7 +252,105 @@ CCoP 2.0: 3.1
             key_facts=[],
             forbidden_claims=[],
         )
-        
+
         d6_score = judge_service._compute_citation_correctness(response.content, test_case)
-        # Precision = 1/4 = 0.25 < 0.34 → D6=0
-        assert d6_score == 0, f"Expected D6=0 (precision 0.25), got D6={d6_score}"
+        # Precision = 1/4 = 0.25 (0 < p < 0.34) → D6=0.5 (partial-precision point)
+        assert d6_score == 0.5, f"Expected D6=0.5 (precision 0.25), got D6={d6_score}"
+
+    def test_zero_precision_returns_d6_equals_0(self, judge_service):
+        """No correct citations: 2 corpus clauses, none in GT → precision 0 → D6=0."""
+        response_content = """Analysis...
+
+**Sources:**
+CCoP 2.0: 4.1.1
+CCoP 2.0: 4.1.2
+"""
+
+        response = ModelResponse(
+            response_id="test",
+            content=response_content,
+            model_name="test-model",
+            tokens_used=100,
+            prompt_tokens=50,
+            completion_tokens=50,
+            total_tokens=100,
+            latency_ms=1000,
+            temperature=0.0,
+        )
+
+        test_case = TestCase(
+            test_id="B01-905",
+            benchmark_type=BenchmarkType.from_string("B01_CCoP_Applicability_Scope"),
+            section=CCoPSection.from_string("Section 1: Introduction"),
+            clause_reference="5.3.1",  # GT clause the model never cites
+            difficulty=DifficultyLevel.from_string("low"),
+            question="What are the specific requirements for asset management under CCoP 2.0?",
+            expected_response="Test response detailing asset management requirements.",
+            evaluation_criteria={},
+            expected_label="test",
+            key_facts=[],
+            forbidden_claims=[],
+        )
+
+        d6_score = judge_service._compute_citation_correctness(response.content, test_case)
+        # Precision = 0/2 = 0 → D6=0 (cited corpus clauses, none correct)
+        assert d6_score == 0.0, f"Expected D6=0 (precision 0), got D6={d6_score}"
+
+    def test_extract_clause_ids_multi_clause(self, judge_service):
+        """_extract_clause_ids returns EVERY clause, not just the first (parser fix #2)."""
+        assert judge_service._extract_clause_ids("CCoP 2.0 5.2.1(c), 5.2.1(d)") == ["5.2.1(c)", "5.2.1(d)"]
+        assert judge_service._extract_clause_ids("CCoP 2.0 5.3.1(a), 5.2.1(c)") == ["5.3.1(a)", "5.2.1(c)"]
+        assert judge_service._extract_clause_ids("5.3.1") == ["5.3.1"]
+        assert judge_service._extract_clause_ids("") == []
+
+    def test_multi_clause_source_counted_in_ground_truth(self, judge_service):
+        """A multi-clause key_facts source contributes ALL its clauses to G (parser fix #2).
+
+        Model cites 5.2.1(c) and 5.2.1(d). Before the fix, the GT source
+        "CCoP 2.0 5.2.1(c), 5.2.1(d)" only yielded 5.2.1(c), so precision was
+        1/2=0.5 (D6=1). After the fix G includes both → precision 2/2=1.0 → D6=3.
+        """
+        response_content = """Gap analysis...
+
+**Sources:**
+CCoP 2.0: 5.2.1(c), 5.2.1(d)
+"""
+
+        response = ModelResponse(
+            response_id="test",
+            content=response_content,
+            model_name="test-model",
+            tokens_used=100,
+            prompt_tokens=50,
+            completion_tokens=50,
+            total_tokens=100,
+            latency_ms=1000,
+            temperature=0.0,
+        )
+
+        test_case = TestCase(
+            test_id="B07-906",
+            benchmark_type=BenchmarkType.from_string("B07_Gap_Identification_Quality"),
+            section=CCoPSection.from_string("Section 5: Protection"),
+            clause_reference="5.2.1",
+            difficulty=DifficultyLevel.from_string("low"),
+            question="Identify the compliance gaps in the shared-administrator-credentials scenario.",
+            expected_response="Test response identifying account-management gaps.",
+            evaluation_criteria={},
+            expected_label="non_compliant",
+            key_facts=["Shared accounts prevent accountability"],
+            forbidden_claims=[],
+            metadata={
+                "key_facts_structured": [
+                    {
+                        "fact": "Shared accounts prevent individual accountability",
+                        "source": "CCoP 2.0 5.2.1(c), 5.2.1(d)",
+                        "tier": "critical",
+                    }
+                ]
+            },
+        )
+
+        d6_score = judge_service._compute_citation_correctness(response.content, test_case)
+        # C = {5.2.1(c), 5.2.1(d)}, G = {5.2.1, 5.2.1(c), 5.2.1(d)} → precision 2/2 = 1.0 → D6=3
+        assert d6_score == 3.0, f"Expected D6=3 (both sub-clauses now in G), got D6={d6_score}"

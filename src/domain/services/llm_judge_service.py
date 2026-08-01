@@ -18,7 +18,7 @@ import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 import structlog
 
@@ -46,7 +46,7 @@ class DimensionScore:
     """Single dimension score from LLM judge."""
 
     name: str           # e.g., "gap_prioritization"
-    score: int          # 0-3 anchored scale
+    score: float        # 0-3 anchored scale (D6 may award a 0.5 partial-precision point)
     weight: float       # From criteria-establishment.md
 
 
@@ -54,7 +54,7 @@ class DimensionScore:
 class JudgeEvaluation:
     """LLM judge evaluation result with dynamic dimensions."""
 
-    dimensions: List[DimensionScore]  # Benchmark-specific dimension scores
+    dimensions: list[DimensionScore]  # Benchmark-specific dimension scores
     justification: str                # CoT explanation with evidence
     overall_score: float              # 0-1 normalized (weighted avg of dimensions)
     confidence: float                 # 0-1 judge self-assessed confidence
@@ -66,12 +66,12 @@ class JudgeEvaluation:
     hallucination_detected: bool = False                          # Binary gate for hallucination
     unsupported_count: int = 0                                    # Count of UNSUPPORTED claims
     contradicted_count: int = 0                                   # Count of CONTRADICTED claims
-    claims: List[Dict[str, str]] = field(default_factory=list)   # List of claim verification results
-    reasoning_criteria_met: Dict[str, Optional[bool]] = field(default_factory=dict)  # Reasoning criteria evaluation
+    claims: list[dict[str, str]] = field(default_factory=list)   # List of claim verification results
+    reasoning_criteria_met: dict[str, Optional[bool]] = field(default_factory=dict)  # Reasoning criteria evaluation
 
     @staticmethod
     def from_dimensions(
-        dimensions: List[DimensionScore],
+        dimensions: list[DimensionScore],
         justification: str,
         confidence: float,
         raw_response: str
@@ -110,9 +110,9 @@ class JudgeEvaluation:
 
     @staticmethod
     def from_universal_judge(
-        reasoning_criteria_met: Dict[str, Optional[bool]],
+        reasoning_criteria_met: dict[str, Optional[bool]],
         hallucination_detected: bool,
-        claims: List[Dict[str, str]],
+        claims: list[dict[str, str]],
         unsupported_count: int,
         contradicted_count: int,
         justification: str,
@@ -364,14 +364,14 @@ Return ONLY valid JSON (no markdown):
         self._rubric_path = Path(rubric_path) if rubric_path else (
             _PROJECT_ROOT / "docs" / "phase-2" / "evaluation-rubrics.md"
         )
-        self._rubrics: Dict[str, str] = self._load_rubrics()
+        self._rubrics: dict[str, str] = self._load_rubrics()
 
         # Ground-truth verification infrastructure for D3 factual_grounding.
         # Loads clause inventory (deterministic existence check) from the
         # offline ground-truth test suite.
         # Doc-keyed inventory built first — _inventory_ids derives its flat
         # union from it.
-        self._inventory_by_doc: Dict[str, set[str]] = self._load_inventory_by_doc()
+        self._inventory_by_doc: dict[str, set[str]] = self._load_inventory_by_doc()
         self._inventory_ids: set[str] = self._load_inventory_ids()
 
     def _load_inventory_ids(self) -> set[str]:
@@ -384,7 +384,7 @@ Return ONLY valid JSON (no markdown):
         """
         return set().union(*self._inventory_by_doc.values()) if hasattr(self, "_inventory_by_doc") else set()
 
-    def _load_inventory_by_doc(self) -> Dict[str, set[str]]:
+    def _load_inventory_by_doc(self) -> dict[str, set[str]]:
         """Load a doc-keyed inventory: canonical_doc_name → set of clause_ids.
 
         This is the structure the judge needs for proper hallucination
@@ -394,7 +394,7 @@ Return ONLY valid JSON (no markdown):
         or blamed.
         """
         from collections import defaultdict
-        by_doc: Dict[str, set[str]] = defaultdict(set)
+        by_doc: dict[str, set[str]] = defaultdict(set)
         inventory_path = _PROJECT_ROOT / "src" / "rag" / "ingestion" / "fixtures" / "clause_inventory.json"
         if not inventory_path.exists():
             logger.warning(
@@ -422,7 +422,7 @@ Return ONLY valid JSON (no markdown):
     # Map model-written document names (lowercased) to canonical inventory keys.
     # The model writes natural variants ("the Act", "CCoP", "Audit Guidelines"),
     # we route to canonical names matching the inventory's source_doc field.
-    _DOC_ALIASES: Dict[str, list[str]] = {
+    _DOC_ALIASES: dict[str, list[str]] = {
         "CCoP 2.0": [
             "ccop 2.0", "ccop2.0", "ccop", "ccop v2", "ccop second edition",
             "cybersecurity code of practice", "cybersecurity code of practice 2.0",
@@ -505,7 +505,7 @@ Return ONLY valid JSON (no markdown):
 
     def _extract_attributed_citations(
         self, text: str
-    ) -> list[Tuple[Optional[str], str, str]]:
+    ) -> list[tuple[Optional[str], str, str]]:
         """Extract citations with document attribution from a response.
 
         Sources:
@@ -528,8 +528,8 @@ Return ONLY valid JSON (no markdown):
         # load time.
         from rag.citations.resolver import parse_citations
 
-        seen: set[Tuple[str, str]] = set()
-        result: list[Tuple[Optional[str], str, str]] = []
+        seen: set[tuple[str, str]] = set()
+        result: list[tuple[Optional[str], str, str]] = []
 
         # 1. Block-attributed citations (full document name + clause)
         for c in parse_citations(text):
@@ -569,20 +569,20 @@ Return ONLY valid JSON (no markdown):
     def _extract_clause_id(self, s: str) -> Optional[str]:
         """
         Extract bare clause ID from a citation string and normalize it.
-        
+
         Examples:
             "CCoP 2.0: 5.3.1" -> "5.3.1"
             "CCoP 2.0 5.9.2(b)" -> "5.9.2(b)"
             "Response to Feedback 11.28" -> "11.28"
             "Section 5.3.1(b)" -> "5.3.1(b)"
             "AnnexC" -> "AnnexC"
-        
+
         Returns:
             Normalized clause ID or None if no clause token found.
         """
         if not s:
             return None
-        
+
         # Strip document name prefix if present (handles both ":"-separated and space-separated)
         # First try colon-separated ("CCoP 2.0: 5.3.1")
         if ":" in s:
@@ -590,14 +590,14 @@ Return ONLY valid JSON (no markdown):
         else:
             # For space-separated ("CCoP 2.0 5.9.2(b)"), remove known document prefixes
             s = re.sub(r"^(?:CCoP 2\.0|RESPONSE-TO-FEEDBACK|Response to Feedback|CCoP Response to Feedback|Cybersecurity Act 2018|Section|Clause|\u00a7|Part|Chapter)\s+", "", s, flags=re.IGNORECASE).strip()
-        
+
         # Try to extract clause pattern: digits with optional dots and sub-letters
         # Also handle Annex patterns and table references
         patterns = [
             r"^(\d{1,2}(?:\.\d{1,2})*(?:\([a-z]\))?)",  # Standard clause at start like 5.3.1 or 5.9.2(b)
             r"(Annex[A-Z])",  # Annex patterns
         ]
-        
+
         for pattern in patterns:
             match = re.search(pattern, s)
             if match:
@@ -609,100 +609,120 @@ Return ONLY valid JSON (no markdown):
                 except Exception:
                     # Fallback: just return the extracted token
                     return clause_token
-        
+
         return None
+
+    def _extract_clause_ids(self, s: str) -> list[str]:
+        """Extract ALL clause IDs from a possibly multi-clause citation string.
+
+        `_extract_clause_id` captures only the FIRST clause token, so a string
+        like the model's Sources entry ``5.2.1(c), 5.2.1(d)`` or a ground-truth
+        key_facts source ``CCoP 2.0 5.3.1(a), 5.2.1(c)`` silently drops every
+        clause after the first. This splits on commas and normalizes each part,
+        de-duplicating while preserving order. Used on both the model-citation
+        (C) and ground-truth (G) sides so multi-clause entries are counted in
+        full — the fix for the D6 parser under-count.
+        """
+        if not s:
+            return []
+        ids: list[str] = []
+        seen: set[str] = set()
+        for part in s.split(","):
+            cid = self._extract_clause_id(part)
+            if cid and cid not in seen:
+                seen.add(cid)
+                ids.append(cid)
+        return ids
 
     def _compute_citation_correctness(
         self,
         response_content: str,
         test_case: TestCase,
-    ) -> int:
+    ) -> float:
         """
         Compute D6 (citation_correctness) programmatically.
-        
+
         Returns precision score (0-3) of model's in-corpus citations against
         ground-truth clause set.
-        
+
         Args:
             response_content: Model's response text (contains Sources block)
             test_case: Test case with clause_reference and key_facts
-        
+
         Returns:
             0-3 score based on precision:
-                3 if precision = 1.0 (perfect)
-                2 if precision >= 0.67
-                1 if precision >= 0.34 or no corpus citations
-                0 if precision < 0.34
+                3   if precision = 1.0 (perfect)
+                2   if precision >= 0.67
+                1   if precision >= 0.34, or no corpus citations (neutral)
+                0.5 if 0 < precision < 0.34 (some correct citations, low precision)
+                0   if precision = 0 (corpus citations cited, none correct)
         """
         # Build C (model's in-corpus citations from Sources)
         attributed = self._extract_attributed_citations(response_content)
         corpus_citations = set()
-        
+
         for doc_name, clause_str, _ in attributed:
-            clause_id = self._extract_clause_id(clause_str)
-            if not clause_id:
-                continue
-            
-            # Classify as corpus or external using inventory
-            # If doc_name is provided, check that specific doc; otherwise check any-doc
-            if doc_name:
-                canonical = self._normalize_doc_name(doc_name)
-                if canonical and canonical in self._inventory_by_doc:
-                    doc_inventory = self._inventory_by_doc[canonical]
-                    if clause_id in doc_inventory:
+            # A single Sources entry may list several clauses ("5.2.1(c), 5.2.1(d)");
+            # count every one, not just the first.
+            for clause_id in self._extract_clause_ids(clause_str):
+                # Classify as corpus or external using inventory
+                # If doc_name is provided, check that specific doc; otherwise check any-doc
+                if doc_name:
+                    canonical = self._normalize_doc_name(doc_name)
+                    if canonical and canonical in self._inventory_by_doc:
+                        doc_inventory = self._inventory_by_doc[canonical]
+                        if clause_id in doc_inventory:
+                            corpus_citations.add(clause_id)
+                    # Else: external doc or not in corpus -> exclude
+                else:
+                    # No doc name -> classify by clause ID membership in any inventory
+                    if clause_id in self._inventory_ids:
                         corpus_citations.add(clause_id)
-                # Else: external doc or not in corpus -> exclude
-            else:
-                # No doc name -> classify by clause ID membership in any inventory
-                if clause_id in self._inventory_ids:
-                    corpus_citations.add(clause_id)
-                # Else: not in any inventory -> external, exclude
-        
+                    # Else: not in any inventory -> external, exclude
+
         # Build G (ground-truth clause set from clause_reference + key_facts sources)
         gt_clauses = set()
-        
+
         # From clause_reference
         clause_ref = test_case.clause_reference or ""
         if clause_ref:
             # Handle both comma-separated string and list
-            if isinstance(clause_ref, str):
-                clause_ids = [c.strip() for c in clause_ref.split(",") if c.strip()]
-            else:
-                clause_ids = clause_ref
-            
-            for cid in clause_ids:
-                normalized = self._extract_clause_id(cid)
-                if normalized:
-                    gt_clauses.add(normalized)
-        
+            ref_parts = [clause_ref] if isinstance(clause_ref, str) else list(clause_ref)
+            for cid in ref_parts:
+                # Each part may itself list multiple clauses.
+                gt_clauses.update(self._extract_clause_ids(cid))
+
         # From key_facts sources
         # Try structured key_facts first
         structured_kf = test_case.metadata.get("key_facts_structured", [])
         if structured_kf:
             for kf in structured_kf:
                 if isinstance(kf, dict) and "source" in kf:
-                    source = kf["source"]
-                    clause_id = self._extract_clause_id(source)
-                    if clause_id:
-                        gt_clauses.add(clause_id)
-        
+                    # A single source may list several clauses ("5.2.1(c), 5.2.1(d)");
+                    # count every one so multi-clause ground truth isn't under-credited.
+                    gt_clauses.update(self._extract_clause_ids(kf["source"]))
+
         # If no corpus citations, return D6=1 (neutral)
         if not corpus_citations:
-            return 1
-        
+            return 1.0
+
         # Compute precision
         intersection = corpus_citations & gt_clauses
         precision = len(intersection) / len(corpus_citations)
-        
-        # Map precision to 0-3 scale
+
+        # Map precision to 0-3 scale. Low-but-nonzero precision earns a 0.5
+        # partial point: the model did cite some ground-truth clauses, just
+        # imprecisely — meaningfully better than citing none correctly (0.0).
         if precision == 1.0:
-            return 3
+            return 3.0
         elif precision >= 0.67:
-            return 2
+            return 2.0
         elif precision >= 0.34:
-            return 1
+            return 1.0
+        elif precision > 0.0:
+            return 0.5
         else:
-            return 0
+            return 0.0
 
     def _build_key_facts_block(self, test_case: TestCase) -> str:
         """
@@ -734,7 +754,7 @@ Return ONLY valid JSON (no markdown):
 
         return "\n".join(lines) if lines else "  (none specified)"
 
-    def _load_rubrics(self) -> Dict[str, str]:
+    def _load_rubrics(self) -> dict[str, str]:
         """
         Load the benchmark-agnostic universal rubric from evaluation-rubrics.md.
 
@@ -840,7 +860,7 @@ Return ONLY valid JSON (no markdown):
                 try:
                     # Parse D1-D5 from LLM
                     dimensions, justification, confidence, raw_response = self._parse_judge_response(judge_response)
-                    
+
                     # Compute D6 programmatically
                     d6_score = self._compute_citation_correctness(response.content, test_case)
                     dimensions.append(DimensionScore(
@@ -848,7 +868,7 @@ Return ONLY valid JSON (no markdown):
                         score=d6_score,
                         weight=0.5,
                     ))
-                    
+
                     # Build final JudgeEvaluation with all 6 dimensions
                     return JudgeEvaluation.from_dimensions(
                         dimensions=dimensions,
@@ -882,7 +902,7 @@ Return ONLY valid JSON (no markdown):
         test_case: TestCase,
         response: ModelResponse,
         benchmark_id: str,
-        retrieved_contexts: Optional[List[str]] = None,
+        retrieved_contexts: Optional[list[str]] = None,
     ) -> JudgeEvaluation:
         """
         Evaluate response using universal two-dimension judge (hallucination + reasoning depth).
@@ -913,7 +933,7 @@ Return ONLY valid JSON (no markdown):
         *,
         question: str,
         response_content: str,
-        retrieved_contexts: Optional[List[str]] = None,
+        retrieved_contexts: Optional[list[str]] = None,
         label: str = "ad-hoc",
     ) -> JudgeEvaluation:
         """
@@ -1023,7 +1043,7 @@ Return ONLY valid JSON (no markdown):
         prompt: str,
         *,
         seed: Optional[int] = None,
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """
         Call both primary and secondary judges with the same prompt.
 
@@ -1104,7 +1124,7 @@ Return ONLY valid JSON (no markdown):
 
         return prompt
 
-    def _parse_judge_response(self, response: str) -> Tuple[List[DimensionScore], str, float, str]:
+    def _parse_judge_response(self, response: str) -> tuple[list[DimensionScore], str, float, str]:
         """
         Parse JSON response from LLM judge into components.
 
@@ -1134,7 +1154,7 @@ Return ONLY valid JSON (no markdown):
 
         data = json.loads(json_str)
 
-        dimensions: List[DimensionScore] = []
+        dimensions: list[DimensionScore] = []
         for d in data["dimensions"]:
             score = int(d["score"])
             if score < 0 or score > 3:

@@ -1,0 +1,222 @@
+{"event": "Discovered benchmark file: b01_ccop_applicability_scope.jsonl -> B01", "timestamp": "2026-07-13T14:42:20.027747Z", "level": "info"}
+{"event": "Discovered benchmark file: b02_compliance_classification.jsonl -> B02", "timestamp": "2026-07-13T14:42:20.028086Z", "level": "info"}
+{"event": "Discovered benchmark file: b03_conditional_compliance_reasoning.jsonl -> B03", "timestamp": "2026-07-13T14:42:20.028365Z", "level": "info"}
+{"event": "Discovered benchmark file: b04_it_ot_classification_boundary.jsonl -> B04", "timestamp": "2026-07-13T14:42:20.028613Z", "level": "info"}
+{"event": "Discovered benchmark file: b05_control_comprehension.jsonl -> B05", "timestamp": "2026-07-13T14:42:20.028844Z", "level": "info"}
+{"event": "Discovered benchmark file: b06_intent_understanding.jsonl -> B06", "timestamp": "2026-07-13T14:42:20.029066Z", "level": "info"}
+{"event": "Discovered benchmark file: b07_gap_identification_quality.jsonl -> B07", "timestamp": "2026-07-13T14:42:20.029314Z", "level": "info"}
+{"event": "Discovered benchmark file: b08_risk_based_prioritization.jsonl -> B08", "timestamp": "2026-07-13T14:42:20.029448Z", "level": "info"}
+{"event": "Discovered benchmark file: b09_risk_identification_residual_risk.jsonl -> B09", "timestamp": "2026-07-13T14:42:20.029606Z", "level": "info"}
+{"event": "Discovered benchmark file: b10_risk_justification_coherence.jsonl -> B10", "timestamp": "2026-07-13T14:42:20.029772Z", "level": "info"}
+{"event": "Discovered benchmark file: b12_audit_perspective_alignment.jsonl -> B12", "timestamp": "2026-07-13T14:42:20.029926Z", "level": "info"}
+{"event": "Discovered benchmark file: b13_evidence_expectation_awareness.jsonl -> B13", "timestamp": "2026-07-13T14:42:20.030178Z", "level": "info"}
+{"event": "Discovered benchmark file: b14_remediation_quality_feasibility.jsonl -> B14", "timestamp": "2026-07-13T14:42:20.030404Z", "level": "info"}
+{"event": "Discovered benchmark file: b18_responsibility_attribution_sg.jsonl -> B18", "timestamp": "2026-07-13T14:42:20.030575Z", "level": "info"}
+{"event": "Discovered benchmark file: b21_hallucination_over_specification.jsonl -> B21", "timestamp": "2026-07-13T14:42:20.030811Z", "level": "info"}
+{"event": "Discovered benchmark file: b22_waiver_exception_reasoning.jsonl -> B22", "timestamp": "2026-07-13T14:42:20.030953Z", "level": "info"}
+{"event": "Discovered benchmark file: b23_multi_regulator_coordination.jsonl -> B23", "timestamp": "2026-07-13T14:42:20.031177Z", "level": "info"}
+{"event": "Discovered benchmark file: b24_incident_response_guidance.jsonl -> B24", "timestamp": "2026-07-13T14:42:20.031412Z", "level": "info"}
+{"event": "Discovered 18 benchmark files", "timestamp": "2026-07-13T14:42:20.031422Z", "level": "info"}
+Evaluating model: primus-reasoning
+Benchmarks: B01, B02, B03, B04, B05, B06, B07, B08, B09, B10, B12, B13, B14, 
+B18, B21, B22, B23, B24
+Evaluation Phase: baseline
+Evaluation Mode: graphont
+Judge Mode: rubric
+Pass Threshold: 15% (phase default)
+Run ID: eval-run-graphont-test-B24-001-20260713-1442
+
+Running evaluation...
+
+{"benchmarks": ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B10", "B12", "B13", "B14", "B18", "B21", "B22", "B23", "B24"], "event": "Starting evaluation for model: primus-reasoning", "timestamp": "2026-07-13T14:42:20.266805Z", "level": "info"}
+{"event": "Loaded 1 test cases", "timestamp": "2026-07-13T14:42:20.270868Z", "level": "info"}
+{"event": "Evaluating test case 1/1: B24-001", "timestamp": "2026-07-13T14:42:20.300085Z", "level": "info"}
+{"event": "Initializing LangGraph RAG pipeline...", "timestamp": "2026-07-13T14:42:20.300139Z", "level": "info"}
+{"event": "LangGraph RAG pipeline initialized successfully", "timestamp": "2026-07-13T14:42:20.326387Z", "level": "info"}
+WARNING:domain.services.llm_judge_service:Could not build clause text cache from Qdrant: [Errno 61] Connection refused. Misattribution detection will use existence check only.
+{"benchmark_id": "B24", "attempt": 1, "max_attempts": 3, "judge_mode": "rubric", "event": "judge_call_started", "timestamp": "2026-07-13T14:43:07.670276Z", "level": "info"}
+{"event": "Category 'Remediation & Audit Reasoning': 11.11% (weight: 20%, tests: 1)", "timestamp": "2026-07-13T14:43:34.226762Z", "level": "info"}
+{"event": "Category-weighted overall score: 11.11% (weighted_sum=0.0222, total_weight=0.20)", "timestamp": "2026-07-13T14:43:34.226998Z", "level": "info"}
+{"event": "Saved evaluation run to: results/evaluations/2026-07/eval-run-graphont-test-B24-001-20260713-1442-primus-reasoning.json", "timestamp": "2026-07-13T14:43:34.236576Z", "level": "info"}
+{"event": "Saved retrieved contexts sidecar to: results/evaluations/2026-07/eval-run-graphont-test-B24-001-20260713-1442-contexts.json", "timestamp": "2026-07-13T14:43:34.237337Z", "level": "info"}
+{"event": "Saved 1 results to results/evaluations/2026-07/eval-run-graphont-test-B24-001-20260713-1442-primus-reasoning.json", "timestamp": "2026-07-13T14:43:34.237367Z", "level": "info"}
+{"passed": 0, "failed": 1, "event": "Evaluation complete. Overall score: 11.11%", "timestamp": "2026-07-13T14:43:34.237392Z", "level": "info"}
+
+Per-Test-Case Results
+
+╭───────── B24-001 | B24 | FAIL | Bench: 0.11 | RAGAs: N/A | graphont ─────────╮
+│ Question:                                                                    │
+│   Incident response scenario 1: A CII organization experiences a cyber       │
+│ security incident. What CCoP 2.0 Section 7 incident management actions are   │
+│ required for responding to and reporting the incident?                       │
+│                                                                              │
+│ System Prompt:                                                               │
+│   You are a regulatory compliance advisor specializing in Singapore's        │
+│ Cybersecurity Code of Practice for Critical Information Infrastructure,      │
+│ Second Edition (CCoP 2.0).                                                   │
+│                                                                              │
+│ WHAT CCoP 2.0 IS:                                                            │
+│ CCoP 2.0 is the legally mandated cybersecurity code issued by the Cyber      │
+│ Security Agency of Singapore (CSA) under the Singapore Cybersecurity Act     │
+│ 2018. It applies exclusively to designated Critical Information              │
+│ Infrastructure Owners (CIIOs) operating in Singapore.                        │
+│                                                                              │
+│ GLOSSARY (apply these meanings throughout):                                  │
+│ - CCoP / CCoP 2.0: Cybersecurity Code of Practice (Second Edition),          │
+│ Singapore                                                                    │
+│ - CSA: Cyber Security Agency ...                                             │
+│                                                                              │
+│ User Prompt (with RAG context):                                              │
+│   Question: Incident response scenario 1: A CII organization experiences a   │
+│ cyber security incident. What CCoP 2.0 Section 7 incident management actions │
+│ are required for responding to and reporting the incident?                   │
+│                                                                              │
+│ Relevant passages from the regulatory corpus:                                │
+│                                                                              │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│ Retrieved Contexts (detailed):                                               │
+│   [CCoP 2.0::7.1.7 | Clause () | score: 0.01639344262295082]                 │
+│     ...                                                                      │
+│   [CCoP 2.0::7 | Clause () | score: 0.016129032258064516]                    │
+│     ...                                                                      │
+│   [CCoP 2.0::7.1.1 | Clause () | score: 0.015873015873015872]                │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::13.1 | Clause () | score: 0.015625]            │
+│     ...                                                                      │
+│   [CCoP 2.0::7.3.3 | Clause () | score: 0.015384615384615385]                │
+│     ...                                                                      │
+│   [CCoP 2.0::7.3.6 | Clause () | score: 0.015151515151515152]                │
+│     ...                                                                      │
+│   [CCoP 2.0::7.1.5 | Clause () | score: 0.014925373134328358]                │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::1.2 | Clause () | score: 0.014705882352941176] │
+│     ...                                                                      │
+│                                                                              │
+│ Tokens: prompt=788 completion=379 total=1167                                 │
+│                                                                              │
+│ Response (prompt=788 completion=379 total=1167, 35528ms):                    │
+│   **Initial Assessment and Reporting**                                       │
+│ Upon detecting a cybersecurity incident within the CII, the organization     │
+│ must immediately initiate its Cyber Incident Response Team (CIRT) to assess  │
+│ the situation. The CIRT should promptly evaluate the nature and scope of the │
+│ incident to determine its potential impact on critical functions.            │
+│                                                                              │
+│ **Notification Obligation**                                                  │
+│ The CCoP 2.0 mandates that CIIOs report cybersecurity incidents to the CSA   │
+│ within two hours if the incident is likely to have a significant impact on   │
+│ national security, public safety, or economic well-being. For other          │
+│ incidents, reporting should occur as soon as possible but no later than six  │
+│ hours after detection.                                                       │
+│                                                                              │
+│ **Incident Containment and Mitigation**                                      │
+│ The CIRT must contain the incident by implementing appropriate measures to   │
+│ prevent further compromise of the system. This includes isolating affected   │
+│ systems, applying patches, and restoring services from backups if necessary. │
+│                                                                              │
+│ **Post-Incident Analysis**                                                   │
+│ After containing the incident, a thorough analysis should be conducted to    │
+│ understand how the incident occurred, what data was compromised, and which   │
+│ systems were affected. This helps in identifying vulnerabilities and         │
+│ improving future defenses.                                                   │
+│                                                                              │
+│ **Documentation and Communication**                                          │
+│ All incident response activities must be documented comprehensively. The     │
+│ organization should communicate with stakeholders, including customers,      │
+│ partners, and regulatory bodies as appropriate, providing timely updates on  │
+│ the status of the incident resolution.                                       │
+│                                                                              │
+│ **Review and Improvement**                                                   │
+│ The organization should conduct a post-incident review to identify areas for │
+│ improvement in its incident management processes. This includes updating     │
+│ policies, procedures, and training programs based on lessons learned from    │
+│ the incident.                                                                │
+│                                                                              │
+│ **Sources:**                                                                 │
+│ CCoP 2.0: Section 7.1 (Initial Assessment), Section 7.3 (Notification),      │
+│ Section 7.4 (Containment and Mitigation), Section 7.5 (Post-Incident         │
+│ Analysis), Section 7.6 (Documentation and Communication), Section 7.7        │
+│ (Review and Improvement)                                                     │
+│                                                                              │
+│ ─── Model Response Quality ───                                               │
+│ LLM Judge:                                                                   │
+│   verdict_accuracy               0/3  (weight: 0.50)                         │
+│   justification_quality          0/3  (weight: 0.50)                         │
+│   factual_grounding              0/3  (weight: 0.50)                         │
+│   scope_appropriateness          2/3  (weight: 0.50)                         │
+│   actionable_way_forward         0/3  (weight: 0.50)                         │
+│   citation_correctness           0/3  (weight: 0.50)                         │
+│                                                                              │
+│ RAG Context: 8 chunks (CCoP 2.0::7.1.7, CCoP 2.0::7, CCoP 2.0::7.1.1, CCoP   │
+│ Response to Feedback::13.1, CCoP 2.0::7.3.3, ... (8 total))                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Evaluation Complete!
+
+Model: primus-reasoning
+Tests: 1 total | 0 passed | 1 failed
+Duration: 74.0s
+Mode: graphont
+
+         Overall Quality Summary         
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Quality Group / Metric        ┃ Score ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ Retrieval Quality             │  N/A  │
+│   RAGAs: context_recall       │  N/A  │
+│   RAGAs: context_precision    │  N/A  │
+├───────────────────────────────┼───────┤
+│ Model-RAG Grounding           │  N/A  │
+│   RAGAs: context_faithfulness │  N/A  │
+├───────────────────────────────┼───────┤
+│ Model Response Quality        │ 0.14  │
+│   RAGAs: factual_recall       │  N/A  │
+│   RAGAs: answer_relevancy     │  N/A  │
+│   RAGAs: semantic_similarity  │  N/A  │
+│   LLM Judge                   │ 0.11  │
+├───────────────────────────────┼───────┤
+│ Benchmark Score               │ 0.11  │
+│ RAGAs Score                   │  N/A  │
+└───────────────────────────────┴───────┘
+
+Quality Breakdown by Benchmark:
+
+  ■ Retrieval Quality  ■ Model-RAG Grounding  ■ Model Response Quality
+
+                         Quality Breakdown by Benchmark                         
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┓
+┃           ┃         ┃         ┃        ┃         ┃        ┃         ┃  LLM   ┃
+┃ Benchmark ┃ ctx_re… ┃ ctx_pr… ┃ ctx_f… ┃ fct_re… ┃ ans_r… ┃ sem_sim ┃ Judge  ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━┩
+│ B24: B24  │   N/A   │   N/A   │  N/A   │   N/A   │  N/A   │   N/A   │  0.11  │
+└───────────┴─────────┴─────────┴────────┴─────────┴────────┴─────────┴────────┘

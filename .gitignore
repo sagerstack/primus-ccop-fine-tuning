@@ -272,3 +272,6 @@ neo4j_storage/
 !tests/rag/graph/build/
 !tests/rag/graph/build/**
 .env.local.bak*
+
+# Office lock files
+~$*

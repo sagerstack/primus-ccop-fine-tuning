@@ -1,0 +1,281 @@
+{"event": "Discovered benchmark file: b01_ccop_applicability_scope.jsonl -> B01", "timestamp": "2026-07-13T12:24:38.164035Z", "level": "info"}
+{"event": "Discovered benchmark file: b02_compliance_classification.jsonl -> B02", "timestamp": "2026-07-13T12:24:38.164464Z", "level": "info"}
+{"event": "Discovered benchmark file: b03_conditional_compliance_reasoning.jsonl -> B03", "timestamp": "2026-07-13T12:24:38.164776Z", "level": "info"}
+{"event": "Discovered benchmark file: b04_it_ot_classification_boundary.jsonl -> B04", "timestamp": "2026-07-13T12:24:38.165023Z", "level": "info"}
+{"event": "Discovered benchmark file: b05_control_comprehension.jsonl -> B05", "timestamp": "2026-07-13T12:24:38.165271Z", "level": "info"}
+{"event": "Discovered benchmark file: b06_intent_understanding.jsonl -> B06", "timestamp": "2026-07-13T12:24:38.165506Z", "level": "info"}
+{"event": "Discovered benchmark file: b07_gap_identification_quality.jsonl -> B07", "timestamp": "2026-07-13T12:24:38.165757Z", "level": "info"}
+{"event": "Discovered benchmark file: b08_risk_based_prioritization.jsonl -> B08", "timestamp": "2026-07-13T12:24:38.165895Z", "level": "info"}
+{"event": "Discovered benchmark file: b09_risk_identification_residual_risk.jsonl -> B09", "timestamp": "2026-07-13T12:24:38.166043Z", "level": "info"}
+{"event": "Discovered benchmark file: b10_risk_justification_coherence.jsonl -> B10", "timestamp": "2026-07-13T12:24:38.166189Z", "level": "info"}
+{"event": "Discovered benchmark file: b12_audit_perspective_alignment.jsonl -> B12", "timestamp": "2026-07-13T12:24:38.166340Z", "level": "info"}
+{"event": "Discovered benchmark file: b13_evidence_expectation_awareness.jsonl -> B13", "timestamp": "2026-07-13T12:24:38.166577Z", "level": "info"}
+{"event": "Discovered benchmark file: b14_remediation_quality_feasibility.jsonl -> B14", "timestamp": "2026-07-13T12:24:38.166777Z", "level": "info"}
+{"event": "Discovered benchmark file: b18_responsibility_attribution_sg.jsonl -> B18", "timestamp": "2026-07-13T12:24:38.166947Z", "level": "info"}
+{"event": "Discovered benchmark file: b21_hallucination_over_specification.jsonl -> B21", "timestamp": "2026-07-13T12:24:38.167165Z", "level": "info"}
+{"event": "Discovered benchmark file: b22_waiver_exception_reasoning.jsonl -> B22", "timestamp": "2026-07-13T12:24:38.167273Z", "level": "info"}
+{"event": "Discovered benchmark file: b23_multi_regulator_coordination.jsonl -> B23", "timestamp": "2026-07-13T12:24:38.167488Z", "level": "info"}
+{"event": "Discovered benchmark file: b24_incident_response_guidance.jsonl -> B24", "timestamp": "2026-07-13T12:24:38.167702Z", "level": "info"}
+{"event": "Discovered 18 benchmark files", "timestamp": "2026-07-13T12:24:38.167711Z", "level": "info"}
+Evaluating model: primus-reasoning
+Benchmarks: B01, B02, B03, B04, B05, B06, B07, B08, B09, B10, B12, B13, B14, 
+B18, B21, B22, B23, B24
+Evaluation Phase: baseline
+Evaluation Mode: graphont
+Judge Mode: rubric
+Pass Threshold: 15% (phase default)
+Run ID: eval-run-graphont-test-B18-001-20260713-1224
+
+Running evaluation...
+
+{"benchmarks": ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B10", "B12", "B13", "B14", "B18", "B21", "B22", "B23", "B24"], "event": "Starting evaluation for model: primus-reasoning", "timestamp": "2026-07-13T12:24:38.378819Z", "level": "info"}
+{"event": "Loaded 1 test cases", "timestamp": "2026-07-13T12:24:38.379780Z", "level": "info"}
+{"event": "Evaluating test case 1/1: B18-001", "timestamp": "2026-07-13T12:24:38.393711Z", "level": "info"}
+{"event": "Initializing LangGraph RAG pipeline...", "timestamp": "2026-07-13T12:24:38.393736Z", "level": "info"}
+{"event": "LangGraph RAG pipeline initialized successfully", "timestamp": "2026-07-13T12:24:38.417372Z", "level": "info"}
+WARNING:domain.services.llm_judge_service:Could not build clause text cache from Qdrant: [Errno 61] Connection refused. Misattribution detection will use existence check only.
+{"benchmark_id": "B18", "attempt": 1, "max_attempts": 3, "judge_mode": "rubric", "event": "judge_call_started", "timestamp": "2026-07-13T12:29:34.655152Z", "level": "info"}
+{"event": "Category 'Governance & Consistency (SG Context)': 16.67% (weight: 10%, tests: 1)", "timestamp": "2026-07-13T12:29:40.472431Z", "level": "info"}
+{"event": "Category-weighted overall score: 16.67% (weighted_sum=0.0167, total_weight=0.10)", "timestamp": "2026-07-13T12:29:40.472545Z", "level": "info"}
+{"event": "Saved evaluation run to: results/evaluations/2026-07/eval-run-graphont-test-B18-001-20260713-1224-primus-reasoning.json", "timestamp": "2026-07-13T12:29:40.478676Z", "level": "info"}
+{"event": "Saved retrieved contexts sidecar to: results/evaluations/2026-07/eval-run-graphont-test-B18-001-20260713-1224-contexts.json", "timestamp": "2026-07-13T12:29:40.479011Z", "level": "info"}
+{"event": "Saved 1 results to results/evaluations/2026-07/eval-run-graphont-test-B18-001-20260713-1224-primus-reasoning.json", "timestamp": "2026-07-13T12:29:40.479044Z", "level": "info"}
+{"passed": 1, "failed": 0, "event": "Evaluation complete. Overall score: 16.67%", "timestamp": "2026-07-13T12:29:40.479072Z", "level": "info"}
+
+Per-Test-Case Results
+
+╭───────── B18-001 | B18 | PASS | Bench: 0.17 | RAGAs: N/A | graphont ─────────╮
+│ Question:                                                                    │
+│   Under Singapore's Cybersecurity Act 2018 and CCoP 2.0, who is personally   │
+│ liable for CII compliance violations? What are the responsibilities of the   │
+│ Board, CIIO, and CISO?                                                       │
+│                                                                              │
+│ System Prompt:                                                               │
+│   You are a regulatory compliance advisor specializing in Singapore's        │
+│ Cybersecurity Code of Practice for Critical Information Infrastructure,      │
+│ Second Edition (CCoP 2.0).                                                   │
+│                                                                              │
+│ WHAT CCoP 2.0 IS:                                                            │
+│ CCoP 2.0 is the legally mandated cybersecurity code issued by the Cyber      │
+│ Security Agency of Singapore (CSA) under the Singapore Cybersecurity Act     │
+│ 2018. It applies exclusively to designated Critical Information              │
+│ Infrastructure Owners (CIIOs) operating in Singapore.                        │
+│                                                                              │
+│ GLOSSARY (apply these meanings throughout):                                  │
+│ - CCoP / CCoP 2.0: Cybersecurity Code of Practice (Second Edition),          │
+│ Singapore                                                                    │
+│ - CSA: Cyber Security Agency ...                                             │
+│                                                                              │
+│ User Prompt (with RAG context):                                              │
+│   Question: Under Singapore's Cybersecurity Act 2018 and CCoP 2.0, who is    │
+│ personally liable for CII compliance violations? What are the                │
+│ responsibilities of the Board, CIIO, and CISO?                               │
+│                                                                              │
+│ Relevant passages from the regulatory corpus:                                │
+│                                                                              │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│ Retrieved Contexts (detailed):                                               │
+│   [CCoP Response to Feedback::8.2 | Clause () | score: 0.01639344262295082]  │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::1.1 | Clause () | score: 0.016129032258064516] │
+│     ...                                                                      │
+│   [CCoP 2.0::3.1.2 | Clause () | score: 0.015873015873015872]                │
+│     ...                                                                      │
+│   [CCoP 2.0::3.8.1 | Clause () | score: 0.015625]                            │
+│     ...                                                                      │
+│   [CCoP 2.0::3.7.1 | Clause () | score: 0.015384615384615385]                │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::9.6 | Clause () | score: 0.015151515151515152] │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::14.11 | Clause () | score:                     │
+│ 0.014925373134328358]                                                        │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::8.10 | Clause () | score:                      │
+│ 0.014705882352941176]                                                        │
+│     ...                                                                      │
+│                                                                              │
+│ Tokens: prompt=791 completion=1140 total=1931                                │
+│                                                                              │
+│ Response (prompt=791 completion=1140 total=1931, 284469ms):                  │
+│   Okay, let's tackle this question. The user wants to know who is personally │
+│ liable for CII compliance violations under the Cybersecurity Act 2018 and    │
+│ CCoP 2.0, as well as the responsibilities of the Board, CIIO, and CISO.      │
+│                                                                              │
+│ First, I need to recall what each of these roles entails according to the    │
+│ regulations. Let's start by breaking down the question into parts: personal  │
+│ liability, Board responsibilities, CIIO responsibilities, and CISO           │
+│ responsibilities.                                                            │
+│                                                                              │
+│ Starting with personal liability. The Cybersecurity Act 2018 states that     │
+│ individuals can be held accountable for non-compliance. For example, Section │
+│ 11(7) of the Act mentions penalties for offenses, which could include fines  │
+│ or imprisonment. But I need to check if there's a specific clause about      │
+│ personal liability. Wait, maybe in CCoP 2.0? Let me think. The CCoP 2.0      │
+│ might have sections on accountability. For instance, under the section on    │
+│ governance, perhaps it outlines roles and responsibilities that include      │
+│ personal accountability.                                                     │
+│                                                                              │
+│ Next, the Board's responsibilities. According to CCoP 2.0, the Board is      │
+│ responsible for overseeing cybersecurity strategy and ensuring compliance.   │
+│ They need to approve the organization's cybersecurity policies and risk      │
+│ management plans. So their role is more about high-level oversight rather    │
+│ than direct technical implementation. But does the Act or CCoP specify that  │
+│ they can be personally liable? Maybe if they fail to fulfill their duties,   │
+│ but I'm not sure. Let me check the relevant clauses.                         │
+│                                                                              │
+│ CIIO's responsibilities are likely broader. The CIIO is responsible for      │
+│ implementing cybersecurity measures and ensuring compliance with the code of │
+│ practice. They need to establish a robust cybersecurity program, including   │
+│ policies, procedures, and training. If there's a violation, they might be    │
+│ held accountable as the owner of the CII. But again, personal liability      │
+│ would depend on whether the regulations state that the CIIO can be           │
+│ personally liable for non-compliance.                                        │
+│                                                                              │
+│ CISO's role is more technical. The Chief Information Security Officer is     │
+│ responsible for managing cybersecurity risks and implementing controls. They │
+│ are expected to have expertise in cybersecurity and ensure that the          │
+│ organization meets all regulatory requirements. If there's a breach due to   │
+│ their negligence, could they be held personally liable? Maybe if they fail   │
+│ to perform their duties as per CCoP 2.0.                                     │
+│                                                                              │
+│ Now, looking at specific clauses. Let me recall some key points from the     │
+│ regulations. For example, Section 11(7) of the Cybersecurity Act states that │
+│ any person who fails to comply with an order or direction under the Act can  │
+│ be guilty of an offense. This could include individuals within the           │
+│ organization. So personal liability isn't just limited to the CIIO but       │
+│ anyone involved.                                                             │
+│                                                                              │
+│ In CCoP 2.0, under Section 5.3.1, it says that the Board is responsible for  │
+│ ensuring that cybersecurity risks are managed effectively and that there's a │
+│ cybersecurity strategy in place. The CIIO must ensure compliance with the    │
+│ code of practice, and the CISO is responsible for implementing security      │
+│ controls. If any of these roles fail to fulfill their responsibilities, they │
+│ could be held accountable.                                                   │
+│                                                                              │
+│ But does the Act specify personal liability? For example, Section 11(7) says │
+│ "any person who fails to comply with an order or direction under this Act    │
+│ commits an offense." So individuals can be charged. Therefore, if a CISO     │
+│ doesn't implement proper controls as required by CCoP 2.0, they could be     │
+│ personally liable. Similarly, the CIIO as the owner is responsible for       │
+│ ensuring compliance, so they might also be held accountable.                 │
+│                                                                              │
+│ The Board's role is more about oversight. If they fail to provide adequate   │
+│ resources or guidance, leading to non-compliance, they might also be liable. │
+│ However, the Act and CCoP 2.0 need to specify this. Let me check if there    │
+│ are any specific clauses addressing personal liability for each role.        │
+│                                                                              │
+│ Looking at the Cybersecurity Act 2018, Section 11(7) states: "Any person who │
+│ fails to comply with an order or direction under this Act commits an offence │
+│ and shall be liable on conviction to a fine not exceeding $100,000 or to     │
+│ imprisonment for a term not exceeding two years or to both." This suggests   │
+│ that any person, including individuals within the organization, can be held  │
+│ personally liable. So regardless of their role, if they fail to comply with  │
+│ orders or directions under the Act, they are liable.                         │
+│                                                                              │
+│ In CCoP 2.0, Section 5.3.1 states: "The Board shall ensure that              │
+│ cybersecurity risks are managed effectively and that there is a              │
+│ comprehensive cybersecurity strategy in place." The CIIO must ensure         │
+│ compliance with the code of practice, and the CISO is responsible for        │
+│ implementing security controls. If any of these roles fail to meet their     │
+│ responsibilities as outlined, they could be held accountable.                │
+│                                                                              │
+│ Therefore, personal liability applies to individuals who fail to comply with │
+│ regulations. The Board, CIIO, and CISO all have specific responsibilities    │
+│ that if not fulfilled, can lead to personal liability. However, the Act      │
+│ specifies that it's any person who fails to comply, so it's not limited to   │
+│ just these roles but anyone involved.                                        │
+│                                                                              │
+│ So the answer would be that individuals within these roles (Board members,   │
+│ CIIOs, CISOs) can be personally liable for compliance violations if they     │
+│ fail to meet their responsibilities as outlined in the regulations. The      │
+│ specific clauses supporting this are from the Cybersecurity Act 2018 and     │
+│ CCoP 2.0.                                                                    │
+│                                                                              │
+│ **Sources:**                                                                 │
+│ Cybersecurity Act 2018: Section 11(7)                                        │
+│ CCoP 2.0: 5.3.1                                                              │
+│                                                                              │
+│ ─── Model Response Quality ───                                               │
+│ LLM Judge:                                                                   │
+│   verdict_accuracy               0/3  (weight: 0.50)                         │
+│   justification_quality          1/3  (weight: 0.50)                         │
+│   factual_grounding              0/3  (weight: 0.50)                         │
+│   scope_appropriateness          2/3  (weight: 0.50)                         │
+│   actionable_way_forward         0/3  (weight: 0.50)                         │
+│   citation_correctness           0/3  (weight: 0.50)                         │
+│                                                                              │
+│ RAG Context: 8 chunks (CCoP Response to Feedback::8.2, CCoP Response to      │
+│ Feedback::1.1, CCoP 2.0::3.1.2, CCoP 2.0::3.8.1, CCoP 2.0::3.7.1, ... (8     │
+│ total))                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Evaluation Complete!
+
+Model: primus-reasoning
+Tests: 1 total | 1 passed | 0 failed
+Duration: 302.1s
+Mode: graphont
+
+         Overall Quality Summary         
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Quality Group / Metric        ┃ Score ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ Retrieval Quality             │  N/A  │
+│   RAGAs: context_recall       │  N/A  │
+│   RAGAs: context_precision    │  N/A  │
+├───────────────────────────────┼───────┤
+│ Model-RAG Grounding           │  N/A  │
+│   RAGAs: context_faithfulness │  N/A  │
+├───────────────────────────────┼───────┤
+│ Model Response Quality        │ 0.42  │
+│   RAGAs: factual_recall       │  N/A  │
+│   RAGAs: answer_relevancy     │  N/A  │
+│   RAGAs: semantic_similarity  │  N/A  │
+│   LLM Judge                   │ 0.17  │
+├───────────────────────────────┼───────┤
+│ Benchmark Score               │ 0.17  │
+│ RAGAs Score                   │  N/A  │
+└───────────────────────────────┴───────┘
+
+Quality Breakdown by Benchmark:
+
+  ■ Retrieval Quality  ■ Model-RAG Grounding  ■ Model Response Quality
+
+                         Quality Breakdown by Benchmark                         
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┓
+┃           ┃         ┃         ┃        ┃         ┃        ┃         ┃  LLM   ┃
+┃ Benchmark ┃ ctx_re… ┃ ctx_pr… ┃ ctx_f… ┃ fct_re… ┃ ans_r… ┃ sem_sim ┃ Judge  ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━┩
+│ B18: B18  │   N/A   │   N/A   │  N/A   │   N/A   │  N/A   │   N/A   │  0.17  │
+└───────────┴─────────┴─────────┴────────┴─────────┴────────┴─────────┴────────┘

@@ -1,0 +1,197 @@
+{"event": "Discovered benchmark file: b01_ccop_applicability_scope.jsonl -> B01", "timestamp": "2026-07-13T14:37:06.307025Z", "level": "info"}
+{"event": "Discovered benchmark file: b02_compliance_classification.jsonl -> B02", "timestamp": "2026-07-13T14:37:06.307176Z", "level": "info"}
+{"event": "Discovered benchmark file: b03_conditional_compliance_reasoning.jsonl -> B03", "timestamp": "2026-07-13T14:37:06.307241Z", "level": "info"}
+{"event": "Discovered benchmark file: b04_it_ot_classification_boundary.jsonl -> B04", "timestamp": "2026-07-13T14:37:06.307296Z", "level": "info"}
+{"event": "Discovered benchmark file: b05_control_comprehension.jsonl -> B05", "timestamp": "2026-07-13T14:37:06.307342Z", "level": "info"}
+{"event": "Discovered benchmark file: b06_intent_understanding.jsonl -> B06", "timestamp": "2026-07-13T14:37:06.307383Z", "level": "info"}
+{"event": "Discovered benchmark file: b07_gap_identification_quality.jsonl -> B07", "timestamp": "2026-07-13T14:37:06.307423Z", "level": "info"}
+{"event": "Discovered benchmark file: b08_risk_based_prioritization.jsonl -> B08", "timestamp": "2026-07-13T14:37:06.307472Z", "level": "info"}
+{"event": "Discovered benchmark file: b09_risk_identification_residual_risk.jsonl -> B09", "timestamp": "2026-07-13T14:37:06.307510Z", "level": "info"}
+{"event": "Discovered benchmark file: b10_risk_justification_coherence.jsonl -> B10", "timestamp": "2026-07-13T14:37:06.307549Z", "level": "info"}
+{"event": "Discovered benchmark file: b12_audit_perspective_alignment.jsonl -> B12", "timestamp": "2026-07-13T14:37:06.307590Z", "level": "info"}
+{"event": "Discovered benchmark file: b13_evidence_expectation_awareness.jsonl -> B13", "timestamp": "2026-07-13T14:37:06.307629Z", "level": "info"}
+{"event": "Discovered benchmark file: b14_remediation_quality_feasibility.jsonl -> B14", "timestamp": "2026-07-13T14:37:06.307672Z", "level": "info"}
+{"event": "Discovered benchmark file: b18_responsibility_attribution_sg.jsonl -> B18", "timestamp": "2026-07-13T14:37:06.307719Z", "level": "info"}
+{"event": "Discovered benchmark file: b21_hallucination_over_specification.jsonl -> B21", "timestamp": "2026-07-13T14:37:06.307760Z", "level": "info"}
+{"event": "Discovered benchmark file: b22_waiver_exception_reasoning.jsonl -> B22", "timestamp": "2026-07-13T14:37:06.307803Z", "level": "info"}
+{"event": "Discovered benchmark file: b23_multi_regulator_coordination.jsonl -> B23", "timestamp": "2026-07-13T14:37:06.307840Z", "level": "info"}
+{"event": "Discovered benchmark file: b24_incident_response_guidance.jsonl -> B24", "timestamp": "2026-07-13T14:37:06.307876Z", "level": "info"}
+{"event": "Discovered 18 benchmark files", "timestamp": "2026-07-13T14:37:06.307886Z", "level": "info"}
+Evaluating model: primus-reasoning
+Benchmarks: B01, B02, B03, B04, B05, B06, B07, B08, B09, B10, B12, B13, B14, 
+B18, B21, B22, B23, B24
+Evaluation Phase: baseline
+Evaluation Mode: graphont
+Judge Mode: rubric
+Pass Threshold: 15% (phase default)
+Run ID: eval-run-graphont-test-B05-001-20260713-1437
+
+Running evaluation...
+
+{"benchmarks": ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B10", "B12", "B13", "B14", "B18", "B21", "B22", "B23", "B24"], "event": "Starting evaluation for model: primus-reasoning", "timestamp": "2026-07-13T14:37:06.531863Z", "level": "info"}
+{"event": "Loaded 1 test cases", "timestamp": "2026-07-13T14:37:06.532915Z", "level": "info"}
+{"event": "Evaluating test case 1/1: B05-001", "timestamp": "2026-07-13T14:37:06.540089Z", "level": "info"}
+{"event": "Initializing LangGraph RAG pipeline...", "timestamp": "2026-07-13T14:37:06.540131Z", "level": "info"}
+{"event": "LangGraph RAG pipeline initialized successfully", "timestamp": "2026-07-13T14:37:06.565023Z", "level": "info"}
+WARNING:domain.services.llm_judge_service:Could not build clause text cache from Qdrant: [Errno 61] Connection refused. Misattribution detection will use existence check only.
+{"benchmark_id": "B5", "attempt": 1, "max_attempts": 3, "judge_mode": "rubric", "event": "judge_call_started", "timestamp": "2026-07-13T14:37:46.916408Z", "level": "info"}
+{"event": "Category 'Regulatory Applicability & Interpretation': 55.56% (weight: 25%, tests: 1)", "timestamp": "2026-07-13T14:38:01.089868Z", "level": "info"}
+{"event": "Category-weighted overall score: 55.56% (weighted_sum=0.1389, total_weight=0.25)", "timestamp": "2026-07-13T14:38:01.090143Z", "level": "info"}
+{"event": "Saved evaluation run to: results/evaluations/2026-07/eval-run-graphont-test-B05-001-20260713-1437-primus-reasoning.json", "timestamp": "2026-07-13T14:38:01.097950Z", "level": "info"}
+{"event": "Saved retrieved contexts sidecar to: results/evaluations/2026-07/eval-run-graphont-test-B05-001-20260713-1437-contexts.json", "timestamp": "2026-07-13T14:38:01.098891Z", "level": "info"}
+{"event": "Saved 1 results to results/evaluations/2026-07/eval-run-graphont-test-B05-001-20260713-1437-primus-reasoning.json", "timestamp": "2026-07-13T14:38:01.098922Z", "level": "info"}
+{"passed": 1, "failed": 0, "event": "Evaluation complete. Overall score: 55.56%", "timestamp": "2026-07-13T14:38:01.099277Z", "level": "info"}
+
+Per-Test-Case Results
+
+╭───────── B05-001 | B05 | PASS | Bench: 0.56 | RAGAs: N/A | graphont ─────────╮
+│ Question:                                                                    │
+│   What are the minimum password requirements according to CCoP 2.0?          │
+│                                                                              │
+│ System Prompt:                                                               │
+│   You are a regulatory compliance advisor specializing in Singapore's        │
+│ Cybersecurity Code of Practice for Critical Information Infrastructure,      │
+│ Second Edition (CCoP 2.0).                                                   │
+│                                                                              │
+│ WHAT CCoP 2.0 IS:                                                            │
+│ CCoP 2.0 is the legally mandated cybersecurity code issued by the Cyber      │
+│ Security Agency of Singapore (CSA) under the Singapore Cybersecurity Act     │
+│ 2018. It applies exclusively to designated Critical Information              │
+│ Infrastructure Owners (CIIOs) operating in Singapore.                        │
+│                                                                              │
+│ GLOSSARY (apply these meanings throughout):                                  │
+│ - CCoP / CCoP 2.0: Cybersecurity Code of Practice (Second Edition),          │
+│ Singapore                                                                    │
+│ - CSA: Cyber Security Agency ...                                             │
+│                                                                              │
+│ User Prompt (with RAG context):                                              │
+│   Question: What are the minimum password requirements according to CCoP     │
+│ 2.0?                                                                         │
+│                                                                              │
+│ Relevant passages from the regulatory corpus:                                │
+│                                                                              │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│ Retrieved Contexts (detailed):                                               │
+│   [CCoP Response to Feedback::1.3 | Clause () | score: 0.016393443212570108] │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::2.7 | Clause () | score: 0.016129032838750175] │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::2.5 | Clause () | score: 0.015873016445034582] │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::1.1 | Clause () | score: 0.015625000563606672] │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::12.4 | Clause () | score:                      │
+│ 0.015384615940053843]                                                        │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::11.59 | Clause () | score:                     │
+│ 0.015151515699018774]                                                        │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::1.2 | Clause () | score: 0.014925373674120663] │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::2.24 | Clause () | score:                      │
+│ 0.014705882885236365]                                                        │
+│     ...                                                                      │
+│                                                                              │
+│ Tokens: prompt=764 completion=157 total=921                                  │
+│                                                                              │
+│ Response (prompt=764 completion=157 total=921, 28017ms):                     │
+│   **No specific password requirements are mentioned in CCoP 2.0.**           │
+│                                                                              │
+│ **Sources:**                                                                 │
+│ CCoP 2.0: N/A                                                                │
+│ Cybersecurity Act 2018: N/A                                                  │
+│ Guidelines for Auditing Critical Information Infrastructure: N/A             │
+│ Guide to Cyber Threat Modelling: N/A                                         │
+│ Guide to Conducting Cybersecurity Risk Assessment for CII: N/A               │
+│ Security By Design Framework: N/A                                            │
+│                                                                              │
+│ **Note:** The question references "OMD-GraphRAG," which is not a valid       │
+│ source within the provided regulatory corpus. Therefore, no relevant         │
+│ information can be derived from it. As per your instructions, I have checked │
+│ all available sources and found no mention of password requirements in CCoP  │
+│ 2.0 or any supporting documents.                                             │
+│                                                                              │
+│ ─── Model Response Quality ───                                               │
+│ LLM Judge:                                                                   │
+│   verdict_accuracy               2/3  (weight: 0.50)                         │
+│   justification_quality          3/3  (weight: 0.50)                         │
+│   factual_grounding              2/3  (weight: 0.50)                         │
+│   scope_appropriateness          3/3  (weight: 0.50)                         │
+│   actionable_way_forward         0/3  (weight: 0.50)                         │
+│   citation_correctness           0/3  (weight: 0.50)                         │
+│                                                                              │
+│ RAG Context: 8 chunks (CCoP Response to Feedback::1.3, CCoP Response to      │
+│ Feedback::2.7, CCoP Response to Feedback::2.5, CCoP Response to              │
+│ Feedback::1.1, CCoP Response to Feedback::12.4, ... (8 total))               │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Evaluation Complete!
+
+Model: primus-reasoning
+Tests: 1 total | 1 passed | 0 failed
+Duration: 54.6s
+Mode: graphont
+
+         Overall Quality Summary         
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Quality Group / Metric        ┃ Score ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ Retrieval Quality             │  N/A  │
+│   RAGAs: context_recall       │  N/A  │
+│   RAGAs: context_precision    │  N/A  │
+├───────────────────────────────┼───────┤
+│ Model-RAG Grounding           │  N/A  │
+│   RAGAs: context_faithfulness │  N/A  │
+├───────────────────────────────┼───────┤
+│ Model Response Quality        │ 0.56  │
+│   RAGAs: factual_recall       │  N/A  │
+│   RAGAs: answer_relevancy     │  N/A  │
+│   RAGAs: semantic_similarity  │  N/A  │
+│   LLM Judge                   │ 0.56  │
+├───────────────────────────────┼───────┤
+│ Benchmark Score               │ 0.56  │
+│ RAGAs Score                   │  N/A  │
+└───────────────────────────────┴───────┘
+
+Quality Breakdown by Benchmark:
+
+  ■ Retrieval Quality  ■ Model-RAG Grounding  ■ Model Response Quality
+
+                         Quality Breakdown by Benchmark                         
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┓
+┃           ┃         ┃         ┃        ┃         ┃        ┃         ┃  LLM   ┃
+┃ Benchmark ┃ ctx_re… ┃ ctx_pr… ┃ ctx_f… ┃ fct_re… ┃ ans_r… ┃ sem_sim ┃ Judge  ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━┩
+│ B5: B5    │   N/A   │   N/A   │  N/A   │   N/A   │  N/A   │   N/A   │  0.56  │
+└───────────┴─────────┴─────────┴────────┴─────────┴────────┴─────────┴────────┘

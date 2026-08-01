@@ -1,0 +1,1181 @@
+[
+  {
+    "test_id": "B10-001",
+    "question": "Why should the board prioritize completing the CII asset inventory over other security initiatives?",
+    "gold_set": [
+      "4.1.1",
+      "4.1.2"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP 2.0::4.1",
+        "ce_score": 0.707664430141449,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause states that a comprehensive CII asset inventory provides visibility and enables informed decisions and prioritization of assets for protection, directly justifying why the board should prioritize it over other initiatives."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::5.6",
+        "ce_score": 0.18714889883995056,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause clarifies that prioritization of CII assets is no longer required and provides guidance on asset inventory, which is contextually relevant but does not directly answer why the board should prioritize it over other initiatives."
+      },
+      {
+        "citation_id": "CCoP 2.0::4.1.1",
+        "ce_score": 0.06826414912939072,
+        "is_gold": true,
+        "eval_score": 2,
+        "eval_reason": "The clause establishes a mandatory requirement for the CIIO to maintain a comprehensive CII asset inventory, which is foundational for effective cybersecurity governance and directly justifies why the board should prioritize it over other initiatives."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::10.2",
+        "ce_score": 0.014619247987866402,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause specifies the requirement to include all CII assets in the inventory but does not explain why this should be prioritized over other security initiatives."
+      },
+      {
+        "citation_id": "CCoP 2.0::3.1",
+        "ce_score": 0.031051643192768097,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause emphasizes the importance of leadership and oversight in cybersecurity but does not specifically address why the board should prioritize the CII asset inventory over other initiatives."
+      },
+      {
+        "citation_id": "CCoP 2.0::3.1.2",
+        "ce_score": 0.015245220623910427,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause addresses board composition and cybersecurity oversight but does not justify why completing the CII asset inventory should be prioritized over other security initiatives."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::10.5",
+        "ce_score": 0.02689102664589882,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause confirms that asset inventory is required for CII, including in cloud environments, and that information must be furnished to the Commissioner, which provides context for prioritization but does not directly explain why it should be prioritized over other initiatives."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::10.1",
+        "ce_score": 0.0025373452808707952,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause addresses clarification requests about the scope and documentation of the asset inventory but does not provide a rationale for why the board should prioritize it over other initiatives."
+      }
+    ]
+  },
+  {
+    "test_id": "B01-001",
+    "question": "A healthcare provider's patient monitoring systems and MRI machines have been designated as CII. Their hospital administration system (patient records, billing, appointments) shares the same enterprise network. Does CCoP 2.0 mandatory compliance extend to the hospital administration system?",
+    "gold_set": [
+      "1.2.1",
+      "1.4.1"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.9517043828964233,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause states that CCoP 2.0 applies to CII systems within a defined digital boundary, which is essential to determining whether the hospital administration system falls under compliance based on its network integration with designated CII."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.1",
+        "ce_score": 0.9989073276519775,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it addresses scope concerns about whether CCoP 2.0 applies only to CII systems or the entire organization, but it does not provide a definitive answer on compliance extension to non-CII systems like the hospital administration system."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.5",
+        "ce_score": 0.8056972622871399,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses the timeline and applicability of CCoP 2.0 compliance but does not address whether compliance extends to non-CII systems like the hospital administration system on a shared network."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::15.13",
+        "ce_score": 0.4525070786476135,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause establishes a requirement for physical segregation between OT CII and enterprise networks, which directly informs whether compliance extends to the hospital administration system sharing the same network."
+      },
+      {
+        "citation_id": "CCoP 2.0::10.2.1",
+        "ce_score": 0.31040146946907043,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause addresses network connectivity between OT CII and enterprise networks but does not explicitly state whether compliance extends to non-CII systems like the hospital administration system."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.11",
+        "ce_score": 0.7346659302711487,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses the compliance timeline for CCoP 2.0 but does not address whether compliance extends to non-CII systems like the hospital administration system that share a network with designated CII."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.59",
+        "ce_score": 0.18072731792926788,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses DNSSEC requirements for CII with internet-facing DNS servers, which is unrelated to whether CCoP compliance extends to a hospital administration system sharing a network with designated CII."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.25",
+        "ce_score": 0.23294711112976074,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it discusses the scope of CCoP in relation to corporate networks and CII boundaries, but it does not directly address whether compliance extends to a hospital administration system sharing the same network."
+      }
+    ]
+  },
+  {
+    "test_id": "B02-001",
+    "question": "A bank's CII implements remote VPN access with username/password plus an SMS one-time code sent to the user's registered mobile number. Does this satisfy CCoP 2.0 Clause 5.7.2(b) multi-factor authentication requirements?",
+    "gold_set": [
+      "5.7.2"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP 2.0::5.7.2(b)",
+        "ce_score": 0.9977885484695435,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause directly mandates multi-factor authentication for remote connections to CII, which is the central issue in the question."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.7.2",
+        "ce_score": 0.9795020222663879,
+        "is_gold": true,
+        "eval_score": 2,
+        "eval_reason": "The clause explicitly requires multi-factor authentication for remote connections to the CII, which is the central issue in the question."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.3.1(c)",
+        "ce_score": 0.9521589279174805,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause mentions multi-factor authentication for privileged access, which is contextually relevant, but it does not address the specific method of authentication (SMS one-time code) or directly confirm compliance with Clause 5.7.2(b)."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.19",
+        "ce_score": 0.8543538451194763,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause confirms that remote connection security measures apply to all remote connections, including user connections, which is contextually relevant to evaluating compliance for remote VPN access, but does not specify multi-factor authentication requirements."
+      },
+      {
+        "citation_id": "CCoP 2.0::1.2.1",
+        "ce_score": 0.9428070783615112,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause defines remote access, which is contextually relevant to understanding the scope of remote VPN access, but does not address multi-factor authentication requirements."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.21",
+        "ce_score": 0.7955009341239929,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause provides context on the purpose of secured remote access but does not specify multi-factor authentication requirements needed to answer the question."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.20",
+        "ce_score": 0.5360041260719299,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause provides context about the intent of remote connection security but does not specify multi-factor authentication requirements or address whether SMS one-time codes satisfy the technical criteria for compliance."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.7.2(c)",
+        "ce_score": 0.5925062298774719,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause addresses security requirements for remote connections to CII, which is contextually relevant, but does not specifically address the multi-factor authentication requirements of Clause 5.7.2(b) regarding authentication factors."
+      }
+    ]
+  },
+  {
+    "test_id": "B03-001",
+    "question": "Your organization uses shared admin accounts with session logging for CII SCADA systems because the legacy HMIs don't support individual authentication. The CISO argues this satisfies CCoP access control requirements through compensating controls. Does this approach comply with CCoP 2.0?",
+    "gold_set": [
+      "5.2.1(c)",
+      "5.3.1(c)"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.9724122881889343,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause defines the scope of CCoP 2.0 applicability to CII systems but does not address access control requirements or compensating controls for shared admin accounts."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.13",
+        "ce_score": 0.474884033203125,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause is essential because it outlines the formal process and criteria for obtaining a waiver based on compensating controls, which directly determines whether the organization's approach complies with CCoP 2.0."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.5",
+        "ce_score": 0.728577733039856,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses the timeline and applicability of CCoP 2.0 but does not address access control requirements, shared admin accounts, or compensating controls for legacy systems."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.1",
+        "ce_score": 0.7461071610450745,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause addresses the scope of CCoP 2.0 application but does not provide guidance on the compliance of shared admin accounts or compensating controls for access control."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.3",
+        "ce_score": 0.3028101623058319,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses extending cybersecurity capabilities to the entire organization and audit scope exclusions, but does not address access control requirements, shared accounts, or compensating controls for legacy systems."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.23",
+        "ce_score": 0.29616111516952515,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it mentions compensating controls in relation to CCoP compliance, but it does not directly address whether shared admin accounts with session logging satisfy access control requirements for legacy systems."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::9.1",
+        "ce_score": 0.5777157545089722,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it discusses logging and compliance with CCoP requirements, but it does not directly address shared admin accounts, legacy systems, or compensating controls for access authentication."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.59",
+        "ce_score": 0.3216695487499237,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses DNSSEC requirements and their applicability, which is unrelated to the question about shared admin accounts and access control for SCADA systems."
+      }
+    ]
+  },
+  {
+    "test_id": "B04-001",
+    "question": "A power generation facility has the following systems: (1) SCADA system controlling turbine operations, (2) corporate email server, (3) historian database collecting sensor data from turbines, (4) HR payroll system, (5) distributed control system (DCS) managing plant operations. Classify each system as IT or OT based on the CCoP 2.0 \u00a71.2.1 definitions of \u201cinformation technology\u201d and \u201coperational technology\u201d.",
+    "gold_set": [
+      "1.2.1"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.5425899028778076,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause provides context about the scope of CCoP 2.0 applicability to CII systems but does not define IT or OT or help classify the listed systems."
+      },
+      {
+        "citation_id": "Security By Design::AnnexC",
+        "ce_score": 0.7673960328102112,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause provides a direct definition of 'Operational Technology' that is essential for classifying systems as OT based on CCoP 2.0."
+      },
+      {
+        "citation_id": "CCoP 2.0::1.2.1",
+        "ce_score": 0.7496303915977478,
+        "is_gold": true,
+        "eval_score": 2,
+        "eval_reason": "The clause provides the essential definition of 'operational technology' under CCoP 2.0 \u00a71.2.1, which directly enables classification of systems like SCADA, DCS, and historian databases as OT based on their role in monitoring and controlling physical processes."
+      },
+      {
+        "citation_id": "CCoP 2.0::10.2",
+        "ce_score": 0.0504252091050148,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it discusses OT systems like DCS and SCADA, which are mentioned in the question, but it does not provide the formal definitions of IT and OT required to classify the systems under CCoP 2.0 \u00a71.2.1."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.9.1(e)",
+        "ce_score": 0.23381231725215912,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause mentions OT historians, which is contextually relevant to classifying systems like the historian database, but does not provide the full definitions of IT or OT needed to classify all the listed systems."
+      },
+      {
+        "citation_id": "Security By Design::3.2",
+        "ce_score": 0.1291920393705368,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause mentions Operational Technologies and Infocomm Technologies, providing contextual relevance to the classification task, but does not define IT or OT or provide the specific criteria needed to classify the listed systems."
+      },
+      {
+        "citation_id": "CCoP 2.0::1.2.1",
+        "ce_score": 0.7463791370391846,
+        "is_gold": true,
+        "eval_score": 1,
+        "eval_reason": "The clause provides the definition of 'information technology' which is necessary context for classification, but does not define 'operational technology' or directly help distinguish between IT and OT systems as required by the question."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::5.12",
+        "ce_score": 0.0831875428557396,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause provides context about OT systems and their components like sensors and HMIs, which is relevant to classifying systems, but does not define IT or OT as required by the question."
+      }
+    ]
+  },
+  {
+    "test_id": "B05-001",
+    "question": "What are the minimum password requirements according to CCoP 2.0?",
+    "gold_set": [
+      "5.9.2(b)",
+      "response-to-feedback 11.28"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP Response to Feedback::11.26",
+        "ce_score": 0.01683971844613552,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause mentions the minimum password length for a passphrase, which is contextually relevant to password requirements, but does not specify the actual requirements needed to answer the question."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.59",
+        "ce_score": 0.008830707520246506,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses DNSSEC requirements and their applicability, which is unrelated to password requirements."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.0019599555525928736,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause defines the scope of CCoP 2.0 applicability to CII systems but does not mention password requirements."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.9.2",
+        "ce_score": 0.002745121018961072,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause mentions password management, including changing default passwords and storing them in hash form, but does not specify minimum password requirements such as length, complexity, or expiration."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.28",
+        "ce_score": 0.0009616145398467779,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it mentions password length and referencing standards like NIST, but it does not specify the actual minimum password requirements, only that CIIOs may refer to external sources."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::1.1",
+        "ce_score": 0.0013897443423047662,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause provides background information on the issuance of CCoP 2.0 but does not mention password requirements or any related security controls."
+      },
+      {
+        "citation_id": "CCoP 2.0::10",
+        "ce_score": 0.0014289680402725935,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause does not address password requirements and is focused on operational technology security, which is unrelated to the question."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.9.2(b)",
+        "ce_score": 0.0022931687999516726,
+        "is_gold": true,
+        "eval_score": 1,
+        "eval_reason": "The clause addresses password management practices such as changing defaults and hashing, but does not specify minimum password requirements like length or complexity."
+      }
+    ]
+  },
+  {
+    "test_id": "B06-001",
+    "question": "What is the security intent of CCoP 2.0's password and passphrase management requirement (Clause 5.9.2(b)), and how does CCoP 2.0 treat password length?",
+    "gold_set": [
+      "5.1.2",
+      "5.9.2(b)"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP 2.0::5.9.2",
+        "ce_score": 0.8195294737815857,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause explicitly states the password and passphrase management requirements, including changing default passwords and storing passwords in hash form, which directly informs the security intent and implies treatment of password length through secure storage practices."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.26",
+        "ce_score": 0.2369069755077362,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it mentions password length and passphrases in relation to CCoP, but it does not directly state the security intent of Clause 5.9.2(b) or specify how password length is treated in the standard."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.9.2(b)",
+        "ce_score": 0.34947335720062256,
+        "is_gold": true,
+        "eval_score": 2,
+        "eval_reason": "The clause directly addresses the password and passphrase management requirement in CCoP 2.0 by specifying obligations related to changing default passwords and storing passwords in hashed form, which speaks to the security intent of protecting credential integrity, though it does not explicitly address password length."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::1.3",
+        "ce_score": 0.8156514167785645,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause provides high-level objectives of CCoP 2.0 but does not specifically address the security intent of password management or how password length is treated in Clause 5.9.2(b)."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::1.2",
+        "ce_score": 0.5574256181716919,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause provides background on the overall intent of CCoP 2.0 but does not address password and passphrase management or password length specifically."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::15.40",
+        "ce_score": 0.04731159284710884,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause mentions enabling password protection to prevent unauthorized access, which is contextually relevant to the security intent of password management, but it does not specifically address the intent of Clause 5.9.2(b) or how CCoP 2.0 treats password length."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.28",
+        "ce_score": 0.01346011646091938,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it addresses password length and references standards like NIST, but it does not directly state the security intent of Clause 5.9.2(b) or specify how CCoP 2.0 treats password length as a requirement."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.7",
+        "ce_score": 0.017113832756876945,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses overlaps between CCoP 2.0 and IM8 on access control and system hardening but does not address password or passphrase management, length, or related security intent."
+      }
+    ]
+  },
+  {
+    "test_id": "B07-006",
+    "question": "Identify the compliance gaps based on the following scenario: IT team uses shared administrator credentials for emergency access, claiming individual accountability is maintained through logs",
+    "gold_set": [
+      "5.2.1"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP 2.0::7.1.4(b)",
+        "ce_score": 0.14551009237766266,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it refers to gaps in compliance with policies, which could include credential management practices, but it does not specifically address shared administrator credentials or individual accountability through logs."
+      },
+      {
+        "citation_id": "CCoP 2.0::7.1.4",
+        "ce_score": 0.0036980321165174246,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause addresses post-incident root cause analysis and governance gaps but does not directly relate to the use of shared administrator credentials or individual accountability through logging."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.10",
+        "ce_score": 0.006777341011911631,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it addresses logging of privileged access and defines emergency accounts, but it does not directly state whether shared administrator credentials violate individual accountability requirements."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.1",
+        "ce_score": 0.002042110776528716,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause lists clarifications sought by respondents but does not provide any rule, definition, or obligation regarding shared administrator credentials or individual accountability, making it irrelevant to identifying compliance gaps in the scenario."
+      },
+      {
+        "citation_id": "CCoP 2.0::7.1.4(c)",
+        "ce_score": 0.011124498210847378,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause addresses gaps in the audit process and remediation of findings, which is not directly related to the use of shared administrator credentials or individual accountability through logs."
+      },
+      {
+        "citation_id": "CCoP 2.0::7.1.4(a)",
+        "ce_score": 0.016692286357283592,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it refers to identifying gaps in cybersecurity governance, but it does not specifically address the issue of shared administrator credentials or individual accountability through logging."
+      },
+      {
+        "citation_id": "CCoP 2.0::6.1.2(d)",
+        "ce_score": 0.024111613631248474,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause mentions NIDS/NIPS logs but does not address the use of shared administrator credentials or individual accountability, making it irrelevant to the compliance gap in question."
+      },
+      {
+        "citation_id": "Risk Assessment Guide::1.2",
+        "ce_score": 0.13690663874149323,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses general risk assessment gaps but does not address the use of shared administrator credentials or individual accountability, which are central to the question."
+      }
+    ]
+  },
+  {
+    "test_id": "B08-001",
+    "question": "Given the following compliance gaps in a banking CII environment:\n\n1. Shared admin accounts (likelihood: high, impact: high, effort: low)\n2. Missing security awareness training records (likelihood: medium, impact: low, effort: medium)\n3. Outdated asset inventory (likelihood: medium, impact: medium, effort: high)\n\nConstraints: None\n\nWhich gap should be prioritized for remediation first, and what should the prioritization sequence be? Provide your reasoning.",
+    "gold_set": [
+      "3.2.2(b)",
+      "3.2.2(c)"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP Response to Feedback::5.6",
+        "ce_score": 0.3355942666530609,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it discusses asset inventory and risk assessment guidance, but it does not provide direct criteria or rules for prioritizing remediation of compliance gaps based on likelihood, impact, or effort."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.10.1(d)",
+        "ce_score": 0.9040743112564087,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it discusses risk-based prioritization in a CII environment, but it specifically addresses patch management rather than general remediation prioritization across diverse compliance gaps."
+      },
+      {
+        "citation_id": "CCoP 2.0::4.1.1(c)",
+        "ce_score": 0.614157497882843,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause provides information about describing critical functions of assets but does not address risk prioritization or remediation sequencing based on likelihood, impact, or effort."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.15.1(b)",
+        "ce_score": 0.552848219871521,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause specifies a timeline for assessments for OT systems but does not address prioritization of remediation based on risk factors like likelihood, impact, or effort, and is unrelated to the question's context of banking CII gaps."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.14.3(b)",
+        "ce_score": 0.5158680081367493,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause specifies audit frequency for OT systems and does not provide criteria or guidance for prioritizing remediation of compliance gaps."
+      },
+      {
+        "citation_id": "CCoP 2.0::2.1.2(a)",
+        "ce_score": 0.25173166394233704,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it requires detailing remediation actions for non-compliance, but it does not provide criteria or guidance on how to prioritize which gaps to address first."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.15.1(a)",
+        "ce_score": 0.4925141930580139,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause specifies a frequency for some activity but does not provide criteria or guidance for prioritizing compliance gaps based on risk or effort."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::10.1",
+        "ce_score": 0.25217151641845703,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant to asset inventory requirements but does not provide guidance on risk prioritization or remediation sequencing needed to answer the question."
+      }
+    ]
+  },
+  {
+    "test_id": "B09-001",
+    "question": "**Risk Identification for Config analysis - missing MFA:**\n\n**Configuration Analysis:**\nCritical systems: Database servers (MFA disabled), Application servers (MFA disabled), Backup servers (MFA enabled)\n\n**Sector Context:** Banking CII operators face specific risks related to missing mfa.\n\nReference: CCoP 2.0 risk assessment requirements\n\nWhat are the key security risks or residual risks in this scenario?",
+    "gold_set": [
+      "3.2.2(a)"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP 2.0::3.2.2(a)",
+        "ce_score": 0.7177410125732422,
+        "is_gold": true,
+        "eval_score": 1,
+        "eval_reason": "The clause provides context on risk identification processes but does not specifically address the security risks related to missing MFA on critical systems."
+      },
+      {
+        "citation_id": "CCoP 2.0::3.2.4",
+        "ce_score": 0.21039114892482758,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it outlines requirements for maintaining a risk register which could include risks like missing MFA, but it does not itself identify or describe the specific security risks associated with missing MFA."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.3349725306034088,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause establishes the applicability of CCoP 2.0 to CII systems, which provides context for the regulatory scope but does not directly address the specific risks related to missing MFA or residual risks in the configuration analysis."
+      },
+      {
+        "citation_id": "CCoP 2.0::3.2.5",
+        "ce_score": 0.14851106703281403,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it emphasizes monitoring residual risks, but does not specifically address the risk of missing MFA or the security risks associated with it."
+      },
+      {
+        "citation_id": "CCoP 2.0::3.2.2",
+        "ce_score": 0.12335394322872162,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause provides the essential framework for risk identification, analysis, evaluation, and response required to assess security risks like missing MFA in critical systems under CCoP 2.0."
+      },
+      {
+        "citation_id": "Risk Assessment Guide::3.3",
+        "ce_score": 0.12817730009555817,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause outlines roles and responsibilities in risk assessment but does not address the specific security risks or residual risks arising from missing MFA on critical systems."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::1.2",
+        "ce_score": 0.2583576738834381,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause provides general context on why CCoP 2.0 was developed, including sector-specific risks and evolving threats, but does not directly address the specific risks of missing MFA on critical systems."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.9.1",
+        "ce_score": 0.10907186567783356,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it mandates establishing security configuration baselines for servers, which includes the systems in question, but does not specifically address MFA or the risks arising from its absence."
+      }
+    ]
+  },
+  {
+    "test_id": "B12-001",
+    "question": "What would a CSA auditor look for when assessing MFA implementation, and how should a Risk Manager prepare?",
+    "gold_set": [
+      "5.3.1",
+      "5.7.2"
+    ],
+    "clauses": [
+      {
+        "citation_id": "Auditing Guidelines::7.3",
+        "ce_score": 0.0028982646763324738,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause provides general audit expectations and structure that are contextually relevant to what a CSA auditor might assess, but does not specifically address MFA implementation or preparation for a Risk Manager."
+      },
+      {
+        "citation_id": "Auditing Guidelines::6",
+        "ce_score": 0.0014386113034561276,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause introduces audit expectations and mentions that CSA outlines areas auditors will assess, but it does not specify what auditors look for regarding MFA or how a Risk Manager should prepare."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::9.4",
+        "ce_score": 0.0003051417297683656,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses supply chain risk assessment requirements and does not address MFA implementation or auditor expectations related to it."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::8.10",
+        "ce_score": 0.00017625994223635644,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it discusses audit validation of cybersecurity controls, including MFA, but does not specifically mention MFA or what an auditor would look for during assessment."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::8.13",
+        "ce_score": 0.0007433602586388588,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause pertains to cloud service adoption notification and risk assessment guidance, not MFA implementation or auditor expectations for MFA."
+      },
+      {
+        "citation_id": "Auditing Guidelines::6.6",
+        "ce_score": 0.0002524814335629344,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause outlines general areas an auditor evaluates, including control effectiveness, which is contextually relevant to MFA implementation assessment, but does not specifically mention MFA or preparation steps for a Risk Manager."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::7.7",
+        "ce_score": 0.00025001197354868054,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it mentions a risk-based approach to implementing measures, which could inform how a Risk Manager prepares, but it does not specifically address MFA implementation or what a CSA auditor would look for."
+      },
+      {
+        "citation_id": "CCoP 2.0::1",
+        "ce_score": 0.00015962384350132197,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it refers to a CSA risk assessment guide, which may inform preparation for an audit, but it does not directly address MFA implementation or auditor expectations for MFA."
+      }
+    ]
+  },
+  {
+    "test_id": "B13-001",
+    "question": "What evidence should a Risk Manager prepare to demonstrate board cybersecurity oversight?",
+    "gold_set": [
+      "3.1.1"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP 2.0::3.1.2",
+        "ce_score": 0.0011045896681025624,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause specifies a requirement for board-level cybersecurity oversight, which directly informs what evidence a Risk Manager should prepare to demonstrate such oversight."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::4.3",
+        "ce_score": 0.008917268365621567,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause is essential as it directly states the Board's obligation to provide cybersecurity oversight, which forms the basis for what evidence a Risk Manager must prepare to demonstrate such oversight."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::4.1",
+        "ce_score": 0.0006138859898783267,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it discusses board responsibilities regarding cybersecurity, but it does not specify what evidence a Risk Manager should prepare to demonstrate oversight."
+      },
+      {
+        "citation_id": "CCoP 2.0::3.1",
+        "ce_score": 0.001570390653796494,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause establishes the board's essential role in cybersecurity leadership and oversight, which directly informs what evidence a Risk Manager should prepare to demonstrate such oversight."
+      },
+      {
+        "citation_id": "CCoP 2.0::3.2.1",
+        "ce_score": 0.0012156356824561954,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause is essential because it requires regular reporting of cybersecurity risks to senior management, which directly implies that such reports serve as evidence of board oversight."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::4.2",
+        "ce_score": 0.0021913188975304365,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it discusses board members' cybersecurity knowledge, but it does not provide specific evidence a Risk Manager should prepare to demonstrate board oversight."
+      },
+      {
+        "citation_id": "CCoP 2.0::3.2",
+        "ce_score": 0.002011112403124571,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it discusses cybersecurity risk management and senior management's role in risk acceptance, but it does not specify what evidence a Risk Manager should prepare to demonstrate board oversight."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::4.6",
+        "ce_score": 0.010588956996798515,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause specifies criteria and examples of knowledge and experience that board members should have, which directly informs what evidence a Risk Manager should prepare to demonstrate board cybersecurity oversight."
+      }
+    ]
+  },
+  {
+    "test_id": "B14-001",
+    "question": "**Gap:** Default passwords on network devices\n**Sector:** Banking CII\n\nProvide a remediation recommendation that addresses:\n1. Specific actions to remediate the gap\n2. Feasibility assessment (cost, timeline, disruption, capability)\n3. Practical considerations for implementation\n4. Alternatives if primary remediation is not feasible",
+    "gold_set": [
+      "5.9.2(b)"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP 2.0::2.1.2(a)",
+        "ce_score": 0.17841988801956177,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause mandates detailing remediation actions for each area of non-compliance, which directly supports providing specific actions, feasibility, and implementation considerations for addressing default password gaps."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.9.2",
+        "ce_score": 0.0075231133960187435,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause explicitly mandates changing default passwords, which directly provides a remediation action for the gap and supports the development of a recommendation."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.9.1",
+        "ce_score": 0.02361411601305008,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause mandates establishing a security configuration baseline for network devices, which is contextually relevant to addressing default passwords, but does not specify actions, feasibility, or implementation considerations needed to fully answer the question."
+      },
+      {
+        "citation_id": "CCoP 2.0::7.1.4(c)",
+        "ce_score": 0.023758115246891975,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses gaps in audit processes and remediation of findings related to incidents, but does not address default passwords or provide specific remediation actions for that issue."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::3.1",
+        "ce_score": 0.002495202235877514,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses procedural aspects of submitting and approving a remediation plan but does not provide specific actions, feasibility, or practical guidance for remediating default passwords on network devices."
+      },
+      {
+        "citation_id": "CCoP 2.0::2.1.4",
+        "ce_score": 0.0034812609665095806,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it outlines the requirement to remediate audit findings, including timelines and reporting, but does not provide specific actions or practical guidance for addressing default passwords on network devices."
+      },
+      {
+        "citation_id": "CCoP 2.0::2.1.2",
+        "ce_score": 0.0030096552800387144,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it outlines requirements for a remediation plan, but it does not provide specific actions or practical details needed to address default password gaps."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::3.6",
+        "ce_score": 0.003008429193869233,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it outlines the process for submitting remediation plans for audit findings, including timelines and approval, but does not provide specific actions or practical guidance for remediating default password vulnerabilities."
+      }
+    ]
+  },
+  {
+    "test_id": "B18-001",
+    "question": "Under Singapore's Cybersecurity Act 2018 and CCoP 2.0, who is personally liable for CII compliance violations? What are the responsibilities of the Board, CIIO, and CISO?",
+    "gold_set": [
+      "3.1.1"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP 2.0::3.7.1",
+        "ce_score": 0.8273254632949829,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause directly states the CIIO's accountability for CII cybersecurity, which is essential to answering who is liable and what responsibilities key roles hold under the Act and CCoP."
+      },
+      {
+        "citation_id": "CCoP 2.0::3.1.2",
+        "ce_score": 0.7301669716835022,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it outlines the board's oversight role in cybersecurity, but it does not directly address personal liability or the specific responsibilities of the Board, CIIO, and CISO required to answer the question."
+      },
+      {
+        "citation_id": "Auditing Guidelines::1",
+        "ce_score": 0.7727776765823364,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it mentions the CIIO's obligation to conduct audits under the Cybersecurity Act 2018, but it does not specify personal liability or the distinct responsibilities of the Board, CIIO, and CISO."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::14.11",
+        "ce_score": 0.7511637806892395,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it outlines the CIIO's responsibility in ensuring personnel awareness of cybersecurity laws and policies, but it does not directly address personal liability or the specific responsibilities of the Board, CIIO, and CISO in the event of compliance violations."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::4.3",
+        "ce_score": 0.6050710082054138,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause directly states the Board's oversight responsibility and senior management's role in managing cybersecurity risks, which is essential to answering the question about responsibilities of the Board, CIIO, and CISO under the CCoP."
+      },
+      {
+        "citation_id": "CCoP 2.0::9.2.2",
+        "ce_score": 0.8386760354042053,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it addresses responsibilities of the CIIO regarding personnel managing CII, but it does not directly specify personal liability or the distinct roles of the Board, CIIO, and CISO in compliance violations."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::8.2",
+        "ce_score": 0.5774672031402588,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it mentions the CIIO's accountability for CII cybersecurity, but it does not directly address personal liability under the Cybersecurity Act 2018 or specify the roles of the Board, CIIO, and CISO."
+      },
+      {
+        "citation_id": "CCoP 2.0::3.8.1",
+        "ce_score": 0.7616879940032959,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause establishes that the CIIO is personally accountable for CII cybersecurity, which directly addresses liability and responsibility under the CCoP."
+      }
+    ]
+  },
+  {
+    "test_id": "B21-001",
+    "question": "What does CCoP 2.0 Clause 5.9.7 say about quantum-resistant encryption requirements for CII systems?",
+    "gold_set": [],
+    "clauses": [
+      {
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.5398714542388916,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause defines the scope of CCoP 2.0 applicability to CII systems but does not mention quantum-resistant encryption or any related requirements."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::11.59",
+        "ce_score": 0.21547852456569672,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses DNSSEC requirements and their applicability to CII with internet-facing DNS servers, but does not mention quantum-resistant encryption or Clause 5.9.7."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.11.4",
+        "ce_score": 0.06957113742828369,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause addresses encryption for sensitive information on portable devices but does not mention quantum-resistant encryption or relate to Clause 5.9.7, making it irrelevant to the specific question."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.7.2(c)",
+        "ce_score": 0.11712849885225296,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses strong encryption for remote connections but does not address quantum-resistant encryption or Clause 5.9.7."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::7.10",
+        "ce_score": 0.03255363553762436,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses the application of the SBD framework and contract considerations for CII systems but does not mention quantum-resistant encryption or CCoP 2.0 Clause 5.9.7."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::9.5",
+        "ce_score": 0.08833649009466171,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause addresses vendor obligations and audit rights, not quantum-resistant encryption requirements for CII systems."
+      },
+      {
+        "citation_id": "CCoP 2.0::5.7.2",
+        "ce_score": 0.028459802269935608,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause addresses remote connection security but does not mention quantum-resistant encryption or relate to cryptographic standards for CII systems."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.3",
+        "ce_score": 0.2589343190193176,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause discusses extending cybersecurity capabilities to the entire CII organisation and mentions Annex A, but does not address quantum-resistant encryption or Clause 5.9.7."
+      }
+    ]
+  },
+  {
+    "test_id": "B22-001",
+    "question": "Can a CII operator apply for a waiver for MFA requirements on legacy SCADA systems?",
+    "gold_set": [
+      "1.6.1",
+      "1.6.2",
+      "1.6.3"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP Response to Feedback::2.20",
+        "ce_score": 0.06853628903627396,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause provides context on waiver requests but does not specifically address MFA requirements or legacy SCADA systems."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.13",
+        "ce_score": 0.002709432737901807,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause explicitly states that a CIIO may apply for a waiver under Section 11(7) of the Cybersecurity Act if unable to comply with specific CCoP 2.0 requirements, which directly supports answering whether a waiver can be applied for regarding MFA on legacy systems."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.23",
+        "ce_score": 0.0029569717589765787,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it discusses waiver review and compensating controls, but does not specifically address MFA requirements or legacy SCADA systems."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.18",
+        "ce_score": 0.006523036863654852,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause is essential as it establishes the obligation and process for a CII operator to submit a waiver for non-compliance with any requirement, including MFA on legacy systems."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::7.10",
+        "ce_score": 0.018092498183250427,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause explicitly states the process for seeking a waiver when it is not possible to apply new requirements to existing systems, which directly addresses the question about applying for a waiver for MFA on legacy SCADA systems."
+      },
+      {
+        "citation_id": "CCoP 2.0::1.6.2",
+        "ce_score": 0.016760051250457764,
+        "is_gold": true,
+        "eval_score": 2,
+        "eval_reason": "The clause directly states that a CII operator can request a waiver from specific provisions of the Code, which is essential to answering whether a waiver for MFA requirements on legacy SCADA systems is possible."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::13.27",
+        "ce_score": 0.00047560062375850976,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause provides a general process for seeking a waiver for a CCoP requirement due to operational constraints, which is contextually relevant to the question about MFA waivers for legacy systems, but it does not specifically address MFA or SCADA systems."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.17",
+        "ce_score": 0.015482061542570591,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it discusses waiver requests for requirements that are not implementable, which includes legacy systems, but does not specifically mention MFA or SCADA systems."
+      }
+    ]
+  },
+  {
+    "test_id": "B23-001",
+    "question": "How do CCoP 2.0 and MAS TRM requirements align for incident reporting?",
+    "gold_set": [
+      "1.6",
+      "3.2.1",
+      "7.1.1(b)"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP Response to Feedback::2.7",
+        "ce_score": 0.035353466868400574,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause mentions overlaps between CCoP 2.0 and another government document (IM8) but does not address alignment with MAS TRM or incident reporting specifically."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.10272743552923203,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause defines the scope of CCoP 2.0 applicability to CII systems but does not address incident reporting or its alignment with MAS TRM requirements."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.9",
+        "ce_score": 0.0021615978330373764,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause mentions harmonization between CCoP and sectoral requirements like IM8, which is contextually relevant to alignment with MAS TRM, but does not specifically address incident reporting or the alignment details for that topic."
+      },
+      {
+        "citation_id": "CCoP 2.0::7",
+        "ce_score": 0.0017592482035979629,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause outlines incident response planning requirements in CCoP 2.0 but does not address alignment with MAS TRM or reporting specifics."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::2.8",
+        "ce_score": 0.004014529287815094,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause mentions CCoP 2.0 requirements and audit efforts but does not address alignment with MAS TRM or incident reporting specifically."
+      },
+      {
+        "citation_id": "CCoP 2.0::7.1.1",
+        "ce_score": 0.0010980661027133465,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause outlines incident reporting requirements under CCoP 2.0 but does not address alignment with MAS TRM, making it contextually relevant but not directly responsive to the question."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::1.1",
+        "ce_score": 0.020311521366238594,
+        "is_gold": false,
+        "eval_score": 0,
+        "eval_reason": "The clause provides background on the issuance of CCoP 2.0 for feedback but does not address incident reporting or its alignment with MAS TRM requirements."
+      },
+      {
+        "citation_id": "CCoP Response to Feedback::13.1",
+        "ce_score": 0.08677800744771957,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it addresses clarifications sought on incident management in CCoP 2.0, but it does not directly address alignment with MAS TRM requirements for incident reporting."
+      }
+    ]
+  },
+  {
+    "test_id": "B24-001",
+    "question": "Incident response scenario 1: A CII organization experiences a cyber security incident. What CCoP 2.0 Section 7 incident management actions are required for responding to and reporting the incident?",
+    "gold_set": [
+      "7.1.1(b)"
+    ],
+    "clauses": [
+      {
+        "citation_id": "CCoP 2.0::7",
+        "ce_score": 0.9860233068466187,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause directly states the requirement to establish and manage incident response plans under CCoP 2.0 Section 7, which is essential for answering what actions are required in responding to and reporting a cybersecurity incident."
+      },
+      {
+        "citation_id": "CCoP 2.0::7.1.1",
+        "ce_score": 0.9394636154174805,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause directly outlines the required incident management actions under CCoP 2.0 Section 7.1.1, including response planning, team structure, reporting, communication, and post-incident review, which are essential to answering the question."
+      },
+      {
+        "citation_id": "CCoP 2.0::7.1.7",
+        "ce_score": 0.8753015398979187,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant to incident management under Section 7 but does not specify required response or reporting actions during an incident, focusing instead on plan review after environmental changes."
+      },
+      {
+        "citation_id": "CCoP 2.0::7.1",
+        "ce_score": 0.9466464519500732,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause provides a direct overview of the incident management requirements in CCoP 2.0 Section 7.1, including key actions such as identification, containment, eradication, recovery, root-cause analysis, and corrective actions, which are essential to answering the question."
+      },
+      {
+        "citation_id": "CCoP 2.0::6.3.3",
+        "ce_score": 0.8814501762390137,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it mentions incident response and reporting, but it belongs to Section 6.3.3 rather than Section 7, and does not specify the incident management actions required under Section 7."
+      },
+      {
+        "citation_id": "CCoP 2.0::7.2.2(b)",
+        "ce_score": 0.9635706543922424,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause is contextually relevant as it pertains to identifying incident scenarios and responses under Section 7, but it does not specify required actions for responding to or reporting an actual incident."
+      },
+      {
+        "citation_id": "CCoP 2.0::7.1.1(g)",
+        "ce_score": 0.8893378376960754,
+        "is_gold": false,
+        "eval_score": 2,
+        "eval_reason": "The clause specifies required incident management actions such as containment, investigation, and restoration, which are directly needed to answer what actions are required under CCoP 2.0 Section 7."
+      },
+      {
+        "citation_id": "CCoP 2.0::7.3.1(a)",
+        "ce_score": 0.8256871104240417,
+        "is_gold": false,
+        "eval_score": 1,
+        "eval_reason": "The clause mentions the requirement for a Cybersecurity Incident Response Plan, which is contextually relevant to incident management under Section 7, but it does not specify the required actions for responding to or reporting the incident."
+      }
+    ]
+  }
+]

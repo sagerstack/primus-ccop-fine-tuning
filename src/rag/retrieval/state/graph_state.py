@@ -33,6 +33,15 @@ class GraphState(TypedDict):
     retrieval_succeeded: bool
     retrieval_attempts: int
 
+    # OMD-GraphRAG / graphont-agentic scratch channel (Phase 12). Holds the
+    # per-query retrieval trace shared across the split assembly -> pack ->
+    # corrective nodes (candidates, round1_survivors, agentic_assessment,
+    # corrective_* pools, etc.). MUST be a declared channel: the graphont-agentic
+    # path writes it in one node and reads it in later nodes/edges, so an
+    # undeclared key would be dropped by LangGraph on the node boundary
+    # (last-write-wins is sufficient — the corrective chain is strictly linear).
+    retrieval_trace: Dict
+
     # Reranker fields (Phase 1.3)
     reranker_scores: List[float]  # Cross-encoder scores for all retrieved docs (before top-N selection)
 
@@ -45,6 +54,7 @@ class GraphState(TypedDict):
     # Lab Exp #41 production-promoted fields:
     hyde_query: str  # gpt-4o-mini-generated hypothetical clause (used for retrieval embedding)
     hyde_clause: str  # graphont-agentic HyDE clause for dense-channel embedding (set by hyde_generation node)
+    corrective_retry_count: int  # graphont-agentic CRAG one-shot guard: 0 = Round-2 not run, 1 = Round-2 done. Phase 12 v1 is one-shot (no back-edge in the graph), so this only ever reaches 1; retained as a re-entry guard if a future revision adds an iterative loop.
     dense_ranks: List[int]  # Original dense-retrieval rank for each retrieved doc
     rrf_scores: List[float]  # Reciprocal Rank Fusion combined score
     merged_groups: List[Dict]  # Parent-child merged sibling groups, if any

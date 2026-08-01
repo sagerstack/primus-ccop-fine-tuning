@@ -1,0 +1,35 @@
+{"event": "Discovered benchmark file: b01_ccop_applicability_scope.jsonl -> B01", "timestamp": "2026-07-13T14:33:18.853704Z", "level": "info"}
+{"event": "Discovered benchmark file: b02_compliance_classification.jsonl -> B02", "timestamp": "2026-07-13T14:33:18.854027Z", "level": "info"}
+{"event": "Discovered benchmark file: b03_conditional_compliance_reasoning.jsonl -> B03", "timestamp": "2026-07-13T14:33:18.854303Z", "level": "info"}
+{"event": "Discovered benchmark file: b04_it_ot_classification_boundary.jsonl -> B04", "timestamp": "2026-07-13T14:33:18.854542Z", "level": "info"}
+{"event": "Discovered benchmark file: b05_control_comprehension.jsonl -> B05", "timestamp": "2026-07-13T14:33:18.854769Z", "level": "info"}
+{"event": "Discovered benchmark file: b06_intent_understanding.jsonl -> B06", "timestamp": "2026-07-13T14:33:18.854994Z", "level": "info"}
+{"event": "Discovered benchmark file: b07_gap_identification_quality.jsonl -> B07", "timestamp": "2026-07-13T14:33:18.855240Z", "level": "info"}
+{"event": "Discovered benchmark file: b08_risk_based_prioritization.jsonl -> B08", "timestamp": "2026-07-13T14:33:18.855368Z", "level": "info"}
+{"event": "Discovered benchmark file: b09_risk_identification_residual_risk.jsonl -> B09", "timestamp": "2026-07-13T14:33:18.855526Z", "level": "info"}
+{"event": "Discovered benchmark file: b10_risk_justification_coherence.jsonl -> B10", "timestamp": "2026-07-13T14:33:18.855664Z", "level": "info"}
+{"event": "Discovered benchmark file: b12_audit_perspective_alignment.jsonl -> B12", "timestamp": "2026-07-13T14:33:18.855811Z", "level": "info"}
+{"event": "Discovered benchmark file: b13_evidence_expectation_awareness.jsonl -> B13", "timestamp": "2026-07-13T14:33:18.856064Z", "level": "info"}
+{"event": "Discovered benchmark file: b14_remediation_quality_feasibility.jsonl -> B14", "timestamp": "2026-07-13T14:33:18.856292Z", "level": "info"}
+{"event": "Discovered benchmark file: b18_responsibility_attribution_sg.jsonl -> B18", "timestamp": "2026-07-13T14:33:18.856461Z", "level": "info"}
+{"event": "Discovered benchmark file: b21_hallucination_over_specification.jsonl -> B21", "timestamp": "2026-07-13T14:33:18.856684Z", "level": "info"}
+{"event": "Discovered benchmark file: b22_waiver_exception_reasoning.jsonl -> B22", "timestamp": "2026-07-13T14:33:18.856814Z", "level": "info"}
+{"event": "Discovered benchmark file: b23_multi_regulator_coordination.jsonl -> B23", "timestamp": "2026-07-13T14:33:18.857014Z", "level": "info"}
+{"event": "Discovered benchmark file: b24_incident_response_guidance.jsonl -> B24", "timestamp": "2026-07-13T14:33:18.857244Z", "level": "info"}
+{"event": "Discovered 18 benchmark files", "timestamp": "2026-07-13T14:33:18.857273Z", "level": "info"}
+Evaluating model: primus-reasoning
+Benchmarks: B01, B02, B03, B04, B05, B06, B07, B08, B09, B10, B12, B13, B14, 
+B18, B21, B22, B23, B24
+Evaluation Phase: baseline
+Evaluation Mode: graphont
+Judge Mode: rubric
+Pass Threshold: 15% (phase default)
+Run ID: eval-run-graphont-test-B01-001-20260713-1433
+
+Running evaluation...
+
+{"benchmarks": ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B10", "B12", "B13", "B14", "B18", "B21", "B22", "B23", "B24"], "event": "Starting evaluation for model: primus-reasoning", "timestamp": "2026-07-13T14:33:19.092493Z", "level": "info"}
+{"event": "Loaded 1 test cases", "timestamp": "2026-07-13T14:33:19.093558Z", "level": "info"}
+{"event": "Evaluating test case 1/1: B01-001", "timestamp": "2026-07-13T14:33:19.134547Z", "level": "info"}
+{"event": "Initializing LangGraph RAG pipeline...", "timestamp": "2026-07-13T14:33:19.134609Z", "level": "info"}
+{"event": "LangGraph RAG pipeline initialized successfully", "timestamp": "2026-07-13T14:33:19.162884Z", "level": "info"}

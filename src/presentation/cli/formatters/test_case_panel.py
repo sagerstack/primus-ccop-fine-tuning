@@ -18,10 +18,11 @@ Mode flags:
   / token counts.
 """
 from __future__ import annotations
-from typing import Any, Mapping, Optional, Sequence
+
+from collections.abc import Mapping, Sequence
+from typing import Any, Optional
 
 from rich.panel import Panel
-
 
 _MAX_SYSTEM_PROMPT_PREVIEW = 600
 _MAX_USER_PROMPT_PREVIEW = 1200
@@ -231,8 +232,11 @@ def build_per_result_panel(
                 raw_score = d.get("raw_score")
                 if raw_score is None:
                     val = d.get("value", 0.0)
-                    raw_score = round(val * 3)
-                rq3.append(f"  {name:<30s} {raw_score}/3  (weight: {weight:.2f})")
+                    # round to 1dp so a D6 half-precision point (0.5) is visible
+                    # rather than collapsing to 0/3.
+                    raw_score = round(val * 3, 1)
+                # :g drops the trailing .0 on whole scores (2.0 -> "2", 0.5 -> "0.5")
+                rq3.append(f"  {name:<30s} {raw_score:g}/3  (weight: {weight:.2f})")
         if judge_error:
             rq3.append("[bold]LLM Judge:[/bold] [yellow]⚠ Judge Error[/yellow]")
 

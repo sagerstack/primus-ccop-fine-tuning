@@ -1,0 +1,37 @@
+{"event": "Discovered benchmark file: b01_ccop_applicability_scope.jsonl -> B01", "timestamp": "2026-07-13T17:35:34.886878Z", "level": "info"}
+{"event": "Discovered benchmark file: b02_compliance_classification.jsonl -> B02", "timestamp": "2026-07-13T17:35:34.887250Z", "level": "info"}
+{"event": "Discovered benchmark file: b03_conditional_compliance_reasoning.jsonl -> B03", "timestamp": "2026-07-13T17:35:34.887573Z", "level": "info"}
+{"event": "Discovered benchmark file: b04_it_ot_classification_boundary.jsonl -> B04", "timestamp": "2026-07-13T17:35:34.887855Z", "level": "info"}
+{"event": "Discovered benchmark file: b05_control_comprehension.jsonl -> B05", "timestamp": "2026-07-13T17:35:34.888124Z", "level": "info"}
+{"event": "Discovered benchmark file: b06_intent_understanding.jsonl -> B06", "timestamp": "2026-07-13T17:35:34.888384Z", "level": "info"}
+{"event": "Discovered benchmark file: b07_gap_identification_quality.jsonl -> B07", "timestamp": "2026-07-13T17:35:34.888678Z", "level": "info"}
+{"event": "Discovered benchmark file: b08_risk_based_prioritization.jsonl -> B08", "timestamp": "2026-07-13T17:35:34.888853Z", "level": "info"}
+{"event": "Discovered benchmark file: b09_risk_identification_residual_risk.jsonl -> B09", "timestamp": "2026-07-13T17:35:34.889040Z", "level": "info"}
+{"event": "Discovered benchmark file: b10_risk_justification_coherence.jsonl -> B10", "timestamp": "2026-07-13T17:35:34.889212Z", "level": "info"}
+{"event": "Discovered benchmark file: b12_audit_perspective_alignment.jsonl -> B12", "timestamp": "2026-07-13T17:35:34.889396Z", "level": "info"}
+{"event": "Discovered benchmark file: b13_evidence_expectation_awareness.jsonl -> B13", "timestamp": "2026-07-13T17:35:34.889687Z", "level": "info"}
+{"event": "Discovered benchmark file: b14_remediation_quality_feasibility.jsonl -> B14", "timestamp": "2026-07-13T17:35:34.889950Z", "level": "info"}
+{"event": "Discovered benchmark file: b18_responsibility_attribution_sg.jsonl -> B18", "timestamp": "2026-07-13T17:35:34.890159Z", "level": "info"}
+{"event": "Discovered benchmark file: b21_hallucination_over_specification.jsonl -> B21", "timestamp": "2026-07-13T17:35:34.890416Z", "level": "info"}
+{"event": "Discovered benchmark file: b22_waiver_exception_reasoning.jsonl -> B22", "timestamp": "2026-07-13T17:35:34.890580Z", "level": "info"}
+{"event": "Discovered benchmark file: b23_multi_regulator_coordination.jsonl -> B23", "timestamp": "2026-07-13T17:35:34.890827Z", "level": "info"}
+{"event": "Discovered benchmark file: b24_incident_response_guidance.jsonl -> B24", "timestamp": "2026-07-13T17:35:34.891083Z", "level": "info"}
+{"event": "Discovered 18 benchmark files", "timestamp": "2026-07-13T17:35:34.891096Z", "level": "info"}
+Evaluating model: primus-reasoning
+Benchmarks: B01, B02, B03, B04, B05, B06, B07, B08, B09, B10, B12, B13, B14, 
+B18, B21, B22, B23, B24
+Evaluation Phase: baseline
+Evaluation Mode: graphont
+Judge Mode: rubric
+Pass Threshold: 15% (phase default)
+Run ID: eval-run-graphont-test-B01-001-20260713-1735
+
+Running evaluation...
+
+{"benchmarks": ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B10", "B12", "B13", "B14", "B18", "B21", "B22", "B23", "B24"], "event": "Starting evaluation for model: primus-reasoning", "timestamp": "2026-07-13T17:35:35.237046Z", "level": "info"}
+{"event": "Loaded 1 test cases", "timestamp": "2026-07-13T17:35:35.238826Z", "level": "info"}
+{"event": "Evaluating test case 1/1: B01-001", "timestamp": "2026-07-13T17:35:35.268085Z", "level": "info"}
+{"event": "Initializing LangGraph RAG pipeline...", "timestamp": "2026-07-13T17:35:35.268145Z", "level": "info"}
+{"event": "LangGraph RAG pipeline initialized successfully", "timestamp": "2026-07-13T17:35:35.309338Z", "level": "info"}
+WARNING:domain.services.llm_judge_service:Could not build clause text cache from Qdrant: [Errno 61] Connection refused. Misattribution detection will use existence check only.
+{"benchmark_id": "B1", "attempt": 1, "max_attempts": 3, "judge_mode": "rubric", "event": "judge_call_started", "timestamp": "2026-07-13T17:37:28.118044Z", "level": "info"}

@@ -11,7 +11,12 @@ from typing import TYPE_CHECKING, Callable
 from langgraph.graph import END, StateGraph
 
 from rag.graph.retrieval.graph_retrieval_node import graph_retrieve_documents
-from rag.retrieval.edges.routing import decide_after_grading, route_after_hyde, route_by_mode
+from rag.retrieval.edges.routing import (
+    decide_after_grading,
+    route_after_agentic_assembly,
+    route_after_hyde,
+    route_by_mode,
+)
 
 if TYPE_CHECKING:
     from infrastructure.config.settings import Settings
@@ -30,6 +35,12 @@ from rag.retrieval.nodes.compliance_gate_retrieval import compliance_gate_retrie
 from rag.retrieval.nodes.compliance_context_assembly import compliance_context_assembly
 from rag.retrieval.nodes.omd_context_assembly import omd_context_assembly
 from rag.retrieval.nodes.omd_agentic_context_assembly import omd_agentic_context_assembly
+from rag.retrieval.nodes.pack_contexts import pack_contexts
+from rag.retrieval.nodes.corrective_rewrite import corrective_rewrite
+from rag.retrieval.nodes.corrective_round2_retrieve import corrective_round2_retrieve
+from rag.retrieval.nodes.corrective_round2_eval import corrective_round2_eval
+from rag.retrieval.nodes.corrective_merge import corrective_merge
+from rag.retrieval.nodes.corrective_select import corrective_select
 from rag.retrieval.state.graph_state import GraphState
 
 logger = logging.getLogger(__name__)
@@ -96,9 +107,16 @@ def build_rag_graph(settings: "Settings"):
     workflow.add_node("compliance_context_assembly", compliance_context_assembly)
     # OMD-GraphRAG (--mode graphont) single assembly node
     workflow.add_node("omd_context_assembly", omd_context_assembly)
-    # OMD-GraphRAG + agentic filtering (--mode graphont-agentic) single assembly node
+    # OMD-GraphRAG + agentic filtering (--mode graphont-agentic) nodes
     workflow.add_node("hyde_generation", hyde_generation)
     workflow.add_node("omd_agentic_context_assembly", omd_agentic_context_assembly)
+    workflow.add_node("pack_contexts", pack_contexts)
+    # CRAG corrective retrieval nodes (graphont-agentic corrective mode)
+    workflow.add_node("corrective_rewrite", corrective_rewrite)
+    workflow.add_node("corrective_round2_retrieve", corrective_round2_retrieve)
+    workflow.add_node("corrective_round2_eval", corrective_round2_eval)
+    workflow.add_node("corrective_merge", corrective_merge)
+    workflow.add_node("corrective_select", corrective_select)
 
     # Entry point
     workflow.set_entry_point("query_analysis")
@@ -140,7 +158,7 @@ def build_rag_graph(settings: "Settings"):
     # OMD-GraphRAG chain (--mode graphont): retriever reranks internally, so the single
     # assembly node edges straight to primus `generate` (mirrors graphcpl option (a)).
     workflow.add_edge("omd_context_assembly", "generate")
-    # OMD-GraphRAG + agentic filtering chain (--mode graphont-agentic): same topology.
+    # OMD-GraphRAG + agentic filtering chain (--mode graphont-agentic)
     workflow.add_conditional_edges(
         "hyde_generation",
         route_after_hyde,
@@ -149,7 +167,23 @@ def build_rag_graph(settings: "Settings"):
             "omd_agentic_context_assembly": "omd_agentic_context_assembly",
         },
     )
-    workflow.add_edge("omd_agentic_context_assembly", "generate")
+    # After agentic assembly: route to corrective pipeline or pack directly
+    workflow.add_conditional_edges(
+        "omd_agentic_context_assembly",
+        route_after_agentic_assembly,
+        {
+            "pack_contexts": "pack_contexts",
+            "corrective_rewrite": "corrective_rewrite",
+        },
+    )
+    # CRAG corrective pipeline chain
+    workflow.add_edge("corrective_rewrite", "corrective_round2_retrieve")
+    workflow.add_edge("corrective_round2_retrieve", "corrective_round2_eval")
+    workflow.add_edge("corrective_round2_eval", "corrective_merge")
+    workflow.add_edge("corrective_merge", "corrective_select")
+    workflow.add_edge("corrective_select", "pack_contexts")
+    # Pack -> generate (final step for both corrective and non-corrective)
+    workflow.add_edge("pack_contexts", "generate")
 
     # Retrieval → reranking → grading (always)
     workflow.add_edge("retrieval", "reranking")

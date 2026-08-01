@@ -1,0 +1,147 @@
+{
+  "per_case": [
+    {
+      "test_id": "B05-001",
+      "gold_set": [
+        "5.9.2(b)"
+      ],
+      "citation_ids_20": [
+        "CCoP Response to Feedback::11.26",
+        "CCoP Response to Feedback::11.59",
+        "CCoP Response to Feedback::2.2",
+        "CCoP 2.0::5.9.2",
+        "CCoP Response to Feedback::11.28",
+        "CCoP Response to Feedback::1.1",
+        "CCoP 2.0::10",
+        "CCoP 2.0::5.9.2(b)",
+        "CCoP Response to Feedback::12.4",
+        "CCoP Response to Feedback::2.5",
+        "CCoP Response to Feedback::1.3",
+        "CCoP Response to Feedback::2.7",
+        "CCoP Response to Feedback::8.9",
+        "CCoP Response to Feedback::2.14",
+        "CCoP Response to Feedback::2.1",
+        "CCoP Response to Feedback::2.3",
+        "CCoP Response to Feedback::2.9",
+        "CCoP Response to Feedback::2.13",
+        "CCoP Response to Feedback::1.2",
+        "CCoP Response to Feedback::2.24"
+      ],
+      "recall8": 0.0,
+      "recall20": 0.0,
+      "hits8": [],
+      "hits20": [],
+      "recovered": []
+    },
+    {
+      "test_id": "B01-001",
+      "gold_set": [
+        "1.2.1",
+        "1.4.1;"
+      ],
+      "citation_ids_20": [
+        "CCoP Response to Feedback::2.2",
+        "CCoP Response to Feedback::2.1",
+        "CCoP Response to Feedback::15.13",
+        "CCoP Response to Feedback::2.5",
+        "CCoP 2.0::10.2.1",
+        "CCoP Response to Feedback::2.11",
+        "CCoP Response to Feedback::11.59",
+        "CCoP Response to Feedback::11.25",
+        "CCoP Response to Feedback::11.47",
+        "CCoP 2.0::10.2.2",
+        "CCoP Response to Feedback::2.3",
+        "CCoP Response to Feedback::15.2",
+        "CCoP Response to Feedback::2.13",
+        "CCoP 2.0::10.2.3",
+        "CCoP 2.0::10.1.1",
+        "CCoP Response to Feedback::10.5",
+        "CCoP Response to Feedback::8.9",
+        "CCoP Response to Feedback::11.17",
+        "CCoP Response to Feedback::9.1",
+        "CCoP 2.0::5.14.3(b)"
+      ],
+      "recall8": 0.0,
+      "recall20": 0.0,
+      "hits8": [],
+      "hits20": [],
+      "recovered": []
+    },
+    {
+      "test_id": "B10-001",
+      "gold_set": [],
+      "citation_ids_20": [
+        "CCoP 2.0::4.1",
+        "CCoP Response to Feedback::5.6",
+        "CCoP 2.0::4.1.1",
+        "CCoP Response to Feedback::10.2",
+        "CCoP 2.0::3.1",
+        "CCoP 2.0::3.1.2",
+        "CCoP Response to Feedback::10.5",
+        "CCoP Response to Feedback::10.1",
+        "CCoP Response to Feedback::11.11",
+        "CCoP 2.0::5.10.1(d)",
+        "CCoP Response to Feedback::10.6",
+        "CCoP 2.0::4.1.1(d)",
+        "CCoP Response to Feedback::4.1",
+        "CCoP Response to Feedback::10.4",
+        "CCoP 2.0::5.9.1",
+        "CCoP Response to Feedback::11.46",
+        "CCoP Response to Feedback::4.3",
+        "CCoP 2.0::10.2.7",
+        "CCoP Response to Feedback::11.30",
+        "Risk Assessment Guide::4.1"
+      ],
+      "recall8": 0.0,
+      "recall20": 0.0,
+      "hits8": [],
+      "hits20": [],
+      "recovered": []
+    },
+    {
+      "test_id": "B04-001",
+      "gold_set": [
+        "1.2.1",
+        "10.1.1",
+        "5.9.1(e)"
+      ],
+      "citation_ids_20": [
+        "CCoP Response to Feedback::2.2",
+        "Security By Design::AnnexC",
+        "CCoP 2.0::1.2.1",
+        "Security By Design::3.2",
+        "CCoP 2.0::10",
+        "CCoP 2.0::10.2",
+        "CCoP 2.0::5.12.4",
+        "CCoP 2.0::1.2.1",
+        "CCoP Response to Feedback::5.12",
+        "CCoP 2.0::3.2.3",
+        "CCoP 2.0::10.1.1",
+        "Security By Design::AnnexC",
+        "Security By Design::6.5",
+        "CCoP 2.0::1.2.1",
+        "CCoP 2.0::5.9.1(e)",
+        "CCoP Response to Feedback::11.47",
+        "CCoP 2.0::5.9.1(c)",
+        "CCoP Response to Feedback::2.3",
+        "CCoP Response to Feedback::2.24",
+        "CCoP Response to Feedback::2.25"
+      ],
+      "recall8": 0.3333333333333333,
+      "recall20": 0.6666666666666666,
+      "hits8": [
+        "1.2.1"
+      ],
+      "hits20": [
+        "1.2.1",
+        "10.1.1"
+      ],
+      "recovered": [
+        [
+          "10.1.1",
+          11
+        ]
+      ]
+    }
+  ]
+}

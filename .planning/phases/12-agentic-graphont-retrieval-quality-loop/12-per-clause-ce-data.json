@@ -1,0 +1,1361 @@
+[
+  {
+    "test_id": "B01-001",
+    "question": "A healthcare provider's patient monitoring systems and MRI machines have been designated as CII. Their hospital administration system (patient records, billing, appointments) shares the same enterprise network. Does CCoP 2.0 mandatory compliance extend to the hospital administration system?",
+    "gold_set": [
+      "1.2.1",
+      "1.4.1"
+    ],
+    "recall": 0.0,
+    "label": "BAD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.9517043828964233,
+        "text": "2.2. The  CCoP  2.0  is  applicable  to  the  CII  systems.    The  CII  system  includes computer  systems,  network  components,  and  end-point  devices  within  the  digital boundary defined jointly between CSA, CIIOs, and their Sector Leads.",
+        "text_len": 246,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP Response to Feedback::2.1",
+        "ce_score": 0.9989073276519775,
+        "text": "2.1. Respondents sought clarification on whether CCoP 2.0 is scoped only for the CII system or is also to be extended to cover the entire CII organisation.",
+        "text_len": 155,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP Response to Feedback::2.5",
+        "ce_score": 0.8056972622871399,
+        "text": "2.5. CCoP 2.0 will only come into compliance 12 months after the issuance of CCoP 2.0.  Cybersecurity  Code-of-Practice  -  First  Edition  will  only  be  applicable  to  the cybersecurity audit conducted with audit period that falls before the compliance date of CCoP 2.0.  Thereafter, CCoP 2.0 must be used for subsequent audits. However, the CIIO may use CCoP2.0 for their audit before the compliance date if they are ready.",
+        "text_len": 428,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP Response to Feedback::15.13",
+        "ce_score": 0.4525070786476135,
+        "text": "15.13. The intent is to ensure the OT CII network is physically segregated from the enterprise network. This is to prevent threat actors from pivoting from the enterprise network into the OT CII network. As such, sharing of network devices between OT CII network and enterprise network is not allowed.",
+        "text_len": 301,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP 2.0::10.2.1",
+        "ce_score": 0.31040146946907043,
+        "text": "10.2.1 The CIIO shall ensure that the OT CII is not connected to any enterprise network except where necessary for operating the CII and provided that the direction of data flows is restricted to only one-way from the OT CII to the enterprise network.",
+        "text_len": 251,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP Response to Feedback::2.11",
+        "ce_score": 0.7346659302711487,
+        "text": "2.11. The compliance timeline in the initial CCoP 2.0 draft was with immediate effect for  existing  clauses,  30  days  grace  period  for  clauses  formalised  from  COI  and PSDSRC recommendations and 9 months grace period for new clauses. However, CSA has revised the compliance timeline to a grace period of 12 months for all clauses for  the  compliance  of  CCoP  2.0.  This  will  apply  to  both  existing  and  any  newly designated CII.",
+        "text_len": 447,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP Response to Feedback::11.59",
+        "ce_score": 0.18072731792926788,
+        "text": "11.59. The DNSSEC requirements have been shifted to Domain-Specific section in CCoP 2.0 and the DNSSEC requirements are only applicable to CII with internetfacing DNS servers within its CII boundary.",
+        "text_len": 199,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP Response to Feedback::11.25",
+        "ce_score": 0.23294711112976074,
+        "text": "11.25. Wireless communication refers to use of wireless LAN within the CII. The scope includes employees connecting to CII through wireless LAN. CIIO's corporate network is not covered within the scope of section 5.8. However, CSA has included wireless communication related clauses in Annex A of the CCoP 2.0 document as guidance for the CIIO to consider and implement beyond the CII boundary.",
+        "text_len": 394,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B02-001",
+    "question": "A bank's CII implements remote VPN access with username/password plus an SMS one-time code sent to the user's registered mobile number. Does this satisfy CCoP 2.0 Clause 5.7.2(b) multi-factor authentication requirements?",
+    "gold_set": [
+      "5.7.2"
+    ],
+    "recall": 1.0,
+    "label": "GOOD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP 2.0::5.7.2(b)",
+        "ce_score": 0.9977885484695435,
+        "text": "(b) Multi-factor authentication is required for the establishing a remote connection to the CII;",
+        "text_len": 96,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP 2.0::5.7.2",
+        "ce_score": 0.9795020222663879,
+        "text": "5.7.2 The CIIO shall ensure that:\n\n- (a) Remote  connections  to  the  CII  are  disabled  except  where  necessary  for operating the CII;\n- (b) Multi-factor authentication is required for the establishing a remote connection to the CII;\n- (c) Remote  connections  to  the  CII  have  strong  encryption  and  are  made  only through secured intermediary mechanisms;\n- (d) Measures are put in place to ensure transmission security and message integrity over the remote connection;\n- (e) Files to be uploaded to the CII are scanned for malware before being uploaded; and\n- (f) Data flows over remote connections to the CII are limited to only the minimum necessary for performing the function required of the connection.",
+        "text_len": 720,
+        "is_gold": true
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP 2.0::5.3.1(c)",
+        "ce_score": 0.9521589279174805,
+        "text": "(c) Implement multi-factor authentication  where  privileged  accounts  are  used  to access the CII, and where privileges are to be escalated to the level of privileged access (e.g., where the user seeks to obtain additional permissions on a system or network after an initial log-in); and",
+        "text_len": 290,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP Response to Feedback::11.19",
+        "ce_score": 0.8543538451194763,
+        "text": "11.19. The  clauses  to  implement  cybersecurity  measures  for  remote  connections applies  to  all  remote  connections  to  the  CII,  including  both  user  connection  and system-to-system connection.",
+        "text_len": 207,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP 2.0::1.2.1",
+        "ce_score": 0.9428070783615112,
+        "text": "remote access: Access to a CII by a user, or a process acting on behalf of a user, communicating through an external network.",
+        "text_len": 125,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP Response to Feedback::11.21",
+        "ce_score": 0.7955009341239929,
+        "text": "11.21. The intent of enabling remote connection to CII through secured intermediary mechanism is to mitigate the risks of remote connection acting as a direct conduit for cyber threat actors to access the CII.",
+        "text_len": 209,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP Response to Feedback::11.20",
+        "ce_score": 0.5360041260719299,
+        "text": "11.20. CSA has revised the clause for clarity. The intent of the clause is to ensure that only legitimate/approved and known sources are allowed to have remote connection to the CII.",
+        "text_len": 182,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP 2.0::5.7.2(c)",
+        "ce_score": 0.5925062298774719,
+        "text": "(c) Remote  connections  to  the  CII  have  strong  encryption  and  are  made  only through secured intermediary mechanisms;",
+        "text_len": 126,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B03-001",
+    "question": "Your organization uses shared admin accounts with session logging for CII SCADA systems because the legacy HMIs don't support individual authentication. The CISO argues this satisfies CCoP access control requirements through compensating controls. Does this approach comply with CCoP 2.0?",
+    "gold_set": [
+      "5.2.1(c)",
+      "5.3.1(c)"
+    ],
+    "recall": 0.0,
+    "label": "BAD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.9724122881889343,
+        "text": "2.2. The  CCoP  2.0  is  applicable  to  the  CII  systems.    The  CII  system  includes computer  systems,  network  components,  and  end-point  devices  within  the  digital boundary defined jointly between CSA, CIIOs, and their Sector Leads.",
+        "text_len": 246,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP Response to Feedback::2.13",
+        "ce_score": 0.474884033203125,
+        "text": "2.13. The Act does not penalise a CIIO that required more time and/or resources to implement the measures. It allows the Commissioner to grant the necessary waivers when there are valid reasons. If the CIIO is unable to comply with any specific CCoP 2.0 requirements, it may submit a request of waiver made available under Section 11(7)  of  the  Cybersecurity  Act  to  the  Commissioner.  The  Commissioner  has  the authority to reject the waiver if the mitigating or compensating controls are deemed to be insufficient.",
+        "text_len": 523,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP Response to Feedback::2.5",
+        "ce_score": 0.728577733039856,
+        "text": "2.5. CCoP 2.0 will only come into compliance 12 months after the issuance of CCoP 2.0.  Cybersecurity  Code-of-Practice  -  First  Edition  will  only  be  applicable  to  the cybersecurity audit conducted with audit period that falls before the compliance date of CCoP 2.0.  Thereafter, CCoP 2.0 must be used for subsequent audits. However, the CIIO may use CCoP2.0 for their audit before the compliance date if they are ready.",
+        "text_len": 428,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP Response to Feedback::2.1",
+        "ce_score": 0.7461071610450745,
+        "text": "2.1. Respondents sought clarification on whether CCoP 2.0 is scoped only for the CII system or is also to be extended to cover the entire CII organisation.",
+        "text_len": 155,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP Response to Feedback::2.3",
+        "ce_score": 0.3028101623058319,
+        "text": "2.3. However, the CIIO should consider extending some cybersecurity capabilities to the entire CII organisation because many of these capabilities are also relevant to strengthening the cybersecurity posture of the entire CII organisation. The cybersecurity  capabilities  can  be  found  under  Annex  A  of  CCoP  2.0.    The cybersecurity capabilities under Annex A of CCoP 2.0 is not to be included in the scope for the cybersecurity audit under the Cybersecurity Act.",
+        "text_len": 472,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP Response to Feedback::2.23",
+        "ce_score": 0.29616111516952515,
+        "text": "2.23. During the review  period of  the  waiver,  the  CIIO  is  expected  to  continue  to monitor the risks associated with the CCoP clause which could not be complied with and  to  ensure  that  the  compensating  controls  are  implemented  to  reduce  the cybersecurity risks.",
+        "text_len": 281,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP Response to Feedback::9.1",
+        "ce_score": 0.5777157545089722,
+        "text": "9.1. Respondents sought guidance on the implementation to provide oversight on vendor managed CII activities, such as whether CCTV monitoring and logging are sufficient to comply with the CCoP requirements.",
+        "text_len": 206,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP Response to Feedback::11.59",
+        "ce_score": 0.3216695487499237,
+        "text": "11.59. The DNSSEC requirements have been shifted to Domain-Specific section in CCoP 2.0 and the DNSSEC requirements are only applicable to CII with internetfacing DNS servers within its CII boundary.",
+        "text_len": 199,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B04-001",
+    "question": "A power generation facility has the following systems: (1) SCADA system controlling turbine operations, (2) corporate email server, (3) historian database collecting sensor data from turbines, (4) HR payroll system, (5) distributed control system (DCS) managing plant operations. Classify each system as IT or OT based on the CCoP 2.0 \u00a71.2.1 definitions of \u201cinformation technology\u201d and \u201coperational technology\u201d.",
+    "gold_set": [
+      "1.2.1"
+    ],
+    "recall": 1.0,
+    "label": "GOOD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.5425899028778076,
+        "text": "2.2. The  CCoP  2.0  is  applicable  to  the  CII  systems.    The  CII  system  includes computer  systems,  network  components,  and  end-point  devices  within  the  digital boundary defined jointly between CSA, CIIOs, and their Sector Leads.",
+        "text_len": 246,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "Security By Design::AnnexC",
+        "ce_score": 0.7673960328102112,
+        "text": "Operational Technology: A category of hardware and software that monitors and controls how physical devices perform. OT is primarily used in industrial control systems for manufacturing, transportation and utilities; technology that control operations. (See also industrial control systems)",
+        "text_len": 290,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP 2.0::1.2.1",
+        "ce_score": 0.7496303915977478,
+        "text": "operational technology: An arrangement of interconnected computers that is used in the monitoring and/or control of physical processes, that includes: (a) Supervisory control and data acquisition systems, distributed control systems, and other control system configuration such as programmable logic controllers; (b) A combination of control components, for example electrical, mechanical, hydraulic, pneumatic, that act together to achieve an industrial objective, for example manufacturing, transportation of matter or energy.",
+        "text_len": 528,
+        "is_gold": true
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP 2.0::10.2",
+        "ce_score": 0.0504252091050148,
+        "text": "10.2 OT Architecture and Security\n\nWith increased connectivity between IT and OT systems, cyber threat actors are now able to compromise IT enterprise systems connected to the Internet, secure their footholds, and pivot into the OT systems to disrupt industrial processes. Hence, OT CII should not be connected to any  enterprise  network  except  where  necessary  for  operating  the  CII.  In  addition,  control mechanisms implemented in the OT systems and networks should not be shared across different operating  environments.  By  having  separate  networks  and  control  mechanisms  in  these networks, the risk of lateral movement between the networks is minimised.\n\nThere  are  several  layers  of  control  systems  in  an  OT  environment.  Examples  such  as Distributed Control System (DCS) and Supervisory Control and Data Acquisition (SCADA) control the field controllers (e.g. PLC) that connect to the critical operational processes. The design of such control systems is often driven by the need to ensure reliability and safety; cyber security components are usually deprioritised. Hence, these control systems and OT devices tend to be more reliant on perimeter defences and network segregation to ensure that they are protected against cyber threat actors. However, it is important to ensure that these devices are secured to minimise the attack surface.\n\nIt is also important to incorporate engineering design concepts such as fail-safe mechanisms to eliminate or reduce the consequences of the affected system with respect to cybersecurity risks.",
+        "text_len": 1570,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP 2.0::5.9.1(e)",
+        "ce_score": 0.23381231725215912,
+        "text": "(e) Servers, including alarm servers, OT historians and management servers;",
+        "text_len": 75,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "Security By Design::3.2",
+        "ce_score": 0.1291920393705368,
+        "text": "3.2 The framework, processes, activities and control gates described in this document are applicable to  all  computer  system development projects.  'Computer system' refers to all systems and network infrastructures including: Infocomm  Technologies, Operational Technologies and Internet of Things (IoT).",
+        "text_len": 307,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP 2.0::1.2.1",
+        "ce_score": 0.7463791370391846,
+        "text": "information technology: An arrangement of interconnected computers that is used in the storing, accessing, processing, analysing and sending of information, for example: computing and telecommunications equipment.",
+        "text_len": 213,
+        "is_gold": true
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP Response to Feedback::5.12",
+        "ce_score": 0.0831875428557396,
+        "text": "5.12. For  example,  an  OT  system  can  have  multiple  sensors  monitoring  the processes  within  the  OT  environment,  which  can  be  controlled  from  the  Human Machine Interface ('HMI'). Compromise of these sensors by a cyber-attack such as a malware  infection  to  the  HMIs  might  result  in  health,  safety,  and  environmental consequences as fires and other dangers remain undetected.",
+        "text_len": 402,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B05-001",
+    "question": "What are the minimum password requirements according to CCoP 2.0?",
+    "gold_set": [
+      "5.9.2(b)",
+      "response-to-feedback 11.28"
+    ],
+    "recall": 0.5,
+    "label": "GOOD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP Response to Feedback::11.26",
+        "ce_score": 0.01683971844613552,
+        "text": "11.26. Respondents sought clarification on the following:\n\n- (a) the approach to apply revised security baseline configuration standards while maintaining availability of existing CII; and\n- (b) the  minimum  password  length  to  constitute  as  a  passphrase  to  avoid ambiguity.",
+        "text_len": 282,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP Response to Feedback::11.59",
+        "ce_score": 0.008830707520246506,
+        "text": "11.59. The DNSSEC requirements have been shifted to Domain-Specific section in CCoP 2.0 and the DNSSEC requirements are only applicable to CII with internetfacing DNS servers within its CII boundary.",
+        "text_len": 199,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.0019599555525928736,
+        "text": "2.2. The  CCoP  2.0  is  applicable  to  the  CII  systems.    The  CII  system  includes computer  systems,  network  components,  and  end-point  devices  within  the  digital boundary defined jointly between CSA, CIIOs, and their Sector Leads.",
+        "text_len": 246,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP 2.0::5.9.2",
+        "ce_score": 0.002745121018961072,
+        "text": "5.9.2 The  security  configuration  baselines  shall  minimally  address  the  following  security practices:\n\n- (a) Account  management  -  disable  or  remove  default  accounts,  guest  accounts, inactive accounts and unused accounts;\n- (b) Password and passphrase management - Default passwords shall be changed; passwords and passphrases shall be stored using in their hash forms;\n- (c) Application  control  -  Disable  services  and  remove  applications  that  are  not necessary for the operation of the CII;\n- (d) Port(s) and service(s) management - Enable only ports and services that are necessary for the operation of the CII;\n- (e) Physical  connection  -  Enable  only  external  physical  connections  that  are necessary for the operation of the CII;\n- (f) Malware protection - Install and update to the latest version of anti-malware software with the latest anti-malware signatures; and\n- (g) Software  upgrade  and  update  -  Timely  upgrade  and  update  of  software  and security patches.",
+        "text_len": 1012,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP Response to Feedback::11.28",
+        "ce_score": 0.0009616145398467779,
+        "text": "11.28. The CIIO may take reference from industry standards or best practices such as NIST to determine the appropriate password length.",
+        "text_len": 135,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP Response to Feedback::1.1",
+        "ce_score": 0.0013897443423047662,
+        "text": "1.1. On 28 February 2022, the Cyber Security Agency of Singapore ('CSA') issued the draft Cybersecurity Code-of-Practice - Second Edition ('CCoP 2.0') to all Sector Leads and CII Owners ('CIIOs') to seek feedback.",
+        "text_len": 213,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP 2.0::10",
+        "ce_score": 0.0014289680402725935,
+        "text": "10 OPERATIONAL TECHNOLOGY (OT) SECURITY REQUIREMENTS",
+        "text_len": 52,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP 2.0::5.9.2(b)",
+        "ce_score": 0.0022931687999516726,
+        "text": "(b) Password and passphrase management - Default passwords shall be changed; passwords and passphrases shall be stored using in their hash forms;",
+        "text_len": 145,
+        "is_gold": true
+      }
+    ]
+  },
+  {
+    "test_id": "B06-001",
+    "question": "What is the security intent of CCoP 2.0's password and passphrase management requirement (Clause 5.9.2(b)), and how does CCoP 2.0 treat password length?",
+    "gold_set": [
+      "5.1.2",
+      "5.9.2(b)"
+    ],
+    "recall": 0.5,
+    "label": "GOOD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP 2.0::5.9.2",
+        "ce_score": 0.8195294737815857,
+        "text": "5.9.2 The  security  configuration  baselines  shall  minimally  address  the  following  security practices:\n\n- (a) Account  management  -  disable  or  remove  default  accounts,  guest  accounts, inactive accounts and unused accounts;\n- (b) Password and passphrase management - Default passwords shall be changed; passwords and passphrases shall be stored using in their hash forms;\n- (c) Application  control  -  Disable  services  and  remove  applications  that  are  not necessary for the operation of the CII;\n- (d) Port(s) and service(s) management - Enable only ports and services that are necessary for the operation of the CII;\n- (e) Physical  connection  -  Enable  only  external  physical  connections  that  are necessary for the operation of the CII;\n- (f) Malware protection - Install and update to the latest version of anti-malware software with the latest anti-malware signatures; and\n- (g) Software  upgrade  and  update  -  Timely  upgrade  and  update  of  software  and security patches.",
+        "text_len": 1012,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP Response to Feedback::11.26",
+        "ce_score": 0.2369069755077362,
+        "text": "11.26. Respondents sought clarification on the following:\n\n- (a) the approach to apply revised security baseline configuration standards while maintaining availability of existing CII; and\n- (b) the  minimum  password  length  to  constitute  as  a  passphrase  to  avoid ambiguity.",
+        "text_len": 282,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP 2.0::5.9.2(b)",
+        "ce_score": 0.34947335720062256,
+        "text": "(b) Password and passphrase management - Default passwords shall be changed; passwords and passphrases shall be stored using in their hash forms;",
+        "text_len": 145,
+        "is_gold": true
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP Response to Feedback::1.3",
+        "ce_score": 0.8156514167785645,
+        "text": "1.3. The CCoP 2.0 aims to:\n- (a) improve the odds of defenders against threat actors sophisticated TTPs and impede their progress of attacks;\n- (b) enhance  agility  in  addressing  emerging  risks  in  specific  domains  (e.g. Cloud, 5G, AI); and\n- (c) enable coordinated defenses between Government and Private sectors to identify, discover and respond to cybersecurity threats and attacks on a timely basis.",
+        "text_len": 410,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP Response to Feedback::1.2",
+        "ce_score": 0.5574256181716919,
+        "text": "1.2. The CCoP 2.0 seeks to level up new cybersecurity capabilities in the Critical Information Infrastructure ('CII') sectors due to the following impetus:\n- (a) the cyber threat landscape has evolved with threat actors using sophisticated  tactics,  techniques  and  procedures  ('TTPs')  to  attack  CII sectors;\n- (b) each CII sector faces cybersecurity risks that are specific to their digital terrain; and\n- (c) cyber-attacks have increased in scale and sophistication to a point where they could present systemic risks to Singapore.",
+        "text_len": 538,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP Response to Feedback::15.40",
+        "ce_score": 0.04731159284710884,
+        "text": "15.40. The intent is to protect the field controllers from cybersecurity threats. As such, the CIIO is required to work with their vendors and/or OEM to enable recommended security feature(s) that is/are available in the field controllers. For example, enabling password protection to prevent unauthorised access.",
+        "text_len": 313,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP Response to Feedback::11.28",
+        "ce_score": 0.01346011646091938,
+        "text": "11.28. The CIIO may take reference from industry standards or best practices such as NIST to determine the appropriate password length.",
+        "text_len": 135,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP Response to Feedback::2.7",
+        "ce_score": 0.017113832756876945,
+        "text": "2.7. Respondents highlighted that there  are  overlaps  in  requirements on  access control  management,  and  system  hardening  between  Government's  Instruction Manual 8 ('IM8') and CCoP 2.0.",
+        "text_len": 195,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B07-006",
+    "question": "Identify the compliance gaps based on the following scenario: IT team uses shared administrator credentials for emergency access, claiming individual accountability is maintained through logs",
+    "gold_set": [
+      "5.2.1"
+    ],
+    "recall": 0.0,
+    "label": "BAD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP 2.0::7.1.4(b)",
+        "ce_score": 0.14551009237766266,
+        "text": "(b) Gaps in and failure to comply with policies, standards and procedures which may have contributed to the cybersecurity incident; and",
+        "text_len": 135,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP 2.0::7.1.4",
+        "ce_score": 0.0036980321165174246,
+        "text": "7.1.4 The CIIO shall establish and implement processes to identify, investigate and address the  root  causes  that  contributed  to  each  cybersecurity  incident,  including  any  structural, behavioural, managerial, technical or systemic factors, so as to prevent recurrence of similar incidents. This shall include processes to identify, investigate and address:\n\n- (a) Gaps in the existing cybersecurity governance structure that may have led to ineffective cybersecurity risk management and oversight efforts;\n- (b) Gaps in and failure to comply with policies, standards and procedures which may have contributed to the cybersecurity incident; and\n- (c) Gaps in the audit process and the remediation of audit findings which may have contributed to the cybersecurity incident.",
+        "text_len": 781,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP Response to Feedback::11.10",
+        "ce_score": 0.006777341011911631,
+        "text": "11.10. Respondents sought clarification on the following:\n\n- (a) whether the requirement to maintain an inventory of privileged accounts, permissions,  and  privileges  applies  only  to  CII  or  to  the  entire  CII organisation;\n- (b) the scope and requirements to log all privileged access and activities to identify anomalous activities; and\n- (c) the definition of emergency accounts .",
+        "text_len": 391,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP Response to Feedback::11.1",
+        "ce_score": 0.002042110776528716,
+        "text": "11.1. Respondents sought clarification on the following:\n- (a) whether  the  scope  of  user  access  management  process  and  the mechanisms  to  perform periodic reviews  include  external  users  (e.g. vendors and contractors);\n- (b) the frequency of regular/periodic review for user access;\n- (c) the definition and scope of the phrase ' anomaly in the user behavioural patterns ';\n- (d) it might be operationally challenging to restrict the installation of software to only administrator accounts;\n- (e) the definition of 'inactive account'; and\n- (f) the criteria of 'sensitivity' in terms of activities performed by shared user accounts.",
+        "text_len": 645,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP 2.0::7.1.4(c)",
+        "ce_score": 0.011124498210847378,
+        "text": "(c) Gaps in the audit process and the remediation of audit findings which may have contributed to the cybersecurity incident.",
+        "text_len": 125,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP 2.0::7.1.4(a)",
+        "ce_score": 0.016692286357283592,
+        "text": "(a) Gaps in the existing cybersecurity governance structure that may have led to ineffective cybersecurity risk management and oversight efforts;",
+        "text_len": 145,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP 2.0::6.1.2(d)",
+        "ce_score": 0.024111613631248474,
+        "text": "(d) Network Intrusion Detection/Prevention System (NIDS/NIPS) logs.",
+        "text_len": 67,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "Risk Assessment Guide::1.2",
+        "ce_score": 0.13690663874149323,
+        "text": "1.2 Common Problems Observed\n\nWhile organisations recognise that risk assessment is an important part of their enterprise risk assessment practice, many struggled with the process to conduct a proper risk assessment. Some of the common gaps observed include the following:\n\n- Poor articulation of risk scenarios -Risk scenarios describing 'what could go wrong' events  were  often  vague  and  generic  without  articulating  specific  threat  events, vulnerabilities, assets and consequences. As a result, it is difficult to understand the extent of the risks, relate them to the organisational context, or identify targeted measures to address the risks.\n- Identification of risks using a compliance-oriented approach -Many organisations identify  risks  from  the  point  of  assessing  security  controls  (or  lack  thereof),  similar  to performing  a  compliance  audit  or  gap  analysis  against  a  set  of  defined  standards.  A compliance-oriented  approach  towards  risk  assessment  drives  a 'checklist' behaviour, giving a false sense of security that an organisation is not exposed to any risks as long as they fulfil all compliance requirements.\n\n- Absence of risk tolerance -Organisations often do not integrate their cybersecurity risk management  plans  into  their  enterprise  risk  management  programme.  As  a  result, cybersecurity risk tolerance at the enterprise level is often ignored, and management face difficulty in deciding the appropriate level of risk-taking to adopt whilst in pursuit of their organisation's business objectives.\n- Determining  risk likelihood based on historical or expected occurrences -Organisations have traditionally used the measure of time/frequency (e.g. historical or expected occurrences of events) to estimate their risk likelihood. The approach may be inaccurate when it is based on the number of times an incident has occurred previously, especially when there is lack of information on past cybersecurity incidents. In the context of cybersecurity, the likelihood of a cybersecurity incident is independent of the frequency of past occurrence.\n- Treating risks with irrelevant controls/measures -Organisations  may  take  a  broad approach in coming up with measures to mitigate identified cybersecurity risks, resulting in  the  implementation of controls that do not fully address the root cause. This often stems from a poor understanding or articulation of risk scenarios.",
+        "text_len": 2447,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B08-001",
+    "question": "Given the following compliance gaps in a banking CII environment:\n\n1. Shared admin accounts (likelihood: high, impact: high, effort: low)\n2. Missing security awareness training records (likelihood: medium, impact: low, effort: medium)\n3. Outdated asset inventory (likelihood: medium, impact: medium, effort: high)\n\nConstraints: None\n\nWhich gap should be prioritized for remediation first, and what should the prioritization sequence be? Provide your reasoning.",
+    "gold_set": [
+      "3.2.2(b)",
+      "3.2.2(c)"
+    ],
+    "recall": 0.0,
+    "label": "BAD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP Response to Feedback::5.6",
+        "ce_score": 0.3355942666530609,
+        "text": "5.6. CSA has removed the need for prioritisation of CII assets. The CIIO should refer to the 'Guide to Conducting the Risk Assessment for CII 2 ' that CSA has published for guidance  in  the  identification  of  assets.  The  asset  inventory  list  should  include  all physical and logical assets of the CII.",
+        "text_len": 310,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP 2.0::5.10.1(d)",
+        "ce_score": 0.9040743112564087,
+        "text": "(d) Prioritising the application of security patches based on the level of risk posed to the operations of the CII;",
+        "text_len": 115,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP 2.0::4.1.1(c)",
+        "ce_score": 0.614157497882843,
+        "text": "(c) Description of critical functions of each CII asset;",
+        "text_len": 56,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP 2.0::5.15.1(b)",
+        "ce_score": 0.552848219871521,
+        "text": "(b) For a CII which is an OT system - at least once every 24 months, with the first instance to be completed no later than 12 months after the Compliance Date.",
+        "text_len": 159,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP 2.0::5.14.3(b)",
+        "ce_score": 0.5158680081367493,
+        "text": "(b) for a CII which is an OT system - at least once every 24 months, with the first instance to be completed no later than 12 months after the Compliance Date.",
+        "text_len": 159,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP 2.0::2.1.2(a)",
+        "ce_score": 0.25173166394233704,
+        "text": "(a) Detail the remediation actions which the CIIO will take to address each area of non-compliance; and",
+        "text_len": 103,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP 2.0::5.15.1(a)",
+        "ce_score": 0.4925141930580139,
+        "text": "(a) For a CII which is an IT system - at least once every 12 months, with the first instance to be completed by the Compliance Date; and",
+        "text_len": 136,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP Response to Feedback::10.1",
+        "ce_score": 0.25217151641845703,
+        "text": "10.1. Respondents sought clarification on the following:\n- (a) whether the asset inventory covers only assets within the CII boundary, or it also covers assets that have connections with the CII; and\n- (b) whether  the  CII  Information  Record  form  reflects  the  asset  inventory requirements.",
+        "text_len": 297,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B09-001",
+    "question": "**Risk Identification for Config analysis - missing MFA:**\n\n**Configuration Analysis:**\nCritical systems: Database servers (MFA disabled), Application servers (MFA disabled), Backup servers (MFA enabled)\n\n**Sector Context:** Banking CII operators face specific risks related to missing mfa.\n\nReference: CCoP 2.0 risk assessment requirements\n\nWhat are the key security risks or residual risks in this scenario?",
+    "gold_set": [
+      "3.2.2(a)"
+    ],
+    "recall": 1.0,
+    "label": "GOOD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP 2.0::3.2.2(a)",
+        "ce_score": 0.7177410125732422,
+        "text": "(a) Risk  identification  -  identification  of  CII  assets  and  cybersecurity  threats, including threats identified from threat modelling 2 , threat hunting, post-incident reviews of cybersecurity incidents, and the construction of risk scenarios;",
+        "text_len": 251,
+        "is_gold": true
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP 2.0::3.2.4",
+        "ce_score": 0.21039114892482758,
+        "text": "3.2.4 The CIIO shall maintain and keep updated a risk register for each CII. The risk register shall record information of all cybersecurity risks to the CII, including risks identified through cybersecurity risk assessments. The risk register shall include the following:\n\n- (a) Risk scenarios;\n- (b) Dates when the risk scenarios are identified;\n- (c) Existing measures in place to address the risk scenario;\n- (d) Current risk ratings;\n- (e) Risk treatment plan;\n- (f) Progress status of the treatment plan;\n- (g) Residual risk ratings; and\n- (h) Risk owner.",
+        "text_len": 561,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.3349725306034088,
+        "text": "2.2. The  CCoP  2.0  is  applicable  to  the  CII  systems.    The  CII  system  includes computer  systems,  network  components,  and  end-point  devices  within  the  digital boundary defined jointly between CSA, CIIOs, and their Sector Leads.",
+        "text_len": 246,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP 2.0::3.2.5",
+        "ce_score": 0.14851106703281403,
+        "text": "3.2.5 The CIIO shall ensure that all cybersecurity risks listed in the risk register are reviewed and monitored regularly to ensure that the thresholds or limits for residual risk identified in accordance with clause 3.2.1(e) are not breached.",
+        "text_len": 243,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP 2.0::3.2.2",
+        "ce_score": 0.12335394322872162,
+        "text": "3.2.2 The  CIIO  shall  include  the  following  steps  in  the  cybersecurity  risk  assessment methodology 1 :\n\n- (a) Risk  identification  -  identification  of  CII  assets  and  cybersecurity  threats, including threats identified from threat modelling 2 , threat hunting, post-incident reviews of cybersecurity incidents, and the construction of risk scenarios;\n- (b) Risk  analysis  -  analysis  of  each  risk  scenario  to  determine  the  likelihood  of occurrence and potential impact;\n- (c) Risk evaluation - determining, documenting and prioritising risks; and\n- (d) Risk response - treatment and monitoring of each risk to keep the risk level within the organisation's risk tolerance level.",
+        "text_len": 704,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "Risk Assessment Guide::3.3",
+        "ce_score": 0.12817730009555817,
+        "text": "3.3 Define Roles and Responsibilities\n\nTo ensure that stakeholders are aware of their expected roles in a risk assessment exercise, it is important to state them clearly upfront. Key roles in a risk assessment exercise include:\n\n## Head of Organisation\n\nHighest-level  senior  official  within  the  organisation  with  the  overall  responsibility  and accountability for ensuring risks are appropriately managed within the organisation's tolerance level, and accepting all residual risks.\n\n## Business Owner\n\nHighest-level senior official of a business unit responsible for ensuring that business activities meet business goals, or share concerns on the impact of system disruptions to the business.\n\n## Risk Management Function\n\nAn  individual  or  group  within  the  organisation  responsible  for  the  organisation-wide  risk management approach. They should serve as a bridge between the technical and business function during risk assessment process, and provide oversight of the risk assessment activities to ensure consistent risk-based decisions.\n\n## Technology and Operations Function\n\nAn individual or group within the organisation that is responsible for the maintenance and operations of the technological infrastructure, including network and applications, to support the  running  of  the  system(s)  supporting  business  activities.  They  should  know  the  system assets and technical operations very well, and be able to advise on the technical impact for a compromised system.\n\n## Cybersecurity Function\n\nAn  individual  or  group  within  the  organisation  responsible  for  the  implementation  and maintenance of cybersecurity controls in system(s) supporting business activities. They should identify the potential threats to a system, conceptualise cybersecurity risk scenarios, determine risk  likelihood,  as  well  as  advise  the  appropriate  measures  to  address  the  identified threats/attacks.\n\n<!-- image -->\n\n## CIIOs to note :\n\nIn the CII risk assessment report, the stakeholders ' roles and responsibilities in the risk assessment exercise must be clearly specified.",
+        "text_len": 2110,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP Response to Feedback::1.2",
+        "ce_score": 0.2583576738834381,
+        "text": "1.2. The CCoP 2.0 seeks to level up new cybersecurity capabilities in the Critical Information Infrastructure ('CII') sectors due to the following impetus:\n- (a) the cyber threat landscape has evolved with threat actors using sophisticated  tactics,  techniques  and  procedures  ('TTPs')  to  attack  CII sectors;\n- (b) each CII sector faces cybersecurity risks that are specific to their digital terrain; and\n- (c) cyber-attacks have increased in scale and sophistication to a point where they could present systemic risks to Singapore.",
+        "text_len": 538,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP 2.0::5.9.1",
+        "ce_score": 0.10907186567783356,
+        "text": "5.9.1 In respect of the following types of CII assets as they may be found in the CII, the CIIO shall  establish  and  implement  a  security  configuration  baseline  for  each  asset  that  is commensurate with the cybersecurity risk profile of the CII:\n\n- (a) Operating systems;\n- (b) Appliances;\n- (c) Consoles and workstations, including Human Machine Interfaces (HMI) and OT engineering workstations;\n- (d) Network devices;\n- (e) Servers, including alarm servers, OT historians and management servers;\n- (f) Software applications; and\n- (g) Any other CII asset or type of asset identified by the Commissioner.",
+        "text_len": 615,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B10-001",
+    "question": "Why should the board prioritize completing the CII asset inventory over other security initiatives?",
+    "gold_set": [
+      "4.1.1",
+      "4.1.2"
+    ],
+    "recall": 0.5,
+    "label": "GOOD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP 2.0::4.1",
+        "ce_score": 0.707664430141449,
+        "text": "4.1 Asset Management\n\nAsset management includes creating and maintaining a comprehensive inventory of all CII assets, including hardware, software, assets' dependencies, and connections with any systems or networks. This is a key component in ensuring cybersecurity as it provides visibility of CII assets and allows operators to make informed decisions and prioritise assets for protection. In addition,  changes  to  CII  asset  or  information  recorded  needs  to  be  updated  in  the  asset inventory in a timely manner to ensure that inventory is up-to-date.",
+        "text_len": 565,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP Response to Feedback::5.6",
+        "ce_score": 0.18714889883995056,
+        "text": "5.6. CSA has removed the need for prioritisation of CII assets. The CIIO should refer to the 'Guide to Conducting the Risk Assessment for CII 2 ' that CSA has published for guidance  in  the  identification  of  assets.  The  asset  inventory  list  should  include  all physical and logical assets of the CII.",
+        "text_len": 310,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP 2.0::4.1.1",
+        "ce_score": 0.06826414912939072,
+        "text": "4.1.1 The  CIIO  shall  establish  mechanisms  and  processes  to  identify  all  CII  assets  and maintain an inventory of the assets. The inventory shall include the following:\n\n- (a) Owner and/or operator of each CII asset;\n- (b) Name and description of each CII asset;\n- (c) Description of critical functions of each CII asset;\n- (d) Key person(s) responsible for the cybersecurity of each CII asset;\n- (e) The dependencies of each CII asset and the connections between each CII asset and any systems or networks (whether internal or external to the CII);\n- (f) Physical location of each CII asset;\n- (g) Outsourced service providers used to support each CII asset;\n- (h) Cloud services used to support each CII asset.\n- (i) Description of the internet links supporting the CII, including information on the distributed denial-of-service (DDoS) attack mitigation measures in place for these internet links; and\n- (j) CII  network  topology  diagram,  including  the  CII  network  perimeter,  and  all external computers and computer systems that the CII interfaces with.",
+        "text_len": 1075,
+        "is_gold": true
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP Response to Feedback::10.2",
+        "ce_score": 0.014619247987866402,
+        "text": "10.2. The CIIO shall ensure that its asset inventory includes all CII assets, including any other asset under the CIIO's control that is directly connected or communicates with the CII.",
+        "text_len": 185,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP 2.0::3.1",
+        "ce_score": 0.031051643192768097,
+        "text": "3.1 Leadership and Oversight\n\nAdequate resources and attention must be devoted to the CIIO's cybersecurity strategy and its application to the CII. Effective leadership from the board of directors and senior management is  essential  in  building  the  right  organisational  culture,  mindset,  and  structure  towards cybersecurity, and to provide effective and timely business decisions on important cybersecurity matters.",
+        "text_len": 425,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP 2.0::3.1.2",
+        "ce_score": 0.015245220623910427,
+        "text": "3.1.2 The CIIO shall ensure that its board of directors (or equivalent body) includes at least one member that has knowledge and awareness of cybersecurity matters to have oversight of the cybersecurity risks to the CII, and to provide guidance to senior management on how to manage systemic cybersecurity risks.",
+        "text_len": 312,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP Response to Feedback::10.5",
+        "ce_score": 0.02689102664589882,
+        "text": "10.5. Yes, the asset inventory requirements are applicable to CII, whether deployed in whole or in part, in cloud. The scope of the requirements applies to all cloud service models and cloud deployment models. The CIIO shall furnish information of the CII to the Commissioner as required under section 10(1) of the Cybersecurity Act.",
+        "text_len": 333,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP Response to Feedback::10.1",
+        "ce_score": 0.0025373452808707952,
+        "text": "10.1. Respondents sought clarification on the following:\n- (a) whether the asset inventory covers only assets within the CII boundary, or it also covers assets that have connections with the CII; and\n- (b) whether  the  CII  Information  Record  form  reflects  the  asset  inventory requirements.",
+        "text_len": 297,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B12-001",
+    "question": "What would a CSA auditor look for when assessing MFA implementation, and how should a Risk Manager prepare?",
+    "gold_set": [
+      "5.3.1",
+      "5.7.2"
+    ],
+    "recall": 0.0,
+    "label": "BAD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "Auditing Guidelines::7.3",
+        "ce_score": 0.0028982646763324738,
+        "text": "7.3 COI Audit Expectations\n\nThe COI audit expectations are listed in the table below.\n\n| Audit Expectations   | Description                                                                                                                                                                                                                                                                                     |\n|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Audit Objective      | The objective of the audit is to: a. Validate the implementation status of the COI recommendations; and b. Ascertain the adequacy and effectiveness of the implemented controls, including the interim and compensating controls put in place to address the risks mentioned in the COI report. |\n| Audit Scope          | Audit Subject & Audit Period Audit subject and audit period are defined in section 6.3 of this document. Audit Criteria The audit criteria should cover the latest submission 2 to CSA by the CIIO on the follow-up status of COI recommendations.                                              |\n\n<!-- image -->\n\n<!-- image -->\n\n| Audit Expectations        | Description                                                                                                                                                     |\n|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Audit Completion Timeline | The COI audit should be completed by 31 December 2020 and the audit report should be submitted to CSA not later than 30 days after the completion of the audit. |\n| Audit Approach            | Audit approach is defined in section 6.4 of this document.                                                                                                      |\n| Audit Finding             | Audit finding is defined in section 6.5 of this document.                                                                                                       |\n| Audit Conclusion          | Audit conclusion is defined in section 6.6 of this document.                                                                                                    |\n| Audit Report Format       | Audit report format is defined in section 6.7 of this document.                                                                                                 |",
+        "text_len": 2723,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "Auditing Guidelines::6",
+        "ce_score": 0.0014386113034561276,
+        "text": "6 AUDIT EXPECTATIONS\n\nProfessional\n\nThis section sets out CSA's audit expectations. It is intended to help the reader understand how cybersecurity audit should be conducted and reported.\n\nCSA has listed down seven areas of audit expectations in sections 6.1 to 6.7.\n\nAuditing\n\n<!-- image -->",
+        "text_len": 291,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP Response to Feedback::9.4",
+        "ce_score": 0.0003051417297683656,
+        "text": "9.4. CSA  has  revised  the  clause  for  clarity.  CSA  expects  the  CIIO  to  include cybersecurity risk scenarios related to supply chain as part of the annual cybersecurity risk  assessment  requirements  under  the  Cybersecurity  Act.  The  policy  intent  is  to ensure  that  the  CIIO  understand  and  manage  the  supply  chain  risks  that  the organisation is exposed to.",
+        "text_len": 385,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP Response to Feedback::8.10",
+        "ce_score": 0.00017625994223635644,
+        "text": "8.10. The policy intent is for CIIO to implement the required cybersecurity controls to enhance the cybersecurity posture of its CII. The validation of the implementation of the controls shall be conducted through a cybersecurity audit regardless the CII is onpremises or in cloud. The approved auditor, when placing reliance on the third-party audit report, should review and ascertain that the third-party audit report covers the scope of the CCoP requirements.",
+        "text_len": 463,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP Response to Feedback::8.13",
+        "ce_score": 0.0007433602586388588,
+        "text": "8.13. The CIIO planning to adopt cloud services shall inform  Commissioner. This must be done before any preparation steps are taken to adopt cloud services for its CIIs. Thereafter, CSA will provide guidance on the scope of the risk assessment and/or due diligence exercise that needs to be performed by the CIIO.",
+        "text_len": 314,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "Auditing Guidelines::6.6",
+        "ce_score": 0.0002524814335629344,
+        "text": "6.6 Audit Conclusion\n\nThe auditor should give their opinion and conclusion on the following areas:\n\n- a. Appropriateness of the management comments in response to the audit finding;\n- b. Adequacy  and  effectiveness  of  the  controls  put  in  place  by  the  CIIO  to  address cybersecurity risks to the CII; and\n- c. Opportunities for improvement to secure the CII.\n\n<!-- image -->",
+        "text_len": 384,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP Response to Feedback::7.7",
+        "ce_score": 0.00025001197354868054,
+        "text": "7.7. CSA qualified the clause with 'to the extent possible'. The CIIO could adopt a risk-based  approach  to  prioritise  the  implementation  of  measures  in  its  CII  digital terrains with high-risk exposure.",
+        "text_len": 212,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP 2.0::1",
+        "ce_score": 0.00015962384350132197,
+        "text": "1 For risk assessment methodology, the CIIO can refer to CSA's Guide to Conducting Risk Assessment for CII (https://www.csa.gov.sg/-/media/Csa/Documents/Legislation\\_Supplementary\\_References/Guide-to-ConductingCybersecurity-Risk-Assessment-for-CII.pdf ) or equivalent",
+        "text_len": 268,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B13-001",
+    "question": "What evidence should a Risk Manager prepare to demonstrate board cybersecurity oversight?",
+    "gold_set": [
+      "3.1.1"
+    ],
+    "recall": 0.0,
+    "label": "BAD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP 2.0::3.1.2",
+        "ce_score": 0.0011045896681025624,
+        "text": "3.1.2 The CIIO shall ensure that its board of directors (or equivalent body) includes at least one member that has knowledge and awareness of cybersecurity matters to have oversight of the cybersecurity risks to the CII, and to provide guidance to senior management on how to manage systemic cybersecurity risks.",
+        "text_len": 312,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP Response to Feedback::4.3",
+        "ce_score": 0.008917268365621567,
+        "text": "4.3. The CIIO is expected to have its Board of Directors ('BoD') to provide oversight of  the  cybersecurity  risks  and  provide  guidance  its  senior  management  on  how  to manage systemic risks, and the senior management to manage cybersecurity risks and ensure that controls are implemented.",
+        "text_len": 298,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP Response to Feedback::4.1",
+        "ce_score": 0.0006138859898783267,
+        "text": "4.1. Respondents sought clarification on the knowledge and skills that the Board of Directors and Senior Management of the CIIO are expected to possess to manage the cybersecurity  risks  and  ensure  that  effective  controls  are  implemented  to  achieve cyber resiliency of the CII organisation.",
+        "text_len": 299,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP 2.0::3.1",
+        "ce_score": 0.001570390653796494,
+        "text": "3.1 Leadership and Oversight\n\nAdequate resources and attention must be devoted to the CIIO's cybersecurity strategy and its application to the CII. Effective leadership from the board of directors and senior management is  essential  in  building  the  right  organisational  culture,  mindset,  and  structure  towards cybersecurity, and to provide effective and timely business decisions on important cybersecurity matters.",
+        "text_len": 425,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP 2.0::3.2.1",
+        "ce_score": 0.0012156356824561954,
+        "text": "3.2.1 The CIIO shall establish and implement a cybersecurity risk management framework that provides for the following:\n\n- (a) Promotion of a 'risk culture' that enables the organisation and its personnel to have  open  communications  about  risk,  embrace  learning  from  positive  and negative  experiences,  make  informed  decisions  about  addressing  risks,  and carry out risk management efforts commensurate with defined risk appetites;\n- (b) The  roles  and  responsibilities  of  various  persons  responsible  for  managing cybersecurity risks to  the  CII  and  their  governance  structure,  including  their reporting lines and accountabilities;\n- (c) Cybersecurity risk assessment methodology;\n- (d) Processes  for  the  monitoring,  communication  and  reporting  of  cybersecurity risks in a timely manner - the CIIO's senior management must be given regular reports of cybersecurity risks to the CII so that they are kept aware of the risks and impact,  are  able  to  manage  the  risks,  and  can  ensure  that  the  necessary cybersecurity measures to address the risks are implemented;\n- (e) The  organisation's  cybersecurity  risk  appetite  and  thresholds  or  limits  for residual risk; and\n- (f) Process hazard analysis methodology to reduce or remove the impact on safety due to hazardous events (only for a CII which is an OT system).",
+        "text_len": 1366,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP Response to Feedback::4.2",
+        "ce_score": 0.0021913188975304365,
+        "text": "4.2. Respondents sought clarification the ratio of members of the Board and senior management that requires cybersecurity knowledge.",
+        "text_len": 132,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP 2.0::3.2",
+        "ce_score": 0.002011112403124571,
+        "text": "3.2 Risk Management\n\nCybersecurity  risk  management  is  the  process  of  identifying,  analysing,  evaluating  and addressing the organisation's cybersecurity risks in a cost-effective manner.\n\nWith  rapid  advancement  in  technology,  acceleration  in  digitalisation,  and  an  evolving cybersecurity threat landscape, organisations are exposed to greater cybersecurity risks that may adversely impact their organisation and business objectives. Hence it is important for CIIOs to establish and implement a cybersecurity risk management framework. This includes a cybersecurity risk assessment methodology, the organisation's cybersecurity risk appetite and a risk register for each CII. In addition, CIIO shall ensure that the cybersecurity risks must be accepted at the appropriate level of senior management in a timely manner.",
+        "text_len": 836,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP Response to Feedback::4.6",
+        "ce_score": 0.010588956996798515,
+        "text": "4.6. The CIIO should develop its own criteria for BoD and senior management to have the necessary knowledge and awareness of cybersecurity matters  to enable them to discharge their duties effectively. Some examples 1  may include whether the BoD and senior management have:\n\n- (a) obtained  a  certification,  have  qualification  or  expertise  in  managing cybersecurity risks;\n- (b) prior work experience in cybersecurity such as information security officer and security auditor; or\n- (c) knowledge, skills and other background in cybersecurity such as in areas of security policy and governance, security operations and risk management.\n\n1 Examples are adapted from U.S. Securities and Exchange Commission (SEC)",
+        "text_len": 717,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B14-001",
+    "question": "**Gap:** Default passwords on network devices\n**Sector:** Banking CII\n\nProvide a remediation recommendation that addresses:\n1. Specific actions to remediate the gap\n2. Feasibility assessment (cost, timeline, disruption, capability)\n3. Practical considerations for implementation\n4. Alternatives if primary remediation is not feasible",
+    "gold_set": [
+      "5.9.2(b)"
+    ],
+    "recall": 0.0,
+    "label": "BAD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP 2.0::2.1.2(a)",
+        "ce_score": 0.17841988801956177,
+        "text": "(a) Detail the remediation actions which the CIIO will take to address each area of non-compliance; and",
+        "text_len": 103,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP 2.0::5.9.2",
+        "ce_score": 0.0075231133960187435,
+        "text": "5.9.2 The  security  configuration  baselines  shall  minimally  address  the  following  security practices:\n\n- (a) Account  management  -  disable  or  remove  default  accounts,  guest  accounts, inactive accounts and unused accounts;\n- (b) Password and passphrase management - Default passwords shall be changed; passwords and passphrases shall be stored using in their hash forms;\n- (c) Application  control  -  Disable  services  and  remove  applications  that  are  not necessary for the operation of the CII;\n- (d) Port(s) and service(s) management - Enable only ports and services that are necessary for the operation of the CII;\n- (e) Physical  connection  -  Enable  only  external  physical  connections  that  are necessary for the operation of the CII;\n- (f) Malware protection - Install and update to the latest version of anti-malware software with the latest anti-malware signatures; and\n- (g) Software  upgrade  and  update  -  Timely  upgrade  and  update  of  software  and security patches.",
+        "text_len": 1012,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP 2.0::5.9.1",
+        "ce_score": 0.02361411601305008,
+        "text": "5.9.1 In respect of the following types of CII assets as they may be found in the CII, the CIIO shall  establish  and  implement  a  security  configuration  baseline  for  each  asset  that  is commensurate with the cybersecurity risk profile of the CII:\n\n- (a) Operating systems;\n- (b) Appliances;\n- (c) Consoles and workstations, including Human Machine Interfaces (HMI) and OT engineering workstations;\n- (d) Network devices;\n- (e) Servers, including alarm servers, OT historians and management servers;\n- (f) Software applications; and\n- (g) Any other CII asset or type of asset identified by the Commissioner.",
+        "text_len": 615,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP 2.0::7.1.4(c)",
+        "ce_score": 0.023758115246891975,
+        "text": "(c) Gaps in the audit process and the remediation of audit findings which may have contributed to the cybersecurity incident.",
+        "text_len": 125,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP Response to Feedback::3.1",
+        "ce_score": 0.002495202235877514,
+        "text": "3.1. Respondents sought clarification on fulfilling the requirements required by the audit finding remediation plan. For example, the mechanism for the CIIO to submit the remediation  plan  and  the  approval  required  before  the  CIIO  carries  out  the remediation.",
+        "text_len": 269,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP 2.0::2.1.4",
+        "ce_score": 0.0034812609665095806,
+        "text": "2.1.4 The  CIIO  shall  implement  the  audit  finding  remediation  plan  and  complete  all remediation actions within the timeframe(s) specified in the said plan, to the Commissioner's satisfaction, and at the CIIO's own cost. The CIIO shall update the Commissioner when each remediation action is completed.",
+        "text_len": 311,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP 2.0::2.1.2",
+        "ce_score": 0.0030096552800387144,
+        "text": "2.1.2 The audit finding remediation plan shall:\n\n- (a) Detail the remediation actions which the CIIO will take to address each area of non-compliance; and\n- (b) Set out the timeline(s) for implementing the actions stated in sub-clause (a).",
+        "text_len": 239,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP Response to Feedback::3.6",
+        "ce_score": 0.003008429193869233,
+        "text": "3.6. The CIIO shall submit the audit finding remediation plans to the Commissioner within 30 days from the date that the CIIO receives the audit report from its auditors. The CIIO can proceed with the remediation plans unless CSA deems the remediation plans  unsatisfactory.  Please  refer  to  the  latest  Guidelines  for  Auditing  Critical Information Infrastructure published on the CSA website.",
+        "text_len": 400,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B18-001",
+    "question": "Under Singapore's Cybersecurity Act 2018 and CCoP 2.0, who is personally liable for CII compliance violations? What are the responsibilities of the Board, CIIO, and CISO?",
+    "gold_set": [
+      "3.1.1"
+    ],
+    "recall": 0.0,
+    "label": "BAD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP 2.0::3.7.1",
+        "ce_score": 0.8273254632949829,
+        "text": "3.7.1 The CIIO shall remain responsible and accountable for maintaining oversight of the cybersecurity of the CII and for managing cybersecurity risks to the CII, even when the CII is wholly or partly implemented on cloud computing systems.",
+        "text_len": 240,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP 2.0::3.1.2",
+        "ce_score": 0.7301669716835022,
+        "text": "3.1.2 The CIIO shall ensure that its board of directors (or equivalent body) includes at least one member that has knowledge and awareness of cybersecurity matters to have oversight of the cybersecurity risks to the CII, and to provide guidance to senior management on how to manage systemic cybersecurity risks.",
+        "text_len": 312,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "Auditing Guidelines::1",
+        "ce_score": 0.7727776765823364,
+        "text": "1 INTRODUCTION\n\nUnder  section  15(1)(a)  of  the  Cybersecurity  Act  2018  ('The  Act'),  the  owner  of  a  Critical Information Infrastructure ('CIIO') must, starting from the date of the notice issued under section 7 (Designation of CII), cause a cybersecurity audit of the compliance of the CII with the Act and applicable codes of practice ('CoPs') and standards of performance ('SoPs').\n\nThe cybersecurity audit must be carried out at least once every two years (or at such higher frequency as may be directed by the Commissioner of Cybersecurity in any particular case), and to be carried out by an auditor approved or appointed by the Commissioner.",
+        "text_len": 658,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP Response to Feedback::14.11",
+        "ce_score": 0.7511637806892395,
+        "text": "14.11. The CIIO is expected to ensure personnel who use, operate, and manage the CII are aware of the Cybersecurity Act and its subsidiary legislations, code of practices and  standards  of  performance,  and  understand  the  cybersecurity  policies  and legislations pertaining to the use, operate and manage the CII.",
+        "text_len": 319,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP Response to Feedback::4.3",
+        "ce_score": 0.6050710082054138,
+        "text": "4.3. The CIIO is expected to have its Board of Directors ('BoD') to provide oversight of  the  cybersecurity  risks  and  provide  guidance  its  senior  management  on  how  to manage systemic risks, and the senior management to manage cybersecurity risks and ensure that controls are implemented.",
+        "text_len": 298,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP 2.0::9.2.2",
+        "ce_score": 0.8386760354042053,
+        "text": "9.2.2 The  CIIO  shall  ensure  that  any  persons  other  than  its  employees  that  operate  and manage  the  CII  (including  external  vendors  and  their  personnel)  have  the  necessary cybersecurity skills to perform their roles relating to the CII effectively.",
+        "text_len": 270,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP Response to Feedback::8.2",
+        "ce_score": 0.5774672031402588,
+        "text": "8.2. CSA has removed the clauses on the requirements of CII assets to be located in  Singapore  after  taking  into  consideration  the  feedback  from  CIIOs  and  further consultation  with  the  Cloud  Service  Providers.  However,  the  CIIO  shall  remain responsible and accountable for maintaining oversight of the cybersecurity of the CII and for managing cybersecurity risks to the CII, even when the CII is wholly or partly implemented on cloud computing systems.",
+        "text_len": 473,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP 2.0::3.8.1",
+        "ce_score": 0.7616879940032959,
+        "text": "3.8.1 The CIIO shall remain responsible and accountable for the cybersecurity of the CII even if it engages an external party to perform or assist in performing any functions, activities or operations in respect of the CII (referred to below as 'outsourcing').",
+        "text_len": 260,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B21-001",
+    "question": "What does CCoP 2.0 Clause 5.9.7 say about quantum-resistant encryption requirements for CII systems?",
+    "gold_set": [],
+    "recall": 0.0,
+    "label": "N/A",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.5398714542388916,
+        "text": "2.2. The  CCoP  2.0  is  applicable  to  the  CII  systems.    The  CII  system  includes computer  systems,  network  components,  and  end-point  devices  within  the  digital boundary defined jointly between CSA, CIIOs, and their Sector Leads.",
+        "text_len": 246,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP Response to Feedback::11.59",
+        "ce_score": 0.21547852456569672,
+        "text": "11.59. The DNSSEC requirements have been shifted to Domain-Specific section in CCoP 2.0 and the DNSSEC requirements are only applicable to CII with internetfacing DNS servers within its CII boundary.",
+        "text_len": 199,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP 2.0::5.11.4",
+        "ce_score": 0.06957113742828369,
+        "text": "5.11.4 The  CIIO  shall  ensure  that  sensitive  information  relating  to  the  CII  (including production data and system configuration information) that is stored in portable computing devices and removable storage media is secured with strong encryption.",
+        "text_len": 259,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP 2.0::5.7.2(c)",
+        "ce_score": 0.11712849885225296,
+        "text": "(c) Remote  connections  to  the  CII  have  strong  encryption  and  are  made  only through secured intermediary mechanisms;",
+        "text_len": 126,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP Response to Feedback::7.10",
+        "ce_score": 0.03255363553762436,
+        "text": "7.10. CSA's SBD framework applies to new CII systems and to existing CII systems, throughout their lifecycles and especially when they are undergoing major enhancement and technology upgrades. For CII systems where it is not possible to retrospectively apply new requirements on existing contracts that had been awarded to the vendors, the CIIO should seek to factor this requirement into the contract as soon as possible and write to the Commissioner-in-charge-of-Cybersecurity to seek waiver for this clause.",
+        "text_len": 510,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP Response to Feedback::9.5",
+        "ce_score": 0.08833649009466171,
+        "text": "9.5. Respondents sought clarification on the following:\n- (a) if the obligations of a vendor to protect the CII against cybersecurity threats and to report cybersecurity incidents apply to existing contractual terms with the vendor;\n- (b) if the obligations of a vendor to protect the CII against cybersecurity threats and to report cybersecurity incidents could be complied through means of tender specifications;\n- (c) the scope to conducting audit on vendors; and\n- (d) if the rights to commission an audit on a vendor are applicable to existing contractual terms.",
+        "text_len": 567,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP 2.0::5.7.2",
+        "ce_score": 0.028459802269935608,
+        "text": "5.7.2 The CIIO shall ensure that:\n\n- (a) Remote  connections  to  the  CII  are  disabled  except  where  necessary  for operating the CII;\n- (b) Multi-factor authentication is required for the establishing a remote connection to the CII;\n- (c) Remote  connections  to  the  CII  have  strong  encryption  and  are  made  only through secured intermediary mechanisms;\n- (d) Measures are put in place to ensure transmission security and message integrity over the remote connection;\n- (e) Files to be uploaded to the CII are scanned for malware before being uploaded; and\n- (f) Data flows over remote connections to the CII are limited to only the minimum necessary for performing the function required of the connection.",
+        "text_len": 720,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP Response to Feedback::2.3",
+        "ce_score": 0.2589343190193176,
+        "text": "2.3. However, the CIIO should consider extending some cybersecurity capabilities to the entire CII organisation because many of these capabilities are also relevant to strengthening the cybersecurity posture of the entire CII organisation. The cybersecurity  capabilities  can  be  found  under  Annex  A  of  CCoP  2.0.    The cybersecurity capabilities under Annex A of CCoP 2.0 is not to be included in the scope for the cybersecurity audit under the Cybersecurity Act.",
+        "text_len": 472,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B22-001",
+    "question": "Can a CII operator apply for a waiver for MFA requirements on legacy SCADA systems?",
+    "gold_set": [
+      "1.6.1",
+      "1.6.2",
+      "1.6.3"
+    ],
+    "recall": 0.3333333333333333,
+    "label": "GOOD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP Response to Feedback::2.20",
+        "ce_score": 0.06853628903627396,
+        "text": "2.20. The CIIO is not required to submit a waiver request for any clause that is not applicable to the CII.",
+        "text_len": 107,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP Response to Feedback::2.13",
+        "ce_score": 0.002709432737901807,
+        "text": "2.13. The Act does not penalise a CIIO that required more time and/or resources to implement the measures. It allows the Commissioner to grant the necessary waivers when there are valid reasons. If the CIIO is unable to comply with any specific CCoP 2.0 requirements, it may submit a request of waiver made available under Section 11(7)  of  the  Cybersecurity  Act  to  the  Commissioner.  The  Commissioner  has  the authority to reject the waiver if the mitigating or compensating controls are deemed to be insufficient.",
+        "text_len": 523,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP Response to Feedback::2.23",
+        "ce_score": 0.0029569717589765787,
+        "text": "2.23. During the review  period of  the  waiver,  the  CIIO  is  expected  to  continue  to monitor the risks associated with the CCoP clause which could not be complied with and  to  ensure  that  the  compensating  controls  are  implemented  to  reduce  the cybersecurity risks.",
+        "text_len": 281,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP Response to Feedback::2.18",
+        "ce_score": 0.006523036863654852,
+        "text": "2.18. The  CIIO  should  submit  a  waiver  from  compliance  with  any  clause  in  the Cybersecurity Act, applicable codes of practice and standards of performance as soon as the CIIO has completed its assessment and determined that it is unable to comply with a specific clause requirement.",
+        "text_len": 293,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP Response to Feedback::7.10",
+        "ce_score": 0.018092498183250427,
+        "text": "7.10. CSA's SBD framework applies to new CII systems and to existing CII systems, throughout their lifecycles and especially when they are undergoing major enhancement and technology upgrades. For CII systems where it is not possible to retrospectively apply new requirements on existing contracts that had been awarded to the vendors, the CIIO should seek to factor this requirement into the contract as soon as possible and write to the Commissioner-in-charge-of-Cybersecurity to seek waiver for this clause.",
+        "text_len": 510,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP 2.0::1.6.2",
+        "ce_score": 0.016760051250457764,
+        "text": "1.6.2 A CIIO can request for waiver from specific provisions of this Code under section 11(7) of  the  Act  by  submitting  a  written  request  to  the  Commissioner  with  the  justifications supporting the request.",
+        "text_len": 217,
+        "is_gold": true
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP Response to Feedback::13.27",
+        "ce_score": 0.00047560062375850976,
+        "text": "13.27. The  intent  is  to  ensure  that  the  backups  can  be  restored  when  required.  If testing  of  backup  restoration  is  not  implementable  due  to  operational  or  business considerations, the CIIO should write to the Commissioner-in-charge-of-Cybersecurity to seek waiver for this clause and use compensating controls that mitigate relevant risks accordingly.",
+        "text_len": 375,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP Response to Feedback::2.17",
+        "ce_score": 0.015482061542570591,
+        "text": "2.17. Respondents sought clarification on the submission timeline for waiver request and that are not implementable or not applicable to the CII.",
+        "text_len": 145,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B23-001",
+    "question": "How do CCoP 2.0 and MAS TRM requirements align for incident reporting?",
+    "gold_set": [
+      "1.6",
+      "3.2.1",
+      "7.1.1(b)"
+    ],
+    "recall": 0.0,
+    "label": "BAD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP Response to Feedback::2.7",
+        "ce_score": 0.035353466868400574,
+        "text": "2.7. Respondents highlighted that there  are  overlaps  in  requirements on  access control  management,  and  system  hardening  between  Government's  Instruction Manual 8 ('IM8') and CCoP 2.0.",
+        "text_len": 195,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP Response to Feedback::2.2",
+        "ce_score": 0.10272743552923203,
+        "text": "2.2. The  CCoP  2.0  is  applicable  to  the  CII  systems.    The  CII  system  includes computer  systems,  network  components,  and  end-point  devices  within  the  digital boundary defined jointly between CSA, CIIOs, and their Sector Leads.",
+        "text_len": 246,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP Response to Feedback::2.9",
+        "ce_score": 0.0021615978330373764,
+        "text": "2.9. CSA noted that the national code of practice ('CCoP') may at times overlap with the sectoral cybersecurity requirements. Under such circumstances, harmonisation of codes will be carried out to:\n- (a) deconflict requirements; and\n- (b) to allow an audit that is mutually recognised under the Cybersecurity Act and IM8 requirements.",
+        "text_len": 335,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP 2.0::7",
+        "ce_score": 0.0017592482035979629,
+        "text": "7 RESPONSE AND RECOVERY REQUIREMENTS\n\nEstablishing,  managing,  and  exercising  cybersecurity  incident  response  plans  and  crisis communication plans to prepare the CII for cybersecurity incidents.",
+        "text_len": 202,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP Response to Feedback::2.8",
+        "ce_score": 0.004014529287815094,
+        "text": "2.8. Respondents also raised concerns on the resources needed to conduct two audits to fulfil IM8 and CCoP 2.0 requirements.",
+        "text_len": 124,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP 2.0::7.1.1",
+        "ce_score": 0.0010980661027133465,
+        "text": "7.1.1 The CIIO shall establish a Cybersecurity Incident Response Plan that sets out how a CIIO  should  respond  to  a  cybersecurity  incident.  The  CIIO  shall  ensure  that  the  Plan establishes:\n\n- (a) A Cybersecurity Incident Response Team ('CIRT') structure, including clearly defined roles and responsibilities of each team member and their contact details;\n- (b) An incident reporting structure which sets out how the CIIO will comply with its reporting obligations under the Act and any other laws and regulations that apply to the CII;\n- (c) Communication and coordination structures to ensure the timely escalation of cybersecurity incidents to the CIRT and to the senior management of the CIIO;\n- (d) Thresholds and procedures to activate the incident response and CIRT;\n- (e) Engagement  protocols  with  relevant  external  parties,  including  vendors  for forensic or recovery services and law enforcement agencies, and their contact details;\n- (f) A communication plan to communicate information relating to a cybersecurity incident to internal and external stakeholders;\n\n- (g) Processes and procedures to contain a cybersecurity incident, investigate the cause  and  impact  of  the  cybersecurity  incident,  and  to  restore  the  CII's operations;\n- (h) Processes  and  procedures  to  collect  and  preserve  digital  forensic  evidence before initiating the recovery process, in order to support investigations; and\n- (i) A post-incident review process to identify and implement corrective measures to prevent a recurrence.",
+        "text_len": 1549,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP Response to Feedback::1.1",
+        "ce_score": 0.020311521366238594,
+        "text": "1.1. On 28 February 2022, the Cyber Security Agency of Singapore ('CSA') issued the draft Cybersecurity Code-of-Practice - Second Edition ('CCoP 2.0') to all Sector Leads and CII Owners ('CIIOs') to seek feedback.",
+        "text_len": 213,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP Response to Feedback::13.1",
+        "ce_score": 0.08677800744771957,
+        "text": "13.1. Respondents sought clarification on the following:\n- (a) the types of cybersecurity incidents that would trigger stakeholders such as external media;\n- (b) if  the  requirement  for  communication  and  coordination  structure  for members  of  the  Cybersecurity  Incident  Response  Team  and  senior management  in the Incident Management  section is a duplicate requirement in the Crisis Communication Plan;\n- (c) CSA's expectation on the timeline to complete the post-incident review to identify and implement corrective measures to prevent a recurrence;\n- (d) the rational in updating the incident response plan's review frequency to once every 12 months in CCoP 2.0, and in what circumstances will the CIIO needs to review the incident response plan; and\n- (e) if  its  organisation  is  allowed  to  define  the  triage  framework  based  on operational and business needs.",
+        "text_len": 887,
+        "is_gold": false
+      }
+    ]
+  },
+  {
+    "test_id": "B24-001",
+    "question": "Incident response scenario 1: A CII organization experiences a cyber security incident. What CCoP 2.0 Section 7 incident management actions are required for responding to and reporting the incident?",
+    "gold_set": [
+      "7.1.1(b)"
+    ],
+    "recall": 0.0,
+    "label": "BAD",
+    "clauses": [
+      {
+        "rank": 0,
+        "citation_id": "CCoP 2.0::7",
+        "ce_score": 0.9860233068466187,
+        "text": "7 RESPONSE AND RECOVERY REQUIREMENTS\n\nEstablishing,  managing,  and  exercising  cybersecurity  incident  response  plans  and  crisis communication plans to prepare the CII for cybersecurity incidents.",
+        "text_len": 202,
+        "is_gold": false
+      },
+      {
+        "rank": 1,
+        "citation_id": "CCoP 2.0::7.1.1",
+        "ce_score": 0.9394636154174805,
+        "text": "7.1.1 The CIIO shall establish a Cybersecurity Incident Response Plan that sets out how a CIIO  should  respond  to  a  cybersecurity  incident.  The  CIIO  shall  ensure  that  the  Plan establishes:\n\n- (a) A Cybersecurity Incident Response Team ('CIRT') structure, including clearly defined roles and responsibilities of each team member and their contact details;\n- (b) An incident reporting structure which sets out how the CIIO will comply with its reporting obligations under the Act and any other laws and regulations that apply to the CII;\n- (c) Communication and coordination structures to ensure the timely escalation of cybersecurity incidents to the CIRT and to the senior management of the CIIO;\n- (d) Thresholds and procedures to activate the incident response and CIRT;\n- (e) Engagement  protocols  with  relevant  external  parties,  including  vendors  for forensic or recovery services and law enforcement agencies, and their contact details;\n- (f) A communication plan to communicate information relating to a cybersecurity incident to internal and external stakeholders;\n\n- (g) Processes and procedures to contain a cybersecurity incident, investigate the cause  and  impact  of  the  cybersecurity  incident,  and  to  restore  the  CII's operations;\n- (h) Processes  and  procedures  to  collect  and  preserve  digital  forensic  evidence before initiating the recovery process, in order to support investigations; and\n- (i) A post-incident review process to identify and implement corrective measures to prevent a recurrence.",
+        "text_len": 1549,
+        "is_gold": false
+      },
+      {
+        "rank": 2,
+        "citation_id": "CCoP 2.0::7.1.7",
+        "ce_score": 0.8753015398979187,
+        "text": "7.1.7 The CIIO shall also review the Cybersecurity Incident Response Plan when there are material changes to the CII cyber operating environment or incident response requirements.",
+        "text_len": 179,
+        "is_gold": false
+      },
+      {
+        "rank": 3,
+        "citation_id": "CCoP 2.0::7.1",
+        "ce_score": 0.9466464519500732,
+        "text": "7.1 Incident Management\n\nIncident  management  seeks  to  minimise  the  impact  of  cybersecurity  incidents  through processes that include the identification, containment and eradication of cybersecurity threats, and the recovery of systems, root-cause analysis and implementation of corrective actions to prevent recurrence. It is important to have a plan with a clear Cybersecurity Incident Response Team structure that details everyone's roles and responsibilities so that there can be clear lines of accountability and efficient communication channels. Incident response thresholds that are relevant to the business should also be determined so that the incident response plan can be triggered accurately without delays. Communication plans would also allow relevant parties to be updated with accurate situational updates.\n\nWhen  conducting root cause analysis, organisations should also include structural, behavioural, managerial, technical or systemic factors that could contribute to the cybersecurity  incident  to  address  potential  underlying  issues  and  prevent  a  recurrence  of similar incidents.",
+        "text_len": 1119,
+        "is_gold": false
+      },
+      {
+        "rank": 4,
+        "citation_id": "CCoP 2.0::6.3.3",
+        "ce_score": 0.8814501762390137,
+        "text": "6.3.3 The CIIO shall analyse all threats identified from threat hunting to determine if there is or has been any cybersecurity incident in respect of the CII, and shall trigger the applicable incident reporting, response and recovery plans if there is or has been a cybersecurity incident.",
+        "text_len": 289,
+        "is_gold": false
+      },
+      {
+        "rank": 5,
+        "citation_id": "CCoP 2.0::7.2.2(b)",
+        "ce_score": 0.9635706543922424,
+        "text": "(b) Identifies probable cybersecurity incident scenarios and corresponding courses of action;",
+        "text_len": 93,
+        "is_gold": false
+      },
+      {
+        "rank": 6,
+        "citation_id": "CCoP 2.0::7.1.1(g)",
+        "ce_score": 0.8893378376960754,
+        "text": "(g) Processes and procedures to contain a cybersecurity incident, investigate the cause  and  impact  of  the  cybersecurity  incident,  and  to  restore  the  CII's operations;",
+        "text_len": 177,
+        "is_gold": false
+      },
+      {
+        "rank": 7,
+        "citation_id": "CCoP 2.0::7.3.1(a)",
+        "ce_score": 0.8256871104240417,
+        "text": "(a) Cybersecurity Incident Response Plan;",
+        "text_len": 41,
+        "is_gold": false
+      }
+    ]
+  }
+]

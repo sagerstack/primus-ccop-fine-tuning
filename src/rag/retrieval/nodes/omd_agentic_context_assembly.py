@@ -11,6 +11,7 @@ from typing import List
 from infrastructure.config.settings import get_settings
 from rag.graph.ontology_v2 import omd_retrieval
 from rag.retrieval.evaluation.retrieval_evaluator import RetrievalEvaluator
+from rag.retrieval.nodes.omd_agentic_grade import aggregate_correctness_grade
 from rag.retrieval.nodes.omd_pack import cap_primary_candidates, omd_pack
 from rag.retrieval.state.graph_state import GraphState
 
@@ -19,6 +20,10 @@ logger = logging.getLogger(__name__)
 
 def omd_agentic_context_assembly(state: GraphState) -> GraphState:
     """Retrieve, LLM-filter by answer-support, and pack OMD-GraphRAG context."""
+    # CRITICAL: Create retrieval_trace FIRST (before anything that could error)
+    # so downstream nodes (pack_contexts, routing) can safely assume it exists.
+    trace = state.setdefault("retrieval_trace", {})
+    
     settings = get_settings()
     
     # 1. Read question (same as omd_retrieve)
@@ -30,7 +35,6 @@ def omd_agentic_context_assembly(state: GraphState) -> GraphState:
     candidates = out.get("results", [])
     
     # 3. Build retrieval_trace (mirror omd_retrieve structure EXACTLY)
-    trace = state.setdefault("retrieval_trace", {})
     trace["candidates"] = candidates
     trace["definitions"] = out.get("definitions", [])
     trace["ce_confidence"] = out.get("ce_confidence")
@@ -102,6 +106,11 @@ def omd_agentic_context_assembly(state: GraphState) -> GraphState:
     trace["evaluator_scores"] = evaluator_scores
     trace["n_retrieved"] = n_retrieved
     trace["n_survived"] = n_survived
+    # Persist the FULL pre-cap survivor list (passed min_score filter, before
+    # cap_primary_candidates) so the corrective merge can supplement against all
+    # relevant Round-1 clauses, not just the top_k-capped selection. Non-corrective
+    # pack still uses trace["candidates"] (the capped selection) below.
+    trace["round1_survivors"] = survivors
     trace["n_eval_failures"] = n_eval_failures
     trace["filter_min_score"] = min_score
     trace["top_k"] = settings.graphont_agentic_top_k
@@ -113,10 +122,27 @@ def omd_agentic_context_assembly(state: GraphState) -> GraphState:
         "Agentic filtering: retrieved=%d survived=%d (min_score=%d, eval_failures=%d)",
         n_retrieved, n_survived, min_score, n_eval_failures
     )
-    
-    # 8. Update trace with selected survivors and call omd_pack
+
+    # 7b. CRAG Slice 1: aggregate correctness assessment (observational only).
+    # Computed from the full Round-1 retrieval pool (candidates), not the
+    # filtered survivors — Round-1 = the initial retrieval result.
+    agentic_assessment = aggregate_correctness_grade(candidates)
+    trace["agentic_assessment"] = agentic_assessment
+    logger.info(
+        "Agentic assessment: grade=%s action=%s (essential=%d related=%d "
+        "irrelevant=%d failed=%d)",
+        agentic_assessment["grade"],
+        agentic_assessment["action"],
+        agentic_assessment["essential_count"],
+        agentic_assessment["related_count"],
+        agentic_assessment["irrelevant_count"],
+        agentic_assessment["failed_count"],
+    )
+
+    # 8. Update trace with selected survivors (pack happens later in the graph).
+    # For corrective mode: pack is deferred until after corrective pipeline.
+    # For non-corrective mode: graph routes directly to pack node.
     trace["candidates"] = selected
-    omd_pack(state)
     
     return state
 

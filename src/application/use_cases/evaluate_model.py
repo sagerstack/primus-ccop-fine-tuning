@@ -195,7 +195,39 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
             "evaluation_mode": request.evaluation_mode,
             "scope": scope,
             "judge_config": judge_config,
+            "retrieval_config": self._build_retrieval_config(),
             "evaluated_at": start_time.isoformat(),
+        }
+
+    @staticmethod
+    def _build_retrieval_config() -> dict:
+        """Snapshot the *effective* retrieval config for run provenance.
+
+        Captured into run metadata so each result JSON is self-describing —
+        critical for report comparisons where e.g. hybrid vs hybrid+contextual
+        share the same evaluation_mode and differ only by these flags.
+        """
+        from infrastructure.config.settings import get_settings
+        s = get_settings()
+        return {
+            "contextualization_enabled": s.rag_contextualization_enabled,
+            "collection": (
+                s.rag_collection_name_contextual
+                if s.rag_contextualization_enabled
+                else s.qdrant_collection_name
+            ),
+            "corrective_enabled": s.graphont_agentic_corrective_enabled,
+            "corrective_max_retries": s.graphont_agentic_corrective_max_retries,
+            "hyde_rag": s.rag_hyde_enabled,
+            "hyde_graphont_agentic": s.graphont_agentic_hyde_enabled,
+            "hybrid_pool_k": s.rag_retrieval_top_k,
+            "hybrid_top_k": s.rerank_top_n,
+            "graphont_agentic_pool_k": s.graphont_agentic_pool_k,
+            "graphont_agentic_top_k": s.graphont_agentic_top_k,
+            "judge_primary_model": s.judge_primary_model,
+            "judge_seed": s.judge_seed,
+            "judge_temperature": s.judge_temperature,
+            "retrieval_evaluator_model": s.retrieval_evaluator_model,
         }
 
     async def _load_test_cases(
@@ -850,6 +882,9 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         # Add category scores
         metadata["category_scores"] = self._calculate_category_scores(summary.results)
 
+        # Provenance: effective retrieval config (self-describing result JSON)
+        metadata["retrieval_config"] = self._build_retrieval_config()
+
         # Add quality categories
         if summary.quality_categories:
             metadata["quality_categories"] = summary.quality_categories
@@ -874,16 +909,19 @@ class EvaluateModelUseCase(IEvaluateModelUseCase):
         categories = EvaluationCategory.get_all_categories()
         category_scores = {}
 
+        def _bench_key(s: str) -> str:
+            # Canonicalize to the zero-unpadded short form so 'B01', 'B01_ccop...'
+            # and 'B1' all compare equal to the category lists' 'B1'. Fixes the
+            # single-digit zero-pad mismatch (B01-B09) that silently dropped those
+            # benchmarks — and the whole Regulatory Applicability category — from
+            # category scoring. Whole-key set membership also avoids prefix
+            # collisions (B2 vs B21) without the startswith hack.
+            core = str(s).split("_")[0]
+            return ("B" + str(int(core[1:]))) if core[:1] == "B" and core[1:].isdigit() else core
+
         for category in categories:
-            # Find results for benchmarks in this category
-            # Use underscore delimiter to prevent prefix collisions (e.g., B2 matching B21)
-            category_results = [
-                r for r in results
-                if any(
-                    r.benchmark_type.startswith(b + "_") or r.benchmark_type == b
-                    for b in category.benchmarks
-                )
-            ]
+            cat_keys = {_bench_key(b) for b in category.benchmarks}
+            category_results = [r for r in results if _bench_key(r.benchmark_type) in cat_keys]
 
             if category_results:
                 avg_score = sum(r.overall_score for r in category_results if r.overall_score is not None) / len(category_results)

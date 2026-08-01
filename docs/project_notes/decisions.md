@@ -315,6 +315,46 @@ its code/allowlist entries, do so as a deliberate deprecation, not a silent edit
 
 ---
 
+### ADR-010: Contextual Retrieval is opt-in; default hybrid uses the base collection (2026-07-27)
+
+**Context:**
+- `--mode hybrid` routed to the Contextual-Retrieval collection (`ccop_clauses_contextual_v3`) whenever `rag_contextualization_enabled=True` (the old default).
+- That collection is built only by uncommitted lab scripts (`.lab/workspace/contextualize_corpus*.py`) and persisted to gitignored `qdrant_storage/`. In any environment where it wasn't rebuilt, hybrid retrieval 404'd and silently fell back to parametric LLM-only — an invalid, misleading "hybrid" result.
+- The base collection `ccop_clauses_hybrid` (303 pts) is always present.
+
+**Decision:**
+- Flip the global default `rag_contextualization_enabled` from `True` → `False`. Contextual Retrieval is now **opt-in**.
+- Add an `evaluate run --contextual/--no-contextual` flag (mirrors `--hyde`) that overrides per run; default OFF.
+- Default hybrid now retrieves from the base `ccop_clauses_hybrid` collection — no dependency on a collection that can't be rebuilt from the repo.
+
+**Alternatives Considered:**
+- Keep default ON → Rejected: assumes a collection that isn't reproducible from version control; fails opaquely.
+- Default-off only in the eval command, leave global `True` → Rejected: `query ask` and other readers would still fail opaquely; global honesty preferred.
+
+**Consequences:**
+- ✅ Fresh environments get a working `--mode hybrid` with no hidden dependency.
+- ⚠️ Behavior change: the canonical hybrid baseline (`eval-run-hybrid-tests-18-bdc4927d`, 2026-04-30) was produced with contextualization **ON**. Plain `--mode hybrid` is no longer directly comparable to it — use `--contextual` (with the collection rebuilt) to reproduce that config.
+- Productionization debt remains: the contextual-collection build should become a real `ccop-eval ingest` step and the lab scripts committed (tracked separately in `gt-improvements`/project notes).
+
+---
+
+### ADR-011: HyDE is opt-in; default OFF across all retrieval modes (2026-07-28)
+
+**Context:**
+- HyDE was default ON for `hybrid`/`rag-only` (`rag_hyde_enabled=true` in `.env.example`) but default OFF for `graphont` and `graphont-agentic`.
+- That asymmetry confounds cross-mode comparison: a hybrid-vs-graphont delta partly reflects HyDE on-vs-off, not just retrieval architecture.
+
+**Decision:**
+- Flip `rag_hyde_enabled` default `True` → `False` (code + `config/.env.example`). All modes now default HyDE **off**.
+- Opt in per run with `evaluate run --hyde` (sets the rag/graphont/graphont-agentic HyDE env vars together).
+
+**Consequences:**
+- ✅ All four report modes share the same HyDE state by default — cleaner comparison.
+- ⚠️ Diverges from the canonical hybrid baseline (`bdc4927d`, built with HyDE ON) and from the two already-captured hybrid report runs (both `hyde_rag=true`) — re-run those with the new default (or `--hyde`) for a consistent dataset.
+- Provenance (`retrieval_config.hyde_rag` / `hyde_graphont_agentic`) records the actual per-run state either way.
+
+---
+
 ## Tips
 
 - Number decisions sequentially (ADR-001, ADR-002, etc.)

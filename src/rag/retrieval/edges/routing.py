@@ -97,6 +97,50 @@ def route_after_hyde(state: GraphState) -> str:
     raise ValueError(f"hyde_generation is not valid for mode={mode!r}")
 
 
+def route_after_agentic_assembly(state: GraphState) -> str:
+    """Route after omd_agentic_context_assembly: corrective or pack.
+    
+    Checks if CRAG corrective mode is enabled + Round-1 needs correction
+    (action != "none" / "refine") + retry count < max. If yes, enters the
+    corrective pipeline (rewrite -> round2_retrieve -> round2_eval -> merge
+    -> select -> pack). Otherwise routes directly to pack.
+    """
+    settings = get_settings()
+    trace = state.get("retrieval_trace", {})
+    
+    # Check corrective enablement
+    if not settings.graphont_agentic_corrective_enabled:
+        logger.info("Routing: corrective disabled -> pack_contexts")
+        return "pack_contexts"
+    
+    # Check if Round-1 needs correction
+    assessment = trace.get("agentic_assessment", {})
+    action = assessment.get("action", "none")
+    if action in ("none", "refine"):
+        # none = empty pool; refine = correct (no correction needed)
+        logger.info(
+            "Routing: action=%s (no correction needed) -> pack_contexts", action
+        )
+        return "pack_contexts"
+    
+    # Check retry count
+    retry_count = state.get("corrective_retry_count", 0)
+    max_retries = settings.graphont_agentic_corrective_max_retries
+    if retry_count >= max_retries:
+        logger.info(
+            "Routing: retry_count=%d >= max=%d -> pack_contexts (stop corrective)",
+            retry_count, max_retries
+        )
+        return "pack_contexts"
+    
+    # Enter corrective pipeline
+    logger.info(
+        "Routing: corrective enabled, action=%s, retry=%d/%d -> corrective_rewrite",
+        action, retry_count, max_retries
+    )
+    return "corrective_rewrite"
+
+
 def decide_after_grading(state: GraphState) -> str:
     """
     Decide next step after document grading.

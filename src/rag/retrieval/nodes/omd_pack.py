@@ -32,8 +32,8 @@ def cap_primary_candidates(candidates: List[dict], top_k: int) -> List[dict]:
 
 def omd_pack(state: GraphState) -> GraphState:
     """Transform the persisted retrieval trace into primus context documents."""
-    trace = state["retrieval_trace"]
-    candidates = trace["candidates"]
+    trace = state.get("retrieval_trace", {})
+    candidates = trace.get("candidates", [])
     definitions = trace.get("definitions", [])
     docs: List[Document] = []
 

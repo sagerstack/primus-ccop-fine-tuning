@@ -1,0 +1,62 @@
+# Phase 12 Slice A0 - Graphont Baseline Recall Run Status
+# Started: 2026-07-13 19:48
+
+## Completed (11/18):
+- B01-001: 19:48 (resumed, fast)
+- B02-001: ~19:00-19:10
+- B03-001: ~19:10-19:15
+- B04-001: ~19:15-19:18
+- B05-001: 19:49-20:14 (25min)
+- B06-001: ~19:18-19:20
+- B07-006: ~19:20-19:23
+- B08-001: ~19:23-19:28
+- B09-001: ~19:28-19:31
+- B10-001: ~19:31-19:33
+- B12-001: ~19:33-19:46 (13min)
+- B13-001: ~19:46-19:47
+
+## Remaining (6/18):
+- B14-001: pending
+- B18-001: pending
+- B21-001: pending
+- B22-001: pending
+- B23-001: pending
+- B24-001: pending
+=== Starting B14-001 at 2026-07-13 20:14:33 ===
+=== B14-001 completed at 2026-07-13 20:24:33 ===
+-rw-r--r--@ 1 sagarpratapsingh  staff    16K Jul 13 20:15 results/evaluations/2026-07/eval-run-graphont-test-B14-001-20260713-1214-primus-reasoning.json
+-rw-r--r--@ 1 sagarpratapsingh  staff    12K Jul 13 20:15 results/evaluations/2026-07/eval-run-graphont-test-B14-001-20260713-1214-primus-reasoning.partial.jsonl
+
+=== Starting B18-001 at 2026-07-13 20:24:33 ===
+=== B18-001 completed at 2026-07-13 20:34:33 ===
+-rw-r--r--@ 1 sagarpratapsingh  staff    20K Jul 13 20:29 results/evaluations/2026-07/eval-run-graphont-test-B18-001-20260713-1224-primus-reasoning.json
+-rw-r--r--@ 1 sagarpratapsingh  staff    15K Jul 13 20:29 results/evaluations/2026-07/eval-run-graphont-test-B18-001-20260713-1224-primus-reasoning.partial.jsonl
+
+=== Starting B21-001 at 2026-07-13 20:34:33 ===
+=== B21-001 completed at 2026-07-13 21:05:18 ===
+-rw-r--r--@ 1 sagarpratapsingh  staff    16K Jul 13 20:37 results/evaluations/2026-07/eval-run-graphont-test-B21-001-20260713-1234-primus-reasoning.json
+-rw-r--r--@ 1 sagarpratapsingh  staff    11K Jul 13 20:37 results/evaluations/2026-07/eval-run-graphont-test-B21-001-20260713-1234-primus-reasoning.partial.jsonl
+
+=== Starting B22-001 at 2026-07-13 21:05:18 ===
+=== B22-001 completed at 2026-07-13 21:20:16 ===
+-rw-r--r--@ 1 sagarpratapsingh  staff    13K Jul 13 21:06 results/evaluations/2026-07/eval-run-graphont-test-B22-001-20260713-1305-primus-reasoning.json
+-rw-r--r--@ 1 sagarpratapsingh  staff   8.3K Jul 13 21:06 results/evaluations/2026-07/eval-run-graphont-test-B22-001-20260713-1305-primus-reasoning.partial.jsonl
+
+=== Starting B23-001 at 2026-07-13 21:20:16 ===
+=== Starting B01-001 at 2026-07-13 22:33:13 ===
+
+## EXTRACTION COMPLETE - 2026-07-14
+- Extractor: extract-baseline-recall.py
+- Results: baseline-recall-results.json
+- Report: 12-baseline-recall.md
+- Mean recall@pool: 0.156
+- Clause-hit@k rate: 0.188
+- Cases with hits: 3/16 (B02, B04, B10)
+- B01-001: sidecar_missing (flagged)
+
+## EXTRACTOR FIX APPLIED - 2026-07-14
+- Dropped paren-stripping (preserves lettered sub-clauses)
+- Dropped asymmetric guard (normalize all GT clauses uniformly)
+- B09-001: 0.00 → 1.00
+- Aggregate: 4/17 hits, 0.206 mean recall, 23.5% hit rate
+- Report + raw data regenerated

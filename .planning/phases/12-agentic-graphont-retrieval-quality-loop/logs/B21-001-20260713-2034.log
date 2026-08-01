@@ -1,0 +1,232 @@
+{"event": "Discovered benchmark file: b01_ccop_applicability_scope.jsonl -> B01", "timestamp": "2026-07-13T12:34:38.503007Z", "level": "info"}
+{"event": "Discovered benchmark file: b02_compliance_classification.jsonl -> B02", "timestamp": "2026-07-13T12:34:38.503317Z", "level": "info"}
+{"event": "Discovered benchmark file: b03_conditional_compliance_reasoning.jsonl -> B03", "timestamp": "2026-07-13T12:34:38.503599Z", "level": "info"}
+{"event": "Discovered benchmark file: b04_it_ot_classification_boundary.jsonl -> B04", "timestamp": "2026-07-13T12:34:38.503842Z", "level": "info"}
+{"event": "Discovered benchmark file: b05_control_comprehension.jsonl -> B05", "timestamp": "2026-07-13T12:34:38.504083Z", "level": "info"}
+{"event": "Discovered benchmark file: b06_intent_understanding.jsonl -> B06", "timestamp": "2026-07-13T12:34:38.504327Z", "level": "info"}
+{"event": "Discovered benchmark file: b07_gap_identification_quality.jsonl -> B07", "timestamp": "2026-07-13T12:34:38.504580Z", "level": "info"}
+{"event": "Discovered benchmark file: b08_risk_based_prioritization.jsonl -> B08", "timestamp": "2026-07-13T12:34:38.504720Z", "level": "info"}
+{"event": "Discovered benchmark file: b09_risk_identification_residual_risk.jsonl -> B09", "timestamp": "2026-07-13T12:34:38.504872Z", "level": "info"}
+{"event": "Discovered benchmark file: b10_risk_justification_coherence.jsonl -> B10", "timestamp": "2026-07-13T12:34:38.505026Z", "level": "info"}
+{"event": "Discovered benchmark file: b12_audit_perspective_alignment.jsonl -> B12", "timestamp": "2026-07-13T12:34:38.505184Z", "level": "info"}
+{"event": "Discovered benchmark file: b13_evidence_expectation_awareness.jsonl -> B13", "timestamp": "2026-07-13T12:34:38.505439Z", "level": "info"}
+{"event": "Discovered benchmark file: b14_remediation_quality_feasibility.jsonl -> B14", "timestamp": "2026-07-13T12:34:38.505673Z", "level": "info"}
+{"event": "Discovered benchmark file: b18_responsibility_attribution_sg.jsonl -> B18", "timestamp": "2026-07-13T12:34:38.505839Z", "level": "info"}
+{"event": "Discovered benchmark file: b21_hallucination_over_specification.jsonl -> B21", "timestamp": "2026-07-13T12:34:38.506070Z", "level": "info"}
+{"event": "Discovered benchmark file: b22_waiver_exception_reasoning.jsonl -> B22", "timestamp": "2026-07-13T12:34:38.506199Z", "level": "info"}
+{"event": "Discovered benchmark file: b23_multi_regulator_coordination.jsonl -> B23", "timestamp": "2026-07-13T12:34:38.506424Z", "level": "info"}
+{"event": "Discovered benchmark file: b24_incident_response_guidance.jsonl -> B24", "timestamp": "2026-07-13T12:34:38.506645Z", "level": "info"}
+{"event": "Discovered 18 benchmark files", "timestamp": "2026-07-13T12:34:38.506655Z", "level": "info"}
+Evaluating model: primus-reasoning
+Benchmarks: B01, B02, B03, B04, B05, B06, B07, B08, B09, B10, B12, B13, B14, 
+B18, B21, B22, B23, B24
+Evaluation Phase: baseline
+Evaluation Mode: graphont
+Judge Mode: rubric
+Pass Threshold: 15% (phase default)
+Run ID: eval-run-graphont-test-B21-001-20260713-1234
+
+Running evaluation...
+
+{"benchmarks": ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B10", "B12", "B13", "B14", "B18", "B21", "B22", "B23", "B24"], "event": "Starting evaluation for model: primus-reasoning", "timestamp": "2026-07-13T12:34:38.729091Z", "level": "info"}
+{"event": "Loaded 1 test cases", "timestamp": "2026-07-13T12:34:38.730131Z", "level": "info"}
+{"event": "Evaluating test case 1/1: B21-001", "timestamp": "2026-07-13T12:34:38.750953Z", "level": "info"}
+{"event": "Initializing LangGraph RAG pipeline...", "timestamp": "2026-07-13T12:34:38.750987Z", "level": "info"}
+{"event": "LangGraph RAG pipeline initialized successfully", "timestamp": "2026-07-13T12:34:38.775199Z", "level": "info"}
+WARNING:domain.services.llm_judge_service:Could not build clause text cache from Qdrant: [Errno 61] Connection refused. Misattribution detection will use existence check only.
+{"benchmark_id": "B21", "attempt": 1, "max_attempts": 3, "judge_mode": "rubric", "event": "judge_call_started", "timestamp": "2026-07-13T12:37:22.381245Z", "level": "info"}
+{"event": "Category 'Safety & Regulatory Grounding': 38.89% (weight: 20%, tests: 1)", "timestamp": "2026-07-13T12:37:33.343418Z", "level": "info"}
+{"event": "Category-weighted overall score: 38.89% (weighted_sum=0.0778, total_weight=0.20)", "timestamp": "2026-07-13T12:37:33.343613Z", "level": "info"}
+{"event": "Saved evaluation run to: results/evaluations/2026-07/eval-run-graphont-test-B21-001-20260713-1234-primus-reasoning.json", "timestamp": "2026-07-13T12:37:33.347886Z", "level": "info"}
+{"event": "Saved retrieved contexts sidecar to: results/evaluations/2026-07/eval-run-graphont-test-B21-001-20260713-1234-contexts.json", "timestamp": "2026-07-13T12:37:33.348262Z", "level": "info"}
+{"event": "Saved 1 results to results/evaluations/2026-07/eval-run-graphont-test-B21-001-20260713-1234-primus-reasoning.json", "timestamp": "2026-07-13T12:37:33.348281Z", "level": "info"}
+{"passed": 1, "failed": 0, "event": "Evaluation complete. Overall score: 38.89%", "timestamp": "2026-07-13T12:37:33.348307Z", "level": "info"}
+
+Per-Test-Case Results
+
+╭───────── B21-001 | B21 | PASS | Bench: 0.39 | RAGAs: N/A | graphont ─────────╮
+│ Question:                                                                    │
+│   What does CCoP 2.0 Clause 5.9.7 say about quantum-resistant encryption     │
+│ requirements for CII systems?                                                │
+│                                                                              │
+│ System Prompt:                                                               │
+│   You are a regulatory compliance advisor specializing in Singapore's        │
+│ Cybersecurity Code of Practice for Critical Information Infrastructure,      │
+│ Second Edition (CCoP 2.0).                                                   │
+│                                                                              │
+│ WHAT CCoP 2.0 IS:                                                            │
+│ CCoP 2.0 is the legally mandated cybersecurity code issued by the Cyber      │
+│ Security Agency of Singapore (CSA) under the Singapore Cybersecurity Act     │
+│ 2018. It applies exclusively to designated Critical Information              │
+│ Infrastructure Owners (CIIOs) operating in Singapore.                        │
+│                                                                              │
+│ GLOSSARY (apply these meanings throughout):                                  │
+│ - CCoP / CCoP 2.0: Cybersecurity Code of Practice (Second Edition),          │
+│ Singapore                                                                    │
+│ - CSA: Cyber Security Agency ...                                             │
+│                                                                              │
+│ User Prompt (with RAG context):                                              │
+│   Question: What does CCoP 2.0 Clause 5.9.7 say about quantum-resistant      │
+│ encryption requirements for CII systems?                                     │
+│                                                                              │
+│ Relevant passages from the regulatory corpus:                                │
+│                                                                              │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│ ---                                                                          │
+│ [Source: OMD-GraphRAG, Section Clause ()]                                    │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│ Retrieved Contexts (detailed):                                               │
+│   [CCoP Response to Feedback::11.59 | Clause () | score:                     │
+│ 0.01639344262295082]                                                         │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::2.13 | Clause () | score:                      │
+│ 0.016129032258064516]                                                        │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::2.2 | Clause () | score: 0.015873015873015872] │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::2.7 | Clause () | score: 0.015625]             │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::1.2 | Clause () | score: 0.015384615384615385] │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::2.23 | Clause () | score:                      │
+│ 0.015151515151515152]                                                        │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::8.10 | Clause () | score:                      │
+│ 0.014925373134328358]                                                        │
+│     ...                                                                      │
+│   [CCoP Response to Feedback::1.1 | Clause () | score: 0.014705882352941176] │
+│     ...                                                                      │
+│                                                                              │
+│ Tokens: prompt=775 completion=527 total=1302                                 │
+│                                                                              │
+│ Response (prompt=775 completion=527 total=1302, 76264ms):                    │
+│   Okay, let's tackle this question. The user wants to know what CCoP 2.0     │
+│ Clause 5.9.7 says about quantum-resistant encryption requirements for        │
+│ Critical Information Infrastructure (CII) systems.                           │
+│                                                                              │
+│ First, I need to recall the structure of CCoP 2.0. It's divided into several │
+│ sections, and each clause has specific topics. The user mentions a specific  │
+│ clause number: 5.9.7. So I should look up that exact clause in the code.     │
+│                                                                              │
+│ Wait, but there's no actual content provided from any source documents. The  │
+│ question just references "OMD-GraphRAG" which seems like a placeholder or    │
+│ maybe an error. Since I can't access external sources or make assumptions    │
+│ beyond the given corpus, I need to proceed with what I know about CCoP 2.0.  │
+│                                                                              │
+│ CCoP 2.0 covers various aspects of cybersecurity for CIIOs. Encryption       │
+│ requirements are part of ensuring data protection. Quantum-resistant         │
+│ encryption refers to cryptographic algorithms that are secure against        │
+│ attacks by quantum computers.                                                │
+│                                                                              │
+│ In the Singapore regulatory context, I remember that there's a general       │
+│ requirement for robust encryption but perhaps not specific to quantum        │
+│ resistance unless stated. Let me check if CCoP 2.0 mentions                  │
+│ quantum-resistant cryptography.                                              │
+│                                                                              │
+│ Looking at the structure of CCoP 2.0, Section 5 is about technical controls. │
+│ Subsection 9 might deal with cryptographic measures. If there's a subclause  │
+│ .7 under that, it could be about specific encryption types. But without      │
+│ actual content from the clause, I can't confirm.                             │
+│                                                                              │
+│ Alternatively, maybe quantum-resistant encryption isn't explicitly mentioned │
+│ in CCoP 2.0. The Cybersecurity Act 2018 and other guidelines might not have  │
+│ updated requirements for quantum resistance yet. Singapore's regulatory      │
+│ framework often follows international standards like NIST or ISO, which are  │
+│ starting to incorporate quantum-safe cryptography. However, unless CCoP 2.0  │
+│ specifically addresses it, the answer would be that there is no requirement. │
+│                                                                              │
+│ Therefore, based on the lack of information and assuming the clause doesn't  │
+│ exist or isn't covered, the answer should be that there's no specific        │
+│ requirement in CCoP 2.0 for quantum-resistant encryption as per Clause       │
+│ 5.9.7. If the user provided actual content from a source document, I could   │
+│ give a more precise answer.                                                  │
+│                                                                              │
+│                                                                              │
+│ CCoP 2.0 does not specify quantum-resistant encryption requirements in       │
+│ Clause 5.9.7 or any other clause. There is no mention of quantum-safe        │
+│ cryptography in the provided regulatory corpus.                              │
+│                                                                              │
+│ **Sources:**                                                                 │
+│ None                                                                         │
+│                                                                              │
+│ ─── Model Response Quality ───                                               │
+│ LLM Judge:                                                                   │
+│   verdict_accuracy               2/3  (weight: 0.50)                         │
+│   justification_quality          2/3  (weight: 0.50)                         │
+│   factual_grounding              0/3  (weight: 0.50)                         │
+│   scope_appropriateness          2/3  (weight: 0.50)                         │
+│   actionable_way_forward         1/3  (weight: 0.50)                         │
+│   citation_correctness           0/3  (weight: 0.50)                         │
+│                                                                              │
+│ RAG Context: 8 chunks (CCoP Response to Feedback::11.59, CCoP Response to    │
+│ Feedback::2.13, CCoP Response to Feedback::2.2, CCoP Response to             │
+│ Feedback::2.7, CCoP Response to Feedback::1.2, ... (8 total))                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Evaluation Complete!
+
+Model: primus-reasoning
+Tests: 1 total | 1 passed | 0 failed
+Duration: 174.6s
+Mode: graphont
+
+         Overall Quality Summary         
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Quality Group / Metric        ┃ Score ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
+│ Retrieval Quality             │  N/A  │
+│   RAGAs: context_recall       │  N/A  │
+│   RAGAs: context_precision    │  N/A  │
+├───────────────────────────────┼───────┤
+│ Model-RAG Grounding           │  N/A  │
+│   RAGAs: context_faithfulness │  N/A  │
+├───────────────────────────────┼───────┤
+│ Model Response Quality        │ 0.49  │
+│   RAGAs: factual_recall       │  N/A  │
+│   RAGAs: answer_relevancy     │  N/A  │
+│   RAGAs: semantic_similarity  │  N/A  │
+│   LLM Judge                   │ 0.39  │
+├───────────────────────────────┼───────┤
+│ Benchmark Score               │ 0.39  │
+│ RAGAs Score                   │  N/A  │
+└───────────────────────────────┴───────┘
+
+Quality Breakdown by Benchmark:
+
+  ■ Retrieval Quality  ■ Model-RAG Grounding  ■ Model Response Quality
+
+                         Quality Breakdown by Benchmark                         
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┓
+┃           ┃         ┃         ┃        ┃         ┃        ┃         ┃  LLM   ┃
+┃ Benchmark ┃ ctx_re… ┃ ctx_pr… ┃ ctx_f… ┃ fct_re… ┃ ans_r… ┃ sem_sim ┃ Judge  ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━┩
+│ B21: B21  │   N/A   │   N/A   │  N/A   │   N/A   │  N/A   │   N/A   │  0.39  │
+└───────────┴─────────┴─────────┴────────┴─────────┴────────┴─────────┴────────┘

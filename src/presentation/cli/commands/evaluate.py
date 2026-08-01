@@ -108,6 +108,21 @@ def run(
         max=20,
         help="Override maximum primary ranked contexts passed downstream for this run (1-20).",
     ),
+    contextual: Optional[bool] = typer.Option(
+        None,
+        "--contextual/--no-contextual",
+        help="Enable/disable Contextual Retrieval (route to the contextualized collection) for this run (overrides env). Default is OFF (base collection) per ADR-010; --contextual requires the contextual collection to be built first.",
+    ),
+    corrective: Optional[bool] = typer.Option(
+        None,
+        "--corrective/--no-corrective",
+        help="Enable/disable CRAG corrective retrieval (Round-2 rewrite+re-retrieve on weak Round-1) for graphont-agentic this run (overrides env). Default OFF. Only affects --mode graphont-agentic.",
+    ),
+    out_dir: Optional[str] = typer.Option(
+        None,
+        "--out-dir",
+        help="Results output directory for this run only (overrides CCOP_RESULTS_DIR). Use for a dedicated comparison/report folder, e.g. results/evaluations/report-comparison-20260727. Does not persist.",
+    ),
 ) -> None:
     """Run model evaluation."""
     if poolk is not None and topk is not None and topk > poolk:
@@ -119,6 +134,29 @@ def run(
         os.environ["CCOP_RAG_HYDE_ENABLED"] = _val
         os.environ["CCOP_GRAPHONT_HYDE_ENABLED"] = _val
         os.environ["CCOP_GRAPHONT_AGENTIC_HYDE_ENABLED"] = _val
+        import infrastructure.config.settings as _sett
+        _sett._settings = None  # force re-read of overridden env
+
+    if contextual is not None:
+        # Contextual Retrieval is opt-in (ADR-010): default OFF routes to the base
+        # collection; --contextual re-enables the contextualized collection.
+        os.environ["CCOP_RAG_CONTEXTUALIZATION_ENABLED"] = "true" if contextual else "false"
+        import infrastructure.config.settings as _sett
+        _sett._settings = None  # force re-read of overridden env
+
+    if corrective is not None:
+        # CRAG corrective retrieval is opt-in (default OFF until calibrated).
+        os.environ["CCOP_GRAPHONT_AGENTIC_CORRECTIVE_ENABLED"] = "true" if corrective else "false"
+        # Ensure the loop can actually fire when enabled: max_retries must be >= 1
+        # (0 = corrective off even if enabled). Respect an explicit env override.
+        if corrective and "CCOP_GRAPHONT_AGENTIC_CORRECTIVE_MAX_RETRIES" not in os.environ:
+            os.environ["CCOP_GRAPHONT_AGENTIC_CORRECTIVE_MAX_RETRIES"] = "1"
+        import infrastructure.config.settings as _sett
+        _sett._settings = None  # force re-read of overridden env
+
+    if out_dir is not None:
+        # Per-run results directory override (does not persist beyond this invocation).
+        os.environ["CCOP_RESULTS_DIR"] = out_dir
         import infrastructure.config.settings as _sett
         _sett._settings = None  # force re-read of overridden env
 
@@ -221,6 +259,18 @@ def run(
         test_ids=test_ids,
         total_benchmarks_available=total_benchmarks_available,
     )
+    # Append a config tag from the *effective* differentiating flags so report
+    # runs self-identify in the filename (e.g. hybrid vs hybrid+contextual, or
+    # graphont-agentic with/without corrective). Read post-override settings.
+    from infrastructure.config.settings import get_settings as _gs
+    _eff = _gs()
+    _cfg_bits = []
+    if mode in ("hybrid", "rag-only") and _eff.rag_contextualization_enabled:
+        _cfg_bits.append("ctx")
+    if mode == "graphont-agentic" and _eff.graphont_agentic_corrective_enabled:
+        _cfg_bits.append("corr")
+    if _cfg_bits:
+        scope = f"{scope}-{'-'.join(_cfg_bits)}"
     run_id = RunId(mode=mode, scope=scope, timestamp=datetime.utcnow())
     console.print(f"[bold]Run ID:[/bold] {run_id.value}")
 

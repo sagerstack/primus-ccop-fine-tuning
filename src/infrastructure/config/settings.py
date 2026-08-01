@@ -148,6 +148,20 @@ class Settings(BaseSettings):
         default=True,
         description="Cache HyDE generations for deterministic comparisons. Env: CCOP_HYDE_CACHE_ENABLED",
     )
+    graphont_agentic_corrective_enabled: bool = Field(
+        default=False,
+        description="Enable CRAG-style corrective retrieval (Round-2 rewrite+retrieve when Round-1 is Incorrect/Ambiguous) in graphont-agentic mode. Default False = corrective OFF until calibrated. Env: CCOP_GRAPHONT_AGENTIC_CORRECTIVE_ENABLED",
+    )
+    graphont_agentic_corrective_rewrite_model: str = Field(
+        default="openai/gpt-4o-mini-2024-07-18",
+        description="OpenRouter model id for corrective query rewrite (canonical vocabulary, neutral). Env: CCOP_GRAPHONT_AGENTIC_CORRECTIVE_REWRITE_MODEL",
+    )
+    graphont_agentic_corrective_max_retries: int = Field(
+        default=1,
+        ge=0,
+        le=2,
+        description="Maximum corrective retrieval attempts in graphont-agentic mode (0 = corrective OFF even if enabled; 1 = one Round-2 attempt; 2 = two attempts max). Env: CCOP_GRAPHONT_AGENTIC_CORRECTIVE_MAX_RETRIES",
+    )
     query_concepts_cache_enabled: bool = Field(
         default=True,
         description="Cache query_to_concepts LLM extraction (keyed by model|build_id|question) for deterministic/reproducible retrieval pools. Env: CCOP_QUERY_CONCEPTS_CACHE_ENABLED",
@@ -378,16 +392,16 @@ class Settings(BaseSettings):
         description="Retrieval mode: 'dense' (pure cosine), 'hybrid' (RRF dense+sparse), or 'sparse'"
     )
     rag_contextualization_enabled: bool = Field(
-        default=True,
-        description="Whether to augment chunks with breadcrumb + LLM-generated context at indexing time (Exp #14, #41)"
+        default=False,
+        description="Whether to route retrieval to the Contextual-Retrieval collection (breadcrumb + LLM-generated context per chunk, Exp #14/#41). Default False = opt-in: the contextual collection must be built first (.lab/workspace/contextualize_corpus*.py) or retrieval 404s. See ADR-010. Env: CCOP_RAG_CONTEXTUALIZATION_ENABLED; CLI: --contextual"
     )
     rag_contextualization_model: str = Field(
         default="openai/gpt-4o-mini",
         description="OpenRouter model for context generation (acronyms-only prompt per Exp #41)"
     )
     rag_hyde_enabled: bool = Field(
-        default=True,
-        description="Whether to apply HyDE query rewriting before retrieval (Exp #17)"
+        default=False,
+        description="Whether to apply HyDE query rewriting before retrieval in hybrid/rag-only (Exp #17). Default OFF (ADR-011): opt in per run with `--hyde`. Held off so all modes share the same HyDE state by default (graphont/graphont-agentic default off too). Env: CCOP_RAG_HYDE_ENABLED"
     )
     rag_hyde_model: str = Field(
         default="openai/gpt-4o-mini",
